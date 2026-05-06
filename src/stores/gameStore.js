@@ -125,8 +125,10 @@ export const useGameStore = defineStore('game', {
       this.currentDay++;
       this.stepsLeft = MAX_STEPS;
       this.progress = {};
+      this.pendingAbility = null;
       this.matchGroupsThisDay = 0;
       this.introShown = false;
+      this.hintMove = null;
       this._refreshAbilityUses();
       if (this.currentDay >= DAYS.length) {
         this.phase = 'final';
@@ -304,6 +306,31 @@ export const useGameStore = defineStore('game', {
       this.giftText = (finalText && finalText.trim()) || ENDING.defaultGift;
       this.giftAttemptedText = attempted;
       this.giftWasOverridden = Boolean(overridden);
+    },
+
+    skipDayForTesting() {
+      if (
+        this.phase === 'title' ||
+        this.phase === 'final' ||
+        this.phase === 'ending' ||
+        this.phase === 'repairing'
+      ) {
+        return null;
+      }
+
+      const day = DAYS[this.currentDay];
+      if (!day) return null;
+
+      this.pendingAbility = null;
+      this.hintMove = null;
+      this.matchGroupsThisDay = 0;
+      this.progress = { ...day.needs };
+      this.phase = 'repairing';
+      return {
+        kind: 'repairing',
+        day: this.currentDay + 1,
+        building: day.building.cn
+      };
     },
 
     /* ---------- internals ---------- */
