@@ -37,7 +37,10 @@
           </p>
         </div>
 
-        <p v-if="allLinesShown" class="signature">{{ game.giftText }}</p>
+        <div v-if="allLinesShown" class="signature-block">
+          <p v-if="showAttemptedGift" class="attempted-signature">{{ game.giftAttemptedText }}</p>
+          <p class="signature">{{ game.giftText }}</p>
+        </div>
 
         <button v-if="allLinesShown" class="restart" @click="onRestart">
           再开一座葡萄园
@@ -62,6 +65,11 @@ const timers = [];
 
 const revealedLines = computed(() => ENDING.lines.slice(0, linesRevealed.value));
 const allLinesShown = computed(() => linesRevealed.value >= ENDING.lines.length);
+const showAttemptedGift = computed(() => (
+  game.giftWasOverridden &&
+  game.giftAttemptedText &&
+  game.giftAttemptedText !== game.giftText
+));
 
 const emit = defineEmits(['restart']);
 
@@ -231,8 +239,31 @@ function onRestart() {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+.signature-block {
+  margin-top: 18px;
+}
+.attempted-signature {
+  position: relative;
+  display: inline-block;
+  margin: 0 0 8px;
+  padding: 0 10px;
+  font-size: 14px;
+  color: rgba(74, 53, 36, 0.56);
+  font-style: italic;
+  transform: rotate(-2deg);
+  animation: line-in 900ms ease;
+}
+.attempted-signature::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(208, 168, 87, 0.95) 12%, rgba(208, 168, 87, 0.95) 88%, transparent 100%);
+}
 .signature {
-  margin: 18px 0 6px;
+  margin: 0 0 6px;
   font-size: 18px;
   color: var(--ink);
   letter-spacing: 0.2em;

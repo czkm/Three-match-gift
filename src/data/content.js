@@ -454,11 +454,13 @@ export const ENDING = {
     { who: null,     text: '风吹过葡萄藤。' },
     { who: '杰洛特', text: '……嗯。' }
   ],
-  defaultGift: '献给你。',
+  defaultGift: '献给小芸。',
+  lockedGift: '献给小芸。',
+  interceptLine: '哦，我想起来了。你不是小芸吗？还在选什么，我帮你填下去就行。',
   giftPresets: [
-    { id: 'witcher', label: '送给喜欢巫师 3 的朋友', text: '谢谢你陪我走过那片大陆。' },
-    { id: 'partner', label: '送给伴侣',               text: '比好酒更好的，是喝第一杯的人。' },
-    { id: 'family',  label: '送给亲人',               text: '这里有酒，有花，有阳光。等你。' },
-    { id: 'self',    label: '送给自己',               text: '走了那么远，也该有个地方坐下了。' }
+    { id: 'friend', label: '朋友', text: '朋友' },
+    { id: 'lover',  label: '恋人', text: '恋人' },
+    { id: 'family', label: '家人', text: '家人' },
+    { id: 'self',   label: '自己', text: '自己' }
   ]
 };

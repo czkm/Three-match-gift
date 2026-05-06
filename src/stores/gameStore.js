@@ -44,7 +44,9 @@ export const useGameStore = defineStore('game', {
     hintMove: null,                 // { a: {row,col}, b: {row,col} }
 
     // Ending personalisation
-    giftText: ENDING.defaultGift
+    giftText: ENDING.defaultGift,
+    giftAttemptedText: '',
+    giftWasOverridden: false
   }),
 
   getters: {
@@ -110,6 +112,9 @@ export const useGameStore = defineStore('game', {
       this.dayEndLine = '';
       this.latestRestoredBuildingId = null;
       this.pendingEstateRevealId = null;
+      this.giftText = ENDING.defaultGift;
+      this.giftAttemptedText = '';
+      this.giftWasOverridden = false;
       this.phase = 'intro';
     },
 
@@ -294,8 +299,11 @@ export const useGameStore = defineStore('game', {
 
     /* ---------- gift text ---------- */
 
-    setGiftText(t) {
-      this.giftText = (t && t.trim()) || ENDING.defaultGift;
+    setGiftDedication({ finalText, attemptedText, overridden } = {}) {
+      const attempted = (attemptedText && attemptedText.trim()) || '';
+      this.giftText = (finalText && finalText.trim()) || ENDING.defaultGift;
+      this.giftAttemptedText = attempted;
+      this.giftWasOverridden = Boolean(overridden);
     },
 
     /* ---------- internals ---------- */
