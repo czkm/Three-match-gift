@@ -1,0 +1,67 @@
+/**
+ * Color tokens — Corvo Bianco palette.
+ * 9-day color progression follows the requirement doc §10.2:
+ *   D1-2  morning   pale gold + low-saturation green
+ *   D3-4  midday    warm yellow + wood/stone
+ *   D5-6  afternoon garden green + lilac purple
+ *   D7-8  evening   sunset orange + deep purple
+ *   D9    sunset    sunset red + grape purple + warm interior
+ */
+
+:root {
+  /* Base parchment & ink */
+  --paper:        #f3e7c8;
+  --paper-2:      #e8d6ad;
+  --ink:          #3a2a1f;
+  --ink-soft:     #6b4f3a;
+  --gold:         #b8862e;
+  --gold-soft:    #d4a857;
+
+  /* Resource hues (used by tile gradients) */
+  --grape-1:      #6b2d5c;
+  --grape-2:      #9c4d8a;
+  --grape-3:      #d2a3c4;
+  --wood-1:       #5b3416;
+  --wood-2:       #8b5a2b;
+  --wood-3:       #c89968;
+  --stone-1:      #7a7a78;
+  --stone-2:      #b8b5a8;
+  --stone-3:      #e6e1d2;
+  --clay-1:       #6c2516;
+  --clay-2:       #b5523a;
+  --clay-3:       #e09679;
+  --herb-1:       #2a4a2c;
+  --herb-2:       #4a7c4e;
+  --herb-3:       #93c089;
+  --magic-1:      #4a2370;
+  --magic-2:      #8a4ec1;
+  --magic-3:      #f0d56b;
+
+  /* Sunset / lilac accents */
+  --lilac:        #b094c9;
+  --lilac-soft:   #d8c8e6;
+  --sunset:       #d6843a;
+  --twilight:     #2a1f4a;
+
+  /* HUD */
+  --hud-bg:       rgba(243, 231, 200, 0.92);
+  --hud-border:   #b8862e;
+  --hud-shadow:   0 4px 16px rgba(58, 42, 31, 0.35);
+
+  /* Animation timings */
+  --t-tile:       200ms;
+  --t-tile-easing: ease-out;
+  --t-swap:       240ms;
+  --t-fall:       260ms;
+  --t-bg:         1400ms;
+  --t-board-tilt: 600ms;
+  --board-pad:    4px;
+}
+
+/* Day-tinted backgrounds applied to <body data-day="N"> */
+body[data-day='1'], body[data-day='2'] { --bg-grad-1: #f3e9cc; --bg-grad-2: #c5b78b; }
+body[data-day='3'], body[data-day='4'] { --bg-grad-1: #efd9a4; --bg-grad-2: #b8843e; }
+body[data-day='5'], body[data-day='6'] { --bg-grad-1: #d5e2c8; --bg-grad-2: #a08bb5; }
+body[data-day='7'], body[data-day='8'] { --bg-grad-1: #e0a574; --bg-grad-2: #4f3667; }
+body[data-day='9']                     { --bg-grad-1: #d6843a; --bg-grad-2: #2a1f4a; }
+body[data-phase='ending']              { --bg-grad-1: #d6843a; --bg-grad-2: #1a0f33; }

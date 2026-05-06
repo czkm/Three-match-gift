@@ -1,0 +1,464 @@
+/**
+ * Static content tables — Corvo Bianco.
+ *
+ * Resources, days, abilities, narrative quotes — everything that the
+ * spec §5–§14 requires. Kept as plain data so it can be diffed without
+ * touching engine logic.
+ */
+
+/* -------- Resources -------- */
+export const RESOURCES = [
+  { id: 'grape', char: 'g', label: '葡萄', emoji: '🍇', cn: '葡萄' },
+  { id: 'wood',  char: 'w', label: '木材', emoji: '🪵', cn: '木材' },
+  { id: 'stone', char: 's', label: '石材', emoji: '🪨', cn: '石材' },
+  { id: 'clay',  char: 'c', label: '陶土', emoji: '🧱', cn: '陶土' },
+  { id: 'herb',  char: 'h', label: '草药', emoji: '🌿', cn: '草药' },
+  { id: 'magic', char: 'm', label: '魔力', emoji: '✨', cn: '魔力' }
+];
+
+export const RESOURCE_BY_CHAR = Object.fromEntries(RESOURCES.map((r) => [r.char, r]));
+export const RESOURCE_BY_ID   = Object.fromEntries(RESOURCES.map((r) => [r.id, r]));
+export const RESOURCE_CHARS   = RESOURCES.map((r) => r.char);
+
+/**
+ * Resources unlock progressively as new buildings introduce them.
+ * The board only spawns tiles whose char appears in the union of every
+ * day's `needs` map up to and including `dayIndex` (0-based).
+ *
+ *   D0-1  →  g, w, s              (courtyard / vineyard)
+ *   D2    →  +c                   (cellar)
+ *   D4    →  +h                   (garden)
+ *   D5    →  +m                   (greenhouse)
+ *
+ * Returns an array of chars in declaration order so the colour palette
+ * stays consistent.
+ */
+export function unlockedCharsForDay(dayIndex) {
+  const idMap = { grape: 'g', wood: 'w', stone: 's', clay: 'c', herb: 'h', magic: 'm' };
+  const seen = new Set();
+  const upTo = Math.max(0, Math.min(DAYS.length - 1, dayIndex));
+  for (let i = 0; i <= upTo; i++) {
+    for (const id of Object.keys(DAYS[i].needs)) seen.add(idMap[id]);
+  }
+  return RESOURCE_CHARS.filter((ch) => seen.has(ch));
+}
+
+/* -------- Abilities -------- */
+export const ABILITIES = {
+  whiteWolfTidy: {
+    id: 'whiteWolfTidy',
+    name: '白狼整顿',
+    desc: '重置整个棋盘，不消耗步数。',
+    quote: '先把碍事的东西清掉。',
+    type: 'active',
+    usesPerDay: 1,
+    icon: '🐺'
+  },
+  toussentHarvest: {
+    id: 'toussentHarvest',
+    name: '陶森特丰收',
+    desc: '选一个葡萄方块，将其周围 3×3 全部变成葡萄。',
+    quote: '这里的阳光确实有点过分。',
+    type: 'active',
+    usesPerDay: 1,
+    icon: '🍇',
+    needsTarget: 'grape'
+  },
+  agedBarrel: {
+    id: 'agedBarrel',
+    name: '旧桶陈香',
+    desc: '每累计消除 5 组方块，额外 +1 步。',
+    quote: '急不得。酒桶知道什么时候该开。',
+    type: 'passive',
+    icon: '🛢️'
+  },
+  roachPath: {
+    id: 'roachPath',
+    name: '萝卜识途',
+    desc: '不限相邻交换两个方块，不扣步数。',
+    quote: '别问它怎么过去的。它就是能过去。',
+    type: 'active',
+    usesPerDay: 2,
+    icon: '🐎',
+    needsTarget: 'twoTiles'
+  },
+  lilacSeed: {
+    id: 'lilacSeed',
+    name: '丁香播种',
+    desc: '将一种资源全部转换为另一种资源。',
+    quote: '她会嫌我种得太直。所以先留点余地。',
+    type: 'active',
+    usesPerDay: 1,
+    icon: '🪻',
+    needsTarget: 'twoResources'
+  },
+  greenhouseNurture: {
+    id: 'greenhouseNurture',
+    name: '暖房滋养',
+    desc: '单组 ≥4 时，本组资源 +50%。',
+    quote: '门关好，灯点上。剩下的交给时间。',
+    type: 'passive',
+    icon: '🌱'
+  },
+  toussentSunset: {
+    id: 'toussentSunset',
+    name: '陶森特日落',
+    desc: '消除指定一行或一列。',
+    quote: '夕阳落下的时候，什么都安静了。',
+    type: 'active',
+    usesPerDay: 1,
+    icon: '🌅',
+    needsTarget: 'rowOrCol'
+  },
+  hearthStew: {
+    id: 'hearthStew',
+    name: '炉火炖汤',
+    desc: '恢复 5 步（不超过 20 步上限）。',
+    quote: '不算精致。但热。',
+    type: 'active',
+    usesPerDay: 1,
+    icon: '🍲'
+  },
+  lilacReturn: {
+    id: 'lilacReturn',
+    name: '紫丁香归途',
+    desc: '剩余 ≤5 步时，自动高亮可形成匹配的交换。',
+    quote: '有些人来的时候，连风都会先知道。',
+    type: 'passive',
+    icon: '🪻'
+  }
+};
+
+/* -------- 9-day data -------- */
+export const DAYS = [
+  {
+    day: 1,
+    building: { id: 'courtyard', cn: '庭院', en: 'Courtyard', emoji: '🌿' },
+    needs: { grape: 30, wood: 20, stone: 20 },
+    ability: 'whiteWolfTidy',
+    intro:
+`庭院里的杂草快长到腰了。石路断了几截，喷泉里只有泥和落叶。
+杰洛特站了一会儿，叹了口气。
+"行吧。至少没有水鬼。"`,
+    completed: '石路重新露了出来，喷泉边的藤蔓被修剪整齐。一只白鸦落在旧门柱上，看了他一眼，又飞走了。',
+    monologue: '"草长得比食尸鬼还快。先收拾这里，至少……像个人住的地方。"',
+    completedBanner: '庭院重新露出了石路。'
+  },
+  {
+    day: 2,
+    building: { id: 'vineyard', cn: '葡萄园', en: 'Vineyard', emoji: '🍇' },
+    needs: { grape: 50, wood: 30 },
+    ability: 'toussentHarvest',
+    intro:
+`葡萄藤还活着。
+它们只是被荒草压弯，被风雨忘在了这里。
+杰洛特扶起一根藤架，手掌上沾了些泥。`,
+    completed: '藤架重新立起，嫩叶在风里发亮。远处的陶森特丘陵像一杯浅金色的酒。',
+    monologue: '"等得到。葡萄藤比人活得长。"',
+    completedBanner: '葡萄藤重新爬上了藤架。'
+  },
+  {
+    day: 3,
+    building: { id: 'cellar', cn: '酒窖', en: 'Wine Cellar', emoji: '🛢️' },
+    needs: { wood: 30, clay: 30, grape: 20 },
+    ability: 'agedBarrel',
+    intro:
+`酒窖里有灰尘、蜘蛛网和几只裂开的旧木桶。
+也有几瓶奇迹般活下来的酒。
+杰洛特拔开木塞，闻了闻。`,
+    completed: '石墙被重新加固，木桶排成整齐的一列。最深处的架子上，留出了一瓶酒的位置。',
+    monologue: '"还行。留一瓶。她会说酸，但她会喝。"',
+    completedBanner: '酒窖里重新有了木桶和灯火。'
+  },
+  {
+    day: 4,
+    building: { id: 'stables', cn: '马厩', en: 'Stables', emoji: '🐎' },
+    needs: { wood: 40, stone: 30 },
+    ability: 'roachPath',
+    intro:
+`马厩的门歪着，屋顶漏了半边。
+萝卜站在门口，像是在审查工程质量。
+杰洛特看着它。它也看着杰洛特。`,
+    completed: '新木梁撑起屋顶，干草铺得厚而暖。萝卜走进去，打了个响鼻，似乎勉强认可。',
+    monologue: '"行了。你也有顶棚了。别再把头从窗户伸进来。"',
+    completedBanner: '马厩里又有了干草和顶棚。'
+  },
+  {
+    day: 5,
+    building: { id: 'garden', cn: '花园', en: 'Garden', emoji: '🪻' },
+    needs: { herb: 50, grape: 30 },
+    ability: 'lilacSeed',
+    intro:
+`花坛荒了很久。泥土里还有旧时的根。
+杰洛特蹲下，翻出一小截枯枝，闻到一点几乎消失的香气。
+丁香。还有醋栗。`,
+    completed: '花园重新有了边界。草药、白花和紫色丁香沿着小径慢慢铺开。',
+    monologue: '"她会说我种得死板。然后亲手拔了重来。"',
+    completedBanner: '花园里又开了丁香。'
+  },
+  {
+    day: 6,
+    building: { id: 'greenhouse', cn: '温室', en: 'Greenhouse', emoji: '🌱' },
+    needs: { herb: 40, clay: 30, magic: 20 },
+    ability: 'greenhouseNurture',
+    intro:
+`温室的玻璃碎了几块，藤蔓钻进窗缝。
+有些花不适合风雨，有些人也一样。
+但只要有一点暖光，它们就会重新开。`,
+    completed: '新玻璃映出晚霞。温室里有了湿润的土、细小的芽和一盏温暖的灯。',
+    monologue: '"花我永远不懂。但冷的时候，门要关好。"',
+    completedBanner: '温室的灯重新亮了。'
+  },
+  {
+    day: 7,
+    building: { id: 'gazebo', cn: '露台', en: 'Gazebo', emoji: '🌅' },
+    needs: { stone: 40, wood: 30, magic: 10 },
+    ability: 'toussentSunset',
+    intro:
+`露台朝着夕阳。
+地砖松动，栏杆生锈，但视野很好。
+杰洛特站在这里，沉默了很久。`,
+    completed: '露台铺上新石板，栏杆擦出暗金色的光。一张小圆桌旁，只先放了一把椅子。',
+    monologue: '"先放一把。两把的话……太像在等了。"',
+    completedBanner: '露台等到了夕阳。'
+  },
+  {
+    day: 8,
+    building: { id: 'kitchen', cn: '厨房', en: 'Kitchen', emoji: '🍲' },
+    needs: { clay: 40, grape: 30, wood: 20 },
+    ability: 'hearthStew',
+    intro:
+`厨房的炉子还能用，只是积了太多灰。
+锅挂在墙上，像一面沉默的盾。
+杰洛特想了想，也许炖汤不算太难。`,
+    completed: '炉火重新亮起。木桌擦干净，架子上放着酒、面包和几束草药。',
+    monologue: '"做饭不是我的专长。但炖汤，应该死不了人。"',
+    completedBanner: '厨房里又升起了炉火。'
+  },
+  {
+    day: 9,
+    building: { id: 'lilacSuite', cn: '紫丁香客房', en: 'Lilac Suite', emoji: '🛏️' },
+    needs: { wood: 40, herb: 30, magic: 30 },
+    ability: 'lilacReturn',
+    intro:
+`最后一间房朝向花园。
+早晨有阳光，傍晚能闻到丁香。
+杰洛特把旧床板拆掉，换上新的木架。`,
+    completed: '房间安静下来。窗边有书桌，床边有两只枕头，花瓶里插着紫丁香。风吹进来，窗帘轻轻动了一下。',
+    monologue: '"床别太硬。枕头放两个。她说不会在意，但她会。"',
+    completedBanner: '紫丁香客房，已为她准备好。',
+    ending: true
+  }
+];
+
+/* -------- Day-end gentle reminders -------- */
+export const DAY_END_LINES = [
+  '太阳快落山了。今天先到这里。',
+  '再修下去，萝卜都要嫌我吵了。',
+  '明天继续。葡萄藤不会一夜之间跑掉。',
+  '工具放好。明天接着干。',
+  '今天先这样。陶森特的天黑得慢。'
+];
+
+/* -------- Estate strip -------- */
+export const ESTATE_STRIP_STAGES = [
+  {
+    unlockCount: 1,
+    buildingId: 'courtyard',
+    segmentId: 'courtyard',
+    revealLabel: '新修复 · 庭院',
+    ambientLevel: 1,
+    hotspots: [
+      {
+        id: 'white-raven',
+        label: '白鸦',
+        unlockCount: 1,
+        motion: 'ravenFlap',
+        lines: [
+          '白鸦掠过门柱，像在验收今天的活。',
+          '它停了一小会儿，像是默认这里能住人了。'
+        ],
+        anchor: { x: 26, y: 26 }
+      }
+    ]
+  },
+  {
+    unlockCount: 2,
+    buildingId: 'vineyard',
+    segmentId: 'vineyard',
+    revealLabel: '新修复 · 葡萄园',
+    ambientLevel: 2,
+    hotspots: [
+      {
+        id: 'vine-glow',
+        label: '藤架',
+        unlockCount: 2,
+        motion: 'vineShine',
+        lines: [
+          '新扶正的藤架，在风里慢慢找回了方向。',
+          '葡萄还没完全熟透，但已经不像被忘掉的样子了。'
+        ],
+        anchor: { x: 54, y: 38 }
+      }
+    ]
+  },
+  {
+    unlockCount: 3,
+    buildingId: 'cellar',
+    segmentId: 'cellar',
+    revealLabel: '新修复 · 酒窖',
+    ambientLevel: 3,
+    hotspots: [
+      {
+        id: 'cellar-lamp',
+        label: '酒窖灯火',
+        unlockCount: 3,
+        motion: 'cellarGlow',
+        lines: [
+          '灯火一亮，连旧木桶都像重新有了脾气。',
+          '酒香还很浅，但已经足够让这地方不像废墟。'
+        ],
+        anchor: { x: 51, y: 48 }
+      }
+    ]
+  },
+  {
+    unlockCount: 4,
+    buildingId: 'stables',
+    segmentId: 'stables',
+    revealLabel: '新回归 · 萝卜',
+    ambientLevel: 4,
+    hotspots: [
+      {
+        id: 'roach',
+        label: '萝卜',
+        unlockCount: 4,
+        motion: 'roachCycle',
+        lines: [
+          '它把头探出来，像在确认干草够不够厚。',
+          '响鼻打得很响，意见倒是一句都没少。',
+          '前蹄轻轻踏了两下，像是勉强表示认可。'
+        ],
+        anchor: { x: 46, y: 44 }
+      }
+    ]
+  },
+  {
+    unlockCount: 5,
+    buildingId: 'garden',
+    segmentId: 'garden',
+    revealLabel: '新修复 · 花园',
+    ambientLevel: 5,
+    hotspots: [
+      {
+        id: 'lilac-bloom',
+        label: '丁香',
+        unlockCount: 5,
+        motion: 'petalBurst',
+        lines: [
+          '花香还很轻，却已经先一步把荒凉挤开了。',
+          '丁香和草药沿着小径回来了，像有人快要到访。'
+        ],
+        anchor: { x: 57, y: 34 }
+      }
+    ]
+  },
+  {
+    unlockCount: 6,
+    buildingId: 'greenhouse',
+    segmentId: 'greenhouse',
+    revealLabel: '新修复 · 温室',
+    ambientLevel: 6,
+    hotspots: [
+      {
+        id: 'glass-mist',
+        label: '暖房',
+        unlockCount: 6,
+        motion: 'glassMist',
+        lines: [
+          '暖灯透过新玻璃，连潮气都显得有了秩序。',
+          '窗面被雾气擦亮了一瞬，里面的小芽也醒了。'
+        ],
+        anchor: { x: 52, y: 28 }
+      }
+    ]
+  },
+  {
+    unlockCount: 7,
+    buildingId: 'gazebo',
+    segmentId: 'gazebo',
+    revealLabel: '新修复 · 露台',
+    ambientLevel: 7,
+    hotspots: [
+      {
+        id: 'sunset-seat',
+        label: '露台椅子',
+        unlockCount: 7,
+        motion: 'sunGlint',
+        lines: [
+          '只有一把椅子立在桌旁，像是连等待都还没完全说出口。',
+          '夕阳擦过栏杆，像是替谁先把位置留了下来。'
+        ],
+        anchor: { x: 56, y: 40 }
+      }
+    ]
+  },
+  {
+    unlockCount: 8,
+    buildingId: 'kitchen',
+    segmentId: 'kitchen',
+    revealLabel: '新修复 · 厨房',
+    ambientLevel: 8,
+    hotspots: [
+      {
+        id: 'hearth-steam',
+        label: '炉火',
+        unlockCount: 8,
+        motion: 'steamPulse',
+        lines: [
+          '炉火一旺起来，整间厨房就忽然像有人在等饭。',
+          '蒸汽往窗上一扑，连冷清都被赶去了门外。'
+        ],
+        anchor: { x: 58, y: 36 }
+      }
+    ]
+  },
+  {
+    unlockCount: 9,
+    buildingId: 'lilacSuite',
+    segmentId: 'lilacSuite',
+    revealLabel: '新修复 · 紫丁香客房',
+    ambientLevel: 9,
+    hotspots: [
+      {
+        id: 'suite-curtain',
+        label: '窗边',
+        unlockCount: 9,
+        motion: 'curtainSway',
+        lines: [
+          '窗帘被风轻轻拨动，像有人刚刚从花园走过。',
+          '花瓶里的紫丁香安静站着，房间终于像是准备好了。'
+        ],
+        anchor: { x: 58, y: 30 }
+      }
+    ]
+  }
+];
+
+/* -------- Ending -------- */
+export const ENDING = {
+  lines: [
+    { who: '叶奈法', text: '……不算糟。' },
+    { who: '杰洛特', text: '藤还没爬满。' },
+    { who: '叶奈法', text: '我有很多时间。' },
+    { who: null,     text: '风吹过葡萄藤。' },
+    { who: '杰洛特', text: '……嗯。' }
+  ],
+  defaultGift: '献给你。',
+  giftPresets: [
+    { id: 'witcher', label: '送给喜欢巫师 3 的朋友', text: '谢谢你陪我走过那片大陆。' },
+    { id: 'partner', label: '送给伴侣',               text: '比好酒更好的，是喝第一杯的人。' },
+    { id: 'family',  label: '送给亲人',               text: '这里有酒，有花，有阳光。等你。' },
+    { id: 'self',    label: '送给自己',               text: '走了那么远，也该有个地方坐下了。' }
+  ]
+};

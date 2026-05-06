@@ -1,0 +1,144 @@
+/**
+ * Tile visuals — emoji + radial/linear gradients per resource.
+ * Mirrors gridland-vue's translate3d(col*size, row*size) layout but
+ * with a softer parchment-aged feel and Tousent palette.
+ */
+
+.tile {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 10px;
+  transition:
+    transform var(--t-tile) var(--t-tile-easing),
+    box-shadow 180ms ease,
+    filter 180ms ease,
+    opacity var(--t-tile) ease;
+  will-change: transform;
+  background-clip: padding-box;
+  filter: drop-shadow(0 2px 2px rgba(58, 42, 31, 0.25));
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.tile:hover {
+  filter: drop-shadow(0 4px 6px rgba(58, 42, 31, 0.4)) brightness(1.06);
+}
+
+.tile.selected {
+  z-index: 5;
+  box-shadow:
+    0 0 0 2px rgba(208, 168, 87, 0.55),
+    0 0 22px 6px rgba(208, 168, 87, 0.45);
+  animation: tile-breathe 1.6s ease-in-out infinite;
+}
+
+.tile.preview-good {
+  box-shadow:
+    0 0 0 2px rgba(232, 196, 120, 0.7),
+    0 0 18px 4px rgba(255, 218, 140, 0.55);
+  filter: brightness(1.08);
+}
+
+.tile.preview-bad {
+  box-shadow:
+    inset 0 0 0 2px rgba(70, 50, 38, 0.55);
+  filter: grayscale(0.4) brightness(0.86);
+}
+
+.tile.invalid {
+  animation: tile-nope 320ms ease-out;
+}
+
+.tile.hint {
+  animation: tile-hint 1.2s ease-in-out infinite;
+}
+
+.tile.pooled  { opacity: 0; }
+.tile.hidden  { opacity: 0; transform: scale(0.5) translate3d(var(--tx), var(--ty), 0); }
+
+@keyframes tile-breathe {
+  0%, 100% {
+    transform: var(--xform) scale(1);
+    box-shadow:
+      0 0 0 2px rgba(208, 168, 87, 0.5),
+      0 0 18px 4px rgba(208, 168, 87, 0.35);
+  }
+  50% {
+    transform: var(--xform) scale(1.04);
+    box-shadow:
+      0 0 0 2px rgba(208, 168, 87, 0.7),
+      0 0 28px 8px rgba(208, 168, 87, 0.55);
+  }
+}
+
+@keyframes tile-nope {
+  0%, 100% { transform: var(--xform) translateX(0); filter: brightness(0.86); }
+  25%      { transform: var(--xform) translateX(-3px); }
+  60%      { transform: var(--xform) translateX(3px); }
+}
+
+@keyframes tile-hint {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(176, 148, 201, 0.0); }
+  50%      { box-shadow: 0 0 18px 4px rgba(176, 148, 201, 0.7); }
+}
+
+/* ---------- Resource gradients ---------- */
+
+.tile.grape {
+  background:
+    radial-gradient(circle at 30% 30%, var(--grape-3) 0%, transparent 50%),
+    radial-gradient(circle at 70% 75%, var(--grape-2) 0%, var(--grape-1) 80%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.tile.wood {
+  background:
+    repeating-linear-gradient(95deg,
+      var(--wood-2) 0 8px,
+      var(--wood-1) 8px 14px,
+      var(--wood-2) 14px 22px),
+    var(--wood-2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.tile.stone {
+  background:
+    radial-gradient(circle at 25% 25%, var(--stone-3) 0%, transparent 50%),
+    linear-gradient(155deg, var(--stone-2) 0%, var(--stone-1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.tile.clay {
+  background:
+    repeating-linear-gradient(0deg,
+      transparent 0 12px,
+      rgba(0, 0, 0, 0.10) 12px 13px),
+    repeating-linear-gradient(90deg,
+      transparent 0 18px,
+      rgba(0, 0, 0, 0.10) 18px 19px),
+    linear-gradient(160deg, var(--clay-2) 0%, var(--clay-1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.tile.herb {
+  background:
+    radial-gradient(circle at 30% 35%, var(--herb-3) 0%, transparent 55%),
+    linear-gradient(150deg, var(--herb-2) 0%, var(--herb-1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.tile.magic {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(240, 213, 107, 0.85) 0%, transparent 38%),
+    radial-gradient(circle at 35% 30%, var(--magic-2) 0%, transparent 50%),
+    linear-gradient(160deg, #5a3196 0%, var(--magic-1) 100%);
+  border: 1px solid rgba(240, 213, 107, 0.55);
+  box-shadow: 0 0 12px rgba(240, 213, 107, 0.35);
+  animation: magic-shimmer 3.2s ease-in-out infinite;
+}
+
+@keyframes magic-shimmer {
+  0%, 100% { filter: drop-shadow(0 2px 2px rgba(58, 42, 31, 0.25)) brightness(1.0); }
+  50%      { filter: drop-shadow(0 2px 6px rgba(208, 168, 87, 0.6)) brightness(1.18); }
+}

@@ -1,0 +1,154 @@
+/**
+ * Petal/feather/restoration animations.
+ * All pure CSS so the build never depends on image assets.
+ */
+
+/* Petal rain — triggered on 5+ matches and on repair completion */
+.petal-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 30;
+}
+
+.petal {
+  position: absolute;
+  top: -20px;
+  font-size: 18px;
+  opacity: 0;
+  animation: petal-fall var(--dur, 3.6s) linear forwards;
+}
+
+@keyframes petal-fall {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.95; }
+  100% {
+    transform: translate3d(var(--dx, 60px), 110vh, 0) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Repair stage: morning breeze sweeping out dust */
+.scene-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.morning-breeze {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 60%, rgba(255, 240, 200, 0.5) 0%, transparent 60%);
+  opacity: 0;
+  animation: breeze-sweep 800ms ease forwards;
+}
+
+@keyframes breeze-sweep {
+  0%   { transform: translateX(-30%); opacity: 0; }
+  40%  { opacity: 0.9; }
+  100% { transform: translateX(30%);  opacity: 0; }
+}
+
+/* Repair stage 2: structures glow into place */
+.repair-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(212, 168, 87, 0.45) 0%, transparent 65%);
+  opacity: 0;
+  animation: glow-in 1500ms ease forwards;
+}
+
+@keyframes glow-in {
+  0%   { opacity: 0; transform: scale(0.8); }
+  60%  { opacity: 0.85; transform: scale(1.05); }
+  100% { opacity: 0; transform: scale(1.2); }
+}
+
+/* White raven crest swooping by */
+.raven-crest {
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 44px;
+  opacity: 0;
+  animation: raven-fly 1500ms ease forwards;
+}
+
+@keyframes raven-fly {
+  0%   { opacity: 0; transform: translate(-150%, -50%) scale(0.6); }
+  40%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(150%, -90%) scale(1); }
+}
+
+/* Lilac portal opening for ending */
+.lilac-portal {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 0; height: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--lilac) 0%, var(--magic-1) 60%, transparent 100%);
+  box-shadow: 0 0 60px rgba(176, 148, 201, 0.7);
+  transform: translate(-50%, -50%);
+  animation: portal-open 2400ms ease forwards;
+}
+
+@keyframes portal-open {
+  0%   { width: 0; height: 0; opacity: 0.3; }
+  60%  { width: 220px; height: 320px; opacity: 1; }
+  100% { width: 220px; height: 320px; opacity: 1; }
+}
+
+/* Sunset rake (gazebo ability flash) */
+.sunset-rake {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 200, 120, 0.0) 10%,
+    rgba(255, 180, 90, 0.85) 50%,
+    rgba(255, 200, 120, 0.0) 90%,
+    transparent 100%
+  );
+  filter: blur(2px);
+  opacity: 0;
+  animation: rake-sweep 700ms ease forwards;
+}
+
+@keyframes rake-sweep {
+  0%   { transform: translateX(-100%); opacity: 0; }
+  50%  { opacity: 1; }
+  100% { transform: translateX(100%);  opacity: 0; }
+}
+
+/* Day notifier appears in the centre then floats up */
+.day-notifier {
+  animation: notifier-pop 2400ms ease forwards;
+}
+
+@keyframes notifier-pop {
+  0%   { opacity: 0; transform: translate(-50%, calc(-50% + 12px)); }
+  20%  { opacity: 1; transform: translate(-50%, -50%); }
+  80%  { opacity: 1; transform: translate(-50%, -50%); }
+  100% { opacity: 0; transform: translate(-50%, calc(-50% - 16px)); }
+}
+
+/* Ability flash on use */
+.ability-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(208, 168, 87, 0.45) 0%, transparent 70%);
+  pointer-events: none;
+  animation: ability-pulse 480ms ease forwards;
+}
+
+@keyframes ability-pulse {
+  0%   { opacity: 0; transform: scale(0.6); }
+  60%  { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 0; transform: scale(1.15); }
+}
