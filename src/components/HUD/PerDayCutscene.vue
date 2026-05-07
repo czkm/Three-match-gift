@@ -1,5 +1,5 @@
 <template>
-  <div class="cutscene-overlay" :class="`day-${day}`">
+  <div class="cutscene-overlay" :class="`day-${day}`" @click="onOverlayClick">
     <!-- Per-day backdrop tint -->
     <div class="backdrop" />
 
@@ -43,16 +43,13 @@
 
           <Dialog
             v-if="showMono"
+            ref="monoDialogRef"
             class="mono"
             :text="today.monologue"
             hint="点击继续"
-            @done="onMonoDone"
-            @skip="onMonoDone"
+            @done="onAdvance"
+            @ready="onMonoReady"
           />
-
-          <button v-if="showAdvance" class="advance-btn" @click="onAdvance">
-            {{ today.ending ? '迎接归来' : '走向次日' }}
-          </button>
         </div>
       </transition>
     </div>
@@ -93,6 +90,7 @@ const phase = ref(0);          // 0 = init, 1 = motif playing, 2 = banner reveal
 const showMono = ref(false);
 const showAdvance = ref(false);
 const petals = ref([]);
+const monoDialogRef = ref(null);
 let timers = [];
 
 onMounted(() => {
@@ -123,10 +121,19 @@ onBeforeUnmount(() => {
   for (const t of timers) clearTimeout(t);
 });
 
-function onMonoDone() { showAdvance.value = true; }
+function onMonoReady() { showAdvance.value = true; }
 
 const emit = defineEmits(['advance']);
 function onAdvance() { emit('advance'); }
+
+function onOverlayClick() {
+  if (!showMono.value) return;
+  if (!monoDialogRef.value?.isDone?.value) {
+    monoDialogRef.value?.skipToEnd?.();
+    return;
+  }
+  if (showAdvance.value) onAdvance();
+}
 </script>
 
 <style scoped>
@@ -284,15 +291,5 @@ function onAdvance() { emit('advance'); }
   font-style: italic;
 }
 
-.advance-btn {
-  margin-top: 16px;
-  padding: 9px 22px;
-  background: var(--gold);
-  color: var(--ink);
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 14px;
-}
-.advance-btn:hover { background: var(--gold-soft); }
 .mono { margin-top: 10px; }
 </style>

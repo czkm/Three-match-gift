@@ -51,10 +51,11 @@ const bossState = computed(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 18px;
-  border-radius: 6px;
-  width: 540px;
-  margin: 0 auto 12px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  width: 580px;
+  margin: 0 auto 14px;
+  box-shadow: var(--surface-shadow);
 }
 .left, .middle, .right {
   display: flex;
@@ -64,18 +65,31 @@ const bossState = computed(() => {
 .middle { flex: 1; justify-content: center; }
 .brand {
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--ink);
   display: block;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 .left { flex-direction: column; align-items: flex-start; gap: 2px; }
-.building { display: flex; align-items: center; gap: 8px; font-size: 18px; }
+.building {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255, 248, 229, 0.24);
+  box-shadow: inset 0 0 0 1px rgba(89, 58, 28, 0.12);
+}
 .building .emoji { font-size: 24px; }
 .steps {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 2px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(97, 68, 38, 0.18);
 }
 .djinn-progress {
   display: flex;
@@ -91,18 +105,18 @@ const bossState = computed(() => {
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  background: rgba(120, 92, 54, 0.32);
-  box-shadow: inset 0 0 0 1px rgba(208, 168, 87, 0.3);
+  background: rgba(84, 60, 34, 0.3);
+  box-shadow: inset 0 0 0 1px rgba(208, 168, 87, 0.24);
 }
 .dot.lit {
   background: radial-gradient(circle, rgba(255, 238, 182, 0.96), rgba(212, 168, 87, 0.92));
   box-shadow: 0 0 12px rgba(212, 168, 87, 0.7);
 }
 .step-value {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 700;
   color: var(--ink);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   transition: color 200ms ease;
 }
 .step-value.low { color: var(--clay-2); }

@@ -1,12 +1,12 @@
 <template>
-  <div class="dialog-box parchment grain" @click="onSkip">
+  <div class="dialog-box parchment grain" @click.stop="onSkip">
     <p class="text">{{ display }}<span v-if="!done" class="cursor">▍</span></p>
     <span v-if="done && hint" class="hint">{{ hint }}</span>
   </div>
 </template>
 
 <script setup>
-import { computed, toRef, watchEffect } from 'vue';
+import { toRef, watch } from 'vue';
 import { useTypewriter } from '@/composables/useTypewriter';
 
 const props = defineProps({
@@ -14,7 +14,7 @@ const props = defineProps({
   hint: { type: String, default: '点击继续' },
   speed: { type: Number, default: 38 }
 });
-const emit = defineEmits(['done', 'skip']);
+const emit = defineEmits(['done', 'skip', 'ready']);
 
 const textRef = toRef(props, 'text');
 const { display, done, skip } = useTypewriter(textRef, { speed: props.speed });
@@ -28,8 +28,13 @@ function onSkip() {
   }
 }
 
-watchEffect(() => {
-  if (done.value) emit('done');
+watch(done, (value, oldValue) => {
+  if (value && !oldValue) emit('ready');
+});
+
+defineExpose({
+  skipToEnd: skip,
+  isDone: done
 });
 </script>
 

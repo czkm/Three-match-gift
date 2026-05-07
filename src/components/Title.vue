@@ -244,30 +244,34 @@ onBeforeUnmount(() => {
   justify-content: center;
   padding: 20px;
   background:
-    radial-gradient(ellipse at 50% 30%, rgba(255, 220, 160, 0.4) 0%, transparent 60%),
-    linear-gradient(160deg, #f3e9cc 0%, #c5b78b 100%);
+    radial-gradient(ellipse at 50% 26%, rgba(255, 214, 142, 0.28) 0%, transparent 40%),
+    linear-gradient(180deg, rgba(36, 24, 18, 0.08) 0%, rgba(16, 10, 8, 0.24) 100%),
+    linear-gradient(160deg, #cdb37f 0%, #6f5c41 46%, #261d16 100%);
 }
 .card {
-  width: min(460px, 100%);
-  padding: 36px 40px;
+  width: min(500px, 100%);
+  padding: 38px 42px;
   text-align: center;
-  border-radius: 8px;
+  border-radius: 14px;
   animation: card-in 700ms ease;
+  box-shadow: var(--surface-shadow);
 }
 @keyframes card-in {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.emblem { font-size: 42px; margin: 0 0 6px; }
-h1 { font-size: 32px; margin: 0; letter-spacing: 0.18em; }
-h2.sub { font-size: 18px; margin: 4px 0 4px; letter-spacing: 0.4em; }
-.byline { font-size: 12px; margin: 0 0 16px; letter-spacing: 0.18em; }
+.emblem { font-size: 42px; margin: 0 0 8px; }
+h1 { font-size: 34px; margin: 0; letter-spacing: 0.22em; text-transform: uppercase; }
+h2.sub { font-size: 18px; margin: 4px 0 6px; letter-spacing: 0.44em; }
+.byline { font-size: 11px; margin: 0 0 18px; letter-spacing: 0.2em; text-transform: uppercase; }
 .quote {
   margin: 0 auto 20px;
-  padding: 14px 18px;
+  padding: 15px 18px;
   font-style: italic;
   font-size: 14px;
   border-left: 2px solid var(--gold);
+  border-radius: 0 10px 10px 0;
+  background: rgba(255, 246, 224, 0.18);
   text-align: left;
   color: var(--ink-soft);
 }
@@ -290,9 +294,9 @@ h2.sub { font-size: 18px; margin: 4px 0 4px; letter-spacing: 0.4em; }
   box-sizing: border-box;
 }
 .gift-input {
-  padding: 8px 10px;
-  border: 1px solid var(--gold);
-  background: rgba(255, 255, 255, 0.55);
+  padding: 10px 12px;
+  border: 1px solid rgba(132, 88, 38, 0.46);
+  background: rgba(255, 251, 242, 0.56);
   font-family: inherit;
   font-size: 14px;
   color: var(--ink);
@@ -300,7 +304,9 @@ h2.sub { font-size: 18px; margin: 4px 0 4px; letter-spacing: 0.4em; }
 }
 .gift-input:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(208, 168, 87, 0.18);
+  box-shadow:
+    0 0 0 2px rgba(208, 168, 87, 0.18),
+    0 10px 20px rgba(30, 20, 14, 0.08);
 }
 .gift-input:disabled {
   cursor: default;
@@ -356,8 +362,8 @@ h2.sub { font-size: 18px; margin: 4px 0 4px; letter-spacing: 0.4em; }
 }
 .preset {
   font-size: 11px;
-  padding: 4px 10px;
-  border: 1px solid rgba(208, 168, 87, 0.5);
+  padding: 5px 11px;
+  border: 1px solid rgba(208, 168, 87, 0.4);
   border-radius: 999px;
   color: var(--ink-soft);
   background: rgba(255, 255, 255, 0.35);
@@ -376,10 +382,10 @@ h2.sub { font-size: 18px; margin: 4px 0 4px; letter-spacing: 0.4em; }
 .intercept-shell {
   min-height: 74px;
   margin: 6px 0 14px;
-  padding: 10px 14px;
-  border-radius: 6px;
+  padding: 11px 14px;
+  border-radius: 12px;
   border: 1px solid rgba(208, 168, 87, 0.28);
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 250, 240, 0.18);
   text-align: left;
   opacity: 0;
   transform: translateY(6px);
@@ -410,17 +416,18 @@ h2.sub { font-size: 18px; margin: 4px 0 4px; letter-spacing: 0.4em; }
 
 .start {
   min-width: 136px;
-  background: var(--gold);
+  background: linear-gradient(180deg, var(--gold-soft) 0%, var(--gold) 100%);
   color: var(--ink);
-  border-radius: 8px;
+  border-radius: 999px;
   padding: 10px 28px;
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.08em;
   transition: opacity 180ms ease, transform 180ms ease, background 180ms ease;
+  border: 1px solid rgba(86, 54, 24, 0.34);
 }
 .start:hover:not(:disabled) {
-  background: var(--gold-soft);
+  filter: brightness(1.05);
   transform: translateY(-1px);
 }
 .start:disabled {

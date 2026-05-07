@@ -408,6 +408,14 @@ export const useGameStore = defineStore('game', {
       this.barkNonce++;
     },
 
+    queueAmbientBark(line) {
+      if (!line) return;
+      if (this.barkLine) return;
+      if (this.phase === 'wish' || this.phase === 'repairing' || this.phase === 'dayEnd') return;
+      this.barkLine = line;
+      this.barkNonce++;
+    },
+
     dismissBark() {
       this.barkLine = '';
     },
@@ -853,7 +861,6 @@ export const useGameStore = defineStore('game', {
       const chars = tileString.split('');
       let col = 0;
       let row = 0;
-      const existingById = new Map(this.monsterTiles.map((monster) => [monster.id, monster]));
       const availableByChar = {};
       for (const monster of this.monsterTiles) {
         if (monster.removed) continue;
@@ -865,7 +872,7 @@ export const useGameStore = defineStore('game', {
         if (ch === 'X') { col++; row = 0; continue; }
         if (MONSTER_CHARS.includes(ch)) {
           const bucket = availableByChar[ch] || [];
-          const monster = bucket.shift();
+          const monster = this._takeClosestMonster(bucket, row, col);
           if (monster) {
             monster.row = row;
             monster.col = col;
@@ -879,6 +886,27 @@ export const useGameStore = defineStore('game', {
         if (monster.removed) continue;
         if (!next.includes(monster.id)) monster.removed = true;
       }
+    },
+
+    _takeClosestMonster(bucket, row, col) {
+      if (!bucket?.length) return null;
+
+      let bestIndex = 0;
+      let bestScore = Number.POSITIVE_INFINITY;
+
+      for (let i = 0; i < bucket.length; i++) {
+        const monster = bucket[i];
+        const exact = monster.row === row && monster.col === col;
+        const dist = Math.abs((monster.row ?? 0) - row) + Math.abs((monster.col ?? 0) - col);
+        const score = exact ? -1 : dist;
+        if (score < bestScore) {
+          bestScore = score;
+          bestIndex = i;
+        }
+      }
+
+      const [monster] = bucket.splice(bestIndex, 1);
+      return monster || null;
     },
 
     _refreshAbilityUses() {

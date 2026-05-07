@@ -60,11 +60,12 @@ const title = computed(() => {
   justify-content: center;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: 14px;
   z-index: 7;
   pointer-events: none;
-  border: 1px solid rgba(232, 212, 178, 0.24);
+  border: 1px solid rgba(232, 212, 178, 0.2);
   box-shadow:
+    inset 0 1px 0 rgba(255, 246, 226, 0.08),
     inset 0 0 0 1px rgba(255, 248, 232, 0.08),
     inset 0 -10px 18px rgba(22, 14, 10, 0.32),
     0 6px 14px rgba(16, 10, 8, 0.28);
@@ -80,7 +81,7 @@ const title = computed(() => {
 .slot-frame {
   position: absolute;
   inset: 3px;
-  border-radius: 9px;
+  border-radius: 11px;
   border: 1px solid rgba(255, 243, 218, 0.12);
   box-shadow:
     inset 0 1px 0 rgba(255, 247, 236, 0.18),
@@ -92,7 +93,7 @@ const title = computed(() => {
   position: relative;
   z-index: 2;
   font-size: 34px;
-  filter: drop-shadow(0 4px 8px rgba(24, 18, 12, 0.4));
+  filter: drop-shadow(0 4px 8px rgba(24, 18, 12, 0.42));
 }
 
 .nekkers {
@@ -132,6 +133,7 @@ const title = computed(() => {
 
 .djinn {
   background:
+    linear-gradient(180deg, rgba(255, 245, 214, 0.08) 0%, transparent 16%),
     radial-gradient(circle at 50% 50%, rgba(255, 224, 150, 0.22), transparent 62%),
     linear-gradient(155deg, rgba(84, 48, 122, 0.96) 0%, rgba(28, 18, 52, 0.98) 100%);
   border-color: rgba(240, 213, 107, 0.26);

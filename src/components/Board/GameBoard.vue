@@ -619,6 +619,7 @@ function syncMonsterTilesFromEngine() {
 
 function onTilesCleared(resourcesByChar, _swapSide, groupCount, groupSizes, chain) {
   game.gainResources(resourcesByChar, groupSizes || [], chain || 1);
+  maybePraiseCombo(chain || 1, groupSizes || []);
   syncMonsterTilesFromEngine();
   // Trigger match continues as the engine queues; we only commit
   // 'after-move' once the engine has settled (no callback pending).
@@ -654,6 +655,20 @@ function onNoMoreMoves() {
   shaking.value = true;
   setTimeout(() => { shaking.value = false; }, 400);
   bumpIdle();
+}
+
+function maybePraiseCombo(chain, groupSizes) {
+  if (chain >= 4) {
+    game.queueAmbientBark('漂亮。连着打下去，整个庭院都跟着醒了。');
+    return;
+  }
+  if (chain === 3) {
+    game.queueAmbientBark('很好。就照这个势头继续。');
+    return;
+  }
+  if (chain === 2 && groupSizes.some((size) => size >= 4)) {
+    game.queueAmbientBark('不错。手感找到了。');
+  }
 }
 
 function maybeCommitTurn() {
@@ -770,16 +785,44 @@ function triggerSunsetRake() {
 
 .gameBoard {
   position: relative;
-  padding: 4px;
-  border-radius: 8px;
+  padding: 10px;
+  border-radius: 18px;
   transition: transform 200ms ease, filter 200ms ease;
-  background: linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);
-  border: 2px solid var(--gold);
-  box-shadow: var(--hud-shadow), inset 0 0 0 2px rgba(255, 255, 255, 0.4);
+  background:
+    linear-gradient(180deg, rgba(255, 245, 220, 0.18) 0%, transparent 12%),
+    linear-gradient(145deg, var(--board-frame-1) 0%, var(--board-frame-2) 100%);
+  border: 1px solid rgba(220, 184, 122, 0.42);
+  box-shadow:
+    0 24px 44px rgba(14, 8, 6, 0.42),
+    inset 0 0 0 1px rgba(255, 242, 214, 0.08),
+    inset 0 0 0 6px rgba(18, 10, 7, 0.28);
+}
+
+.gameBoard::before,
+.gameBoard::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.gameBoard::before {
+  inset: 5px;
+  background:
+    linear-gradient(145deg, rgba(255, 240, 214, 0.08), rgba(0, 0, 0, 0.08)),
+    linear-gradient(145deg, var(--board-inner-1) 0%, var(--board-inner-2) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 240, 214, 0.08),
+    inset 0 0 0 3px rgba(22, 14, 10, 0.28);
+}
+
+.gameBoard::after {
+  inset: 2px;
+  border: 1px solid rgba(242, 214, 164, 0.14);
 }
 
 .gameBoard.shaking { animation: gb-shake 100ms 4 alternate; }
-.gameBoard.dimmed  { filter: brightness(0.85); }
+.gameBoard.dimmed  { filter: brightness(0.82) saturate(0.92); }
 
 @keyframes gb-shake {
   from { transform: translateX(-4px); }
@@ -790,40 +833,63 @@ function triggerSunsetRake() {
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 6px;
+  border-radius: 12px;
   overflow: hidden;
   background:
-    radial-gradient(circle at 30% 20%, rgba(255, 240, 200, 0.4) 0%, transparent 60%),
-    linear-gradient(160deg, #5a4427 0%, #2c1d10 100%);
+    linear-gradient(90deg, var(--board-grid) 0 1px, transparent 1px 100%),
+    linear-gradient(180deg, var(--board-grid) 0 1px, transparent 1px 100%),
+    radial-gradient(circle at 30% 18%, rgba(255, 226, 166, 0.1) 0%, transparent 34%),
+    linear-gradient(160deg, var(--board-cell-2) 0%, var(--board-cell-1) 100%);
+  background-size: 60px 60px, 60px 60px, auto, auto;
+  box-shadow:
+    inset 0 0 0 1px rgba(243, 218, 168, 0.1),
+    inset 0 18px 28px rgba(255, 228, 182, 0.04),
+    inset 0 -18px 26px rgba(0, 0, 0, 0.28);
+}
+
+.tileContainer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(198, 164, 102, 0.06) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(255, 243, 216, 0.02) 0%, rgba(0, 0, 0, 0.08) 100%);
+  mix-blend-mode: screen;
 }
 
 .entity-slot {
   position: absolute;
   z-index: 1;
-  border-radius: 12px;
+  border-radius: 14px;
   background:
-    radial-gradient(circle at 50% 40%, rgba(18, 12, 10, 0.22), transparent 54%),
-    linear-gradient(160deg, rgba(24, 16, 12, 0.32) 0%, rgba(12, 8, 6, 0.52) 100%);
+    radial-gradient(circle at 50% 36%, rgba(255, 223, 166, 0.06), transparent 44%),
+    radial-gradient(circle at 50% 40%, rgba(18, 12, 10, 0.28), transparent 54%),
+    linear-gradient(160deg, rgba(24, 16, 12, 0.3) 0%, rgba(12, 8, 6, 0.58) 100%);
   box-shadow:
-    inset 0 2px 6px rgba(0, 0, 0, 0.28),
-    inset 0 -8px 12px rgba(0, 0, 0, 0.18);
+    inset 0 0 0 1px rgba(255, 238, 204, 0.05),
+    inset 0 2px 6px rgba(0, 0, 0, 0.3),
+    inset 0 -8px 12px rgba(0, 0, 0, 0.22);
 }
 
 .line-btn {
   position: absolute;
-  background: rgba(208, 168, 87, 0.85);
-  color: var(--ink);
-  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(240, 216, 164, 0.94) 0%, rgba(185, 137, 72, 0.94) 100%);
+  color: #2a1a10;
+  border-radius: 16px;
   padding: 4px 10px;
   font-size: 12px;
   font-weight: 700;
-  border: 1px solid var(--gold);
+  border: 1px solid rgba(86, 54, 24, 0.55);
   z-index: 8;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(58, 42, 31, 0.4);
+  box-shadow:
+    0 8px 18px rgba(18, 10, 8, 0.28),
+    inset 0 1px 0 rgba(255, 247, 224, 0.52);
 }
 .line-btn:hover {
-  background: rgba(212, 168, 87, 1);
+  filter: brightness(1.06);
 }
 .line-row {
   left: -84px;
@@ -845,20 +911,22 @@ function triggerSunsetRake() {
 
 .targeting-hint {
   position: absolute;
-  top: 12px;
-  right: -260px;
-  width: 220px;
-  padding: 12px;
-  border-radius: 6px;
+  top: 18px;
+  right: -272px;
+  width: 232px;
+  padding: 14px 14px 12px;
+  border-radius: 12px;
   text-align: center;
   z-index: 9;
+  box-shadow: var(--surface-shadow);
 }
 .targeting-hint p { margin: 0 0 8px; font-size: 14px; }
 .cancel-btn {
-  background: var(--ink);
-  color: var(--paper);
-  border-radius: 4px;
-  padding: 4px 10px;
+  background: linear-gradient(180deg, #4f3827 0%, #2b1b12 100%);
+  color: #f3e6c8;
+  border-radius: 999px;
+  padding: 5px 12px;
   font-size: 12px;
+  border: 1px solid rgba(255, 231, 190, 0.12);
 }
 </style>

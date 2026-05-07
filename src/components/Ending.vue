@@ -109,7 +109,9 @@ function onRestart() {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background: linear-gradient(180deg, #c45a3a 0%, #6b3367 65%, #2a1f4a 100%);
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 206, 144, 0.18) 0%, transparent 26%),
+    linear-gradient(180deg, #b85f3d 0%, #5b325a 60%, #20152d 100%);
 }
 
 .terrace {
@@ -121,8 +123,8 @@ function onRestart() {
   top: 0; left: 0; right: 0;
   height: 60%;
   background:
-    radial-gradient(ellipse at 50% 100%, rgba(255, 200, 130, 0.85) 0%, transparent 55%),
-    linear-gradient(180deg, #ec894c 0%, #6b3367 100%);
+    radial-gradient(ellipse at 50% 100%, rgba(255, 200, 130, 0.72) 0%, transparent 55%),
+    linear-gradient(180deg, #e07c48 0%, #5c315b 100%);
 }
 .hills {
   position: absolute;
@@ -214,10 +216,11 @@ function onRestart() {
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
-  width: 580px;
-  padding: 22px 26px;
-  border-radius: 8px;
+  width: 610px;
+  padding: 24px 28px;
+  border-radius: 14px;
   text-align: center;
+  box-shadow: var(--surface-shadow);
 }
 .card-fade-enter-active { transition: opacity 700ms ease, transform 700ms ease; }
 .card-fade-enter-from { opacity: 0; transform: translate(-50%, 20px); }
@@ -296,12 +299,13 @@ function onRestart() {
 
 .restart {
   margin-top: 8px;
-  background: var(--gold);
+  background: linear-gradient(180deg, var(--gold-soft) 0%, var(--gold) 100%);
   color: var(--ink);
-  padding: 8px 16px;
+  padding: 9px 18px;
   font-size: 13px;
   font-weight: 600;
-  border-radius: 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(86, 54, 24, 0.34);
 }
-.restart:hover { background: var(--gold-soft); }
+.restart:hover { filter: brightness(1.05); }
 </style>

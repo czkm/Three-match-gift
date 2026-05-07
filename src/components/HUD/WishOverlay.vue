@@ -1,5 +1,5 @@
 <template>
-  <div class="wish-overlay">
+  <div class="wish-overlay" @click="onOverlayClick">
     <div class="veil" />
     <div class="card parchment grain">
       <p class="title ink-title">{{ wish.title }}</p>
@@ -7,10 +7,13 @@
 
       <Dialog
         v-if="activeLine"
+        ref="wishDialogRef"
         class="wish-dialog"
         :text="activeLine"
         hint="点击继续"
         @done="onDialogDone"
+        @skip="onOverlayClick"
+        @ready="onLineReady"
       />
 
       <div v-if="showChoices" class="choices">
@@ -27,9 +30,6 @@
 
       <div v-if="game.wishResolved" class="resolve-block">
         <p class="resolve-line ink-title">{{ game.wishResolveLine }}</p>
-        <button class="continue-btn" @click="onContinue">
-          {{ finalStage ? '迎向结局' : '回到棋盘' }}
-        </button>
       </div>
     </div>
   </div>
@@ -47,6 +47,7 @@ const props = defineProps({
 const game = useGameStore();
 const lineIndex = ref(0);
 const lineReady = ref(false);
+const wishDialogRef = ref(null);
 const wish = computed(() => game.currentWish || { title: '', quote: '', lines: [], choices: [] });
 const activeLine = computed(() => wish.value.lines?.[lineIndex.value] || '');
 const showChoices = computed(() => !game.wishResolved && lineIndex.value >= (wish.value.lines?.length || 0));
@@ -58,10 +59,6 @@ watch(() => game.wishStage, () => {
 });
 
 function onDialogDone() {
-  if (!lineReady.value) {
-    lineReady.value = true;
-    return;
-  }
   if (lineIndex.value < (wish.value.lines?.length || 0) - 1) {
     lineIndex.value++;
     lineReady.value = false;
@@ -69,6 +66,10 @@ function onDialogDone() {
     lineIndex.value = wish.value.lines?.length || 0;
     lineReady.value = false;
   }
+}
+
+function onLineReady() {
+  lineReady.value = true;
 }
 
 function onChoose(choiceId) {
@@ -89,6 +90,19 @@ function onContinue() {
     return;
   }
   game.finishWishStage('playing');
+}
+
+function onOverlayClick() {
+  if (showChoices.value) return;
+  if (game.wishResolved) {
+    onContinue();
+    return;
+  }
+  if (!wishDialogRef.value?.isDone?.value) {
+    wishDialogRef.value?.skipToEnd?.();
+    return;
+  }
+  onDialogDone();
 }
 </script>
 
@@ -178,15 +192,4 @@ function onContinue() {
   font-size: 17px;
 }
 
-.continue-btn {
-  background: var(--gold);
-  color: var(--ink);
-  border-radius: 6px;
-  padding: 8px 18px;
-  font-weight: 700;
-}
-
-.continue-btn:hover {
-  background: var(--gold-soft);
-}
 </style>

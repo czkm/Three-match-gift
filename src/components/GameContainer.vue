@@ -20,43 +20,10 @@
       </aside>
     </div>
 
-    <!-- Day intro narration — bottom dialog strip, board stays visible. -->
-    <transition name="dialog-fade">
-      <div v-if="game.phase === 'intro'" class="intro-strip">
-        <Dialog
-          :text="game.today.intro"
-          hint="点击继续"
-          @done="onIntroDone"
-          @skip="onIntroDone"
-        />
-        <button v-if="introReady" class="begin" @click="onBeginDay">
-          开始今天的修复
-        </button>
-      </div>
-    </transition>
+    <div v-if="game.phase === 'intro'" class="intro-overlay" @click="onIntroDone" />
 
     <!-- Day-end gentle reminder -->
     <DayEndOverlay v-if="game.phase === 'dayEnd'" @advance="onDayEndAdvance" />
-
-    <transition name="dialog-fade">
-      <div v-if="game.barkLine && ['playing', 'targeting', 'wish'].includes(game.phase)" class="bark-strip">
-        <Dialog
-          :key="game.barkNonce"
-          :text="game.barkLine"
-          hint="点击收起"
-          @done="game.dismissBark()"
-          @skip="game.dismissBark()"
-        />
-      </div>
-    </transition>
-
-    <transition name="dialog-fade">
-      <div v-if="game.djinnHintVisible && game.phase === 'playing'" class="djinn-hint-strip">
-        <div class="hint-card parchment grain">
-          <p class="ink-subtle">{{ djinnHint }}</p>
-        </div>
-      </div>
-    </transition>
 
     <WishOverlay v-if="game.phase === 'wish'" :board-ref="boardEl" />
 
@@ -66,31 +33,22 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import DayHeader from './HUD/DayHeader.vue';
 import ResourceBar from './HUD/ResourceBar.vue';
 import AbilityBar from './HUD/AbilityBar.vue';
-import Dialog from './HUD/Dialog.vue';
 import PerDayCutscene from './HUD/PerDayCutscene.vue';
 import DayEndOverlay from './HUD/DayEndOverlay.vue';
 import EstateStrip from './HUD/EstateStrip.vue';
 import GameBoard from './Board/GameBoard.vue';
 import WishOverlay from './HUD/WishOverlay.vue';
 import { useGameStore } from '@/stores/gameStore';
-import { DJINN_WISHES } from '@/data/content';
 
 const game = useGameStore();
 const boardEl = ref(null);
-const introReady = ref(false);
 const showEstateStrip = computed(() => ['intro', 'playing', 'targeting', 'dayEnd', 'repairing'].includes(game.phase));
-const djinnHint = DJINN_WISHES.introHint;
 
 function onIntroDone() {
-  introReady.value = true;
-}
-
-function onBeginDay() {
-  introReady.value = false;
   game.startPlay();
 }
 
@@ -109,9 +67,6 @@ function onRepairAdvance() {
   }
 }
 
-watch(() => game.currentDay, () => {
-  introReady.value = false;
-});
 </script>
 
 <style scoped>
@@ -122,16 +77,41 @@ watch(() => game.currentDay, () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px 20px 28px;
+  padding: 18px 22px 30px;
   overflow: hidden;
+  isolation: isolate;
 }
+
+.game-container::before,
+.game-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.game-container::before {
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 219, 158, 0.18) 0%, transparent 32%),
+    linear-gradient(180deg, rgba(20, 12, 8, 0.04) 0%, rgba(20, 12, 8, 0.18) 100%);
+  z-index: -2;
+}
+
+.game-container::after {
+  inset: 14px;
+  border: 1px solid rgba(231, 206, 158, 0.08);
+  border-radius: 22px;
+  box-shadow: inset 0 0 0 1px rgba(34, 22, 14, 0.24);
+  z-index: -1;
+}
+
 .game-main {
   width: 100%;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  gap: 20px;
-  margin-top: 2px;
+  gap: 22px;
+  margin-top: 4px;
 }
 .side {
   flex: none;
@@ -147,57 +127,20 @@ watch(() => game.currentDay, () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
-.intro-strip {
+.intro-overlay {
   position: absolute;
-  left: 50%;
-  bottom: 22px;
-  transform: translateX(-50%);
-  width: 680px;
-  max-width: 92vw;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  z-index: 20;
-}
-.bark-strip,
-.djinn-hint-strip {
-  position: absolute;
-  left: 50%;
-  bottom: 22px;
-  transform: translateX(-50%);
-  width: 680px;
-  max-width: 92vw;
-  z-index: 22;
-}
-.hint-card {
-  padding: 12px 18px;
-  border-radius: 6px;
-  text-align: center;
-}
-.hint-card p {
-  margin: 0;
-  font-size: 13px;
-}
-.dialog-fade-enter-active, .dialog-fade-leave-active {
-  transition: opacity 400ms ease, transform 400ms ease;
-}
-.dialog-fade-enter-from, .dialog-fade-leave-to {
-  opacity: 0;
-  transform: translateX(-50%) translateY(10px);
+  inset: 0;
+  z-index: 18;
+  cursor: pointer;
 }
 
-.begin {
-  background: var(--gold);
-  color: var(--ink);
-  padding: 8px 22px;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 14px;
+@media (max-width: 1180px) {
+  .game-main {
+    gap: 16px;
+  }
 }
-.begin:hover { background: var(--gold-soft); }
 
 </style>

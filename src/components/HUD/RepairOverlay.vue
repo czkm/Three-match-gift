@@ -36,7 +36,6 @@
         :text="today.monologue"
         hint="点击继续"
         @done="onMonoDone"
-        @skip="onMonoDone"
       />
 
       <button v-if="showAdvance" class="advance-btn" @click="onAdvance">
