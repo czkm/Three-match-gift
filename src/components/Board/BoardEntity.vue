@@ -7,7 +7,9 @@
       hidden: entity.hidden
     }]"
     :style="style"
-    :title="title"
+    @mouseenter="emit('monster-hover-enter', { kind: entity.kind, entityId: entity.id })"
+    @mouseleave="emit('monster-hover-leave', { kind: entity.kind, entityId: entity.id })"
+    @click.stop="emit('monster-inspect', { kind: entity.kind, entityId: entity.id })"
   >
     <span class="slot-frame" />
     <span class="glyph">{{ monster?.emoji || '' }}</span>
@@ -26,14 +28,13 @@
 <script setup>
 import { computed } from 'vue';
 import { MONSTERS } from '@/data/content';
-import { useGameStore } from '@/stores/gameStore';
 
 const props = defineProps({
   entity: { type: Object, required: true },
   tileSize: { type: Number, default: 60 }
 });
+const emit = defineEmits(['monster-hover-enter', 'monster-hover-leave', 'monster-inspect']);
 
-const game = useGameStore();
 const monster = computed(() => MONSTERS[props.entity.kind]);
 const djinnStage = computed(() => Math.max(0, Math.min(3, props.entity.hitsTaken || 0)));
 const style = computed(() => ({
@@ -41,15 +42,6 @@ const style = computed(() => ({
   height: `${(props.entity.height || 1) * props.tileSize}px`,
   transform: `translate3d(${props.entity.col * props.tileSize}px, ${props.entity.row * props.tileSize}px, 0)`
 }));
-const title = computed(() => {
-  if (props.entity.kind === 'djinn') {
-    const remain = Math.max(0, (props.entity.hitsRequired || 3) - (props.entity.hitsTaken || 0));
-    return remain > 0 ? `迪精封印还需命中 ${remain} 次` : '迪精即将解放';
-  }
-  const remain = Math.max(0, (props.entity.hitsRequired || 1) - (props.entity.hitsTaken || 0));
-  const hint = monster.value?.clearRule?.hint;
-  return hint || `${monster.value?.name || '怪物'}还需被命中 ${remain} 次`;
-});
 </script>
 
 <style scoped>
@@ -62,7 +54,8 @@ const title = computed(() => {
   overflow: hidden;
   border-radius: 14px;
   z-index: 7;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: help;
   border: 1px solid rgba(232, 212, 178, 0.2);
   box-shadow:
     inset 0 1px 0 rgba(255, 246, 226, 0.08),
@@ -170,6 +163,7 @@ const title = computed(() => {
   gap: 4px;
   transform: translateX(-50%);
   z-index: 2;
+  opacity: 0.42;
 }
 
 .hp-dot {
@@ -183,6 +177,10 @@ const title = computed(() => {
 .hp-dot.spent {
   background: rgba(90, 72, 52, 0.45);
   box-shadow: none;
+}
+
+.entity:hover .hp-bar {
+  opacity: 0.7;
 }
 
 @keyframes djinn-pulse {

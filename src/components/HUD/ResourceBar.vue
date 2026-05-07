@@ -41,6 +41,7 @@ const messageFresh = ref(false);
 let freshTimer = null;
 
 const messageKind = computed(() => {
+  if (game.currentMonsterInfo) return 'monster';
   if (game.phase === 'intro') return 'narration';
   if (game.barkLine) return 'geralt';
   if (game.phase === 'targeting') return 'system';
@@ -50,6 +51,7 @@ const messageKind = computed(() => {
 
 const messageEyebrow = computed(() => {
   switch (messageKind.value) {
+    case 'monster': return '怪物情报';
     case 'narration': return '今日场景';
     case 'geralt': return '杰洛特';
     case 'system': return '系统提示';
@@ -59,6 +61,7 @@ const messageEyebrow = computed(() => {
 
 const messageIcon = computed(() => {
   switch (messageKind.value) {
+    case 'monster': return game.currentMonsterInfo?.emoji || '👁';
     case 'narration': return '📖';
     case 'geralt': return '🐺';
     case 'system': return '✨';
@@ -67,6 +70,7 @@ const messageIcon = computed(() => {
 });
 
 const messageTitle = computed(() => {
+  if (game.currentMonsterInfo) return game.currentMonsterInfo.label;
   if (game.phase === 'intro') return game.today?.building?.cn || '';
   if (game.barkLine) return '临场自语';
   if (game.phase === 'targeting') return '当前指令';
@@ -75,6 +79,14 @@ const messageTitle = computed(() => {
 });
 
 const messageText = computed(() => {
+  if (game.currentMonsterInfo) {
+    return [
+      game.currentMonsterInfo.healthLabel,
+      game.currentMonsterInfo.weakness,
+      game.currentMonsterInfo.pressure,
+      game.currentMonsterInfo.echo
+    ].filter(Boolean).join('\n');
+  }
   if (game.phase === 'intro') return game.today?.intro || '';
   if (game.barkLine) return game.barkLine;
 
@@ -311,6 +323,25 @@ h3 {
 .kind-system .message-title,
 .kind-system .message-eyebrow {
   color: #9c6e2c;
+}
+
+.kind-monster {
+  background:
+    linear-gradient(180deg, rgba(96, 78, 58, 0.16), rgba(255, 248, 238, 0.72));
+  border-color: rgba(102, 72, 44, 0.28);
+}
+
+.kind-monster::before {
+  background: linear-gradient(180deg, #8f6b42, #3f2a1d);
+}
+
+.kind-monster .message-icon {
+  background: rgba(230, 214, 194, 0.72);
+}
+
+.kind-monster .message-title,
+.kind-monster .message-eyebrow {
+  color: #4f3827;
 }
 
 .kind-hint {

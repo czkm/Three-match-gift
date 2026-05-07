@@ -22,7 +22,7 @@
  * gives the cascade its tactile rhythm.
  */
 import EventBus from './eventBus';
-import { MONSTER_CHARS, RESOURCE_CHARS } from '@/data/content';
+import { MONSTER_CHARS, RESOURCE_CHARS, ROT_CHAR } from '@/data/content';
 
 export const SEP = 'X';
 export const HOLE = 'O';
@@ -193,14 +193,15 @@ export class Board {
     const resourcesGained = {};
     for (const t of removed) {
       this.setTile(t.row, t.col, HOLE);
-      resourcesGained[t.char] = (resourcesGained[t.char] || 0) + 1;
+      if (t.char !== ROT_CHAR) resourcesGained[t.char] = (resourcesGained[t.char] || 0) + 1;
     }
 
     const removedMonsterTiles = typeof this.opts.resolveMonsterHits === 'function'
       ? this.opts.resolveMonsterHits(
-          removed.map((item) => ({ row: item.row, col: item.col, char: item.char, groupSize: 0 })),
+          removed.map((item) => ({ row: item.row, col: item.col, char: item.char, groupSize: 0, axis, isLineSweep: true })),
           0,
-          'lineSweep'
+          'lineSweep',
+          [{ axis, size: removed.length, char: null, positions: removed.map((item) => ({ row: item.row, col: item.col })) }]
         ) || []
       : [];
     for (const cell of removedMonsterTiles) {
@@ -276,6 +277,46 @@ export class Board {
       matchGroups: [],
       chain: this._chain
     }]);
+  }
+
+  setCellChar(row, col, char, { collapse = false } = {}) {
+    if (row < 0 || row >= this.opts.rows || col < 0 || col >= this.opts.columns) return false;
+    if (this._isBlockedCell(row, col)) return false;
+    if (this._isMonsterChar(this.getTile(row, col))) return false;
+    this.setTile(row, col, char);
+    if (collapse) {
+      const added = this._compactAndRefill();
+      this.lastSwitch = null;
+      this._setGraphicsCallback(() => this.checkMatches());
+      EventBus.trigger('draw', ['board.match', {
+        removed: [],
+        added,
+        swapSide: 'center',
+        groupSizes: [],
+        matchGroups: [],
+        chain: this._chain
+      }]);
+    } else {
+      EventBus.trigger('draw', ['board.convert', { type: 'cell', row, col, char }]);
+    }
+    return true;
+  }
+
+  applyEndTurnMonsterPressure(handler) {
+    if (typeof handler !== 'function') return [];
+    const actions = handler({
+      rows: this.opts.rows,
+      columns: this.opts.columns,
+      getTile: (row, col) => this.getTile(row, col),
+      setTile: (row, col, char) => this.setTile(row, col, char),
+      isBlocked: (row, col) => this._isBlockedCell(row, col),
+      isMonster: (char) => this._isMonsterChar(char),
+      hole: HOLE,
+      rot: ROT_CHAR
+    }) || [];
+    if (!actions.length) return [];
+    EventBus.trigger('draw', ['board.convert', { type: 'monsterPressure', actions }]);
+    return actions;
   }
 
   /** Find a single hint move (lilacReturn). Returns {a, b} or null. */
@@ -355,7 +396,7 @@ export class Board {
     for (let i = 0; i < vMask.length; i++) {
       if ((vMask[i] === 1 || hMask[i] === 1) && this.getTile(i) !== HOLE) {
         const ch = this.getTile(i);
-        resourcesGained[ch] = (resourcesGained[ch] || 0) + 1;
+        if (ch !== ROT_CHAR) resourcesGained[ch] = (resourcesGained[ch] || 0) + 1;
         this.setTile(i, HOLE);
         removed.push({ position: this.getPosition(i), char: ch });
       }
@@ -369,12 +410,13 @@ export class Board {
         row: item.position.row,
         col: item.position.col,
         char: item.char,
-        groupSize: match?.size || 0
+        groupSize: match?.size || 0,
+        axis: match?.axis || null
       };
     });
 
     const removedMonsterTiles = typeof this.opts.resolveMonsterHits === 'function'
-      ? this.opts.resolveMonsterHits(clearedTiles, this._chain, 'match') || []
+      ? this.opts.resolveMonsterHits(clearedTiles, this._chain, 'match', matchGroups) || []
       : [];
 
     for (const cell of removedMonsterTiles) {
@@ -496,7 +538,7 @@ export class Board {
         let end = idx + 1;
         while (end < segment.length && segment.charAt(end) === ch) end++;
         const size = end - idx;
-        if (size >= 3 && !MONSTER_CHARS.includes(ch) && ch !== HOLE) {
+        if (size >= 3 && !MONSTER_CHARS.includes(ch) && ch !== HOLE && ch !== ROT_CHAR) {
           found = true;
           groupSizes.push(size);
           const positions = [];

@@ -162,11 +162,22 @@ h3 {
 .ab-btn:hover:not(:disabled) {
   background:
     linear-gradient(180deg, rgba(255, 247, 224, 0.26) 0%, rgba(255, 247, 224, 0.08) 18%),
-    linear-gradient(180deg, rgba(208, 168, 87, 0.28) 0%, rgba(138, 93, 45, 0.16) 100%);
-  transform: translateY(-1px);
+    linear-gradient(180deg, rgba(208, 168, 87, 0.38) 0%, rgba(138, 93, 45, 0.26) 100%);
+  border-color: rgba(208, 168, 87, 0.52);
+  transform: translateY(-2px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 243, 214, 0.24),
-    0 10px 18px rgba(24, 16, 10, 0.12);
+    inset 0 1px 0 rgba(255, 243, 214, 0.28),
+    0 12px 20px rgba(24, 16, 10, 0.18);
+}
+.ab-btn:active:not(:disabled) {
+  background:
+    linear-gradient(180deg, rgba(255, 247, 224, 0.18) 0%, rgba(255, 247, 224, 0.02) 18%),
+    linear-gradient(180deg, rgba(138, 93, 45, 0.16) 0%, rgba(208, 168, 87, 0.28) 100%);
+  border-color: rgba(208, 168, 87, 0.22);
+  transform: translateY(0);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 243, 214, 0.12),
+    0 4px 8px rgba(24, 16, 10, 0.06);
 }
 .ab-btn.pending {
   background:

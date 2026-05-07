@@ -1616,9 +1616,10 @@ onBeforeUnmount(() => {
 
 .hotspot:hover:not(:disabled),
 .hotspot.active {
-  transform: scale(1.08);
-  background: rgba(255, 248, 228, 0.42);
-  box-shadow: 0 0 0 8px rgba(255, 230, 170, 0.12);
+  transform: scale(1.12);
+  background: rgba(255, 248, 228, 0.52);
+  box-shadow: 0 0 0 10px rgba(255, 230, 170, 0.18),
+              0 0 16px rgba(255, 230, 170, 0.28);
 }
 
 .hotspot:disabled {

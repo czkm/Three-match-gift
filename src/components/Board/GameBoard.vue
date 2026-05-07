@@ -21,10 +21,36 @@
           }"
         />
 
+        <span
+          v-for="cell in djinnSealCells"
+          :key="`seal-${cell.row}-${cell.col}-${cell.stage}`"
+          class="seal-cell"
+          :class="`stage-${cell.stage + 1}`"
+          :style="{ transform: `translate3d(${cell.col * TILE_SIZE}px, ${cell.row * TILE_SIZE}px, 0)` }"
+        />
+
+        <span
+          v-for="cell in visibleRotCells"
+          :key="`rot-${cell.ownerId}-${cell.row}-${cell.col}`"
+          class="rot-mark"
+          :style="{ transform: `translate3d(${cell.col * TILE_SIZE}px, ${cell.row * TILE_SIZE}px, 0)` }"
+        />
+
+        <span
+          v-for="cell in game.mistCells"
+          :key="`mist-${cell.ownerId}-${cell.row}-${cell.col}`"
+          class="mist-cell"
+          :class="{ revealed: revealedMistKeys.has(`${cell.row}:${cell.col}`) }"
+          :style="{ transform: `translate3d(${cell.col * TILE_SIZE}px, ${cell.row * TILE_SIZE}px, 0)` }"
+        />
+
         <BoardTile
           v-for="t in tiles"
           :key="t.id"
           :tile="t"
+          :monster="monsterAt(t.row, t.col)"
+          :mist="mistCellKeys.has(`${t.row}:${t.col}`)"
+          :mist-revealed="revealedMistKeys.has(`${t.row}:${t.col}`)"
           :selected="selectedId === t.id"
           :hint="hintIds.has(t.id)"
           :preview="previewState(t)"
@@ -37,6 +63,9 @@
           :key="entity.id"
           :entity="entity"
           :tile-size="TILE_SIZE"
+          @monster-hover-enter="onMonsterHoverEnter"
+          @monster-hover-leave="onMonsterHoverLeave"
+          @monster-inspect="onMonsterInspect"
         />
 
         <!-- Petal layer for 5+ matches & repair -->
@@ -91,7 +120,7 @@ import { useTileDrag } from '@/composables/useTileDrag';
 import { useGameStore } from '@/stores/gameStore';
 import { TIMING } from '@/utils/timing';
 import { makeGuid } from '@/utils/guid';
-import { ABILITIES, MONSTER_BY_CHAR, MONSTERS, RESOURCE_BY_ID, unlockedCharsForDay } from '@/data/content';
+import { ABILITIES, MONSTER_BY_CHAR, MONSTERS, RESOURCE_BY_ID, ROT_CHAR, unlockedCharsForDay } from '@/data/content';
 
 const game = useGameStore();
 const ROWS = 8, COLS = 8;
@@ -99,7 +128,7 @@ const TILE_SIZE = 60;
 const PAD = 4;
 const BIG_MATCH_BREATH_MS = 480;
 
-const charMap = { g: 'grape', w: 'wood', s: 'stone', c: 'clay', h: 'herb', m: 'magic' };
+const charMap = { g: 'grape', w: 'wood', s: 'stone', c: 'clay', h: 'herb', m: 'magic', [ROT_CHAR]: 'rot' };
 const typeFromChar = (ch) => {
   const monster = MONSTER_BY_CHAR[ch];
   if (monster) return `monster-${monster.id}`;
@@ -119,6 +148,40 @@ const lastClearSource = ref('match');
 
 const rowsCount = computed(() => ROWS);
 const colsCount = computed(() => COLS);
+const mistCellKeys = computed(() => new Set(game.mistCells.map((cell) => `${cell.row}:${cell.col}`)));
+const selectedTilePos = computed(() => {
+  const tile = tiles.value.find((item) => item.id === selectedId.value && !item.pooled && !item.hidden);
+  return tile ? { row: tile.row, col: tile.col } : null;
+});
+const revealedMistKeys = computed(() => {
+  const keys = new Set();
+  const pos = activeTile.value || selectedTilePos.value;
+  if (!pos) return keys;
+  for (let row = pos.row - 1; row <= pos.row + 1; row++) {
+    for (let col = pos.col - 1; col <= pos.col + 1; col++) keys.add(`${row}:${col}`);
+  }
+  return keys;
+});
+const visibleRotCells = computed(() => game.rotCells || []);
+const djinnSealCells = computed(() => {
+  const entity = game.djinnEntity;
+  if (!entity) return [];
+  const stage = entity.hitsTaken || 0;
+  const cells = [];
+  const top = entity.row - 1;
+  const left = entity.col - 1;
+  const bottom = entity.row + (entity.height || 2);
+  const right = entity.col + (entity.width || 2);
+  for (let row = top; row <= bottom; row++) {
+    for (let col = left; col <= right; col++) {
+      const inside = row >= entity.row && row < entity.row + (entity.height || 2) && col >= entity.col && col < entity.col + (entity.width || 2);
+      if (inside || row < 0 || row >= ROWS || col < 0 || col >= COLS) continue;
+      if (stage === 1 && col !== entity.col - 1 && col !== entity.col + (entity.width || 2)) continue;
+      cells.push({ row, col, stage });
+    }
+  }
+  return cells;
+});
 
 const containerStyle = computed(() => ({
   width:  `${COLS * TILE_SIZE}px`,
@@ -223,6 +286,7 @@ const { activeTile, pickTile, moveDrag, endDrag, clearActive, previewTile } = us
 
 watch(activeTile, (a) => {
   if (!a) { selectedId.value = null; return; }
+  game.clearMonsterInfo();
   const t = tileAt(a.row, a.col);
   selectedId.value = t?.id ?? null;
 });
@@ -233,23 +297,33 @@ const tapBuffer = ref([]);   // for twoTiles ability
 
 function onPick(payload, evt) {
   bumpIdle();
+  game.clearMonsterInfo();
   const monster = monsterAt(payload.row, payload.col);
   if (monster) {
     selectedId.value = null;
+    game.showMonsterInfo(monster.kind, monster.id, 'click');
     const hint = MONSTERS[monster.kind]?.clearRule?.hint;
-    game.queueBark(hint || `${MONSTERS[monster.kind]?.name || '怪物'}挡在这里。`);
+    if (!game.barkLine) {
+      game.queueAmbientBark(hint || `${MONSTERS[monster.kind]?.name || '怪物'}挡在这里。`);
+    }
     return;
   }
   if (isBlockedCell(payload.row, payload.col)) {
     selectedId.value = null;
     const entity = entityAt(payload.row, payload.col);
     if (entity?.kind === 'djinn') {
+      game.showMonsterInfo(entity.kind, entity.id, 'click');
       const remain = Math.max(0, game.djinnHitsRequired - game.djinnHitCount);
-      game.queueBark(remain > 0 ? `迪精封印还需命中 ${remain} 次。` : '迪精即将解放。');
+      if (!game.barkLine) {
+        game.queueAmbientBark(remain > 0 ? `迪精封印还需命中 ${remain} 次。` : '迪精即将解放。');
+      }
     } else if (entity) {
       const hint = MONSTERS[entity.kind]?.clearRule?.hint;
       const remain = Math.max(0, (entity.hitsRequired || 1) - (entity.hitsTaken || 0));
-      game.queueBark(hint || `还需命中 ${remain} 次。`);
+      game.showMonsterInfo(entity.kind, entity.id, 'click');
+      if (!game.barkLine) {
+        game.queueAmbientBark(hint || `还需命中 ${remain} 次。`);
+      }
     }
     return;
   }
@@ -305,7 +379,24 @@ function cancelTarget() {
   tapBuffer.value = [];
   selectedId.value = null;
   hintIds.value = new Set();
+  game.clearMonsterInfo();
   game.cancelTarget();
+}
+
+function onMonsterHoverEnter({ kind, entityId }) {
+  if (!kind) return;
+  game.showMonsterInfo(kind, entityId, 'hover');
+}
+
+function onMonsterHoverLeave({ entityId }) {
+  if (game.inspectedMonster?.source === 'hover' && (!entityId || game.inspectedMonster.entityId === entityId)) {
+    game.clearMonsterInfo('hover');
+  }
+}
+
+function onMonsterInspect({ kind, entityId }) {
+  if (!kind) return;
+  game.showMonsterInfo(kind, entityId, 'click');
 }
 
 /* ---------- exposed for ability bar ---------- */
@@ -675,6 +766,12 @@ function maybeCommitTurn() {
   // Wait until the board has nothing pending.
   if (!board.value) return;
   if (!board.value.canMove()) return;
+  const pressureActions = board.value.applyEndTurnMonsterPressure?.((api) => game.applyMonsterPressure(api)) || [];
+  if (pressureActions.length) {
+    syncMonsterTilesFromEngine();
+    setTimeout(() => maybeCommitTurn(), 60);
+    return;
+  }
   bumpIdle();
   refreshHints();
   const action = game.onAfterMove();
@@ -722,6 +819,9 @@ watch(() => game.stepsLeft, () => {
 });
 watch(() => game.unlockedAbilities.length, refreshHints);
 watch(() => game.phase, (phase) => {
+  if (phase !== 'playing') {
+    game.clearMonsterInfo();
+  }
   if (phase !== 'wish') return;
   clearActive();
   selectedId.value = null;
@@ -870,6 +970,61 @@ function triggerSunsetRake() {
     inset 0 0 0 1px rgba(255, 238, 204, 0.05),
     inset 0 2px 6px rgba(0, 0, 0, 0.3),
     inset 0 -8px 12px rgba(0, 0, 0, 0.22);
+}
+
+.mist-cell,
+.rot-mark,
+.seal-cell {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  pointer-events: none;
+}
+
+.mist-cell {
+  z-index: 6;
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 45% 38%, rgba(234, 232, 255, 0.45), transparent 42%),
+    linear-gradient(145deg, rgba(170, 174, 198, 0.42), rgba(62, 64, 82, 0.34));
+  box-shadow: inset 0 0 16px rgba(240, 240, 255, 0.18);
+  backdrop-filter: blur(3px);
+  opacity: 0.78;
+  transition: opacity 140ms ease, filter 140ms ease;
+}
+
+.mist-cell.revealed {
+  opacity: 0.2;
+  filter: blur(5px);
+}
+
+.rot-mark {
+  z-index: 2;
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 50% 60%, rgba(92, 68, 42, 0.48), transparent 52%),
+    repeating-linear-gradient(135deg, rgba(74, 52, 32, 0.36) 0 6px, rgba(38, 28, 18, 0.28) 6px 12px);
+  box-shadow: inset 0 0 0 1px rgba(106, 82, 52, 0.32);
+}
+
+.seal-cell {
+  z-index: 2;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 2px rgba(238, 204, 118, 0.55), 0 0 16px rgba(236, 190, 92, 0.28);
+  animation: seal-pulse 1.2s ease-in-out infinite;
+}
+
+.seal-cell.stage-2 {
+  box-shadow: inset 0 0 0 2px rgba(120, 190, 238, 0.62), 0 0 16px rgba(92, 172, 236, 0.32);
+}
+
+.seal-cell.stage-3 {
+  box-shadow: inset 0 0 0 2px rgba(206, 154, 255, 0.68), 0 0 18px rgba(182, 120, 255, 0.38);
+}
+
+@keyframes seal-pulse {
+  0%, 100% { opacity: 0.46; }
+  50% { opacity: 0.82; }
 }
 
 .line-btn {

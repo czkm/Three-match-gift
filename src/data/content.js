@@ -9,16 +9,19 @@
 /* -------- Resources -------- */
 export const RESOURCES = [
   { id: 'grape', char: 'g', label: '葡萄', emoji: '🍇', cn: '葡萄' },
-  { id: 'wood',  char: 'w', label: '木材', emoji: '🪵', cn: '木材' },
+  { id: 'wood', char: 'w', label: '木材', emoji: '🪵', cn: '木材' },
   { id: 'stone', char: 's', label: '石材', emoji: '🪨', cn: '石材' },
-  { id: 'clay',  char: 'c', label: '陶土', emoji: '🧱', cn: '陶土' },
-  { id: 'herb',  char: 'h', label: '草药', emoji: '🌿', cn: '草药' },
+  { id: 'clay', char: 'c', label: '陶土', emoji: '🧱', cn: '陶土' },
+  { id: 'herb', char: 'h', label: '草药', emoji: '🌿', cn: '草药' },
   { id: 'magic', char: 'm', label: '魔力', emoji: '✨', cn: '魔力' }
-];
+]
 
-export const RESOURCE_BY_CHAR = Object.fromEntries(RESOURCES.map((r) => [r.char, r]));
-export const RESOURCE_BY_ID   = Object.fromEntries(RESOURCES.map((r) => [r.id, r]));
-export const RESOURCE_CHARS   = RESOURCES.map((r) => r.char);
+export const RESOURCE_BY_CHAR = Object.fromEntries(
+  RESOURCES.map(r => [r.char, r])
+)
+export const RESOURCE_BY_ID = Object.fromEntries(RESOURCES.map(r => [r.id, r]))
+export const RESOURCE_CHARS = RESOURCES.map(r => r.char)
+export const ROT_CHAR = 'r'
 
 /**
  * Resources unlock progressively as new buildings introduce them.
@@ -34,13 +37,20 @@ export const RESOURCE_CHARS   = RESOURCES.map((r) => r.char);
  * stays consistent.
  */
 export function unlockedCharsForDay(dayIndex) {
-  const idMap = { grape: 'g', wood: 'w', stone: 's', clay: 'c', herb: 'h', magic: 'm' };
-  const seen = new Set();
-  const upTo = Math.max(0, Math.min(DAYS.length - 1, dayIndex));
-  for (let i = 0; i <= upTo; i++) {
-    for (const id of Object.keys(DAYS[i].needs)) seen.add(idMap[id]);
+  const idMap = {
+    grape: 'g',
+    wood: 'w',
+    stone: 's',
+    clay: 'c',
+    herb: 'h',
+    magic: 'm'
   }
-  return RESOURCE_CHARS.filter((ch) => seen.has(ch));
+  const seen = new Set()
+  const upTo = Math.max(0, Math.min(DAYS.length - 1, dayIndex))
+  for (let i = 0; i <= upTo; i++) {
+    for (const id of Object.keys(DAYS[i].needs)) seen.add(idMap[id])
+  }
+  return RESOURCE_CHARS.filter(ch => seen.has(ch))
 }
 
 /* -------- Abilities -------- */
@@ -127,7 +137,7 @@ export const ABILITIES = {
     type: 'passive',
     icon: '🪻'
   }
-};
+}
 
 /* -------- 9-day data -------- */
 export const DAYS = [
@@ -136,11 +146,11 @@ export const DAYS = [
     building: { id: 'courtyard', cn: '庭院', en: 'Courtyard', emoji: '🌿' },
     needs: { grape: 30, wood: 20, stone: 20 },
     ability: 'whiteWolfTidy',
-    intro:
-`庭院里的杂草快长到腰了。石路断了几截，喷泉里只有泥和落叶。
+    intro: `庭院里的杂草快长到腰了。石路断了几截，喷泉里只有泥和落叶。
 杰洛特站了一会儿，叹了口气。
 "行吧。至少没有水鬼。"`,
-    completed: '石路重新露了出来，喷泉边的藤蔓被修剪整齐。一只白鸦落在旧门柱上，看了他一眼，又飞走了。',
+    completed:
+      '石路重新露了出来，喷泉边的藤蔓被修剪整齐。一只白鸦落在旧门柱上，看了他一眼，又飞走了。',
     monologue: '"草长得比食尸鬼还快。先收拾这里，至少……像个人住的地方。"',
     completedBanner: '庭院重新露出了石路。'
   },
@@ -149,11 +159,11 @@ export const DAYS = [
     building: { id: 'vineyard', cn: '葡萄园', en: 'Vineyard', emoji: '🍇' },
     needs: { grape: 50, wood: 30 },
     ability: 'toussentHarvest',
-    intro:
-`葡萄藤还活着。
+    intro: `葡萄藤还活着。
 它们只是被荒草压弯，被风雨忘在了这里。
 杰洛特扶起一根藤架，手掌上沾了些泥。`,
-    completed: '藤架重新立起，嫩叶在风里发亮。远处的陶森特丘陵像一杯浅金色的酒。',
+    completed:
+      '藤架重新立起，嫩叶在风里发亮。远处的陶森特丘陵像一杯浅金色的酒。',
     monologue: '"等得到。葡萄藤比人活得长。"',
     completedBanner: '葡萄藤重新爬上了藤架。'
   },
@@ -162,11 +172,11 @@ export const DAYS = [
     building: { id: 'cellar', cn: '酒窖', en: 'Wine Cellar', emoji: '🛢️' },
     needs: { wood: 30, clay: 30, grape: 20 },
     ability: 'agedBarrel',
-    intro:
-`酒窖里有灰尘、蜘蛛网和几只裂开的旧木桶。
+    intro: `酒窖里有灰尘、蜘蛛网和几只裂开的旧木桶。
 也有几瓶奇迹般活下来的酒。
 杰洛特拔开木塞，闻了闻。`,
-    completed: '石墙被重新加固，木桶排成整齐的一列。最深处的架子上，留出了一瓶酒的位置。',
+    completed:
+      '石墙被重新加固，木桶排成整齐的一列。最深处的架子上，留出了一瓶酒的位置。',
     monologue: '"还行。留一瓶。她会说酸，但她会喝。"',
     completedBanner: '酒窖里重新有了木桶和灯火。'
   },
@@ -175,11 +185,11 @@ export const DAYS = [
     building: { id: 'stables', cn: '马厩', en: 'Stables', emoji: '🐎' },
     needs: { wood: 40, stone: 30 },
     ability: 'roachPath',
-    intro:
-`马厩的门歪着，屋顶漏了半边。
+    intro: `马厩的门歪着，屋顶漏了半边。
 萝卜站在门口，像是在审查工程质量。
 杰洛特看着它。它也看着杰洛特。`,
-    completed: '新木梁撑起屋顶，干草铺得厚而暖。萝卜走进去，打了个响鼻，似乎勉强认可。',
+    completed:
+      '新木梁撑起屋顶，干草铺得厚而暖。萝卜走进去，打了个响鼻，似乎勉强认可。',
     monologue: '"行了。你也有顶棚了。别再把头从窗户伸进来。"',
     completedBanner: '马厩里又有了干草和顶棚。'
   },
@@ -188,8 +198,7 @@ export const DAYS = [
     building: { id: 'garden', cn: '花园', en: 'Garden', emoji: '🪻' },
     needs: { herb: 50, grape: 30 },
     ability: 'lilacSeed',
-    intro:
-`花坛荒了很久。泥土里还有旧时的根。
+    intro: `花坛荒了很久。泥土里还有旧时的根。
 杰洛特蹲下，翻出一小截枯枝，闻到一点几乎消失的香气。
 丁香。还有醋栗。`,
     completed: '花园重新有了边界。草药、白花和紫色丁香沿着小径慢慢铺开。',
@@ -201,8 +210,7 @@ export const DAYS = [
     building: { id: 'greenhouse', cn: '温室', en: 'Greenhouse', emoji: '🌱' },
     needs: { herb: 40, clay: 30, magic: 20 },
     ability: 'greenhouseNurture',
-    intro:
-`温室的玻璃碎了几块，藤蔓钻进窗缝。
+    intro: `温室的玻璃碎了几块，藤蔓钻进窗缝。
 有些花不适合风雨，有些人也一样。
 但只要有一点暖光，它们就会重新开。`,
     completed: '新玻璃映出晚霞。温室里有了湿润的土、细小的芽和一盏温暖的灯。',
@@ -214,11 +222,11 @@ export const DAYS = [
     building: { id: 'gazebo', cn: '露台', en: 'Gazebo', emoji: '🌅' },
     needs: { stone: 40, wood: 30, magic: 10 },
     ability: 'toussentSunset',
-    intro:
-`露台朝着夕阳。
+    intro: `露台朝着夕阳。
 地砖松动，栏杆生锈，但视野很好。
 杰洛特站在这里，沉默了很久。`,
-    completed: '露台铺上新石板，栏杆擦出暗金色的光。一张小圆桌旁，只先放了一把椅子。',
+    completed:
+      '露台铺上新石板，栏杆擦出暗金色的光。一张小圆桌旁，只先放了一把椅子。',
     monologue: '"先放一把。两把的话……太像在等了。"',
     completedBanner: '露台等到了夕阳。'
   },
@@ -227,8 +235,7 @@ export const DAYS = [
     building: { id: 'kitchen', cn: '厨房', en: 'Kitchen', emoji: '🍲' },
     needs: { clay: 40, grape: 30, wood: 20 },
     ability: 'hearthStew',
-    intro:
-`厨房的炉子还能用，只是积了太多灰。
+    intro: `厨房的炉子还能用，只是积了太多灰。
 锅挂在墙上，像一面沉默的盾。
 杰洛特想了想，也许炖汤不算太难。`,
     completed: '炉火重新亮起。木桌擦干净，架子上放着酒、面包和几束草药。',
@@ -237,19 +244,24 @@ export const DAYS = [
   },
   {
     day: 9,
-    building: { id: 'lilacSuite', cn: '紫丁香客房', en: 'Lilac Suite', emoji: '🛏️' },
+    building: {
+      id: 'lilacSuite',
+      cn: '紫丁香客房',
+      en: 'Lilac Suite',
+      emoji: '🛏️'
+    },
     needs: { wood: 40, herb: 30, magic: 30 },
     ability: 'lilacReturn',
-    intro:
-`最后一间房朝向花园。
+    intro: `最后一间房朝向花园。
 早晨有阳光，傍晚能闻到丁香。
 杰洛特把旧床板拆掉，换上新的木架。`,
-    completed: '房间安静下来。窗边有书桌，床边有两只枕头，花瓶里插着紫丁香。风吹进来，窗帘轻轻动了一下。',
+    completed:
+      '房间安静下来。窗边有书桌，床边有两只枕头，花瓶里插着紫丁香。风吹进来，窗帘轻轻动了一下。',
     monologue: '"床别太硬。枕头放两个。她说不会在意，但她会。"',
     completedBanner: '紫丁香客房，已为她准备好。',
     ending: true
   }
-];
+]
 
 /* -------- Day-end gentle reminders -------- */
 export const DAY_END_LINES = [
@@ -258,7 +270,7 @@ export const DAY_END_LINES = [
   '明天继续。葡萄藤不会一夜之间跑掉。',
   '工具放好。明天接着干。',
   '今天先这样。陶森特的天黑得慢。'
-];
+]
 
 export const MONSTERS = {
   nekkers: {
@@ -266,11 +278,23 @@ export const MONSTERS = {
     char: 'N',
     name: '孽鬼',
     emoji: '👺',
-    hits: 2,
+    uiLabel: '孽鬼',
+    uiWeaknessShort: '弱点：上下左右贴身三消。',
+    uiPressureShort: '若没受伤，回合末会向最近边缘跳 1 格。',
+    hp: 1,
+    hits: 1,
     reward: {},
+    clearReward: {},
+    damageRule: {
+      type: 'orthogonalAdjacent',
+      hint: '在它上下左右打出一次 3 连及以上匹配，就会把它驱走。'
+    },
+    pressureRule: { type: 'edgeJump' },
+    telegraph: '正交贴身',
+    echoLabel: '移走一个乱跑的干扰点。',
     clearRule: {
       type: 'adjacentMatch',
-      hint: '在它上下左右打出一次有效三消，就会掉 1 点生命。'
+      hint: '在它上下左右打出一次 3 连及以上匹配，就会把它驱走。'
     },
     introLine: '孽鬼。闻到葡萄味了。',
     removeLine: '去别处找吃的。'
@@ -280,11 +304,23 @@ export const MONSTERS = {
     char: 'D',
     name: '水鬼',
     emoji: '🧟',
+    uiLabel: '水鬼',
+    uiWeaknessShort: '弱点：正上或正下的纵向匹配。',
+    uiPressureShort: '若没受伤，回合末会下沉 1 格。',
+    hp: 2,
     hits: 2,
-    reward: { grape: 3 },
+    reward: { grape: 2 },
+    clearReward: { grape: 2 },
+    damageRule: {
+      type: 'verticalAdjacent',
+      hint: '只有纵向匹配命中它的正上方或正下方，才会掉 1 点生命。'
+    },
+    pressureRule: { type: 'sink' },
+    telegraph: '纵向箭头',
+    echoLabel: '击退后该列正常坍塌，并额外给 +2 葡萄。',
     clearRule: {
       type: 'adjacentMatch',
-      hint: '在它上下左右打出一次有效三消，就会掉 1 点生命。'
+      hint: '只有纵向匹配命中它的正上方或正下方，才会掉 1 点生命。'
     },
     introLine: '水鬼。闻到葡萄味了？',
     removeLine: '回水里去。'
@@ -294,11 +330,23 @@ export const MONSTERS = {
     char: 'G',
     name: '食尸鬼',
     emoji: '🧌',
+    uiLabel: '食尸鬼',
+    uiWeaknessShort: '弱点：脚下清空，或本行横向擦到它。',
+    uiPressureShort: '若没受伤，回合末会在脚下留下腐土。',
+    hp: 2,
     hits: 2,
-    reward: { herb: 3 },
+    reward: { herb: 2 },
+    clearReward: { herb: 2 },
+    damageRule: {
+      type: 'underfootOrRowHorizontal',
+      hint: '清到它脚下那格，或在同一行做横向匹配擦到它，才会掉 1 点生命。'
+    },
+    pressureRule: { type: 'rotUnderfoot' },
+    telegraph: '脚下腐土',
+    echoLabel: '击退后清掉它生成的腐土，并给 +2 草药。',
     clearRule: {
       type: 'adjacentMatch',
-      hint: '在它上下左右打出一次有效三消，就会掉 1 点生命。'
+      hint: '清到它脚下那格，或在同一行做横向匹配擦到它，才会掉 1 点生命。'
     },
     introLine: '食尸鬼。大概是跟着我来的。',
     removeLine: '走吧。这里没你要的。'
@@ -308,11 +356,23 @@ export const MONSTERS = {
     char: 'F',
     name: '小雾妖',
     emoji: '🌫️',
+    uiLabel: '小雾妖',
+    uiWeaknessShort: '弱点：匹配包含雾幕内被遮住的格子。',
+    uiPressureShort: '常驻 3×3 雾幕，悬停或选中时短暂显形。',
+    hp: 2,
     hits: 2,
-    reward: { magic: 2 },
+    reward: { magic: 1 },
+    clearReward: { magic: 1 },
+    damageRule: {
+      type: 'mistMatch',
+      hint: '只要本次匹配包含它 3×3 雾幕里的格子，就会掉 1 点生命。'
+    },
+    pressureRule: { type: 'mistAura' },
+    telegraph: '3×3 雾幕',
+    echoLabel: '雾幕消散，并短暂亮出 1 个可行走法，附带 +1 魔力。',
     clearRule: {
       type: 'adjacentMatch',
-      hint: '在它上下左右打出一次有效三消，就会掉 1 点生命。'
+      hint: '只要本次匹配包含它 3×3 雾幕里的格子，就会掉 1 点生命。'
     },
     introLine: '雾气。还有雾里的东西。',
     removeLine: '散开就好。'
@@ -322,11 +382,23 @@ export const MONSTERS = {
     char: 'W',
     name: '怨灵',
     emoji: '👻',
+    uiLabel: '怨灵',
+    uiWeaknessShort: '弱点：连锁 ≥2，或附近 4 连及以上。',
+    uiPressureShort: '若没受有效伤害，回合末恢复 1 层护纱。',
+    hp: 2,
     hits: 2,
-    reward: { magic: 3 },
+    reward: { magic: 2 },
+    clearReward: { magic: 2 },
+    damageRule: {
+      type: 'qualityAdjacent',
+      hint: '只有连锁层数 ≥2，或 4 连及以上命中它附近，才算有效伤害。'
+    },
+    pressureRule: { type: 'restoreShield' },
+    telegraph: '护纱',
+    echoLabel: '击退后，其他怪物下一回合不触发骚扰，并给 +2 魔力。',
     clearRule: {
       type: 'adjacentMatch',
-      hint: '在它上下左右打出一次有效三消，就会掉 1 点生命。'
+      hint: '只有连锁层数 ≥2，或 4 连及以上命中它附近，才算有效伤害。'
     },
     introLine: '怨灵。得用点魔力才能让它散。',
     removeLine: '安静了。'
@@ -335,34 +407,48 @@ export const MONSTERS = {
     id: 'djinn',
     name: '迪精',
     emoji: '🧞',
+    uiLabel: '迪精',
+    uiWeaknessShort: '本阶段要求：命中封印外圈。',
+    uiPressureShort: '下一次推进，会唤起一段愿望。',
+    uiStageRules: {
+      0: '第 1 阶段：普通正交匹配命中外圈封印。',
+      1: '第 2 阶段：纵向匹配命中纵向封印。',
+      2: '第 3 阶段：连锁 ≥2 或 4 连及以上命中命运封印。',
+      3: '封印已满，愿望正在成形。'
+    },
+    uiStagePreview: {
+      0: '下一次推进，会唤起第一个愿望。',
+      1: '下一次推进，会唤起第二个愿望。',
+      2: '下一次推进，会唤起最后的愿望。',
+      3: '迪精已经听见了。'
+    },
     hits: 3,
+    damageRule: { type: 'djinnStages' },
+    telegraph: '阶段封印',
+    echoLabel: '每阶段推进一次愿望叙事。',
     clearRule: {
       type: 'djinnCorners',
-      hint: '消除四角封印附近的格子，命中三次。'
+      hint: '三段封印依次要求：普通正交、纵向、连锁或大组。'
     },
     introLine: '……是你。我以为你已经走了。'
   }
-};
+}
 
 export const MONSTER_BY_CHAR = Object.fromEntries(
   Object.values(MONSTERS)
-    .filter((monster) => monster.char)
-    .map((monster) => [monster.char, monster])
-);
+    .filter(monster => monster.char)
+    .map(monster => [monster.char, monster])
+)
 
-export const MONSTER_CHARS = Object.keys(MONSTER_BY_CHAR);
+export const MONSTER_CHARS = Object.keys(MONSTER_BY_CHAR)
 
 export const DAY_MONSTER_LAYOUTS = {
-  0: [
-    { id: 'd1-nekkers-a', kind: 'nekkers', row: 2, col: 5 }
-  ],
+  0: [{ id: 'd1-nekkers-a', kind: 'nekkers', row: 2, col: 5 }],
   1: [
     { id: 'd2-nekkers-a', kind: 'nekkers', row: 1, col: 2 },
     { id: 'd2-nekkers-b', kind: 'nekkers', row: 4, col: 5 }
   ],
-  2: [
-    { id: 'd3-drowner-a', kind: 'drowner', row: 2, col: 5 }
-  ],
+  2: [{ id: 'd3-drowner-a', kind: 'drowner', row: 2, col: 5 }],
   3: [
     { id: 'd4-drowner-a', kind: 'drowner', row: 1, col: 5 },
     { id: 'd4-nekkers-a', kind: 'nekkers', row: 4, col: 2 }
@@ -386,10 +472,8 @@ export const DAY_MONSTER_LAYOUTS = {
     { id: 'd8-foglet-b', kind: 'foglet', row: 4, col: 6 },
     { id: 'd8-ghoul-a', kind: 'ghoul', row: 5, col: 1 }
   ],
-  8: [
-    { id: 'd9-djinn-a', kind: 'djinn', row: 3, col: 3, width: 2, height: 2 }
-  ]
-};
+  8: [{ id: 'd9-djinn-a', kind: 'djinn', row: 3, col: 3, width: 2, height: 2 }]
+}
 
 export const DJINN_WISHES = {
   introHint: '迪精在棋盘上。消除它外围一圈的格子，命中三次之后它会现身。',
@@ -397,7 +481,8 @@ export const DJINN_WISHES = {
   stages: {
     1: {
       title: '第一个愿望',
-      quote: '那时他只是想把麻烦赶走。后来才明白，愿望一旦出口，总会留下些什么。',
+      quote:
+        '那时他只是想把麻烦赶走。后来才明白，愿望一旦出口，总会留下些什么。',
       lines: [
         '第一次见到迪精，是在一条河边。',
         '丹德里恩把瓶子打碎，红雾就冲了出来。',
@@ -416,7 +501,8 @@ export const DJINN_WISHES = {
     },
     2: {
       title: '第二个愿望',
-      quote: '脱口而出的话，迪精也会当真。真正可怕的不是力量，而是你究竟想留下什么。',
+      quote:
+        '脱口而出的话，迪精也会当真。真正可怕的不是力量，而是你究竟想留下什么。',
       lines: [
         '第二个愿望，是我在牢里说的。',
         '那个守卫每天打我。我靠在墙角，看着他走过来。',
@@ -444,7 +530,8 @@ export const DJINN_WISHES = {
     },
     3: {
       title: '第三个愿望',
-      quote: '有些愿望不是召唤谁来到身边，而是承认自己愿意把往后的路，和她系在同一条命运上。',
+      quote:
+        '有些愿望不是召唤谁来到身边，而是承认自己愿意把往后的路，和她系在同一条命运上。',
       lines: [
         '第三个愿望。',
         '上一次，我不肯承认自己说了什么。',
@@ -463,7 +550,7 @@ export const DJINN_WISHES = {
       resolveLine: '命运已经听见了。'
     }
   }
-};
+}
 
 /* -------- Estate strip -------- */
 export const ESTATE_STRIP_STAGES = [
@@ -648,7 +735,7 @@ export const ESTATE_STRIP_STAGES = [
       }
     ]
   }
-];
+]
 
 /* -------- Ending -------- */
 export const ENDING = {
@@ -656,7 +743,7 @@ export const ENDING = {
     { who: '叶奈法', text: '……不算糟。' },
     { who: '杰洛特', text: '藤还没爬满。' },
     { who: '叶奈法', text: '我有很多时间。' },
-    { who: null,     text: '风吹过葡萄藤。' },
+    { who: null, text: '风吹过葡萄藤。' },
     { who: '杰洛特', text: '……嗯。' }
   ],
   defaultGift: '献给小芸。',
@@ -665,8 +752,8 @@ export const ENDING = {
   interceptLine: '哦，我想起来了。你不是小芸吗？还在选什么，我帮你填下去就行。',
   giftPresets: [
     { id: 'friend', label: '朋友', text: '朋友' },
-    { id: 'lover',  label: '恋人', text: '恋人' },
+    { id: 'lover', label: '恋人', text: '恋人' },
     { id: 'family', label: '家人', text: '家人' },
-    { id: 'self',   label: '自己', text: '自己' }
+    { id: 'self', label: '自己', text: '自己' }
   ]
-};
+}
