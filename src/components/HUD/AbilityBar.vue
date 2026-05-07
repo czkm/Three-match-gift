@@ -1,6 +1,12 @@
 <template>
   <div class="ability-bar parchment grain">
-    <h3 class="ink-title">能力</h3>
+    <div class="bar-head">
+      <h3 class="ink-title">能力</h3>
+      <button class="achievement-entry" @click="achievement.openPanel()">
+        <span class="entry-icon">🏆</span>
+        <span class="entry-text">{{ achievement.unlockedCount }} / {{ achievement.totalCount }}</span>
+      </button>
+    </div>
 
     <!-- Active abilities -->
     <div class="active-list">
@@ -73,6 +79,7 @@
 
 <script setup>
 import { computed, ref } from 'vue';
+import { useAchievementStore } from '@/stores/achievementStore';
 import { useGameStore } from '@/stores/gameStore';
 import { ABILITIES, RESOURCES, unlockedCharsForDay } from '@/data/content';
 
@@ -82,6 +89,7 @@ const props = defineProps({
 });
 
 const game = useGameStore();
+const achievement = useAchievementStore();
 const resources = computed(() => {
   const allowed = new Set(unlockedCharsForDay(game.currentDay));
   return RESOURCES.filter((r) => allowed.has(r.char));
@@ -139,6 +147,49 @@ h3 {
   font-size: 13px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+}
+
+.bar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.bar-head h3 {
+  margin: 0;
+}
+
+.achievement-entry {
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  background: rgba(255, 248, 230, 0.52);
+  border: 1px solid rgba(208, 168, 87, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 243, 214, 0.16);
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.achievement-entry:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 248, 230, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 243, 214, 0.24),
+    0 8px 14px rgba(24, 16, 10, 0.12);
+}
+
+.entry-icon {
+  font-size: 15px;
+}
+
+.entry-text {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
 }
 
 .active-list { display: flex; flex-direction: column; gap: 6px; }

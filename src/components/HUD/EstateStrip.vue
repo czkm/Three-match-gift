@@ -1,8 +1,13 @@
 <template>
-  <section class="estate-strip parchment grain" :class="{ locked: !interactive }">
+  <section
+    class="estate-strip parchment grain"
+    :class="{ locked: !interactive }"
+  >
     <header class="strip-head">
       <div class="title-group">
-        <p class="eyebrow">白鸦葡萄园场景 {{ displayStage }}/{{ stages.length }}</p>
+        <p class="eyebrow">
+          白鸦葡萄园场景 {{ displayStage }}/{{ stages.length }}
+        </p>
         <p class="caption">{{ displayCaption }}</p>
       </div>
 
@@ -14,8 +19,18 @@
       </div>
     </header>
 
-    <div class="strip-scene" :class="[timeClass, { repairing, 'full-bloom': displayStage >= stages.length }]">
-      <div class="scene-filter" :class="{ lilac: displayStage >= stages.length }" />
+    <div
+      class="strip-scene"
+      :class="[
+        timeClass,
+        { repairing, 'full-bloom': displayStage >= stages.length }
+      ]"
+      :style="sceneVars"
+    >
+      <div
+        class="scene-filter"
+        :class="{ lilac: displayStage >= stages.length }"
+      />
 
       <div class="scene-sky">
         <span class="sun-orb" />
@@ -32,20 +47,41 @@
         <span class="manor-body west-wing" />
         <span class="manor-roof roof-main" />
         <span class="manor-roof roof-west" />
-        <span class="manor-window kitchen-lite" :class="{ lit: displayStage >= 8 }" />
-        <span class="manor-window suite-lite" :class="{ lit: displayStage >= 9 }" />
+        <span
+          class="manor-window kitchen-lite"
+          :class="{ lit: displayStage >= 8 }"
+        />
+        <span
+          class="manor-window suite-lite"
+          :class="{ lit: displayStage >= 9 }"
+        />
       </div>
 
       <div v-if="showFog" class="fog-layer">
-        <span v-for="n in 4" :key="`fog-${n}`" class="fog" :style="fogStyle(n)" />
+        <span
+          v-for="n in 4"
+          :key="`fog-${n}`"
+          class="fog"
+          :style="fogStyle(n)"
+        />
       </div>
 
       <div v-if="showGoldenMotes" class="mote-layer">
-        <span v-for="n in 12" :key="`mote-${n}`" class="mote" :style="moteStyle(n)" />
+        <span
+          v-for="n in 12"
+          :key="`mote-${n}`"
+          class="mote"
+          :style="moteStyle(n)"
+        />
       </div>
 
       <div v-if="showFireflies" class="firefly-layer">
-        <span v-for="n in 4" :key="`firefly-${n}`" class="firefly" :style="fireflyStyle(n)" />
+        <span
+          v-for="n in 4"
+          :key="`firefly-${n}`"
+          class="firefly"
+          :style="fireflyStyle(n)"
+        />
       </div>
 
       <div v-if="showPetalDrift" class="petal-layer">
@@ -54,15 +90,24 @@
           :key="`ambient-petal-${n}`"
           class="ambient-petal"
           :style="ambientPetalStyle(n)"
-        >{{ ambientPetalGlyph(n) }}</span>
+        >
+          {{ ambientPetalGlyph(n) }}
+        </span>
       </div>
 
       <div v-if="showSmoke" class="smoke-layer">
-        <span v-for="n in 3" :key="`smoke-${n}`" class="smoke" :style="smokeStyle(n)" />
+        <span
+          v-for="n in 3"
+          :key="`smoke-${n}`"
+          class="smoke"
+          :style="smokeStyle(n)"
+        />
       </div>
 
       <div v-if="showBees" class="bee-layer">
-        <span v-for="n in 3" :key="`bee-${n}`" class="bee" :style="beeStyle(n)">🐝</span>
+        <span v-for="n in 3" :key="`bee-${n}`" class="bee" :style="beeStyle(n)">
+          🐝
+        </span>
       </div>
 
       <div class="segment-grid">
@@ -74,13 +119,16 @@
         >
           <div
             class="segment-glow"
-            :class="{ active: pendingRevealId === segment.buildingId && revealActive }"
+            :class="{
+              active: pendingRevealId === segment.buildingId && revealActive
+            }"
           />
 
           <div class="ground">
             <span class="path" />
             <span class="grass grass-a" />
             <span class="grass grass-b" />
+            <span class="growth-wash" />
           </div>
 
           <template v-if="segment.id === 'courtyard'">
@@ -105,6 +153,11 @@
             <span class="vine-post post-right" />
             <span class="vine-line" />
             <span class="vine-buds" />
+            <span class="vine-leaf vine-leaf-a" />
+            <span class="vine-leaf vine-leaf-b" />
+            <span class="vine-leaf vine-leaf-c" />
+            <span class="vine-grape grape-a">🍃</span>
+            <span class="vine-grape grape-b">🍇</span>
             <button
               v-if="displayStage >= 2"
               class="hotspot vine vine-hotspot"
@@ -159,7 +212,9 @@
             <button
               v-if="showButterfly"
               class="hotspot garden butterfly-hotspot"
-              :class="hotspotClasses('butterfly', { orbiting: butterflyOrbiting })"
+              :class="
+                hotspotClasses('butterfly', { orbiting: butterflyOrbiting })
+              "
               :disabled="!interactive"
               @mouseenter="onHotspot('butterfly')"
               @click="onHotspot('butterfly')"
@@ -173,11 +228,18 @@
             <span class="greenhouse-pane pane-a" />
             <span class="greenhouse-pane pane-b" />
             <span class="sprout">🌱</span>
-            <span class="greenhouse-lamp" :class="{ warning: greenhouseWarning }" />
+            <span
+              class="greenhouse-lamp"
+              :class="{ warning: greenhouseWarning }"
+            />
             <button
               v-if="displayStage >= 6"
               class="hotspot glass greenhouse-hotspot"
-              :class="hotspotClasses('greenhouse-door', { warning: greenhouseWarning })"
+              :class="
+                hotspotClasses('greenhouse-door', {
+                  warning: greenhouseWarning
+                })
+              "
               :disabled="!interactive"
               @mouseenter="onHotspot('greenhouse-door')"
               @click="onHotspot('greenhouse-door')"
@@ -190,7 +252,10 @@
             <span class="gazebo-roof" />
             <span class="gazebo-rail" />
             <span v-if="terraceChairCount >= 1" class="gazebo-seat seat-left" />
-            <span v-if="terraceChairCount >= 2" class="gazebo-seat seat-right" />
+            <span
+              v-if="terraceChairCount >= 2"
+              class="gazebo-seat seat-right"
+            />
             <button
               v-if="displayStage >= 7"
               class="hotspot gazebo terrace-hotspot"
@@ -199,7 +264,9 @@
               @mouseenter="onHotspot('terrace-chair')"
               @click="onHotspot('terrace-chair')"
             >
-              <span class="actor">{{ terraceChairCount >= 2 ? '🪑🪑' : '🪑' }}</span>
+              <span class="actor">
+                {{ terraceChairCount >= 2 ? '🪑🪑' : '🪑' }}
+              </span>
             </button>
             <button
               v-if="showTerraceRaven"
@@ -218,11 +285,15 @@
             <span class="kitchen-window" />
             <span class="chimney" />
             <span class="hive">🪵</span>
-            <span class="geralt-shadow" :class="{ stirring: kitchenStirring }">🧍</span>
+            <span class="geralt-shadow" :class="{ stirring: kitchenStirring }">
+              🧍
+            </span>
             <button
               v-if="displayStage >= 8"
               class="hotspot kitchen kitchen-hotspot"
-              :class="hotspotClasses('kitchen-window', { stirring: kitchenStirring })"
+              :class="
+                hotspotClasses('kitchen-window', { stirring: kitchenStirring })
+              "
               :disabled="!interactive"
               @mouseenter="onHotspot('kitchen-window')"
               @click="onHotspot('kitchen-window')"
@@ -234,12 +305,19 @@
           <template v-else-if="segment.id === 'lilacSuite'">
             <span class="suite-body" />
             <span class="suite-window" />
-            <span class="curtain" :class="{ flutter: curtainFlutter || activeHotspotId === 'suite-lilac' }" />
+            <span
+              class="curtain"
+              :class="{
+                flutter: curtainFlutter || activeHotspotId === 'suite-lilac'
+              }"
+            />
             <span class="vase">🪻</span>
             <button
               v-if="displayStage >= 9"
               class="hotspot suite suite-hotspot"
-              :class="hotspotClasses('suite-lilac', { flutter: curtainFlutter })"
+              :class="
+                hotspotClasses('suite-lilac', { flutter: curtainFlutter })
+              "
               :disabled="!interactive"
               @mouseenter="onHotspot('suite-lilac')"
               @click="onHotspot('suite-lilac')"
@@ -256,7 +334,9 @@
           :key="burst.id"
           class="burst"
           :style="burstStyle(burst)"
-        >{{ burst.glyph }}</span>
+        >
+          {{ burst.glyph }}
+        </span>
       </div>
 
       <div v-if="repairing" class="scene-wind" />
@@ -265,267 +345,311 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import EventBus from '@/core/eventBus';
-import { ESTATE_STRIP_STAGES } from '@/data/content';
-import { useGameStore } from '@/stores/gameStore';
-import { TIMING } from '@/utils/timing';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import EventBus from '@/core/eventBus'
+import { ESTATE_STRIP_STAGES } from '@/data/content'
+import { useAchievementStore } from '@/stores/achievementStore'
+import { useGameStore } from '@/stores/gameStore'
+import { TIMING } from '@/utils/timing'
 
-const game = useGameStore();
-const stages = ESTATE_STRIP_STAGES;
-const segments = stages.map((stage) => ({
+const achievements = useAchievementStore()
+const game = useGameStore()
+const stages = ESTATE_STRIP_STAGES
+const segments = stages.map(stage => ({
   id: stage.segmentId,
   buildingId: stage.buildingId,
   unlockCount: stage.unlockCount
-}));
+}))
 
-const completedCount = computed(() => game.completedBuildingsCount);
-const pendingRevealId = computed(() => game.pendingEstateRevealId);
-const displayStage = computed(() => Math.min(stages.length, Math.max(0, completedCount.value)));
-const interactive = computed(() => !['targeting', 'repairing'].includes(game.phase));
-const repairing = computed(() => game.phase === 'repairing');
+const completedCount = computed(() => game.completedBuildingsCount)
+const pendingRevealId = computed(() => game.pendingEstateRevealId)
+const displayStage = computed(() =>
+  Math.min(stages.length, Math.max(0, completedCount.value))
+)
+const interactive = computed(
+  () => !['targeting', 'repairing'].includes(game.phase)
+)
+const repairing = computed(() => game.phase === 'repairing')
 
 const timeClass = computed(() => {
-  if (displayStage.value <= 2) return 'time-morning';
-  if (displayStage.value <= 6) return 'time-day';
-  return 'time-dusk';
-});
+  if (displayStage.value <= 2) return 'time-morning'
+  if (displayStage.value <= 6) return 'time-day'
+  return 'time-dusk'
+})
 
 const timeLabel = computed(() => {
-  if (repairing.value) return '修复演出中';
-  if (displayStage.value <= 2) return '晨光';
-  if (displayStage.value <= 6) return '白昼';
-  if (game.stepsLeft <= 5) return '将近黄昏';
-  return '傍晚';
-});
+  if (repairing.value) return '修复演出中'
+  if (displayStage.value <= 2) return '晨光'
+  if (displayStage.value <= 6) return '白昼'
+  if (game.stepsLeft <= 5) return '将近黄昏'
+  return '傍晚'
+})
 
-const showFog = computed(() => displayStage.value >= 1 && displayStage.value <= 2);
-const showGoldenMotes = computed(() => displayStage.value >= 2);
-const showFireflies = computed(() => displayStage.value >= 3 && game.stepsLeft <= 10);
-const showPetalDrift = computed(() => displayStage.value >= 5);
-const showSmoke = computed(() => displayStage.value >= 8);
-const showBees = computed(() => displayStage.value >= 8);
-const showGateRaven = computed(() => displayStage.value >= 1 && displayStage.value < 3);
-const showTerraceRaven = computed(() => displayStage.value === 7 || displayStage.value >= 9);
-const showSkyRaven = computed(() => displayStage.value === 8);
-const showButterfly = computed(() => displayStage.value >= 5);
-const greenhouseWarning = computed(() => displayStage.value >= 6 && game.stepsLeft <= 5);
+const showFog = computed(
+  () => displayStage.value >= 1 && displayStage.value <= 2
+)
+const showGoldenMotes = computed(() => displayStage.value >= 2)
+const showFireflies = computed(
+  () => displayStage.value >= 3 && game.stepsLeft <= 10
+)
+const showPetalDrift = computed(() => displayStage.value >= 5)
+const showSmoke = computed(() => displayStage.value >= 8)
+const showBees = computed(() => displayStage.value >= 8)
+const showGateRaven = computed(
+  () => displayStage.value >= 1 && displayStage.value < 3
+)
+const showTerraceRaven = computed(
+  () => displayStage.value === 7 || displayStage.value >= 9
+)
+const showSkyRaven = computed(() => displayStage.value === 8)
+const showButterfly = computed(() => displayStage.value >= 5)
+const greenhouseWarning = computed(
+  () => displayStage.value >= 6 && game.stepsLeft <= 5
+)
 const terraceChairCount = computed(() => {
-  if (displayStage.value >= 9) return 2;
-  if (displayStage.value >= 7) return 1;
-  return 0;
-});
+  if (displayStage.value >= 9) return 2
+  if (displayStage.value >= 7) return 1
+  return 0
+})
+const repairProgress = computed(() =>
+  Math.max(0, Math.min(1, game.repairProgressPct || 0))
+)
+const activeSegmentId = computed(
+  () => stages[displayStage.value]?.segmentId || null
+)
+const growthIntensity = computed(() => {
+  if (repairing.value && game.today?.building?.id === 'vineyard') return 1
+  if (activeSegmentId.value !== 'vineyard') return 0
+  return repairProgress.value
+})
+const sceneVars = computed(() => ({
+  '--repair-progress': repairProgress.value.toFixed(3),
+  '--growth-intensity': growthIntensity.value.toFixed(3)
+}))
 
-const displayCaption = ref('');
-const activeHotspotId = ref(null);
-const revealActive = ref(false);
-const revealLabel = ref('');
-const ravenFlying = ref(false);
-const butterflyOrbiting = ref(false);
-const kitchenStirring = ref(false);
-const curtainFlutter = ref(false);
-const roachTucked = ref(false);
-const bursts = ref([]);
+const displayCaption = ref('')
+const activeHotspotId = ref(null)
+const revealActive = ref(false)
+const revealLabel = ref('')
+const ravenFlying = ref(false)
+const butterflyOrbiting = ref(false)
+const kitchenStirring = ref(false)
+const curtainFlutter = ref(false)
+const roachTucked = ref(false)
+const bursts = ref([])
 
-let captionTimer = null;
-let revealTimer = null;
-let revealClearTimer = null;
-let fxTimers = [];
-let burstId = 0;
-const lineCursor = {};
+let captionTimer = null
+let revealTimer = null
+let revealClearTimer = null
+let fxTimers = []
+let burstId = 0
+const lineCursor = {}
 
 const roachGlyph = computed(() => {
-  if (roachTucked.value) return '🐴';
-  if (activeHotspotId.value === 'roach') return '💨🐎';
-  return '🐎';
-});
+  if (roachTucked.value) return '🐴'
+  if (activeHotspotId.value === 'roach') return '💨🐎'
+  return '🐎'
+})
 
 function scheduleFx(fn, ms) {
-  const timer = setTimeout(fn, ms);
-  fxTimers.push(timer);
-  return timer;
+  const timer = setTimeout(fn, ms)
+  fxTimers.push(timer)
+  return timer
 }
 
 function clearFxTimers() {
-  for (const timer of fxTimers) clearTimeout(timer);
-  fxTimers = [];
+  for (const timer of fxTimers) clearTimeout(timer)
+  fxTimers = []
 }
 
 function clearCaptionTimer() {
-  if (captionTimer) clearTimeout(captionTimer);
-  captionTimer = null;
+  if (captionTimer) clearTimeout(captionTimer)
+  captionTimer = null
 }
 
 function clearRevealTimers() {
-  if (revealTimer) clearTimeout(revealTimer);
-  if (revealClearTimer) clearTimeout(revealClearTimer);
-  revealTimer = null;
-  revealClearTimer = null;
+  if (revealTimer) clearTimeout(revealTimer)
+  if (revealClearTimer) clearTimeout(revealClearTimer)
+  revealTimer = null
+  revealClearTimer = null
 }
 
 function baseCaption() {
-  if (displayStage.value === 0) return '从庭院开始。先把门、路和喷泉修出来。';
-  return game.defaultEstateCaption;
+  if (displayStage.value === 0) return '从庭院开始。先把门、路和喷泉修出来。'
+  return game.defaultEstateCaption
 }
 
 function restoreDefaultCaption() {
-  activeHotspotId.value = null;
-  displayCaption.value = baseCaption();
+  activeHotspotId.value = null
+  displayCaption.value = baseCaption()
 }
 
 function slotClass(segment) {
   return {
     restored: displayStage.value >= segment.unlockCount
-  };
+  }
 }
 
 function hotspotClasses(id, extra = {}) {
   return {
     active: activeHotspotId.value === id,
     ...extra
-  };
+  }
 }
 
 function nextLine(key, lines) {
-  if (!lines?.length) return '';
-  const idx = lineCursor[key] ?? 0;
-  lineCursor[key] = (idx + 1) % lines.length;
-  return lines[idx];
+  if (!lines?.length) return ''
+  const idx = lineCursor[key] ?? 0
+  lineCursor[key] = (idx + 1) % lines.length
+  return lines[idx]
 }
 
 function stageHotspotLines(buildingId) {
-  return stages.find((stage) => stage.buildingId === buildingId)?.hotspots?.[0]?.lines ?? [];
+  return (
+    stages.find(stage => stage.buildingId === buildingId)?.hotspots?.[0]
+      ?.lines ?? []
+  )
 }
 
 function roachLine() {
-  if (displayStage.value >= 9) return '它今天特别安静。';
-  if (displayStage.value >= 8) return '萝卜在看厨房。它知道汤快好了。';
+  if (displayStage.value >= 9) return '它今天特别安静。'
+  if (displayStage.value >= 8) return '萝卜在看厨房。它知道汤快好了。'
   const lines = [
     '它在检查工程。',
     '萝卜觉得还行。只是还行。',
     '别看了。它不会夸人的。'
-  ];
-  return lines[(lineCursor.roach ?? 0) % lines.length];
+  ]
+  return lines[(lineCursor.roach ?? 0) % lines.length]
 }
 
 function captionForHotspot(id) {
   switch (id) {
     case 'white-raven':
-      if (displayStage.value >= 9) return '白鸦落在露台栏杆上，没有再飞走。';
-      if (displayStage.value >= 7) return '它落在栏杆上，看了一眼那把椅子，又像是看见了别的什么。';
-      return '白鸦在门柱上歪头看了一会儿，像在默认这里终于能住人了。';
+      if (displayStage.value >= 9) return '白鸦落在露台栏杆上，没有再飞走。'
+      if (displayStage.value >= 7)
+        return '它落在栏杆上，看了一眼那把椅子，又像是看见了别的什么。'
+      return '白鸦在门柱上歪头看了一会儿，像在默认这里终于能住人了。'
     case 'vine-cluster':
-      return nextLine('vine-cluster', stageHotspotLines('vineyard'));
+      return nextLine('vine-cluster', stageHotspotLines('vineyard'))
     case 'cellar-bottle':
-      return '“还行。留一瓶。”';
+      return '“还行。留一瓶。”'
     case 'roach': {
-      const line = roachLine();
-      lineCursor.roach = (lineCursor.roach ?? 0) + 1;
-      return line;
+      const line = roachLine()
+      lineCursor.roach = (lineCursor.roach ?? 0) + 1
+      return line
     }
     case 'butterfly':
-      return '蝴蝶飞起盘旋一圈，又轻轻落回花苞旁。';
+      return '蝴蝶飞起盘旋一圈，又轻轻落回花苞旁。'
     case 'greenhouse-door':
       return greenhouseWarning.value
         ? '灯开始轻轻闪，像在提醒今天快到尽头了。'
-        : '门关好。灯点上。剩下的它们自己会处理。';
+        : '门关好。灯点上。剩下的它们自己会处理。'
     case 'terrace-chair':
       return terraceChairCount.value >= 2
         ? '两把椅子并排摆着，不需要再解释什么。'
-        : '先放一把。两把的话……太像在等了。';
+        : '先放一把。两把的话……太像在等了。'
     case 'kitchen-window':
-      return '窗里的人影停了一下，又轻轻搅了搅锅。';
+      return '窗里的人影停了一下，又轻轻搅了搅锅。'
     case 'suite-lilac':
-      return '花瓶里的紫丁香轻轻一颤，窗帘顺着晚风摆开。';
+      return '花瓶里的紫丁香轻轻一颤，窗帘顺着晚风摆开。'
     default:
-      return baseCaption();
+      return baseCaption()
   }
 }
 
 function spawnBurst(kind = 'mixed', count = 8) {
-  const fresh = [];
+  const fresh = []
   for (let i = 0; i < count; i++) {
-    const baseLeft = 8 + ((i * 11) % 84);
-    const jitter = (i % 3) * 1.8;
+    const baseLeft = 8 + ((i * 11) % 84)
+    const jitter = (i % 3) * 1.8
     fresh.push({
       id: ++burstId,
       glyph: burstGlyph(kind, i),
       left: baseLeft + jitter,
-      top: 72 - ((i % 4) * 6),
+      top: 72 - (i % 4) * 6,
       dx: ((i % 5) - 2) * 18,
-      dy: 24 + ((i % 4) * 8),
-      dur: 1.7 + ((i % 3) * 0.2),
-      rot: -16 + (i * 7)
-    });
+      dy: 24 + (i % 4) * 8,
+      dur: 1.7 + (i % 3) * 0.2,
+      rot: -16 + i * 7
+    })
   }
 
-  bursts.value = [...bursts.value, ...fresh];
+  bursts.value = [...bursts.value, ...fresh]
   scheduleFx(() => {
-    const ids = new Set(fresh.map((item) => item.id));
-    bursts.value = bursts.value.filter((item) => !ids.has(item.id));
-  }, 2100);
+    const ids = new Set(fresh.map(item => item.id))
+    bursts.value = bursts.value.filter(item => !ids.has(item.id))
+  }, 2100)
 }
 
 function burstGlyph(kind, index) {
-  if (kind === 'feather') return ['🪶', '🕊', '✨'][index % 3];
-  if (kind === 'petal') return ['🪻', '🌸', '🌿'][index % 3];
-  if (kind === 'gold') return ['✨', '💫', '⭐'][index % 3];
+  if (kind === 'feather') return ['🪶', '🕊', '✨'][index % 3]
+  if (kind === 'petal') return ['🪻', '🌸', '🌿'][index % 3]
+  if (kind === 'gold') return ['✨', '💫', '⭐'][index % 3]
   return displayStage.value >= 5
     ? ['🪻', '🌸', '🪶', '✨'][index % 4]
-    : ['🪶', '✨', '💫'][index % 3];
+    : ['🪶', '✨', '💫'][index % 3]
 }
 
 function onSceneBurst(payload = {}) {
-  const kind = payload.kind ?? (displayStage.value >= 5 ? 'petal' : 'feather');
-  const count = payload.count ?? 10;
-  spawnBurst(kind, count);
+  const kind = payload.kind ?? (displayStage.value >= 5 ? 'petal' : 'feather')
+  const count = payload.count ?? 10
+  spawnBurst(kind, count)
 }
 
 function onHotspot(id) {
-  if (!interactive.value) return;
+  if (!interactive.value) return
+  achievements.track('hotspotClicked', { id })
 
-  activeHotspotId.value = id;
-  displayCaption.value = captionForHotspot(id);
-  clearCaptionTimer();
+  activeHotspotId.value = id
+  displayCaption.value = captionForHotspot(id)
+  clearCaptionTimer()
   captionTimer = setTimeout(() => {
-    restoreDefaultCaption();
-  }, 2500);
+    restoreDefaultCaption()
+  }, 2500)
 
   switch (id) {
     case 'white-raven':
-      if (displayStage.value < 9) {
-        ravenFlying.value = true;
-        scheduleFx(() => { ravenFlying.value = false; }, 1200);
-      }
-      spawnBurst('feather', 7);
-      break;
+      // if (displayStage.value < 9) {
+      //   ravenFlying.value = true;
+      //   scheduleFx(() => { ravenFlying.value = false; }, 1200);
+      // }
+      spawnBurst('feather', 7)
+      break
     case 'roach':
-      roachTucked.value = true;
-      scheduleFx(() => { roachTucked.value = false; }, 1400);
-      spawnBurst('gold', 4);
-      break;
+      roachTucked.value = true
+      scheduleFx(() => {
+        roachTucked.value = false
+      }, 1400)
+      spawnBurst('gold', 4)
+      break
     case 'butterfly':
-      butterflyOrbiting.value = true;
-      spawnBurst('petal', 6);
-      scheduleFx(() => { butterflyOrbiting.value = false; }, 1200);
-      break;
+      butterflyOrbiting.value = true
+      spawnBurst('petal', 6)
+      scheduleFx(() => {
+        butterflyOrbiting.value = false
+      }, 1200)
+      break
     case 'kitchen-window':
-      kitchenStirring.value = true;
-      scheduleFx(() => { kitchenStirring.value = false; }, 1400);
-      break;
+      kitchenStirring.value = true
+      scheduleFx(() => {
+        kitchenStirring.value = false
+      }, 1400)
+      break
     case 'suite-lilac':
-      curtainFlutter.value = true;
-      spawnBurst('petal', 8);
-      scheduleFx(() => { curtainFlutter.value = false; }, 1400);
-      break;
+      curtainFlutter.value = true
+      spawnBurst('petal', 8)
+      scheduleFx(() => {
+        curtainFlutter.value = false
+      }, 1400)
+      break
     case 'greenhouse-door':
-      spawnBurst('gold', 6);
-      break;
+      spawnBurst('gold', 6)
+      break
     case 'terrace-chair':
-      spawnBurst('gold', 5);
-      break;
+      spawnBurst('gold', 5)
+      break
     default:
-      break;
+      break
   }
 }
 
@@ -536,7 +660,7 @@ function fogStyle(index) {
     width: `${84 + index * 12}px`,
     animationDelay: `${index * 0.7}s`,
     animationDuration: `${5.6 + index * 0.6}s`
-  };
+  }
 }
 
 function moteStyle(index) {
@@ -545,7 +669,7 @@ function moteStyle(index) {
     top: `${18 + (index % 4) * 10}%`,
     animationDelay: `${(index % 5) * 0.35}s`,
     animationDuration: `${3.6 + (index % 4) * 0.45}s`
-  };
+  }
 }
 
 function fireflyStyle(index) {
@@ -554,11 +678,11 @@ function fireflyStyle(index) {
     bottom: `${34 + (index % 2) * 12}px`,
     animationDelay: `${index * 0.5}s`,
     animationDuration: `${2.8 + index * 0.3}s`
-  };
+  }
 }
 
 function ambientPetalGlyph(index) {
-  return ['🪻', '🌸', '🌿'][index % 3];
+  return ['🪻', '🌸', '🌿'][index % 3]
 }
 
 function ambientPetalStyle(index) {
@@ -567,7 +691,7 @@ function ambientPetalStyle(index) {
     top: `${12 + (index % 2) * 8}%`,
     animationDelay: `${index * 0.6}s`,
     animationDuration: `${5 + (index % 3) * 0.8}s`
-  };
+  }
 }
 
 function smokeStyle(index) {
@@ -576,7 +700,7 @@ function smokeStyle(index) {
     bottom: `${66 + index * 8}px`,
     animationDelay: `${index * 0.8}s`,
     animationDuration: `${4.2 + index * 0.5}s`
-  };
+  }
 }
 
 function beeStyle(index) {
@@ -585,7 +709,7 @@ function beeStyle(index) {
     bottom: `${52 + (index % 2) * 10}px`,
     animationDelay: `${index * 0.45}s`,
     animationDuration: `${2.4 + index * 0.3}s`
-  };
+  }
 }
 
 function burstStyle(burst) {
@@ -596,70 +720,74 @@ function burstStyle(burst) {
     '--dx': `${burst.dx}px`,
     '--dy': `${burst.dy}px`,
     '--rot': `${burst.rot}deg`
-  };
+  }
 }
 
 watch(
   () => game.defaultEstateCaption,
   () => {
-    if (!activeHotspotId.value && !revealLabel.value) displayCaption.value = baseCaption();
+    if (!activeHotspotId.value && !revealLabel.value)
+      displayCaption.value = baseCaption()
   },
   { immediate: true }
-);
+)
 
 watch(
   () => game.pendingEstateRevealId,
-  (buildingId) => {
-    clearRevealTimers();
-    revealActive.value = false;
-    revealLabel.value = '';
-    if (!buildingId) return;
+  buildingId => {
+    clearRevealTimers()
+    revealActive.value = false
+    revealLabel.value = ''
+    if (!buildingId) return
 
-    const stage = stages.find((item) => item.buildingId === buildingId);
-    if (!stage) return;
+    const stage = stages.find(item => item.buildingId === buildingId)
+    if (!stage) return
 
-    revealActive.value = true;
-    revealLabel.value = stage.revealLabel;
-    displayCaption.value = nextLine(`reveal-${buildingId}`, stage.hotspots?.[0]?.lines ?? [game.defaultEstateCaption]);
-    activeHotspotId.value = null;
-    spawnBurst(displayStage.value >= 5 ? 'petal' : 'gold', 10);
+    revealActive.value = true
+    revealLabel.value = stage.revealLabel
+    displayCaption.value = nextLine(
+      `reveal-${buildingId}`,
+      stage.hotspots?.[0]?.lines ?? [game.defaultEstateCaption]
+    )
+    activeHotspotId.value = null
+    spawnBurst(displayStage.value >= 5 ? 'petal' : 'gold', 10)
 
     revealTimer = setTimeout(() => {
-      revealActive.value = false;
-    }, 1800);
+      revealActive.value = false
+    }, 1800)
 
     revealClearTimer = setTimeout(() => {
-      revealLabel.value = '';
-      restoreDefaultCaption();
-      game.markEstateRevealSeen(buildingId);
-    }, TIMING.DAY_NOTIFIER_HOLD_MS);
+      revealLabel.value = ''
+      restoreDefaultCaption()
+      game.markEstateRevealSeen(buildingId)
+    }, TIMING.DAY_NOTIFIER_HOLD_MS)
   },
   { immediate: true }
-);
+)
 
 watch(
   () => game.phase,
-  (phase) => {
+  phase => {
     if (phase === 'repairing') {
-      clearCaptionTimer();
-      activeHotspotId.value = null;
+      clearCaptionTimer()
+      activeHotspotId.value = null
     }
     if (phase !== 'repairing' && !revealLabel.value) {
-      displayCaption.value = baseCaption();
+      displayCaption.value = baseCaption()
     }
   }
-);
+)
 
 onMounted(() => {
-  EventBus.bind('sceneBurst', onSceneBurst);
-});
+  EventBus.bind('sceneBurst', onSceneBurst)
+})
 
 onBeforeUnmount(() => {
-  clearCaptionTimer();
-  clearRevealTimers();
-  clearFxTimers();
-  EventBus.unbind('sceneBurst', onSceneBurst);
-});
+  clearCaptionTimer()
+  clearRevealTimers()
+  clearFxTimers()
+  EventBus.unbind('sceneBurst', onSceneBurst)
+})
 </script>
 
 <style scoped>
@@ -734,14 +862,20 @@ onBeforeUnmount(() => {
 }
 
 .reveal-tag {
-  background: linear-gradient(135deg, rgba(212, 168, 87, 0.95), rgba(176, 148, 201, 0.88));
+  background: linear-gradient(
+    135deg,
+    rgba(212, 168, 87, 0.95),
+    rgba(176, 148, 201, 0.88)
+  );
   color: #fff8ee;
   box-shadow: 0 8px 18px rgba(58, 42, 31, 0.2);
 }
 
 .reveal-tag-enter-active,
 .reveal-tag-leave-active {
-  transition: opacity 260ms ease, transform 260ms ease;
+  transition:
+    opacity 260ms ease,
+    transform 260ms ease;
 }
 
 .reveal-tag-enter-from,
@@ -756,20 +890,42 @@ onBeforeUnmount(() => {
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid rgba(122, 90, 52, 0.24);
-  background: linear-gradient(180deg, rgba(227, 212, 188, 0.98) 0%, rgba(189, 145, 109, 0.96) 40%, rgba(94, 83, 99, 0.96) 100%);
-  transition: background 500ms ease, filter 360ms ease;
+  background: linear-gradient(
+    180deg,
+    rgba(227, 212, 188, 0.98) 0%,
+    rgba(189, 145, 109, 0.96) 40%,
+    rgba(94, 83, 99, 0.96) 100%
+  );
+  transition:
+    background 500ms ease,
+    filter 360ms ease;
 }
 
 .strip-scene.time-morning {
-  background: linear-gradient(180deg, rgba(222, 214, 198, 0.98) 0%, rgba(188, 174, 150, 0.96) 56%, rgba(136, 116, 86, 0.96) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(222, 214, 198, 0.98) 0%,
+    rgba(188, 174, 150, 0.96) 56%,
+    rgba(136, 116, 86, 0.96) 100%
+  );
 }
 
 .strip-scene.time-day {
-  background: linear-gradient(180deg, rgba(228, 221, 193, 0.98) 0%, rgba(194, 187, 146, 0.98) 56%, rgba(104, 112, 71, 0.98) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(228, 221, 193, 0.98) 0%,
+    rgba(194, 187, 146, 0.98) 56%,
+    rgba(104, 112, 71, 0.98) 100%
+  );
 }
 
 .strip-scene.time-dusk {
-  background: linear-gradient(180deg, rgba(236, 186, 126, 0.98) 0%, rgba(178, 116, 83, 0.96) 42%, rgba(92, 80, 101, 0.96) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(236, 186, 126, 0.98) 0%,
+    rgba(178, 116, 83, 0.96) 42%,
+    rgba(92, 80, 101, 0.96) 100%
+  );
 }
 
 .strip-scene.repairing {
@@ -785,14 +941,26 @@ onBeforeUnmount(() => {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 18%, rgba(255, 224, 156, 0.22), transparent 34%),
+    radial-gradient(
+      circle at 50% 18%,
+      rgba(255, 224, 156, 0.22),
+      transparent 34%
+    ),
     linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(42, 25, 14, 0.08));
 }
 
 .scene-filter.lilac {
   background:
-    radial-gradient(circle at 50% 18%, rgba(255, 224, 156, 0.22), transparent 34%),
-    radial-gradient(circle at 82% 24%, rgba(198, 160, 230, 0.2), transparent 34%),
+    radial-gradient(
+      circle at 50% 18%,
+      rgba(255, 224, 156, 0.22),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 82% 24%,
+      rgba(198, 160, 230, 0.2),
+      transparent 34%
+    ),
     linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(42, 25, 14, 0.08));
 }
 
@@ -821,7 +989,12 @@ onBeforeUnmount(() => {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 234, 170, 0.96) 0%, rgba(241, 182, 92, 0.88) 68%, transparent 100%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 234, 170, 0.96) 0%,
+    rgba(241, 182, 92, 0.88) 68%,
+    transparent 100%
+  );
   box-shadow: 0 0 24px rgba(241, 182, 92, 0.48);
 }
 
@@ -855,8 +1028,12 @@ onBeforeUnmount(() => {
 }
 
 @keyframes sky-raven-cross {
-  from { transform: translateX(0) translateY(0); }
-  to { transform: translateX(122vw) translateY(10px); }
+  from {
+    transform: translateX(0) translateY(0);
+  }
+  to {
+    transform: translateX(122vw) translateY(10px);
+  }
 }
 
 .far-hills {
@@ -865,9 +1042,24 @@ onBeforeUnmount(() => {
   right: 0;
   bottom: 66px;
   height: 52px;
-  background:
-    linear-gradient(180deg, rgba(110, 96, 108, 0.2), rgba(70, 60, 80, 0.5));
-  clip-path: polygon(0 72%, 10% 46%, 22% 64%, 34% 38%, 46% 58%, 60% 34%, 73% 66%, 86% 42%, 100% 70%, 100% 100%, 0 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(110, 96, 108, 0.2),
+    rgba(70, 60, 80, 0.5)
+  );
+  clip-path: polygon(
+    0 72%,
+    10% 46%,
+    22% 64%,
+    34% 38%,
+    46% 58%,
+    60% 34%,
+    73% 66%,
+    86% 42%,
+    100% 70%,
+    100% 100%,
+    0 100%
+  );
 }
 
 .vine-rows {
@@ -876,8 +1068,15 @@ onBeforeUnmount(() => {
   right: 9%;
   bottom: 44px;
   height: 42px;
-  background:
-    linear-gradient(160deg, transparent 0%, transparent 44%, rgba(91, 104, 57, 0.28) 44%, rgba(91, 104, 57, 0.28) 46%, transparent 46%) 0 0 / 22px 18px repeat-x;
+  background: linear-gradient(
+      160deg,
+      transparent 0%,
+      transparent 44%,
+      rgba(91, 104, 57, 0.28) 44%,
+      rgba(91, 104, 57, 0.28) 46%,
+      transparent 46%
+    )
+    0 0 / 22px 18px repeat-x;
   opacity: 0.72;
 }
 
@@ -938,7 +1137,9 @@ onBeforeUnmount(() => {
   height: 14px;
   border-radius: 4px;
   background: rgba(45, 39, 43, 0.48);
-  transition: background 300ms ease, box-shadow 300ms ease;
+  transition:
+    background 300ms ease,
+    box-shadow 300ms ease;
 }
 
 .kitchen-lite {
@@ -950,7 +1151,11 @@ onBeforeUnmount(() => {
 }
 
 .manor-window.lit {
-  background: radial-gradient(circle, rgba(255, 203, 110, 0.96), rgba(195, 112, 48, 0.82));
+  background: radial-gradient(
+    circle,
+    rgba(255, 203, 110, 0.96),
+    rgba(195, 112, 48, 0.82)
+  );
   box-shadow: 0 0 8px rgba(255, 198, 126, 0.34);
 }
 
@@ -964,8 +1169,14 @@ onBeforeUnmount(() => {
 }
 
 @keyframes fog-drift {
-  from { transform: translateX(-4px); opacity: 0.22; }
-  to { transform: translateX(10px); opacity: 0.42; }
+  from {
+    transform: translateX(-4px);
+    opacity: 0.22;
+  }
+  to {
+    transform: translateX(10px);
+    opacity: 0.42;
+  }
 }
 
 .mote {
@@ -979,8 +1190,15 @@ onBeforeUnmount(() => {
 }
 
 @keyframes mote-float {
-  0%, 100% { transform: translateY(0) scale(0.92); opacity: 0.26; }
-  50% { transform: translateY(-8px) scale(1.08); opacity: 1; }
+  0%,
+  100% {
+    transform: translateY(0) scale(0.92);
+    opacity: 0.26;
+  }
+  50% {
+    transform: translateY(-8px) scale(1.08);
+    opacity: 1;
+  }
 }
 
 .firefly {
@@ -994,8 +1212,15 @@ onBeforeUnmount(() => {
 }
 
 @keyframes firefly-wave {
-  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
-  50% { transform: translateY(-9px) translateX(4px); opacity: 1; }
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-9px) translateX(4px);
+    opacity: 1;
+  }
 }
 
 .ambient-petal {
@@ -1006,9 +1231,17 @@ onBeforeUnmount(() => {
 }
 
 @keyframes ambient-petal-fall {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  12% { opacity: 0.85; }
-  100% { transform: translate(18px, 34px) rotate(28deg); opacity: 0; }
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(18px, 34px) rotate(28deg);
+    opacity: 0;
+  }
 }
 
 .smoke {
@@ -1016,14 +1249,27 @@ onBeforeUnmount(() => {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(238, 236, 232, 0.52), rgba(238, 236, 232, 0.08) 72%, transparent 100%);
+  background: radial-gradient(
+    circle,
+    rgba(238, 236, 232, 0.52),
+    rgba(238, 236, 232, 0.08) 72%,
+    transparent 100%
+  );
   animation: smoke-rise ease-out infinite;
 }
 
 @keyframes smoke-rise {
-  0% { transform: translateY(0) scale(0.72); opacity: 0; }
-  18% { opacity: 0.64; }
-  100% { transform: translateY(-34px) scale(1.2); opacity: 0; }
+  0% {
+    transform: translateY(0) scale(0.72);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.64;
+  }
+  100% {
+    transform: translateY(-34px) scale(1.2);
+    opacity: 0;
+  }
 }
 
 .bee {
@@ -1033,8 +1279,13 @@ onBeforeUnmount(() => {
 }
 
 @keyframes bee-bob {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  50% { transform: translateY(-6px) translateX(8px); }
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(-6px) translateX(8px);
+  }
 }
 
 .segment-grid {
@@ -1047,17 +1298,24 @@ onBeforeUnmount(() => {
 .segment {
   position: relative;
   filter: saturate(0.24) brightness(0.8);
-  transition: filter 420ms ease, transform 420ms ease;
+  transition:
+    filter 420ms ease,
+    transform 420ms ease;
 }
 
 .segment::after {
-  content: "";
+  content: '';
   position: absolute;
   right: -1px;
   top: 14px;
   bottom: 14px;
   width: 1px;
-  background: linear-gradient(180deg, transparent, rgba(58, 42, 31, 0.14), transparent);
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(58, 42, 31, 0.14),
+    transparent
+  );
 }
 
 .segment:last-child::after {
@@ -1072,7 +1330,11 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 0;
   opacity: 0;
-  background: radial-gradient(circle at 50% 44%, rgba(255, 234, 170, 0.76), transparent 66%);
+  background: radial-gradient(
+    circle at 50% 44%,
+    rgba(255, 234, 170, 0.76),
+    transparent 66%
+  );
 }
 
 .segment-glow.active {
@@ -1080,9 +1342,17 @@ onBeforeUnmount(() => {
 }
 
 @keyframes restore-shine {
-  0% { opacity: 0; transform: scale(0.84); }
-  35% { opacity: 0.96; }
-  100% { opacity: 0; transform: scale(1.12); }
+  0% {
+    opacity: 0;
+    transform: scale(0.84);
+  }
+  35% {
+    opacity: 0.96;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.12);
+  }
 }
 
 .ground {
@@ -1092,10 +1362,32 @@ onBeforeUnmount(() => {
 }
 
 .ground::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 18px 0 0;
-  background: linear-gradient(180deg, rgba(96, 95, 60, 0.18), rgba(64, 76, 37, 0.74));
+  background: linear-gradient(
+    180deg,
+    rgba(96, 95, 60, 0.18),
+    rgba(64, 76, 37, 0.74)
+  );
+}
+
+.growth-wash {
+  position: absolute;
+  inset: 18px 0 0;
+  opacity: 0;
+  background:
+    radial-gradient(
+      circle at 50% 18%,
+      rgba(164, 214, 132, 0.34),
+      transparent 46%
+    ),
+    linear-gradient(180deg, rgba(108, 160, 82, 0.08), rgba(68, 126, 54, 0.3));
+  transition: opacity 480ms ease;
+}
+
+.segment.vineyard:not(.restored) .growth-wash {
+  opacity: calc(var(--growth-intensity) * 0.95);
 }
 
 .path {
@@ -1116,7 +1408,7 @@ onBeforeUnmount(() => {
 .grass::before,
 .grass::after {
   position: absolute;
-  content: "";
+  content: '';
   width: 16px;
   height: 24px;
   border-radius: 14px 14px 0 0;
@@ -1127,6 +1419,14 @@ onBeforeUnmount(() => {
 .segment.restored .grass::before,
 .segment.restored .grass::after {
   background: rgba(76, 131, 72, 0.76);
+}
+
+.segment.vineyard:not(.restored) .grass,
+.segment.vineyard:not(.restored) .grass::before,
+.segment.vineyard:not(.restored) .grass::after {
+  opacity: calc(0.5 + var(--growth-intensity) * 0.5);
+  filter: saturate(calc(0.72 + var(--growth-intensity) * 0.58))
+    brightness(calc(0.88 + var(--growth-intensity) * 0.28));
 }
 
 .grass-a {
@@ -1198,15 +1498,27 @@ onBeforeUnmount(() => {
   width: 18px;
   height: 58px;
   border-radius: 4px 4px 2px 2px;
-  background: linear-gradient(180deg, rgba(132, 126, 118, 0.74), rgba(84, 78, 73, 0.82));
+  background: linear-gradient(
+    180deg,
+    rgba(132, 126, 118, 0.74),
+    rgba(84, 78, 73, 0.82)
+  );
 }
 
 .segment.restored .gate-post {
-  background: linear-gradient(180deg, rgba(191, 185, 174, 0.92), rgba(120, 112, 102, 0.92));
+  background: linear-gradient(
+    180deg,
+    rgba(191, 185, 174, 0.92),
+    rgba(120, 112, 102, 0.92)
+  );
 }
 
-.gate-left { left: 12px; }
-.gate-right { right: 14px; }
+.gate-left {
+  left: 12px;
+}
+.gate-right {
+  right: 14px;
+}
 
 .gate-beam {
   left: 18px;
@@ -1232,7 +1544,12 @@ onBeforeUnmount(() => {
 }
 
 .segment.restored .fountain {
-  background: radial-gradient(circle, rgba(194, 226, 238, 0.92) 0%, rgba(118, 149, 168, 0.92) 48%, rgba(96, 90, 80, 0.9) 100%);
+  background: radial-gradient(
+    circle,
+    rgba(194, 226, 238, 0.92) 0%,
+    rgba(118, 149, 168, 0.92) 48%,
+    rgba(96, 90, 80, 0.9) 100%
+  );
 }
 
 .vine-post {
@@ -1242,8 +1559,12 @@ onBeforeUnmount(() => {
   background: rgba(100, 82, 59, 0.75);
 }
 
-.post-left { left: 20px; }
-.post-right { right: 22px; }
+.post-left {
+  left: 20px;
+}
+.post-right {
+  right: 22px;
+}
 
 .vine-line {
   left: 20px;
@@ -1268,18 +1589,153 @@ onBeforeUnmount(() => {
   height: 10px;
   opacity: 0;
   background:
-    radial-gradient(circle at 12% 50%, rgba(112, 182, 90, 0.88), transparent 34%),
-    radial-gradient(circle at 48% 35%, rgba(112, 182, 90, 0.88), transparent 34%),
-    radial-gradient(circle at 78% 60%, rgba(122, 88, 168, 0.82), transparent 34%);
+    radial-gradient(
+      circle at 12% 50%,
+      rgba(112, 182, 90, 0.88),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 48% 35%,
+      rgba(112, 182, 90, 0.88),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 78% 60%,
+      rgba(122, 88, 168, 0.82),
+      transparent 34%
+    );
 }
 
 .segment.restored .vine-buds {
   opacity: 1;
 }
 
+.segment.vineyard:not(.restored) .vine-buds {
+  opacity: calc(var(--growth-intensity) * 0.95);
+  transform: scaleX(calc(0.62 + var(--growth-intensity) * 0.38));
+  transform-origin: center;
+}
+
+.vine-leaf,
+.vine-grape {
+  position: absolute;
+  opacity: 0;
+  transform-origin: center bottom;
+  transition:
+    opacity 380ms ease,
+    transform 520ms ease,
+    filter 360ms ease;
+}
+
+.vine-leaf {
+  font-size: 18px;
+  filter: saturate(0.7);
+}
+
+.vine-leaf-a {
+  left: 22px;
+  bottom: 66px;
+}
+.vine-leaf-b {
+  left: 50%;
+  bottom: 88px;
+  transform: translateX(-50%);
+}
+.vine-leaf-c {
+  right: 18px;
+  bottom: 64px;
+}
+
+.vine-leaf::before {
+  content: '🌿';
+}
+
+.vine-grape {
+  font-size: 17px;
+}
+
+.grape-a {
+  left: 34px;
+  bottom: 72px;
+}
+.grape-b {
+  right: 26px;
+  bottom: 74px;
+}
+
+.segment.vineyard:not(.restored) .vine-leaf-a {
+  opacity: max(0, calc((var(--growth-intensity) - 0.14) * 1.4));
+  transform: scale(calc(0.5 + var(--growth-intensity) * 0.65))
+    rotate(calc(-10deg + var(--growth-intensity) * 8deg));
+}
+
+.segment.vineyard:not(.restored) .vine-leaf-b {
+  opacity: max(0, calc((var(--growth-intensity) - 0.32) * 1.55));
+  transform: translateX(-50%) scale(calc(0.48 + var(--growth-intensity) * 0.68))
+    rotate(calc(-6deg + var(--growth-intensity) * 10deg));
+}
+
+.segment.vineyard:not(.restored) .vine-leaf-c {
+  opacity: max(0, calc((var(--growth-intensity) - 0.54) * 1.9));
+  transform: scale(calc(0.44 + var(--growth-intensity) * 0.72))
+    rotate(calc(8deg - var(--growth-intensity) * 6deg));
+}
+
+.segment.vineyard:not(.restored) .vine-grape {
+  filter: saturate(calc(0.4 + var(--growth-intensity) * 0.6));
+}
+
+.segment.vineyard:not(.restored) .grape-a {
+  opacity: max(0, calc((var(--growth-intensity) - 0.4) * 1.4));
+  transform: scale(calc(0.56 + var(--growth-intensity) * 0.48));
+}
+
+.segment.vineyard:not(.restored) .grape-b {
+  opacity: max(0, calc((var(--growth-intensity) - 0.68) * 2.8));
+  transform: scale(calc(0.48 + var(--growth-intensity) * 0.56));
+}
+
+.segment.restored .vine-leaf,
+.segment.restored .vine-grape {
+  opacity: 1;
+}
+
+.segment.restored .vine-leaf {
+  animation: leaf-breathe 4.2s ease-in-out infinite;
+}
+
+.segment.restored .vine-grape {
+  animation: grape-bob 4.8s ease-in-out infinite;
+}
+
 @keyframes vine-sway {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(2px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes leaf-breathe {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.04) rotate(3deg);
+  }
+}
+
+@keyframes grape-bob {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-1px) scale(1.03);
+  }
 }
 
 .cellar-door {
@@ -1289,11 +1745,17 @@ onBeforeUnmount(() => {
   height: 56px;
   transform: translateX(-50%);
   border-radius: 18px 18px 6px 6px;
-  background: linear-gradient(180deg, rgba(84, 71, 58, 0.85), rgba(44, 34, 28, 0.94));
+  background: linear-gradient(
+    180deg,
+    rgba(84, 71, 58, 0.85),
+    rgba(44, 34, 28, 0.94)
+  );
 }
 
 .segment.restored .cellar-door {
-  box-shadow: 0 0 0 2px rgba(158, 131, 86, 0.24), inset 0 0 10px rgba(240, 194, 100, 0.16);
+  box-shadow:
+    0 0 0 2px rgba(158, 131, 86, 0.24),
+    inset 0 0 10px rgba(240, 194, 100, 0.16);
 }
 
 .barrel {
@@ -1301,11 +1763,19 @@ onBeforeUnmount(() => {
   width: 16px;
   height: 20px;
   border-radius: 4px;
-  background: linear-gradient(180deg, rgba(98, 61, 34, 0.78), rgba(70, 44, 24, 0.9));
+  background: linear-gradient(
+    180deg,
+    rgba(98, 61, 34, 0.78),
+    rgba(70, 44, 24, 0.9)
+  );
 }
 
-.barrel-left { left: 14px; }
-.barrel-right { right: 14px; }
+.barrel-left {
+  left: 14px;
+}
+.barrel-right {
+  right: 14px;
+}
 
 .cellar-bottle {
   left: 50%;
@@ -1314,7 +1784,11 @@ onBeforeUnmount(() => {
   height: 18px;
   transform: translateX(-50%);
   border-radius: 3px 3px 2px 2px;
-  background: linear-gradient(180deg, rgba(122, 168, 96, 0.86), rgba(68, 82, 40, 0.94));
+  background: linear-gradient(
+    180deg,
+    rgba(122, 168, 96, 0.86),
+    rgba(68, 82, 40, 0.94)
+  );
   box-shadow: 0 0 8px rgba(255, 214, 142, 0.16);
 }
 
@@ -1337,7 +1811,11 @@ onBeforeUnmount(() => {
 }
 
 .segment.restored .stable-roof {
-  background: linear-gradient(180deg, rgba(128, 94, 58, 0.96), rgba(84, 58, 31, 0.96));
+  background: linear-gradient(
+    180deg,
+    rgba(128, 94, 58, 0.96),
+    rgba(84, 58, 31, 0.96)
+  );
 }
 
 .hay {
@@ -1352,8 +1830,12 @@ onBeforeUnmount(() => {
   background: rgba(204, 176, 82, 0.92);
 }
 
-.hay-a { left: 18px; }
-.hay-b { right: 18px; }
+.hay-a {
+  left: 18px;
+}
+.hay-b {
+  right: 18px;
+}
 
 .water-trough {
   right: 12px;
@@ -1387,8 +1869,12 @@ onBeforeUnmount(() => {
   opacity: 1;
 }
 
-.flower-a { left: 18px; }
-.flower-b { right: 18px; }
+.flower-a {
+  left: 18px;
+}
+.flower-b {
+  right: 18px;
+}
 
 .greenhouse-body {
   left: 14px;
@@ -1412,8 +1898,12 @@ onBeforeUnmount(() => {
   background: rgba(226, 231, 235, 0.2);
 }
 
-.pane-a { left: 22px; }
-.pane-b { right: 22px; }
+.pane-a {
+  left: 22px;
+}
+.pane-b {
+  right: 22px;
+}
 
 .greenhouse-lamp {
   left: 50%;
@@ -1436,8 +1926,15 @@ onBeforeUnmount(() => {
 }
 
 @keyframes lamp-flicker {
-  0%, 100% { opacity: 0.48; box-shadow: 0 0 6px rgba(246, 212, 148, 0.2); }
-  50% { opacity: 1; box-shadow: 0 0 16px rgba(246, 212, 148, 0.56); }
+  0%,
+  100% {
+    opacity: 0.48;
+    box-shadow: 0 0 6px rgba(246, 212, 148, 0.2);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 16px rgba(246, 212, 148, 0.56);
+  }
 }
 
 .sprout {
@@ -1469,8 +1966,12 @@ onBeforeUnmount(() => {
   background: rgba(112, 91, 67, 0.66);
 }
 
-.seat-left { left: 24px; }
-.seat-right { right: 24px; }
+.seat-left {
+  left: 24px;
+}
+.seat-right {
+  right: 24px;
+}
 
 .segment.restored .gazebo-seat {
   background: rgba(176, 136, 86, 0.92);
@@ -1496,7 +1997,11 @@ onBeforeUnmount(() => {
 
 .segment.restored .kitchen-body,
 .segment.restored .suite-body {
-  background: linear-gradient(180deg, rgba(192, 170, 140, 0.92), rgba(120, 93, 73, 0.94));
+  background: linear-gradient(
+    180deg,
+    rgba(192, 170, 140, 0.92),
+    rgba(120, 93, 73, 0.94)
+  );
 }
 
 .kitchen-window,
@@ -1511,11 +2016,19 @@ onBeforeUnmount(() => {
 }
 
 .segment.restored .kitchen-window {
-  background: radial-gradient(circle, rgba(255, 196, 106, 0.95), rgba(189, 108, 41, 0.78));
+  background: radial-gradient(
+    circle,
+    rgba(255, 196, 106, 0.95),
+    rgba(189, 108, 41, 0.78)
+  );
 }
 
 .segment.restored .suite-window {
-  background: radial-gradient(circle, rgba(243, 223, 170, 0.92), rgba(183, 153, 196, 0.72));
+  background: radial-gradient(
+    circle,
+    rgba(243, 223, 170, 0.92),
+    rgba(183, 153, 196, 0.72)
+  );
 }
 
 .chimney {
@@ -1552,9 +2065,16 @@ onBeforeUnmount(() => {
 }
 
 @keyframes stir-pot {
-  0%, 100% { transform: translateX(-50%) rotate(0deg); }
-  40% { transform: translateX(calc(-50% - 2px)) rotate(-8deg); }
-  70% { transform: translateX(calc(-50% + 2px)) rotate(6deg); }
+  0%,
+  100% {
+    transform: translateX(-50%) rotate(0deg);
+  }
+  40% {
+    transform: translateX(calc(-50% - 2px)) rotate(-8deg);
+  }
+  70% {
+    transform: translateX(calc(-50% + 2px)) rotate(6deg);
+  }
 }
 
 .curtain {
@@ -1577,14 +2097,26 @@ onBeforeUnmount(() => {
 }
 
 @keyframes curtain-breathe {
-  0%, 100% { transform: translateX(-50%) rotate(0deg); }
-  50% { transform: translateX(calc(-50% + 1px)) rotate(4deg); }
+  0%,
+  100% {
+    transform: translateX(-50%) rotate(0deg);
+  }
+  50% {
+    transform: translateX(calc(-50% + 1px)) rotate(4deg);
+  }
 }
 
 @keyframes curtain-sway {
-  0%, 100% { transform: translateX(-50%) rotate(0deg); }
-  35% { transform: translateX(calc(-50% - 1px)) rotate(-8deg); }
-  70% { transform: translateX(calc(-50% + 2px)) rotate(6deg); }
+  0%,
+  100% {
+    transform: translateX(-50%) rotate(0deg);
+  }
+  35% {
+    transform: translateX(calc(-50% - 1px)) rotate(-8deg);
+  }
+  70% {
+    transform: translateX(calc(-50% + 2px)) rotate(6deg);
+  }
 }
 
 .vase {
@@ -1611,15 +2143,20 @@ onBeforeUnmount(() => {
   background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(2px);
   box-shadow: 0 0 0 0 rgba(255, 230, 170, 0.35);
-  transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease;
 }
 
 .hotspot:hover:not(:disabled),
 .hotspot.active {
   transform: scale(1.12);
   background: rgba(255, 248, 228, 0.52);
-  box-shadow: 0 0 0 10px rgba(255, 230, 170, 0.18),
-              0 0 16px rgba(255, 230, 170, 0.28);
+  box-shadow:
+    0 0 0 10px rgba(255, 230, 170, 0.18),
+    0 0 16px rgba(255, 230, 170, 0.28);
 }
 
 .hotspot:disabled {
@@ -1712,27 +2249,56 @@ onBeforeUnmount(() => {
 }
 
 @keyframes warning-pulse {
-  0%, 100% { opacity: 0.62; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.62;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 @keyframes raven-flyaway {
-  0% { transform: scale(1); opacity: 1; }
-  45% { transform: translate(18px, -14px) scale(1.08); opacity: 0.12; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  45% {
+    transform: translate(18px, -14px) scale(1.08);
+    opacity: 0.12;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes butterfly-orbit {
-  0% { transform: translate(0, 0) scale(1); }
-  30% { transform: translate(6px, -8px) scale(1.08); }
-  65% { transform: translate(-5px, -6px) scale(0.96); }
-  100% { transform: translate(0, 0) scale(1); }
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  30% {
+    transform: translate(6px, -8px) scale(1.08);
+  }
+  65% {
+    transform: translate(-5px, -6px) scale(0.96);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
 }
 
 @keyframes icon-bob {
-  0%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-3px); }
-  70% { transform: translateY(1px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-3px);
+  }
+  70% {
+    transform: translateY(1px);
+  }
 }
 
 .burst {
@@ -1750,19 +2316,33 @@ onBeforeUnmount(() => {
     opacity: 1;
   }
   100% {
-    transform: translate(var(--dx), calc(var(--dy) * -1)) rotate(var(--rot)) scale(1.08);
+    transform: translate(var(--dx), calc(var(--dy) * -1)) rotate(var(--rot))
+      scale(1.08);
     opacity: 0;
   }
 }
 
 .scene-wind {
-  background: linear-gradient(110deg, transparent 18%, rgba(255, 245, 214, 0.16) 38%, transparent 58%);
+  background: linear-gradient(
+    110deg,
+    transparent 18%,
+    rgba(255, 245, 214, 0.16) 38%,
+    transparent 58%
+  );
   animation: repair-wind 1.8s ease-in-out infinite;
 }
 
 @keyframes repair-wind {
-  from { transform: translateX(-120%); opacity: 0; }
-  20% { opacity: 1; }
-  to { transform: translateX(120%); opacity: 0; }
+  from {
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  to {
+    transform: translateX(120%);
+    opacity: 0;
+  }
 }
 </style>

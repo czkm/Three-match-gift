@@ -10,15 +10,21 @@
   <transition name="tester-toast">
     <p v-if="testerToast" class="tester-toast parchment grain">{{ testerToast }}</p>
   </transition>
+  <AchievementToastStack />
+  <AchievementPanel />
 </template>
 
 <script setup>
 import { onMounted, onBeforeUnmount, ref, watchEffect } from 'vue';
+import AchievementPanel from './components/HUD/AchievementPanel.vue';
+import AchievementToastStack from './components/HUD/AchievementToastStack.vue';
 import Title from './components/Title.vue';
 import GameContainer from './components/GameContainer.vue';
 import Ending from './components/Ending.vue';
+import { useAchievementStore } from '@/stores/achievementStore';
 import { useGameStore } from '@/stores/gameStore';
 
+const achievement = useAchievementStore();
 const game = useGameStore();
 const testerToast = ref('');
 let toastTimer = null;
@@ -66,6 +72,7 @@ watchEffect(() => {
 
 onMounted(() => {
   if (typeof document === 'undefined') return;
+  achievement.init();
   document.body.dataset.day = '1';
   document.body.dataset.phase = 'title';
   window.addEventListener('keydown', onTesterKeydown);

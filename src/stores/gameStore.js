@@ -15,6 +15,7 @@
  *   final      — frozen frame with the dedication.
  */
 import { defineStore } from 'pinia';
+import { useAchievementStore } from '@/stores/achievementStore';
 import {
   DAYS,
   ABILITIES,
@@ -249,6 +250,7 @@ export const useGameStore = defineStore('game', {
     /* ---------- lifecycle ---------- */
 
     start() {
+      const achievements = useAchievementStore();
       this.currentDay = 0;
       this.stepsLeft = MAX_STEPS;
       this.progress = {};
@@ -267,6 +269,8 @@ export const useGameStore = defineStore('game', {
       this.giftWasOverridden = false;
       this._resetDaySpecialState();
       this.phase = 'intro';
+      achievements.track('runStart');
+      achievements.track('dayStart', { day: 1 });
     },
 
     showIntro()  { this.phase = 'intro'; },
@@ -284,6 +288,7 @@ export const useGameStore = defineStore('game', {
     },
 
     nextDay() {
+      const achievements = useAchievementStore();
       this.currentDay++;
       this.stepsLeft = MAX_STEPS;
       this.progress = {};
@@ -297,6 +302,7 @@ export const useGameStore = defineStore('game', {
         this.phase = 'final';
       } else {
         this.phase = 'intro';
+        achievements.track('dayStart', { day: this.currentDay + 1 });
       }
     },
 
@@ -319,6 +325,7 @@ export const useGameStore = defineStore('game', {
      * chain           = current cascade depth (1 = first hit, …)
      */
     gainResources(resourcesByChar, groupSizes = [], chain = 1) {
+      const achievements = useAchievementStore();
       const summary = {};
       const hasGreenhouse = this.unlockedAbilities.includes('greenhouseNurture');
 
@@ -393,6 +400,12 @@ export const useGameStore = defineStore('game', {
         }
       }
 
+      achievements.track('comboResolved', {
+        day: this.currentDay + 1,
+        chain,
+        groupSizes
+      });
+
       return summary;
     },
 
@@ -400,6 +413,7 @@ export const useGameStore = defineStore('game', {
 
     /** Called when the board finishes a swap and resources are checked. */
     onAfterMove() {
+      const achievements = useAchievementStore();
       const needsReady = this._hasCurrentNeedsMet();
       if (this.currentDay === DAYS.length - 1 && needsReady && !this.djinnReleased) {
         this.phase = 'playing';
@@ -412,12 +426,14 @@ export const useGameStore = defineStore('game', {
       if (this.stepsLeft <= 0) {
         this.dayEndLine = DAY_END_LINES[Math.floor(Math.random() * DAY_END_LINES.length)];
         this.phase = 'dayEnd';
+        achievements.track('dayEndReached', { day: this.currentDay + 1 });
         return 'dayEnd';
       }
       return 'continue';
     },
 
     finishRepair() {
+      const achievements = useAchievementStore();
       const day = DAYS[this.currentDay];
       if (!this.unlockedAbilities.includes(day.ability)) this.unlockedAbilities.push(day.ability);
       this.completedBanner = day.completedBanner;
@@ -425,6 +441,10 @@ export const useGameStore = defineStore('game', {
       this.latestRestoredBuildingId = day.building.id;
       this.pendingEstateRevealId = day.building.id;
       this._refreshAbilityUses();
+      achievements.track('dayCompleted', {
+        day: this.currentDay + 1,
+        stepsLeft: this.stepsLeft
+      });
 
       if (day.ending) {
         return 'ending';
@@ -470,10 +490,15 @@ export const useGameStore = defineStore('game', {
     },
 
     consumeAbility(id) {
+      const achievements = useAchievementStore();
       if (this.abilityUses[id] != null) this.abilityUses[id]--;
       this.turnId++;
       this.pendingAbility = null;
       this.phase = 'playing';
+      achievements.track('abilityUsed', {
+        day: this.currentDay + 1,
+        id
+      });
     },
 
     queueBark(line) {
@@ -506,6 +531,7 @@ export const useGameStore = defineStore('game', {
     },
 
     resolveBoardEntities(clearedTiles = [], chain = 1, source = 'match', matchGroups = []) {
+      const achievements = useAchievementStore();
       if (!clearedTiles.length) return { removedCount: 0, djinnHit: false };
       if (this.wishStage > 0 || this.phase === 'wish') {
         return { removedCount: 0, djinnHit: false };
@@ -548,6 +574,11 @@ export const useGameStore = defineStore('game', {
         this._countMonsterClears(removed.length);
         const line = MONSTERS[removed[0].kind]?.removeLine;
         if (line) this.queueBark(line);
+        achievements.track('monsterCleared', {
+          day: this.currentDay + 1,
+          count: removed.length,
+          kinds: removed.map((entity) => entity.kind)
+        });
       }
 
       let djinnHit = false;
@@ -671,6 +702,7 @@ export const useGameStore = defineStore('game', {
     },
 
     jumpToDayForTesting(dayNumber) {
+      const achievements = useAchievementStore();
       const targetDay = Number(dayNumber);
       if (!Number.isInteger(targetDay) || targetDay < 1 || targetDay > DAYS.length) {
         return null;
@@ -700,6 +732,7 @@ export const useGameStore = defineStore('game', {
       this._resetDaySpecialState();
       this._refreshAbilityUses();
       this.phase = 'intro';
+      achievements.disableForCurrentRun('tester-shortcut');
 
       return {
         day: targetDay,
@@ -708,6 +741,7 @@ export const useGameStore = defineStore('game', {
     },
 
     skipDayForTesting() {
+      const achievements = useAchievementStore();
       if (
         this.phase === 'title' ||
         this.phase === 'final' ||
@@ -727,6 +761,7 @@ export const useGameStore = defineStore('game', {
       if (this.currentDay === DAYS.length - 1) {
         this.spawnDjinnEncounter();
         this.phase = 'playing';
+        achievements.disableForCurrentRun('tester-shortcut');
         return {
           kind: 'djinn',
           day: this.currentDay + 1,
@@ -734,6 +769,7 @@ export const useGameStore = defineStore('game', {
         };
       }
       this.phase = 'repairing';
+      achievements.disableForCurrentRun('tester-shortcut');
       return {
         kind: 'repairing',
         day: this.currentDay + 1,

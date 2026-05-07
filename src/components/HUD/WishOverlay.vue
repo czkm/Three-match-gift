@@ -48,6 +48,8 @@ const game = useGameStore();
 const lineIndex = ref(0);
 const lineReady = ref(false);
 const wishDialogRef = ref(null);
+const resolveReady = ref(false);
+let resolveTimer = null;
 const wish = computed(() => game.currentWish || { title: '', quote: '', lines: [], choices: [] });
 const activeLine = computed(() => wish.value.lines?.[lineIndex.value] || '');
 const showChoices = computed(() => !game.wishResolved && lineIndex.value >= (wish.value.lines?.length || 0));
@@ -56,6 +58,20 @@ const finalStage = computed(() => game.djinnReleased);
 watch(() => game.wishStage, () => {
   lineIndex.value = 0;
   lineReady.value = false;
+  resolveReady.value = false;
+  if (resolveTimer) { clearTimeout(resolveTimer); resolveTimer = null; }
+});
+
+watch(() => game.wishResolved, (resolved) => {
+  if (!resolved) {
+    resolveReady.value = false;
+    if (resolveTimer) { clearTimeout(resolveTimer); resolveTimer = null; }
+    return;
+  }
+  // Stage 3 (bind-fate) gets a longer quiet beat before the player can advance,
+  // so "命运已经听见了。" has room to land before the repair sequence kicks in.
+  const delay = game.wishStage === 3 ? 1200 : 600;
+  resolveTimer = setTimeout(() => { resolveReady.value = true; resolveTimer = null; }, delay);
 });
 
 function onDialogDone() {
@@ -95,6 +111,7 @@ function onContinue() {
 function onOverlayClick() {
   if (showChoices.value) return;
   if (game.wishResolved) {
+    if (!resolveReady.value) return;
     onContinue();
     return;
   }

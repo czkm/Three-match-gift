@@ -144,7 +144,7 @@ export const DAYS = [
   {
     day: 1,
     building: { id: 'courtyard', cn: '庭院', en: 'Courtyard', emoji: '🌿' },
-    needs: { grape: 30, wood: 20, stone: 20 },
+    needs: { grape: 25, wood: 20, stone: 15 },
     ability: 'whiteWolfTidy',
     intro: `庭院里的杂草快长到腰了。石路断了几截，喷泉里只有泥和落叶。
 杰洛特站了一会儿，叹了口气。
@@ -157,7 +157,7 @@ export const DAYS = [
   {
     day: 2,
     building: { id: 'vineyard', cn: '葡萄园', en: 'Vineyard', emoji: '🍇' },
-    needs: { grape: 50, wood: 30 },
+    needs: { grape: 45, wood: 25 },
     ability: 'toussentHarvest',
     intro: `葡萄藤还活着。
 它们只是被荒草压弯，被风雨忘在了这里。
@@ -170,7 +170,7 @@ export const DAYS = [
   {
     day: 3,
     building: { id: 'cellar', cn: '酒窖', en: 'Wine Cellar', emoji: '🛢️' },
-    needs: { wood: 30, clay: 30, grape: 20 },
+    needs: { wood: 28, clay: 28, grape: 19 },
     ability: 'agedBarrel',
     intro: `酒窖里有灰尘、蜘蛛网和几只裂开的旧木桶。
 也有几瓶奇迹般活下来的酒。
@@ -183,7 +183,7 @@ export const DAYS = [
   {
     day: 4,
     building: { id: 'stables', cn: '马厩', en: 'Stables', emoji: '🐎' },
-    needs: { wood: 40, stone: 30 },
+    needs: { wood: 45, stone: 35 },
     ability: 'roachPath',
     intro: `马厩的门歪着，屋顶漏了半边。
 萝卜站在门口，像是在审查工程质量。
@@ -196,8 +196,8 @@ export const DAYS = [
   {
     day: 5,
     building: { id: 'garden', cn: '花园', en: 'Garden', emoji: '🪻' },
-    needs: { herb: 50, grape: 30 },
-    ability: 'lilacSeed',
+    needs: { herb: 50, grape: 35 },
+    ability: 'lilacReturn',
     intro: `花坛荒了很久。泥土里还有旧时的根。
 杰洛特蹲下，翻出一小截枯枝，闻到一点几乎消失的香气。
 丁香。还有醋栗。`,
@@ -220,7 +220,7 @@ export const DAYS = [
   {
     day: 7,
     building: { id: 'gazebo', cn: '露台', en: 'Gazebo', emoji: '🌅' },
-    needs: { stone: 40, wood: 30, magic: 10 },
+    needs: { stone: 45, wood: 35, magic: 15 },
     ability: 'toussentSunset',
     intro: `露台朝着夕阳。
 地砖松动，栏杆生锈，但视野很好。
@@ -233,8 +233,8 @@ export const DAYS = [
   {
     day: 8,
     building: { id: 'kitchen', cn: '厨房', en: 'Kitchen', emoji: '🍲' },
-    needs: { clay: 40, grape: 30, wood: 20 },
-    ability: 'hearthStew',
+    needs: { clay: 45, grape: 35, wood: 20 },
+    ability: 'lilacSeed',
     intro: `厨房的炉子还能用，只是积了太多灰。
 锅挂在墙上，像一面沉默的盾。
 杰洛特想了想，也许炖汤不算太难。`,
@@ -250,8 +250,8 @@ export const DAYS = [
       en: 'Lilac Suite',
       emoji: '🛏️'
     },
-    needs: { wood: 40, herb: 30, magic: 30 },
-    ability: 'lilacReturn',
+    needs: { wood: 35, herb: 25, magic: 25 },
+    ability: 'hearthStew',
     intro: `最后一间房朝向花园。
 早晨有阳光，傍晚能闻到丁香。
 杰洛特把旧床板拆掉，换上新的木架。`,
@@ -467,10 +467,8 @@ export const DAY_MONSTER_LAYOUTS = {
     { id: 'd7-ghoul-a', kind: 'ghoul', row: 5, col: 2 }
   ],
   7: [
-    { id: 'd8-foglet-a', kind: 'foglet', row: 1, col: 3 },
-    { id: 'd8-wraith-a', kind: 'wraith', row: 2, col: 5 },
-    { id: 'd8-foglet-b', kind: 'foglet', row: 4, col: 6 },
-    { id: 'd8-ghoul-a', kind: 'ghoul', row: 5, col: 1 }
+    { id: 'd8-foglet-a', kind: 'foglet', row: 2, col: 3 },
+    { id: 'd8-wraith-a', kind: 'wraith', row: 4, col: 5 }
   ],
   8: [{ id: 'd9-djinn-a', kind: 'djinn', row: 3, col: 3, width: 2, height: 2 }]
 }
@@ -757,3 +755,123 @@ export const ENDING = {
     { id: 'self', label: '自己', text: '自己' }
   ]
 }
+
+export const ACHIEVEMENTS = [
+  {
+    id: 'day1_clear_the_way',
+    title: '先把路找出来',
+    description: '第 1 天完成庭院修复，且未使用白狼整顿。',
+    icon: '🌿',
+    hidden: false,
+    flavor: '石路露出来的时候，这里终于像能住人了。',
+    trigger: { type: 'dayComplete', day: 1 }
+  },
+  {
+    id: 'day2_vines_remember',
+    title: '藤蔓记得回家',
+    description: '第 2 天完成葡萄园修复，且当日至少出现过一次 4 连或更大组。',
+    icon: '🍇',
+    hidden: false,
+    flavor: '藤蔓没有忘记该往哪里爬。',
+    trigger: { type: 'dayComplete', day: 2 }
+  },
+  {
+    id: 'day3_one_bottle_saved',
+    title: '留一瓶',
+    description: '第 3 天完成酒窖修复，且当天击退过水鬼。',
+    icon: '🛢️',
+    hidden: false,
+    flavor: '最深处，总该留一瓶给以后。',
+    trigger: { type: 'dayComplete', day: 3 }
+  },
+  {
+    id: 'day4_roach_approves',
+    title: '萝卜点头了',
+    description: '第 4 天完成马厩修复，且至少使用过一次萝卜识途。',
+    icon: '🐎',
+    hidden: false,
+    flavor: '它不夸人，但今天算是默认了。',
+    trigger: { type: 'dayComplete', day: 4 }
+  },
+  {
+    id: 'day5_lilac_in_the_wind',
+    title: '风里有丁香',
+    description: '第 5 天完成花园修复，且完成时剩余步数至少为 6。',
+    icon: '🪻',
+    hidden: false,
+    flavor: '香气先回来了，花会慢一点。',
+    trigger: { type: 'dayComplete', day: 5 }
+  },
+  {
+    id: 'day6_keep_the_lamp_warm',
+    title: '灯别熄',
+    description: '第 6 天完成温室修复，且当天至少打出过一次 2 连锁或 4 连以上。',
+    icon: '🌱',
+    hidden: false,
+    flavor: '灯亮着，脆弱的东西就愿意活下去。',
+    trigger: { type: 'dayComplete', day: 6 }
+  },
+  {
+    id: 'day7_a_chair_for_waiting',
+    title: '先放一把椅子',
+    description: '第 7 天完成露台修复，且至少使用过一次陶森特日落。',
+    icon: '🌅',
+    hidden: false,
+    flavor: '有些等待，先摆一把椅子就够了。',
+    trigger: { type: 'dayComplete', day: 7 }
+  },
+  {
+    id: 'day8_the_soup_will_hold',
+    title: '汤会热着',
+    description: '第 8 天完成厨房修复，且当天从未进入步数耗尽的夜幕。',
+    icon: '🍲',
+    hidden: false,
+    flavor: '汤还没好，家已经有味道了。',
+    trigger: { type: 'dayComplete', day: 8 }
+  },
+  {
+    id: 'day9_room_for_her',
+    title: '为她留灯',
+    description: '第 9 天完成紫丁香客房，并完整走到最终结局展示。',
+    icon: '🛏️',
+    hidden: true,
+    flavor: '窗边留了花，床边留了光，也留了她的位置。',
+    trigger: { type: 'ending' }
+  },
+  {
+    id: 'sunlit_margin',
+    title: '天光尚早',
+    description: '任意一天完成修复时，剩余步数达到 10 或以上。',
+    icon: '☀️',
+    hidden: false,
+    flavor: '太阳还在，修好的地方已经先亮起来了。',
+    trigger: { type: 'dayComplete' }
+  },
+  {
+    id: 'clutch_finish',
+    title: '差一点也够',
+    description: '任意一天完成修复时，剩余步数不超过 5。',
+    icon: '⏳',
+    hidden: false,
+    flavor: '差一点也够。够把今天做完。',
+    trigger: { type: 'dayComplete' }
+  },
+  {
+    id: 'cascade_poetry',
+    title: '连锁像诗',
+    description: '单次行动打出 3 层或以上连锁。',
+    icon: '✨',
+    hidden: false,
+    flavor: '一连串清响之后，整个庄园像跟着醒了一瞬。',
+    trigger: { type: 'combo' }
+  },
+  {
+    id: 'grand_harvest',
+    title: '丰收时刻',
+    description: '出现任意一次 5 消或更大组。',
+    icon: '🍷',
+    hidden: false,
+    flavor: '酒还没酿好，丰收的样子已经先来了。',
+    trigger: { type: 'matchGroup' }
+  }
+];

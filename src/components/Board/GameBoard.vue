@@ -2,7 +2,8 @@
   <div class="board-wrap">
     <div
       class="gameBoard parchment grain"
-      :class="{ shaking: shaking, dimmed: targeting }"
+      :class="{ shaking: shaking, dimmed: targeting, repairing: game.phase === 'repairing', 'day2-growth': boardGrowthTheme === 'vineyard' }"
+      :style="boardThemeStyle"
       @mouseup="onPointerUp"
       @touchend="onPointerUp"
       @mouseleave="onPointerUp"
@@ -10,6 +11,18 @@
       @touchmove="onPointerMove"
     >
       <div class="tileContainer" :style="containerStyle">
+        <div v-if="boardGrowthTheme === 'vineyard'" class="board-growth board-growth-vineyard">
+          <span class="growth-veil" />
+          <span class="growth-vine vine-a" />
+          <span class="growth-vine vine-b" />
+          <span class="growth-vine vine-c" />
+          <span class="growth-leaf leaf-a">🌿</span>
+          <span class="growth-leaf leaf-b">🍃</span>
+          <span class="growth-leaf leaf-c">🌿</span>
+          <span class="growth-grape grape-a">🍇</span>
+          <span class="growth-grape grape-b">🍇</span>
+        </div>
+
         <div
           v-for="entity in game.activeBoardEntities"
           :key="`slot-${entity.id}`"
@@ -56,6 +69,8 @@
           :preview="previewState(t)"
           :invalid="invalidIds.has(t.id)"
           @pick="onPick"
+          @peek="onTilePeek"
+          @peek-leave="onTilePeekLeave"
         />
 
         <BoardEntity
@@ -148,14 +163,25 @@ const lastClearSource = ref('match');
 
 const rowsCount = computed(() => ROWS);
 const colsCount = computed(() => COLS);
+const boardGrowthProgress = computed(() => Math.max(0, Math.min(1, game.repairProgressPct || 0)));
+const boardGrowthTheme = computed(() => {
+  if (game.today?.building?.id !== 'vineyard') return null;
+  if (!game.isComplete) return 'vineyard';
+  if (game.phase === 'repairing') return 'vineyard';
+  return null;
+});
+const boardThemeStyle = computed(() => ({
+  '--board-growth-progress': boardGrowthProgress.value.toFixed(3)
+}));
 const mistCellKeys = computed(() => new Set(game.mistCells.map((cell) => `${cell.row}:${cell.col}`)));
+const hoveredTile = ref(null);
 const selectedTilePos = computed(() => {
   const tile = tiles.value.find((item) => item.id === selectedId.value && !item.pooled && !item.hidden);
   return tile ? { row: tile.row, col: tile.col } : null;
 });
 const revealedMistKeys = computed(() => {
   const keys = new Set();
-  const pos = activeTile.value || selectedTilePos.value;
+  const pos = activeTile.value || hoveredTile.value || selectedTilePos.value;
   if (!pos) return keys;
   for (let row = pos.row - 1; row <= pos.row + 1; row++) {
     for (let col = pos.col - 1; col <= pos.col + 1; col++) keys.add(`${row}:${col}`);
@@ -294,6 +320,16 @@ watch(activeTile, (a) => {
 /* ---------- targeting click handlers ---------- */
 
 const tapBuffer = ref([]);   // for twoTiles ability
+
+function onTilePeek(pos) {
+  hoveredTile.value = pos;
+}
+
+function onTilePeekLeave(pos) {
+  if (hoveredTile.value && hoveredTile.value.row === pos.row && hoveredTile.value.col === pos.col) {
+    hoveredTile.value = null;
+  }
+}
 
 function onPick(payload, evt) {
   bumpIdle();
@@ -436,6 +472,7 @@ function onPointerMove(evt) {
 }
 function onPointerUp() {
   endDrag();
+  hoveredTile.value = null;
   bumpIdle();
 }
 
@@ -923,6 +960,13 @@ function triggerSunsetRake() {
 
 .gameBoard.shaking { animation: gb-shake 100ms 4 alternate; }
 .gameBoard.dimmed  { filter: brightness(0.82) saturate(0.92); }
+.gameBoard.repairing.day2-growth {
+  box-shadow:
+    0 24px 44px rgba(14, 8, 6, 0.42),
+    0 0 28px rgba(122, 192, 88, 0.18),
+    inset 0 0 0 1px rgba(255, 242, 214, 0.08),
+    inset 0 0 0 6px rgba(18, 10, 7, 0.28);
+}
 
 @keyframes gb-shake {
   from { transform: translateX(-4px); }
@@ -947,6 +991,20 @@ function triggerSunsetRake() {
     inset 0 -18px 26px rgba(0, 0, 0, 0.28);
 }
 
+.gameBoard.day2-growth .tileContainer {
+  background:
+    linear-gradient(90deg, rgba(148, 176, 92, calc(var(--board-growth-progress) * 0.16)) 0 1px, transparent 1px 100%),
+    linear-gradient(180deg, rgba(148, 176, 92, calc(var(--board-growth-progress) * 0.16)) 0 1px, transparent 1px 100%),
+    radial-gradient(circle at 30% 18%, rgba(184, 224, 126, calc(var(--board-growth-progress) * 0.16)) 0%, transparent 34%),
+    linear-gradient(
+      160deg,
+      rgba(88, 78, 54, 0.98) 0%,
+      rgba(calc(82 + var(--board-growth-progress) * 20), calc(86 + var(--board-growth-progress) * 40), calc(48 + var(--board-growth-progress) * 14), 0.98) 38%,
+      rgba(calc(62 + var(--board-growth-progress) * 22), calc(72 + var(--board-growth-progress) * 48), calc(40 + var(--board-growth-progress) * 10), 0.98) 100%
+    );
+  background-size: 60px 60px, 60px 60px, auto, auto;
+}
+
 .tileContainer::before {
   content: "";
   position: absolute;
@@ -956,6 +1014,125 @@ function triggerSunsetRake() {
     radial-gradient(circle at 50% 50%, rgba(198, 164, 102, 0.06) 0%, transparent 60%),
     linear-gradient(180deg, rgba(255, 243, 216, 0.02) 0%, rgba(0, 0, 0, 0.08) 100%);
   mix-blend-mode: screen;
+}
+
+.board-growth {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.growth-veil,
+.growth-vine,
+.growth-leaf,
+.growth-grape {
+  position: absolute;
+}
+
+.growth-veil {
+  inset: 0;
+  opacity: calc(var(--board-growth-progress) * 0.78);
+  background:
+    radial-gradient(circle at 16% 88%, rgba(98, 142, 72, 0.5), transparent 26%),
+    radial-gradient(circle at 84% 16%, rgba(156, 204, 118, 0.24), transparent 22%),
+    linear-gradient(180deg, rgba(96, 142, 72, 0.04), rgba(76, 132, 54, 0.18));
+  transition: opacity 420ms ease;
+}
+
+.growth-vine {
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(88, 130, 64, 0.18), rgba(56, 96, 36, 0.42));
+  opacity: max(0, calc((var(--board-growth-progress) - 0.08) * 1.1));
+  transform-origin: left center;
+}
+
+.vine-a {
+  left: -8px;
+  bottom: 34px;
+  width: 176px;
+  height: 12px;
+  transform: rotate(-8deg) scaleX(calc(0.34 + var(--board-growth-progress) * 0.66));
+}
+
+.vine-b {
+  right: -12px;
+  top: 46px;
+  width: 188px;
+  height: 10px;
+  transform: rotate(12deg) scaleX(calc(0.18 + var(--board-growth-progress) * 0.82));
+  transform-origin: right center;
+}
+
+.vine-c {
+  left: 138px;
+  bottom: -6px;
+  width: 130px;
+  height: 8px;
+  transform: rotate(-62deg) scaleX(max(0, calc((var(--board-growth-progress) - 0.44) * 1.75)));
+}
+
+.growth-leaf,
+.growth-grape {
+  z-index: 0;
+  transition: opacity 360ms ease, transform 520ms ease;
+}
+
+.growth-leaf {
+  font-size: 26px;
+  filter: saturate(calc(0.5 + var(--board-growth-progress) * 0.7));
+}
+
+.leaf-a {
+  left: 28px;
+  bottom: 38px;
+  opacity: max(0, calc((var(--board-growth-progress) - 0.14) * 1.6));
+  transform: scale(calc(0.58 + var(--board-growth-progress) * 0.54)) rotate(-12deg);
+}
+
+.leaf-b {
+  right: 52px;
+  top: 44px;
+  opacity: max(0, calc((var(--board-growth-progress) - 0.3) * 1.55));
+  transform: scale(calc(0.54 + var(--board-growth-progress) * 0.58)) rotate(10deg);
+}
+
+.leaf-c {
+  left: 208px;
+  bottom: 84px;
+  opacity: max(0, calc((var(--board-growth-progress) - 0.54) * 1.95));
+  transform: scale(calc(0.5 + var(--board-growth-progress) * 0.64)) rotate(16deg);
+}
+
+.growth-grape {
+  font-size: 24px;
+  filter: saturate(calc(0.34 + var(--board-growth-progress) * 0.72));
+}
+
+.grape-a {
+  left: 118px;
+  bottom: 22px;
+  opacity: max(0, calc((var(--board-growth-progress) - 0.48) * 1.8));
+  transform: scale(calc(0.46 + var(--board-growth-progress) * 0.56));
+}
+
+.grape-b {
+  right: 116px;
+  top: 54px;
+  opacity: max(0, calc((var(--board-growth-progress) - 0.74) * 3.4));
+  transform: scale(calc(0.38 + var(--board-growth-progress) * 0.68));
+}
+
+.gameBoard.repairing.day2-growth .growth-vine,
+.gameBoard.repairing.day2-growth .growth-leaf,
+.gameBoard.repairing.day2-growth .growth-grape {
+  animation: board-growth-breathe 2.8s ease-in-out infinite;
+}
+
+@keyframes board-growth-breathe {
+  0%, 100% { filter: saturate(1) brightness(1); }
+  50% { filter: saturate(1.14) brightness(1.08); }
 }
 
 .entity-slot {
@@ -985,17 +1162,28 @@ function triggerSunsetRake() {
   z-index: 6;
   border-radius: 12px;
   background:
-    radial-gradient(circle at 45% 38%, rgba(234, 232, 255, 0.45), transparent 42%),
-    linear-gradient(145deg, rgba(170, 174, 198, 0.42), rgba(62, 64, 82, 0.34));
-  box-shadow: inset 0 0 16px rgba(240, 240, 255, 0.18);
-  backdrop-filter: blur(3px);
-  opacity: 0.78;
-  transition: opacity 140ms ease, filter 140ms ease;
+    radial-gradient(circle at 32% 28%, rgba(248, 248, 255, 0.96), rgba(214, 218, 234, 0.88) 38%, rgba(168, 174, 196, 0.82) 70%),
+    radial-gradient(circle at 72% 76%, rgba(232, 234, 250, 0.78), transparent 58%),
+    linear-gradient(150deg, rgba(196, 200, 222, 0.92) 0%, rgba(122, 128, 152, 0.86) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(248, 248, 255, 0.42),
+    inset 0 6px 18px rgba(255, 255, 255, 0.34),
+    inset 0 -8px 14px rgba(60, 64, 84, 0.36);
+  backdrop-filter: blur(10px) saturate(0.7);
+  opacity: 0.96;
+  transition: opacity 200ms ease, filter 200ms ease, backdrop-filter 200ms ease;
+  animation: mist-drift 6.4s ease-in-out infinite;
 }
 
 .mist-cell.revealed {
-  opacity: 0.2;
-  filter: blur(5px);
+  opacity: 0.32;
+  filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+@keyframes mist-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(0, -1px, 0) scale(1.015); }
 }
 
 .rot-mark {

@@ -49,6 +49,11 @@
         >{{ p.label }}</button>
       </div>
 
+      <button class="achievement-entry parchment" @click="openAchievements">
+        <span class="entry-icon">🏆</span>
+        <span class="entry-text">成就 {{ achievement.unlockedCount }} / {{ achievement.totalCount }}</span>
+      </button>
+
       <div class="intercept-shell" :class="{ visible: showIntercept }" @click="onInterceptClick">
         <p class="speaker">杰洛特</p>
         <p class="intercept-line">
@@ -69,6 +74,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { useAchievementStore } from '@/stores/achievementStore';
 import { useGameStore } from '@/stores/gameStore';
 import { ENDING } from '@/data/content';
 
@@ -79,6 +85,7 @@ const INTERCEPT_CHAR_MS = 34;
 const REWRITE_CHAR_MS = 84;
 
 const game = useGameStore();
+const achievement = useAchievementStore();
 const gift = ref('');
 const phase = ref('choice');
 const attemptedGift = ref('');
@@ -112,6 +119,10 @@ function onStart() {
   phase.value = 'intercept';
   interceptDisplay.value = '';
   timers.push(setTimeout(startIntercept, PREPARE_MS));
+}
+
+function openAchievements() {
+  achievement.openPanel();
 }
 
 function onEnter() {
@@ -359,6 +370,36 @@ h2.sub { font-size: 18px; margin: 4px 0 6px; letter-spacing: 0.44em; }
   gap: 6px;
   justify-content: center;
   margin-bottom: 16px;
+}
+
+.achievement-entry {
+  margin: 0 auto 16px;
+  padding: 8px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  background: rgba(255, 248, 230, 0.62);
+  border: 1px solid rgba(92, 60, 28, 0.24);
+  box-shadow: 0 8px 18px rgba(28, 18, 12, 0.12);
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.achievement-entry:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(28, 18, 12, 0.16);
+  background: rgba(255, 248, 230, 0.78);
+}
+
+.entry-icon {
+  font-size: 18px;
+}
+
+.entry-text {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
 }
 .preset {
   font-size: 11px;

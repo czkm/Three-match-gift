@@ -86,6 +86,7 @@ const game = useGameStore()
   padding-left: 12px;
   border-left: 1px solid rgba(97, 68, 38, 0.18);
 }
+
 .djinn-progress {
   display: flex;
   gap: 6px;

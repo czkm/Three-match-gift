@@ -15,6 +15,8 @@
     :style="style"
     @mousedown.prevent="onPick"
     @touchstart.prevent="onPick"
+    @mouseenter="onPeek"
+    @mouseleave="onPeekLeave"
   >
     <span class="glyph">{{ glyph }}</span>
     <span v-if="monsterSignal" class="monster-signal" :class="monsterSignal.className">{{ monsterSignal.glyph }}</span>
@@ -34,7 +36,7 @@ const props = defineProps({
   mist: { type: Boolean, default: false },
   mistRevealed: { type: Boolean, default: false }
 });
-const emit = defineEmits(['pick']);
+const emit = defineEmits(['pick', 'peek', 'peek-leave']);
 
 const TILE_SIZE = 60;
 
@@ -82,6 +84,14 @@ const monsterSignal = computed(() => {
 function onPick(evt) {
   emit('pick', { row: props.tile.row, col: props.tile.col }, evt);
 }
+
+function onPeek() {
+  emit('peek', { row: props.tile.row, col: props.tile.col });
+}
+
+function onPeekLeave() {
+  emit('peek-leave', { row: props.tile.row, col: props.tile.col });
+}
 </script>
 
 <style scoped>
@@ -91,13 +101,25 @@ function onPick(evt) {
 }
 
 .mist-obscured .glyph {
-  opacity: 0.08;
-  filter: blur(6px) drop-shadow(0 1px 0 rgba(0, 0, 0, 0.2));
+  opacity: 0;
+  filter: blur(10px);
+  transition: opacity 180ms ease, filter 180ms ease;
+}
+
+.mist-obscured .monster-signal {
+  opacity: 0;
+  transition: opacity 180ms ease;
 }
 
 .mist-revealed .glyph {
-  opacity: 0.9;
-  transition: opacity 120ms ease, filter 120ms ease;
+  opacity: 0.95;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.25));
+  transition: opacity 200ms ease, filter 200ms ease;
+}
+
+.mist-revealed .monster-signal {
+  opacity: 1;
+  transition: opacity 200ms ease;
 }
 
 .monster-signal {

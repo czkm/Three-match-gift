@@ -55,10 +55,12 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { useAchievementStore } from '@/stores/achievementStore';
 import { useGameStore } from '@/stores/gameStore';
 import { ENDING } from '@/data/content';
 import { TIMING } from '@/utils/timing';
 
+const achievement = useAchievementStore();
 const game = useGameStore();
 const showPortal = ref(false);
 const showYen    = ref(false);
@@ -93,7 +95,10 @@ function revealLines() {
     if (i < ENDING.lines.length) {
       timers.push(setTimeout(tick, 1500));
     } else {
-      timers.push(setTimeout(() => { showBlessing.value = true; }, 1800));
+      timers.push(setTimeout(() => {
+        showBlessing.value = true;
+        achievement.track('endingSeen', { day: 9 });
+      }, 1800));
     }
   };
   tick();
