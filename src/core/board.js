@@ -22,7 +22,7 @@
  * gives the cascade its tactile rhythm.
  */
 import EventBus from './eventBus';
-import { RESOURCE_CHARS } from '@/data/content';
+import { MONSTER_CHARS, RESOURCE_CHARS } from '@/data/content';
 
 export const SEP = 'X';
 export const HOLE = 'O';
@@ -50,20 +50,54 @@ export class Board {
     EventBus.trigger('draw', ['board.clear', { reason }]);
   }
 
+  setBoardString(tileString) {
+    this.tileString = tileString;
+    this._setGraphicsCallback(() => {});
+    EventBus.trigger('draw', ['board.fill', this.tileString]);
+  }
+
+  collapseAt(cells = []) {
+    if (!cells.length) return;
+    for (const cell of cells) this.setTile(cell.row, cell.col, HOLE);
+    const added = this._compactAndRefill();
+    this.lastSwitch = null;
+    this._setGraphicsCallback(() => this.checkMatches());
+    EventBus.trigger('draw', ['board.match', {
+      removed: [],
+      added,
+      removedEntityCells: cells,
+      swapSide: 'center',
+      groupSizes: [],
+      matchGroups: [],
+      chain: this._chain
+    }]);
+  }
+
   fill() {
     this.tileString = '';
     for (let col = 0; col < this.opts.columns; col++) {
       for (let row = 0; row < this.opts.rows; row++) {
+        if (this._isBlockedCell(row, col)) {
+          this.tileString += HOLE;
+          continue;
+        }
+        const monsterChar = typeof this.opts.monsterCharAt === 'function'
+          ? this.opts.monsterCharAt(row, col)
+          : null;
+        if (monsterChar) {
+          this.tileString += monsterChar;
+          continue;
+        }
         const counts = this._tileMap();
         if (col > 0) {
           const sib = this.getTile(row, col - 1);
-          counts[sib]--;
-          if (col > 1 && this.getTile(row, col - 2) === sib) counts[sib]--;
+          if (counts[sib] != null) counts[sib]--;
+          if (col > 1 && this.getTile(row, col - 2) === sib && counts[sib] != null) counts[sib]--;
         }
         if (row > 0) {
           const sib = this.getTile(row - 1, col);
-          counts[sib]--;
-          if (row > 1 && this.getTile(row - 2, col) === sib) counts[sib]--;
+          if (counts[sib] != null) counts[sib]--;
+          if (row > 1 && this.getTile(row - 2, col) === sib && counts[sib] != null) counts[sib]--;
         }
         this.tileString += this._generateTile(counts);
       }
@@ -86,6 +120,7 @@ export class Board {
 
     const a = this.getTile(pos1.row, pos1.col);
     const b = this.getTile(pos2.row, pos2.col);
+    if (a === HOLE || b === HOLE || this._isMonsterChar(a) || this._isMonsterChar(b)) return;
     this.setTile(pos1.row, pos1.col, b);
     this.setTile(pos2.row, pos2.col, a);
 
@@ -98,6 +133,7 @@ export class Board {
   swapAny(pos1, pos2) {
     const a = this.getTile(pos1.row, pos1.col);
     const b = this.getTile(pos2.row, pos2.col);
+    if (a === HOLE || b === HOLE || this._isMonsterChar(a) || this._isMonsterChar(b)) return;
     this.setTile(pos1.row, pos1.col, b);
     this.setTile(pos2.row, pos2.col, a);
     this.lastSwitch = null;
@@ -110,7 +146,8 @@ export class Board {
     for (let r = centerRow - 1; r <= centerRow + 1; r++) {
       for (let c = centerCol - 1; c <= centerCol + 1; c++) {
         if (r < 0 || r >= this.opts.rows || c < 0 || c >= this.opts.columns) continue;
-        if (this.getTile(r, c) === HOLE) continue;
+        if (this._isBlockedCell(r, c)) continue;
+        if (this.getTile(r, c) === HOLE || this._isMonsterChar(this.getTile(r, c))) continue;
         this.setTile(r, c, targetChar);
       }
     }
@@ -124,7 +161,10 @@ export class Board {
     let s = '';
     for (let i = 0; i < this.tileString.length; i++) {
       const ch = this.tileString.charAt(i);
-      s += ch === fromChar ? toChar : ch;
+      const pos = this.getPosition(i);
+      if (this._isSeparatorIndex(i) || this._isBlockedCell(pos.row, pos.col)) s += ch;
+      else if (this._isMonsterChar(ch)) s += ch;
+      else s += ch === fromChar ? toChar : ch;
     }
     this.tileString = s;
     this.lastSwitch = null;
@@ -137,12 +177,14 @@ export class Board {
     const removed = [];
     if (axis === 'row') {
       for (let c = 0; c < this.opts.columns; c++) {
-        if (this.getTile(index, c) === HOLE) continue;
+        if (this._isBlockedCell(index, c)) continue;
+        if (this.getTile(index, c) === HOLE || this._isMonsterChar(this.getTile(index, c))) continue;
         removed.push({ row: index, col: c, char: this.getTile(index, c) });
       }
     } else {
       for (let r = 0; r < this.opts.rows; r++) {
-        if (this.getTile(r, index) === HOLE) continue;
+        if (this._isBlockedCell(r, index)) continue;
+        if (this.getTile(r, index) === HOLE || this._isMonsterChar(this.getTile(r, index))) continue;
         removed.push({ row: r, col: index, char: this.getTile(r, index) });
       }
     }
@@ -166,19 +208,73 @@ export class Board {
     EventBus.trigger('draw', ['board.match', {
       removed: removedForRender,
       added: newTiles,
+      removedMonsterTiles: [],
       swapSide: 'center',
       lineSweep: { axis, index }
     }]);
     EventBus.trigger('tilesCleared', [resourcesGained, 'center', 1]);
   }
 
+  releaseBlockedCells(releasedCells = []) {
+    if (!releasedCells.length) return;
+
+    const affectedCols = [...new Set(releasedCells.map((cell) => cell.col))];
+    const newTiles = [];
+
+    for (const col of affectedCols) {
+      const survivors = [];
+      for (let row = 0; row < this.opts.rows; row++) {
+        if (this._isBlockedCell(row, col)) continue;
+        const ch = this.getTile(row, col);
+        if (ch && ch !== HOLE) survivors.push(ch);
+      }
+
+      const result = new Array(this.opts.rows).fill(HOLE);
+      let survivorIdx = survivors.length - 1;
+      for (let row = this.opts.rows - 1; row >= 0; row--) {
+        if (this._isBlockedCell(row, col)) continue;
+        if (survivorIdx >= 0) {
+          result[row] = survivors[survivorIdx];
+          survivorIdx--;
+        }
+      }
+
+      const counts = this._tileMap();
+      for (let row = 0; row < this.opts.rows; row++) {
+        if (this._isBlockedCell(row, col)) continue;
+        if (result[row] !== HOLE) continue;
+        const ch = this._generateTile(counts);
+        result[row] = ch;
+        newTiles.push({ row, col, char: ch });
+      }
+
+      for (let row = 0; row < this.opts.rows; row++) {
+        this.setTile(row, col, result[row]);
+      }
+    }
+
+    this.lastSwitch = null;
+    this._setGraphicsCallback(() => this.checkMatches());
+    EventBus.trigger('draw', ['board.match', {
+      removed: [],
+      added: newTiles,
+      removedEntityCells: releasedCells,
+      swapSide: 'center',
+      groupSizes: [],
+      matchGroups: [],
+      chain: this._chain
+    }]);
+  }
+
   /** Find a single hint move (lilacReturn). Returns {a, b} or null. */
   findHint() {
     for (let r = 0; r < this.opts.rows; r++) {
       for (let c = 0; c < this.opts.columns; c++) {
+        if (this._isBlockedCell(r, c)) continue;
         for (const [dr, dc] of [[0, 1], [1, 0]]) {
           const r2 = r + dr, c2 = c + dc;
           if (r2 >= this.opts.rows || c2 >= this.opts.columns) continue;
+          if (this._isBlockedCell(r2, c2)) continue;
           this._swapInString({ row: r, col: c }, { row: r2, col: c2 });
           const matched = this._anyMatch();
           this._swapInString({ row: r, col: c }, { row: r2, col: c2 });
@@ -196,9 +292,10 @@ export class Board {
     if (b.row < 0 || b.row >= this.opts.rows) return false;
     if (a.col < 0 || a.col >= this.opts.columns) return false;
     if (b.col < 0 || b.col >= this.opts.columns) return false;
+    if (this._isBlockedCell(a.row, a.col) || this._isBlockedCell(b.row, b.col)) return false;
     const ca = this.getTile(a.row, a.col);
     const cb = this.getTile(b.row, b.col);
-    if (ca === HOLE || cb === HOLE) return false;
+    if (ca === HOLE || cb === HOLE || this._isMonsterChar(ca) || this._isMonsterChar(cb)) return false;
     this._swapInString(a, b);
     const matched = this._anyMatch();
     this._swapInString(a, b);
@@ -218,21 +315,10 @@ export class Board {
     const hMask = new Array(this.tileString.length).fill(0);
     let matchDetected = false;
     const groupSizes = [];
+    const matchGroups = [];
 
-    this.tileString.replace(this._matchRe, (match, _p1, offset) => {
-      matchDetected = true;
-      groupSizes.push(match.length);
-      for (let i = 0; i < match.length; i++) vMask[offset + i] = 1;
-      return match;
-    });
-    this.rowString.replace(this._matchRe, (match, _p1, offset) => {
-      matchDetected = true;
-      groupSizes.push(match.length);
-      for (let i = 0; i < match.length; i++) {
-        hMask[this._indexFromRowString(offset + i)] = 1;
-      }
-      return match;
-    });
+    matchDetected = this._scanMatches(this.tileString, false, vMask, matchGroups, groupSizes) || matchDetected;
+    matchDetected = this._scanMatches(this.rowString, true, hMask, matchGroups, groupSizes) || matchDetected;
 
     if (!matchDetected) {
       EventBus.trigger('tilesSwapped', [this.lastSwitch == null]);
@@ -263,6 +349,26 @@ export class Board {
       }
     }
 
+    const clearedTiles = removed.map((item) => {
+      const match = matchGroups.find((group) => group.positions.some((pos) => (
+        pos.row === item.position.row && pos.col === item.position.col
+      )));
+      return {
+        row: item.position.row,
+        col: item.position.col,
+        char: item.char,
+        groupSize: match?.size || 0
+      };
+    });
+
+    const removedMonsterTiles = typeof this.opts.resolveMonsterHits === 'function'
+      ? this.opts.resolveMonsterHits(clearedTiles, this._chain, 'match') || []
+      : [];
+
+    for (const cell of removedMonsterTiles) {
+      this.setTile(cell.row, cell.col, HOLE);
+    }
+
     const added = this._compactAndRefill();
 
     this.lastSwitch = null;
@@ -270,11 +376,13 @@ export class Board {
 
     EventBus.trigger('draw', ['board.match', {
       removed, added,
+      removedMonsterTiles,
       swapSide: this.swapSide,
       groupSizes,
+      matchGroups,
       chain: this._chain
     }]);
-    EventBus.trigger('tilesCleared', [resourcesGained, this.swapSide, groupSizes.length, groupSizes, this._chain]);
+    EventBus.trigger('tilesCleared', [resourcesGained, this.swapSide, groupSizes.length, groupSizes, this._chain, matchGroups]);
     this.moved = false;
   }
 
@@ -366,22 +474,67 @@ export class Board {
     return pick;
   }
 
+  _scanMatches(source, rowOriented, mask, matchGroups, groupSizes) {
+    let found = false;
+    let cursor = 0;
+    for (const segment of source.split(SEP)) {
+      let idx = 0;
+      while (idx < segment.length) {
+        const ch = segment.charAt(idx);
+        let end = idx + 1;
+        while (end < segment.length && segment.charAt(end) === ch) end++;
+        const size = end - idx;
+        if (size >= 3 && !MONSTER_CHARS.includes(ch) && ch !== HOLE) {
+          found = true;
+          groupSizes.push(size);
+          const positions = [];
+          for (let i = idx; i < end; i++) {
+            const sourceIndex = cursor + i;
+            const boardIndex = rowOriented ? this._indexFromRowString(sourceIndex) : sourceIndex;
+            mask[boardIndex] = 1;
+            positions.push(this.getPosition(boardIndex));
+          }
+          matchGroups.push({ axis: rowOriented ? 'row' : 'col', size, char: ch, positions });
+        }
+        idx = end;
+      }
+      cursor += segment.length + 1;
+    }
+    return found;
+  }
+
   _compactAndRefill() {
     const newTiles = [];
-    this.tileString = this.tileString.replace(this._holeRe, '');
-    const columns = this.tileString.split(SEP);
-    for (let col = 0, len = columns.length - 1; col < len; col++) {
-      let column = columns[col];
-      const needed = this.opts.rows - column.length;
-      const counts = this._tileMap();
-      for (let r = needed - 1; r >= 0; r--) {
-        const ch = this._generateTile(counts);
-        column = ch + column;
-        newTiles.push({ row: r, col, char: ch });
+    const columns = [];
+    for (let col = 0; col < this.opts.columns; col++) {
+      const survivors = [];
+      for (let row = 0; row < this.opts.rows; row++) {
+        if (this._isBlockedCell(row, col)) continue;
+        const ch = this.getTile(row, col);
+        if (ch && ch !== HOLE) survivors.push(ch);
       }
-      columns[col] = column;
+
+      const result = new Array(this.opts.rows).fill(HOLE);
+      let survivorIdx = survivors.length - 1;
+      for (let row = this.opts.rows - 1; row >= 0; row--) {
+        if (this._isBlockedCell(row, col)) continue;
+        if (survivorIdx >= 0) {
+          result[row] = survivors[survivorIdx];
+          survivorIdx--;
+        }
+      }
+
+      const counts = this._tileMap();
+      for (let row = 0; row < this.opts.rows; row++) {
+        if (this._isBlockedCell(row, col)) continue;
+        if (result[row] !== HOLE) continue;
+        const ch = this._generateTile(counts);
+        result[row] = ch;
+        newTiles.push({ row, col, char: ch });
+      }
+      columns.push(result.join(''));
     }
-    this.tileString = columns.join(SEP);
+    this.tileString = columns.join(SEP) + SEP;
     return newTiles;
   }
 
@@ -403,27 +556,41 @@ export class Board {
   _swapInString(p1, p2) {
     const a = this.getTile(p1.row, p1.col);
     const b = this.getTile(p2.row, p2.col);
+    if (a === HOLE || b === HOLE || this._isMonsterChar(a) || this._isMonsterChar(b)) return;
     this.setTile(p1.row, p1.col, b);
     this.setTile(p2.row, p2.col, a);
   }
 
   _anyMatch() {
     this._generateRowString();
-    if (this._matchRe.test(this.tileString)) { this._matchRe.lastIndex = 0; return true; }
-    this._matchRe.lastIndex = 0;
-    if (this._matchRe.test(this.rowString))  { this._matchRe.lastIndex = 0; return true; }
-    this._matchRe.lastIndex = 0;
-    return false;
+    return this._scanMatches(this.tileString, false, [], [], []) ||
+      this._scanMatches(this.rowString, true, [], [], []);
   }
 
   _areMovesAvailable() {
     return this.findHint() != null;
   }
 
+  _isBlockedCell(row, col) {
+    const blocked = typeof this.opts.blockedCells === 'function'
+      ? this.opts.blockedCells()
+      : [];
+    return blocked.includes(`${row}:${col}`);
+  }
+
+  _isSeparatorIndex(idx) {
+    return this.tileString.charAt(idx) === SEP;
+  }
+
+  _isMonsterChar(ch) {
+    return MONSTER_CHARS.includes(ch);
+  }
+
   _noMoreMoves() {
     EventBus.trigger('noMoreMoves');
     this.refreshBoard('noMoves');
   }
+
 }
 
 let _instance = null;

@@ -40,6 +40,9 @@
         <div v-if="allLinesShown" class="signature-block">
           <p v-if="showAttemptedGift" class="attempted-signature">{{ game.giftAttemptedText }}</p>
           <p class="signature">{{ game.giftText }}</p>
+          <transition name="blessing-fade">
+            <p v-if="showBlessing" class="blessing">{{ ENDING.blessingLine }}</p>
+          </transition>
         </div>
 
         <button v-if="allLinesShown" class="restart" @click="onRestart">
@@ -61,6 +64,7 @@ const showPortal = ref(false);
 const showYen    = ref(false);
 const showLines  = ref(false);
 const linesRevealed = ref(0);
+const showBlessing = ref(false);
 const timers = [];
 
 const revealedLines = computed(() => ENDING.lines.slice(0, linesRevealed.value));
@@ -86,7 +90,11 @@ function revealLines() {
   const tick = () => {
     i++;
     linesRevealed.value = i;
-    if (i < ENDING.lines.length) timers.push(setTimeout(tick, 1500));
+    if (i < ENDING.lines.length) {
+      timers.push(setTimeout(tick, 1500));
+    } else {
+      timers.push(setTimeout(() => { showBlessing.value = true; }, 1800));
+    }
   };
   tick();
 }
@@ -269,6 +277,21 @@ function onRestart() {
   letter-spacing: 0.2em;
   font-weight: 700;
   animation: line-in 1000ms ease;
+}
+.blessing {
+  margin: 14px 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+.blessing-fade-enter-active,
+.blessing-fade-leave-active {
+  transition: opacity 700ms ease, transform 700ms ease;
+}
+.blessing-fade-enter-from,
+.blessing-fade-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
 }
 
 .restart {

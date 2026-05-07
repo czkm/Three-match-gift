@@ -38,6 +38,28 @@
     <!-- Day-end gentle reminder -->
     <DayEndOverlay v-if="game.phase === 'dayEnd'" @advance="onDayEndAdvance" />
 
+    <transition name="dialog-fade">
+      <div v-if="game.barkLine && ['playing', 'targeting', 'wish'].includes(game.phase)" class="bark-strip">
+        <Dialog
+          :key="game.barkNonce"
+          :text="game.barkLine"
+          hint="点击收起"
+          @done="game.dismissBark()"
+          @skip="game.dismissBark()"
+        />
+      </div>
+    </transition>
+
+    <transition name="dialog-fade">
+      <div v-if="game.djinnHintVisible && game.phase === 'playing'" class="djinn-hint-strip">
+        <div class="hint-card parchment grain">
+          <p class="ink-subtle">{{ djinnHint }}</p>
+        </div>
+      </div>
+    </transition>
+
+    <WishOverlay v-if="game.phase === 'wish'" :board-ref="boardEl" />
+
     <!-- Repair sequence: per-day differentiated cutscene -->
     <PerDayCutscene v-if="game.phase === 'repairing'" @advance="onRepairAdvance" />
   </div>
@@ -53,12 +75,15 @@ import PerDayCutscene from './HUD/PerDayCutscene.vue';
 import DayEndOverlay from './HUD/DayEndOverlay.vue';
 import EstateStrip from './HUD/EstateStrip.vue';
 import GameBoard from './Board/GameBoard.vue';
+import WishOverlay from './HUD/WishOverlay.vue';
 import { useGameStore } from '@/stores/gameStore';
+import { DJINN_WISHES } from '@/data/content';
 
 const game = useGameStore();
 const boardEl = ref(null);
 const introReady = ref(false);
 const showEstateStrip = computed(() => ['intro', 'playing', 'targeting', 'dayEnd', 'repairing'].includes(game.phase));
+const djinnHint = DJINN_WISHES.introHint;
 
 function onIntroDone() {
   introReady.value = true;
@@ -137,6 +162,25 @@ watch(() => game.currentDay, () => {
   align-items: center;
   gap: 10px;
   z-index: 20;
+}
+.bark-strip,
+.djinn-hint-strip {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  width: 680px;
+  max-width: 92vw;
+  z-index: 22;
+}
+.hint-card {
+  padding: 12px 18px;
+  border-radius: 6px;
+  text-align: center;
+}
+.hint-card p {
+  margin: 0;
+  font-size: 13px;
 }
 .dialog-fade-enter-active, .dialog-fade-leave-active {
   transition: opacity 400ms ease, transform 400ms ease;

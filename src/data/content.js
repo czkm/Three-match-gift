@@ -260,6 +260,211 @@ export const DAY_END_LINES = [
   '今天先这样。陶森特的天黑得慢。'
 ];
 
+export const MONSTERS = {
+  nekkers: {
+    id: 'nekkers',
+    char: 'N',
+    name: '孽鬼',
+    emoji: '👺',
+    hits: 2,
+    reward: {},
+    clearRule: {
+      type: 'adjacentMatch',
+      hint: '在它上下左右打出一次有效三消，就会掉 1 点生命。'
+    },
+    introLine: '孽鬼。闻到葡萄味了。',
+    removeLine: '去别处找吃的。'
+  },
+  drowner: {
+    id: 'drowner',
+    char: 'D',
+    name: '水鬼',
+    emoji: '🧟',
+    hits: 2,
+    reward: { grape: 3 },
+    clearRule: {
+      type: 'adjacentMatch',
+      hint: '在它上下左右打出一次有效三消，就会掉 1 点生命。'
+    },
+    introLine: '水鬼。闻到葡萄味了？',
+    removeLine: '回水里去。'
+  },
+  ghoul: {
+    id: 'ghoul',
+    char: 'G',
+    name: '食尸鬼',
+    emoji: '🧌',
+    hits: 2,
+    reward: { herb: 3 },
+    clearRule: {
+      type: 'adjacentMatch',
+      hint: '在它上下左右打出一次有效三消，就会掉 1 点生命。'
+    },
+    introLine: '食尸鬼。大概是跟着我来的。',
+    removeLine: '走吧。这里没你要的。'
+  },
+  foglet: {
+    id: 'foglet',
+    char: 'F',
+    name: '小雾妖',
+    emoji: '🌫️',
+    hits: 2,
+    reward: { magic: 2 },
+    clearRule: {
+      type: 'adjacentMatch',
+      hint: '在它上下左右打出一次有效三消，就会掉 1 点生命。'
+    },
+    introLine: '雾气。还有雾里的东西。',
+    removeLine: '散开就好。'
+  },
+  wraith: {
+    id: 'wraith',
+    char: 'W',
+    name: '怨灵',
+    emoji: '👻',
+    hits: 2,
+    reward: { magic: 3 },
+    clearRule: {
+      type: 'adjacentMatch',
+      hint: '在它上下左右打出一次有效三消，就会掉 1 点生命。'
+    },
+    introLine: '怨灵。得用点魔力才能让它散。',
+    removeLine: '安静了。'
+  },
+  djinn: {
+    id: 'djinn',
+    name: '迪精',
+    emoji: '🧞',
+    hits: 3,
+    clearRule: {
+      type: 'djinnCorners',
+      hint: '消除四角封印附近的格子，命中三次。'
+    },
+    introLine: '……是你。我以为你已经走了。'
+  }
+};
+
+export const MONSTER_BY_CHAR = Object.fromEntries(
+  Object.values(MONSTERS)
+    .filter((monster) => monster.char)
+    .map((monster) => [monster.char, monster])
+);
+
+export const MONSTER_CHARS = Object.keys(MONSTER_BY_CHAR);
+
+export const DAY_MONSTER_LAYOUTS = {
+  0: [
+    { id: 'd1-nekkers-a', kind: 'nekkers', row: 2, col: 5 }
+  ],
+  1: [
+    { id: 'd2-nekkers-a', kind: 'nekkers', row: 1, col: 2 },
+    { id: 'd2-nekkers-b', kind: 'nekkers', row: 4, col: 5 }
+  ],
+  2: [
+    { id: 'd3-drowner-a', kind: 'drowner', row: 2, col: 5 }
+  ],
+  3: [
+    { id: 'd4-drowner-a', kind: 'drowner', row: 1, col: 5 },
+    { id: 'd4-nekkers-a', kind: 'nekkers', row: 4, col: 2 }
+  ],
+  4: [
+    { id: 'd5-ghoul-a', kind: 'ghoul', row: 2, col: 1 },
+    { id: 'd5-drowner-a', kind: 'drowner', row: 4, col: 5 }
+  ],
+  5: [
+    { id: 'd6-wraith-a', kind: 'wraith', row: 1, col: 5 },
+    { id: 'd6-ghoul-a', kind: 'ghoul', row: 2, col: 2 },
+    { id: 'd6-drowner-a', kind: 'drowner', row: 5, col: 5 }
+  ],
+  6: [
+    { id: 'd7-foglet-a', kind: 'foglet', row: 2, col: 5 },
+    { id: 'd7-ghoul-a', kind: 'ghoul', row: 5, col: 2 }
+  ],
+  7: [
+    { id: 'd8-foglet-a', kind: 'foglet', row: 1, col: 3 },
+    { id: 'd8-wraith-a', kind: 'wraith', row: 2, col: 5 },
+    { id: 'd8-foglet-b', kind: 'foglet', row: 4, col: 6 },
+    { id: 'd8-ghoul-a', kind: 'ghoul', row: 5, col: 1 }
+  ],
+  8: [
+    { id: 'd9-djinn-a', kind: 'djinn', row: 3, col: 3, width: 2, height: 2 }
+  ]
+};
+
+export const DJINN_WISHES = {
+  introHint: '迪精在棋盘上。消除它四角附近的格子，命中三次之后它会现身。',
+  releaseLine: '愿望这种东西……最后一个，不用说出来。命运已经听见了。',
+  stages: {
+    1: {
+      title: '第一个愿望',
+      quote: '那时他只是想把麻烦赶走。后来才明白，愿望一旦出口，总会留下些什么。',
+      lines: [
+        '第一次见到迪精，是在一条河边。',
+        '丹德里恩把瓶子打碎，红雾就冲了出来。',
+        '我念了句自己也不懂的古语，以为那只是一句驱魔咒。',
+        '后来才知道，那句话真正的意思只是——',
+        '滚开。去自己玩自己。'
+      ],
+      choices: [
+        {
+          id: 'banish',
+          label: '让庄园里的麻烦都散去吧。',
+          effectLabel: '庄园里的怪物会被愿望驱散。'
+        }
+      ],
+      resolveLine: '那时候不懂。现在懂了。'
+    },
+    2: {
+      title: '第二个愿望',
+      quote: '脱口而出的话，迪精也会当真。真正可怕的不是力量，而是你究竟想留下什么。',
+      lines: [
+        '第二个愿望，是我在牢里说的。',
+        '那个守卫每天打我。我靠在墙角，看着他走过来。',
+        '我说：但愿你会炸开。',
+        '然后他真的炸了。'
+      ],
+      choices: [
+        {
+          id: 'ease-estate',
+          label: '愿庄园不再荒芜。',
+          effectLabel: '当前建筑需求降低 30%，棋盘重新洗牌。'
+        },
+        {
+          id: 'rich-vintage',
+          label: '愿酒窖的酒永远醇香。',
+          effectLabel: '立即 +5 步，之后每次消除的每种资源额外 +1。'
+        },
+        {
+          id: 'roach-healthy',
+          label: '愿萝卜永远健康。',
+          effectLabel: '本日“萝卜识途”可用次数提升至 4 次。'
+        }
+      ],
+      resolveLine: '脱口而出的话，迪精也会当真。'
+    },
+    3: {
+      title: '第三个愿望',
+      quote: '有些愿望不是召唤谁来到身边，而是承认自己愿意把往后的路，和她系在同一条命运上。',
+      lines: [
+        '第三个愿望。',
+        '上一次，我不肯承认自己说了什么。',
+        '我不想用魔法把她困在我身边。',
+        '我不想她的感情，来自一个咒语。',
+        '可我也知道，真正留下我们的，从来不是咒语。',
+        '是我终于愿意承认，往后的命运，我想和她系在一起。'
+      ],
+      choices: [
+        {
+          id: 'bind-fate',
+          label: '让她来。',
+          effectLabel: '迪精解放，紫丁香客房立即完成。'
+        }
+      ],
+      resolveLine: '命运已经听见了。'
+    }
+  }
+};
+
 /* -------- Estate strip -------- */
 export const ESTATE_STRIP_STAGES = [
   {
@@ -456,6 +661,7 @@ export const ENDING = {
   ],
   defaultGift: '献给小芸。',
   lockedGift: '献给小芸。',
+  blessingLine: '也祝小坤和小芸的命运永远相连。',
   interceptLine: '哦，我想起来了。你不是小芸吗？还在选什么，我帮你填下去就行。',
   giftPresets: [
     { id: 'friend', label: '朋友', text: '朋友' },

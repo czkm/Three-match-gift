@@ -52,6 +52,11 @@ const glyph = computed(() => {
     case 'clay':  return '🧱';
     case 'herb':  return '🌿';
     case 'magic': return '✨';
+    case 'monster-nekkers': return '👺';
+    case 'monster-drowner': return '🧟';
+    case 'monster-ghoul': return '🧌';
+    case 'monster-foglet': return '🌫️';
+    case 'monster-wraith': return '👻';
     default: return '';
   }
 });

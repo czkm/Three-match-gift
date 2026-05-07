@@ -12,6 +12,14 @@
       </span>
     </div>
     <div class="right">
+      <div v-if="game.djinnActive" class="djinn-progress">
+        <span
+          v-for="dot in 3"
+          :key="`djinn-dot-${dot}`"
+          class="dot"
+          :class="{ lit: game.djinnProgress >= dot }"
+        />
+      </div>
       <span class="steps">
         <span class="ink-subtle">步数</span>
         <span class="step-value" :class="{ low: game.stepsLeft <= 5 }">
@@ -57,6 +65,22 @@ const game = useGameStore();
   flex-direction: column;
   align-items: flex-end;
   gap: 2px;
+}
+.djinn-progress {
+  display: flex;
+  gap: 6px;
+  margin-right: 14px;
+}
+.dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(120, 92, 54, 0.32);
+  box-shadow: inset 0 0 0 1px rgba(208, 168, 87, 0.3);
+}
+.dot.lit {
+  background: radial-gradient(circle, rgba(255, 238, 182, 0.96), rgba(212, 168, 87, 0.92));
+  box-shadow: 0 0 12px rgba(212, 168, 87, 0.7);
 }
 .step-value {
   font-size: 18px;
