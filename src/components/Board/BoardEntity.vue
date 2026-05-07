@@ -11,7 +11,7 @@
   >
     <span class="slot-frame" />
     <span class="glyph">{{ monster?.emoji || '' }}</span>
-    <span v-if="entity.kind === 'djinn'" class="djinn-core" :class="`p${game.djinnProgress}`" />
+    <span v-if="entity.kind === 'djinn'" class="djinn-core" :class="`p${djinnStage}`" />
     <div class="hp-bar">
       <span
         v-for="n in entity.hitsRequired || 1"
@@ -35,6 +35,7 @@ const props = defineProps({
 
 const game = useGameStore();
 const monster = computed(() => MONSTERS[props.entity.kind]);
+const djinnStage = computed(() => Math.max(0, Math.min(3, props.entity.hitsTaken || 0)));
 const style = computed(() => ({
   width: `${(props.entity.width || 1) * props.tileSize}px`,
   height: `${(props.entity.height || 1) * props.tileSize}px`,
@@ -42,7 +43,7 @@ const style = computed(() => ({
 }));
 const title = computed(() => {
   if (props.entity.kind === 'djinn') {
-    const remain = Math.max(0, 3 - game.djinnProgress);
+    const remain = Math.max(0, (props.entity.hitsRequired || 3) - (props.entity.hitsTaken || 0));
     return remain > 0 ? `迪精封印还需命中 ${remain} 次` : '迪精即将解放';
   }
   const remain = Math.max(0, (props.entity.hitsRequired || 1) - (props.entity.hitsTaken || 0));

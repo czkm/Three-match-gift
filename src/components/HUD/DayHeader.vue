@@ -13,11 +13,12 @@
     </div>
     <div class="right">
       <div v-if="game.djinnActive" class="djinn-progress">
+        <span class="boss-state ink-subtle">{{ bossState }}</span>
         <span
           v-for="dot in 3"
           :key="`djinn-dot-${dot}`"
           class="dot"
-          :class="{ lit: game.djinnProgress >= dot }"
+          :class="{ lit: game.djinnHitCount >= dot }"
         />
       </div>
       <span class="steps">
@@ -31,8 +32,18 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { useGameStore } from '@/stores/gameStore';
 const game = useGameStore();
+const bossState = computed(() => {
+  switch (game.djinnPhase) {
+    case 'normal': return '正常';
+    case 'hurt': return '受伤';
+    case 'critical': return '濒危';
+    case 'defeated': return '击败';
+    default: return '';
+  }
+});
 </script>
 
 <style scoped>
@@ -70,6 +81,11 @@ const game = useGameStore();
   display: flex;
   gap: 6px;
   margin-right: 14px;
+  align-items: center;
+}
+.boss-state {
+  margin-right: 4px;
+  font-size: 12px;
 }
 .dot {
   width: 11px;

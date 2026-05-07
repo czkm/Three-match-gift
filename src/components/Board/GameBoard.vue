@@ -244,7 +244,7 @@ function onPick(payload, evt) {
     selectedId.value = null;
     const entity = entityAt(payload.row, payload.col);
     if (entity?.kind === 'djinn') {
-      const remain = Math.max(0, 3 - game.djinnProgress);
+      const remain = Math.max(0, game.djinnHitsRequired - game.djinnHitCount);
       game.queueBark(remain > 0 ? `迪精封印还需命中 ${remain} 次。` : '迪精即将解放。');
     } else if (entity) {
       const hint = MONSTERS[entity.kind]?.clearRule?.hint;

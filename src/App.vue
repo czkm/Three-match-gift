@@ -33,7 +33,15 @@ function onRestart() {
 
 function onTesterKeydown(event) {
   if (!(event.metaKey || event.ctrlKey)) return;
-  if (event.key.toLowerCase() !== 'k') return;
+  const key = event.key.toLowerCase();
+  if (key === 'e') {
+    event.preventDefault();
+    const result = game.jumpToDayForTesting(9);
+    if (!result) return;
+    showTesterToast(`测试跳转：已到第 ${result.day} 天“${result.building}”`);
+    return;
+  }
+  if (key !== 'k') return;
   event.preventDefault();
   const result = game.skipDayForTesting();
   if (!result) return;

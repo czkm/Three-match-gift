@@ -71,10 +71,10 @@ export const useGameStore = defineStore('game', {
     },
 
     // Day 9 djinn / wish state
-    djinnProgress: 0,
     djinnHintVisible: false,
     djinnReleased: false,
     wishStage: 0,
+    wishStageResolved: 0,
     wishResolved: false,
     wishResolveLine: '',
     pendingWishPhase: 'playing',
@@ -114,6 +114,21 @@ export const useGameStore = defineStore('game', {
     },
     djinnActive(state) {
       return !!state.boardEntities.find((e) => e.kind === 'djinn' && !e.removed);
+    },
+    djinnHitCount(state) {
+      return state.boardEntities.find((e) => e.kind === 'djinn' && !e.removed)?.hitsTaken || 0;
+    },
+    djinnHitsRequired(state) {
+      return state.boardEntities.find((e) => e.kind === 'djinn' && !e.removed)?.hitsRequired || 3;
+    },
+    djinnPhase(state) {
+      const entity = state.boardEntities.find((e) => e.kind === 'djinn' && !e.removed);
+      if (!entity) return state.djinnReleased ? 'defeated' : 'idle';
+      const hp = (entity.hitsRequired || 3) - (entity.hitsTaken || 0);
+      if (hp >= 3) return 'normal';
+      if (hp === 2) return 'hurt';
+      if (hp === 1) return 'critical';
+      return 'defeated';
     },
     currentWish(state) {
       return DJINN_WISHES.stages[state.wishStage] || null;
@@ -402,20 +417,19 @@ export const useGameStore = defineStore('game', {
       if (this.wishStage > 0 || this.phase === 'wish') {
         return { removedCount: 0, djinnHit: false };
       }
-      if (source !== 'match') {
-        return { removedCount: 0, djinnHit: false };
-      }
       const cleared = new Set(clearedTiles.map((tile) => `${tile.row}:${tile.col}`));
       const removed = [];
 
-      for (const monster of this.monsterTiles) {
-        if (monster.removed) continue;
-        const hit = this._monsterWasHit(monster, clearedTiles, chain);
-        if (!hit) continue;
-        monster.hitsTaken = (monster.hitsTaken || 0) + 1;
-        if (monster.hitsTaken >= monster.hitsRequired) {
-          monster.removed = true;
-          removed.push(monster);
+      if (source === 'match') {
+        for (const monster of this.monsterTiles) {
+          if (monster.removed) continue;
+          const hit = this._monsterWasHit(monster, clearedTiles, chain);
+          if (!hit) continue;
+          monster.hitsTaken = (monster.hitsTaken || 0) + 1;
+          if (monster.hitsTaken >= monster.hitsRequired) {
+            monster.removed = true;
+            removed.push(monster);
+          }
         }
       }
 
@@ -428,9 +442,14 @@ export const useGameStore = defineStore('game', {
 
       let djinnHit = false;
       const djinn = this.djinnEntity;
-      if (djinn && this.djinnProgress < 3 && chain === 1) {
-        djinnHit = this._djinnTriggerKeys(djinn).some((key) => cleared.has(key));
-        if (djinnHit) this.beginWishStage(this.djinnProgress + 1);
+      if (djinn && !djinn.removed && (djinn.hitsTaken || 0) < (djinn.hitsRequired || 3)) {
+        djinnHit = this._djinnRingKeys(djinn).some((key) => cleared.has(key));
+        if (djinnHit) {
+          djinn.hitsTaken = Math.min((djinn.hitsTaken || 0) + 1, djinn.hitsRequired || 3);
+          if (djinn.hitsTaken > this.wishStageResolved) {
+            this.beginWishStage(djinn.hitsTaken);
+          }
+        }
       }
 
       return {
@@ -442,7 +461,6 @@ export const useGameStore = defineStore('game', {
 
     beginWishStage(stage) {
       this.wishStage = stage;
-      this.djinnProgress = stage;
       this.wishResolved = false;
       this.wishResolveLine = '';
       this.djinnHintVisible = false;
@@ -516,6 +534,7 @@ export const useGameStore = defineStore('game', {
     finishWishStage(nextPhase) {
       this.wishResolved = false;
       this.wishResolveLine = '';
+      this.wishStageResolved = Math.max(this.wishStageResolved, this.wishStage);
       this.wishStage = 0;
       this.pendingWishPhase = 'playing';
       this.pendingWishReleasedCells = [];
@@ -536,6 +555,43 @@ export const useGameStore = defineStore('game', {
       this.giftText = (finalText && finalText.trim()) || ENDING.defaultGift;
       this.giftAttemptedText = attempted;
       this.giftWasOverridden = Boolean(overridden);
+    },
+
+    jumpToDayForTesting(dayNumber) {
+      const targetDay = Number(dayNumber);
+      if (!Number.isInteger(targetDay) || targetDay < 1 || targetDay > DAYS.length) {
+        return null;
+      }
+      if (this.phase === 'final' || this.phase === 'ending' || this.phase === 'repairing') {
+        return null;
+      }
+
+      const targetIndex = targetDay - 1;
+      this.currentDay = targetIndex;
+      this.stepsLeft = MAX_STEPS;
+      this.progress = {};
+      this.pendingAbility = null;
+      this.matchGroupsThisDay = 0;
+      this.introShown = false;
+      this.monologue = '';
+      this.completedBanner = '';
+      this.dayEndLine = '';
+      this.latestRestoredBuildingId = null;
+      this.pendingEstateRevealId = null;
+      this.hintMove = null;
+
+      this.unlockedAbilities = DAYS
+        .slice(0, targetIndex)
+        .map((day) => day.ability);
+
+      this._resetDaySpecialState();
+      this._refreshAbilityUses();
+      this.phase = 'intro';
+
+      return {
+        day: targetDay,
+        building: DAYS[targetIndex].building.cn
+      };
     },
 
     skipDayForTesting() {
@@ -581,10 +637,10 @@ export const useGameStore = defineStore('game', {
       this.barkNonce = 0;
       this.needOverrides = {};
       this.dayBuffs = { extraResourcePerType: false };
-      this.djinnProgress = 0;
       this.djinnHintVisible = false;
       this.djinnReleased = false;
       this.wishStage = 0;
+      this.wishStageResolved = 0;
       this.wishResolved = false;
       this.wishResolveLine = '';
       this.pendingWishPhase = 'playing';
@@ -645,16 +701,30 @@ export const useGameStore = defineStore('game', {
     },
 
     _djinnTriggerKeys(entity) {
+      return this._djinnRingKeys(entity);
+    },
+
+    _djinnRingKeys(entity) {
       const top = entity.row - 1;
       const left = entity.col - 1;
       const bottom = entity.row + (entity.height || 2);
       const right = entity.col + (entity.width || 2);
-      return [
-        `${top}:${left}`,
-        `${top}:${right}`,
-        `${bottom}:${left}`,
-        `${bottom}:${right}`
-      ];
+      const keys = [];
+
+      for (let row = top; row <= bottom; row++) {
+        for (let col = left; col <= right; col++) {
+          const insideBody = (
+            row >= entity.row &&
+            row < entity.row + (entity.height || 2) &&
+            col >= entity.col &&
+            col < entity.col + (entity.width || 2)
+          );
+          if (insideBody) continue;
+          if (row < 0 || row >= BOARD_ROWS || col < 0 || col >= 8) continue;
+          keys.push(`${row}:${col}`);
+        }
+      }
+      return keys;
     },
 
     _entityAdjacencyKeys(entity) {

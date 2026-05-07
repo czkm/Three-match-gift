@@ -392,7 +392,7 @@ export const DAY_MONSTER_LAYOUTS = {
 };
 
 export const DJINN_WISHES = {
-  introHint: '迪精在棋盘上。消除它四角附近的格子，命中三次之后它会现身。',
+  introHint: '迪精在棋盘上。消除它外围一圈的格子，命中三次之后它会现身。',
   releaseLine: '愿望这种东西……最后一个，不用说出来。命运已经听见了。',
   stages: {
     1: {

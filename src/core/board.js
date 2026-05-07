@@ -196,6 +196,18 @@ export class Board {
       resourcesGained[t.char] = (resourcesGained[t.char] || 0) + 1;
     }
 
+    const removedMonsterTiles = typeof this.opts.resolveMonsterHits === 'function'
+      ? this.opts.resolveMonsterHits(
+          removed.map((item) => ({ row: item.row, col: item.col, char: item.char, groupSize: 0 })),
+          0,
+          'lineSweep'
+        ) || []
+      : [];
+    for (const cell of removedMonsterTiles) {
+      if (cell?.row == null || cell?.col == null) continue;
+      this.setTile(cell.row, cell.col, HOLE);
+    }
+
     const newTiles = this._compactAndRefill();
     this.lastSwitch = null;
     this._setGraphicsCallback(() => this.checkMatches());
@@ -208,7 +220,7 @@ export class Board {
     EventBus.trigger('draw', ['board.match', {
       removed: removedForRender,
       added: newTiles,
-      removedMonsterTiles: [],
+      removedMonsterTiles,
       swapSide: 'center',
       lineSweep: { axis, index }
     }]);
