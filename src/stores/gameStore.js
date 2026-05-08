@@ -116,23 +116,6 @@ export const useGameStore = defineStore('game', {
     activeMonsterTiles(state) {
       return state.monsterTiles.filter((monster) => !monster.removed);
     },
-    mistCells(state) {
-      const cells = [];
-      const seen = new Set();
-      for (const monster of state.monsterTiles) {
-        if (monster.removed || monster.kind !== 'foglet') continue;
-        for (let row = monster.row - 1; row <= monster.row + 1; row++) {
-          for (let col = monster.col - 1; col <= monster.col + 1; col++) {
-            if (row < 0 || row >= BOARD_ROWS || col < 0 || col >= BOARD_COLS) continue;
-            const key = `${row}:${col}`;
-            if (seen.has(key)) continue;
-            seen.add(key);
-            cells.push({ row, col, ownerId: monster.id });
-          }
-        }
-      }
-      return cells;
-    },
     djinnEntity(state) {
       return state.boardEntities.find((e) => e.kind === 'djinn' && !e.removed) || null;
     },
@@ -904,6 +887,18 @@ export const useGameStore = defineStore('game', {
           monster.col = col;
           monster.lastPressureTurn = this.turnId;
           actions.push({ type: 'sink', id: monster.id, row, col });
+        } else if (rule === 'flyUp') {
+          const row = monster.row - 1;
+          const col = monster.col;
+          if (row < 0 || boardApi.isBlocked(row, col) || boardApi.isMonster(boardApi.getTile(row, col))) continue;
+          const char = boardApi.getTile(monster.row, monster.col);
+          const target = boardApi.getTile(row, col);
+          boardApi.setTile(monster.row, monster.col, target || boardApi.hole);
+          boardApi.setTile(row, col, char);
+          monster.row = row;
+          monster.col = col;
+          monster.lastPressureTurn = this.turnId;
+          actions.push({ type: 'flyUp', id: monster.id, row, col });
         } else if (rule === 'rotUnderfoot') {
           const row = monster.row + 1;
           const col = monster.col;
@@ -1000,13 +995,17 @@ export const useGameStore = defineStore('game', {
       const hasRowHorizontal = matchGroups.some((group) => (
         group.axis === 'row' && group.positions?.some((pos) => pos.row === entity.row && Math.abs(pos.col - entity.col) <= 1)
       ));
-      const inMist = (tile) => Math.abs(tile.row - entity.row) <= 1 && Math.abs(tile.col - entity.col) <= 1;
+      const hasRowBigHorizontal = matchGroups.some((group) => (
+        group.axis === 'row' &&
+        (group.size || 0) >= 4 &&
+        group.positions?.some((pos) => pos.row === entity.row)
+      ));
       const hasBigAdjacent = clearedTiles.some((tile) => adjacentKeys.has(`${tile.row}:${tile.col}`) && (tile.groupSize || 0) >= 4);
 
       switch (rule.type) {
         case 'verticalAdjacent': return hasAdjacentVertical;
         case 'underfootOrRowHorizontal': return hasUnderfoot || hasRowHorizontal;
-        case 'mistMatch': return clearedTiles.some(inMist);
+        case 'rowBigHorizontal': return hasRowBigHorizontal;
         case 'qualityAdjacent': return (chain >= 2 && hasAdjacent) || hasBigAdjacent;
         case 'orthogonalAdjacent':
         case 'adjacentMatch':
@@ -1067,7 +1066,6 @@ export const useGameStore = defineStore('game', {
         lastDamagedTurn: null,
         lastPressureTurn: null,
         ownedRotCells: [],
-        mistCenter: kind === 'foglet' ? { row, col } : null,
         phase: 0,
         removed: false,
         seenIntro: false,
@@ -1090,7 +1088,6 @@ export const useGameStore = defineStore('game', {
         lastDamagedTurn: null,
         lastPressureTurn: null,
         ownedRotCells: [],
-        mistCenter: kind === 'foglet' ? { row, col } : null,
         phase: 0,
         removed: false,
         seenIntro: false
@@ -1155,7 +1152,6 @@ export const useGameStore = defineStore('game', {
           if (monster) {
             monster.row = row;
             monster.col = col;
-            if (monster.kind === 'foglet') monster.mistCenter = { row, col };
             next.push(monster.id);
           }
         }

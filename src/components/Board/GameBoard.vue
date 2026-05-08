@@ -49,28 +49,16 @@
           :style="{ transform: `translate3d(${cell.col * TILE_SIZE}px, ${cell.row * TILE_SIZE}px, 0)` }"
         />
 
-        <span
-          v-for="cell in game.mistCells"
-          :key="`mist-${cell.ownerId}-${cell.row}-${cell.col}`"
-          class="mist-cell"
-          :class="{ revealed: revealedMistKeys.has(`${cell.row}:${cell.col}`) }"
-          :style="{ transform: `translate3d(${cell.col * TILE_SIZE}px, ${cell.row * TILE_SIZE}px, 0)` }"
-        />
-
         <BoardTile
           v-for="t in tiles"
           :key="t.id"
           :tile="t"
           :monster="monsterAt(t.row, t.col)"
-          :mist="mistCellKeys.has(`${t.row}:${t.col}`)"
-          :mist-revealed="revealedMistKeys.has(`${t.row}:${t.col}`)"
           :selected="selectedId === t.id"
           :hint="hintIds.has(t.id)"
           :preview="previewState(t)"
           :invalid="invalidIds.has(t.id)"
           @pick="onPick"
-          @peek="onTilePeek"
-          @peek-leave="onTilePeekLeave"
         />
 
         <BoardEntity
@@ -173,20 +161,9 @@ const boardGrowthTheme = computed(() => {
 const boardThemeStyle = computed(() => ({
   '--board-growth-progress': boardGrowthProgress.value.toFixed(3)
 }));
-const mistCellKeys = computed(() => new Set(game.mistCells.map((cell) => `${cell.row}:${cell.col}`)));
-const hoveredTile = ref(null);
 const selectedTilePos = computed(() => {
   const tile = tiles.value.find((item) => item.id === selectedId.value && !item.pooled && !item.hidden);
   return tile ? { row: tile.row, col: tile.col } : null;
-});
-const revealedMistKeys = computed(() => {
-  const keys = new Set();
-  const pos = activeTile.value || hoveredTile.value || selectedTilePos.value;
-  if (!pos) return keys;
-  for (let row = pos.row - 1; row <= pos.row + 1; row++) {
-    for (let col = pos.col - 1; col <= pos.col + 1; col++) keys.add(`${row}:${col}`);
-  }
-  return keys;
 });
 const visibleRotCells = computed(() => game.rotCells || []);
 const djinnSealCells = computed(() => {
@@ -320,16 +297,6 @@ watch(activeTile, (a) => {
 /* ---------- targeting click handlers ---------- */
 
 const tapBuffer = ref([]);   // for twoTiles ability
-
-function onTilePeek(pos) {
-  hoveredTile.value = pos;
-}
-
-function onTilePeekLeave(pos) {
-  if (hoveredTile.value && hoveredTile.value.row === pos.row && hoveredTile.value.col === pos.col) {
-    hoveredTile.value = null;
-  }
-}
 
 function onPick(payload, evt) {
   bumpIdle();
@@ -472,7 +439,6 @@ function onPointerMove(evt) {
 }
 function onPointerUp() {
   endDrag();
-  hoveredTile.value = null;
   bumpIdle();
 }
 
@@ -1149,41 +1115,12 @@ function triggerSunsetRake() {
     inset 0 -8px 12px rgba(0, 0, 0, 0.22);
 }
 
-.mist-cell,
 .rot-mark,
 .seal-cell {
   position: absolute;
   width: 60px;
   height: 60px;
   pointer-events: none;
-}
-
-.mist-cell {
-  z-index: 6;
-  border-radius: 12px;
-  background:
-    radial-gradient(circle at 32% 28%, rgba(248, 248, 255, 0.96), rgba(214, 218, 234, 0.88) 38%, rgba(168, 174, 196, 0.82) 70%),
-    radial-gradient(circle at 72% 76%, rgba(232, 234, 250, 0.78), transparent 58%),
-    linear-gradient(150deg, rgba(196, 200, 222, 0.92) 0%, rgba(122, 128, 152, 0.86) 100%);
-  box-shadow:
-    inset 0 0 0 1px rgba(248, 248, 255, 0.42),
-    inset 0 6px 18px rgba(255, 255, 255, 0.34),
-    inset 0 -8px 14px rgba(60, 64, 84, 0.36);
-  backdrop-filter: blur(10px) saturate(0.7);
-  opacity: 0.96;
-  transition: opacity 200ms ease, filter 200ms ease, backdrop-filter 200ms ease;
-  animation: mist-drift 6.4s ease-in-out infinite;
-}
-
-.mist-cell.revealed {
-  opacity: 0.32;
-  filter: blur(2px);
-  backdrop-filter: blur(2px);
-}
-
-@keyframes mist-drift {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50% { transform: translate3d(0, -1px, 0) scale(1.015); }
 }
 
 .rot-mark {

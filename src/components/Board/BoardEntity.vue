@@ -110,13 +110,6 @@ const style = computed(() => ({
   animation: ghoul-breathe 1.5s ease-in-out infinite;
 }
 
-.foglet {
-  background:
-    radial-gradient(circle at 48% 42%, rgba(228, 226, 244, 0.18), transparent 40%),
-    linear-gradient(160deg, rgba(88, 86, 112, 0.92) 0%, rgba(46, 44, 64, 0.98) 100%);
-  animation: fog-drift 3s ease-in-out infinite;
-}
-
 .wraith {
   background:
     radial-gradient(circle at 45% 32%, rgba(232, 214, 255, 0.18), transparent 38%),
@@ -203,11 +196,6 @@ const style = computed(() => ({
 @keyframes ghoul-breathe {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.05); }
-}
-
-@keyframes fog-drift {
-  0%, 100% { transform: translate3d(-2px, 0, 0); opacity: 0.62; }
-  50% { transform: translate3d(2px, -1px, 0); opacity: 0.8; }
 }
 
 @keyframes wraith-flicker {

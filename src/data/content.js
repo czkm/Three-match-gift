@@ -351,31 +351,31 @@ export const MONSTERS = {
     introLine: '食尸鬼。大概是跟着我来的。',
     removeLine: '走吧。这里没你要的。'
   },
-  foglet: {
-    id: 'foglet',
-    char: 'F',
-    name: '小雾妖',
-    emoji: '🌫️',
-    uiLabel: '小雾妖',
-    uiWeaknessShort: '弱点：匹配包含雾幕内被遮住的格子。',
-    uiPressureShort: '常驻 3×3 雾幕，悬停或选中时短暂显形。',
+  griffinChick: {
+    id: 'griffinChick',
+    char: 'C',
+    name: '狮鹫幼雏',
+    emoji: '🦅',
+    uiLabel: '狮鹫幼雏',
+    uiWeaknessShort: '弱点：本行 4 连及以上的横向匹配。',
+    uiPressureShort: '若没受伤，回合末向上飞 1 格。',
     hp: 2,
     hits: 2,
-    reward: { magic: 1 },
-    clearReward: { magic: 1 },
+    reward: { magic: 2 },
+    clearReward: { magic: 2 },
     damageRule: {
-      type: 'mistMatch',
-      hint: '只要本次匹配包含它 3×3 雾幕里的格子，就会掉 1 点生命。'
+      type: 'rowBigHorizontal',
+      hint: '在它所在那一行，打出 4 连及以上的横向匹配，才会掉 1 点生命。'
     },
-    pressureRule: { type: 'mistAura' },
-    telegraph: '3×3 雾幕',
-    echoLabel: '雾幕消散，并短暂亮出 1 个可行走法，附带 +1 魔力。',
+    pressureRule: { type: 'flyUp' },
+    telegraph: '振翅',
+    echoLabel: '击退后，下方一格的资源额外 +1 魔力。',
     clearRule: {
       type: 'adjacentMatch',
-      hint: '只要本次匹配包含它 3×3 雾幕里的格子，就会掉 1 点生命。'
+      hint: '在它所在那一行，打出 4 连及以上的横向匹配，才会掉 1 点生命。'
     },
-    introLine: '雾气。还有雾里的东西。',
-    removeLine: '散开就好。'
+    introLine: '狮鹫幼雏。在等大的回来。',
+    removeLine: '飞远点。等大的来接你。'
   },
   wraith: {
     id: 'wraith',
@@ -463,11 +463,11 @@ export const DAY_MONSTER_LAYOUTS = {
     { id: 'd6-drowner-a', kind: 'drowner', row: 5, col: 5 }
   ],
   6: [
-    { id: 'd7-foglet-a', kind: 'foglet', row: 2, col: 5 },
+    { id: 'd7-griffinChick-a', kind: 'griffinChick', row: 2, col: 5 },
     { id: 'd7-ghoul-a', kind: 'ghoul', row: 5, col: 2 }
   ],
   7: [
-    { id: 'd8-foglet-a', kind: 'foglet', row: 2, col: 3 },
+    { id: 'd8-griffinChick-a', kind: 'griffinChick', row: 2, col: 3 },
     { id: 'd8-wraith-a', kind: 'wraith', row: 4, col: 5 }
   ],
   8: [{ id: 'd9-djinn-a', kind: 'djinn', row: 3, col: 3, width: 2, height: 2 }]
