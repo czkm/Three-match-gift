@@ -36,7 +36,6 @@
         <span class="sun-orb" />
         <span class="cloud cloud-a" />
         <span class="cloud cloud-b" />
-        <span v-if="showSkyRaven" class="sky-raven">🕊</span>
       </div>
 
       <div class="far-hills" />
@@ -139,7 +138,7 @@
             <button
               v-if="showGateRaven"
               class="hotspot raven gate-raven"
-              :class="hotspotClasses('white-raven', { flying: ravenFlying })"
+              :class="hotspotClasses('white-raven')"
               :disabled="!interactive"
               @mouseenter="onHotspot('white-raven')"
               @click="onHotspot('white-raven')"
@@ -268,16 +267,6 @@
                 {{ terraceChairCount >= 2 ? '🪑🪑' : '🪑' }}
               </span>
             </button>
-            <button
-              v-if="showTerraceRaven"
-              class="hotspot raven terrace-raven"
-              :class="hotspotClasses('white-raven', { flying: ravenFlying })"
-              :disabled="!interactive"
-              @mouseenter="onHotspot('white-raven')"
-              @click="onHotspot('white-raven')"
-            >
-              <span class="actor">🕊</span>
-            </button>
           </template>
 
           <template v-else-if="segment.id === 'kitchen'">
@@ -393,13 +382,7 @@ const showFireflies = computed(
 const showPetalDrift = computed(() => displayStage.value >= 5)
 const showSmoke = computed(() => displayStage.value >= 8)
 const showBees = computed(() => displayStage.value >= 8)
-const showGateRaven = computed(
-  () => displayStage.value >= 1 && displayStage.value < 3
-)
-const showTerraceRaven = computed(
-  () => displayStage.value === 7 || displayStage.value >= 9
-)
-const showSkyRaven = computed(() => displayStage.value === 8)
+const showGateRaven = computed(() => displayStage.value >= 1)
 const showButterfly = computed(() => displayStage.value >= 5)
 const greenhouseWarning = computed(
   () => displayStage.value >= 6 && game.stepsLeft <= 5
@@ -429,7 +412,6 @@ const displayCaption = ref('')
 const activeHotspotId = ref(null)
 const revealActive = ref(false)
 const revealLabel = ref('')
-const ravenFlying = ref(false)
 const butterflyOrbiting = ref(false)
 const kitchenStirring = ref(false)
 const curtainFlutter = ref(false)
@@ -523,7 +505,8 @@ function roachLine() {
 function captionForHotspot(id) {
   switch (id) {
     case 'white-raven':
-      if (displayStage.value >= 9) return '白鸦落在露台栏杆上，没有再飞走。'
+      if (displayStage.value >= 9)
+        return '白鸦落在紫丁香客房的窗台边，没有再飞走。'
       if (displayStage.value >= 7)
         return '它落在栏杆上，看了一眼那把椅子，又像是看见了别的什么。'
       return '白鸦在门柱上歪头看了一会儿，像在默认这里终于能住人了。'
@@ -606,12 +589,6 @@ function onHotspot(id) {
 
   switch (id) {
     case 'white-raven':
-      if (displayStage.value < 9) {
-        ravenFlying.value = true
-        scheduleFx(() => {
-          ravenFlying.value = false
-        }, 1200)
-      }
       spawnBurst('feather', 7)
       break
     case 'roach':
@@ -1016,23 +993,6 @@ onBeforeUnmount(() => {
   top: 12px;
   width: 78px;
   height: 16px;
-}
-
-/* .sky-raven {
-  position: absolute;
-  left: -10%;
-  top: 22px;
-  font-size: 22px;
-  animation: sky-raven-cross 7s linear infinite;
-} */
-
-@keyframes sky-raven-cross {
-  from {
-    transform: translateX(0) translateY(0);
-  }
-  to {
-    transform: translateX(122vw) translateY(10px);
-  }
 }
 
 .far-hills {
@@ -2166,10 +2126,6 @@ onBeforeUnmount(() => {
   animation: warning-pulse 0.9s steps(2) infinite;
 }
 
-.hotspot.flying {
-  animation: raven-flyaway 1.2s ease;
-}
-
 .hotspot.orbiting {
   animation: butterfly-orbit 1.2s ease;
 }
@@ -2214,11 +2170,6 @@ onBeforeUnmount(() => {
   top: 26%;
 }
 
-.terrace-raven {
-  left: 62%;
-  top: 16%;
-}
-
 .kitchen-hotspot {
   left: 58%;
   top: 28%;
@@ -2253,21 +2204,6 @@ onBeforeUnmount(() => {
     opacity: 0.62;
   }
   50% {
-    opacity: 1;
-  }
-}
-
-@keyframes raven-flyaway {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  45% {
-    transform: translate(18px, -14px) scale(1.08);
-    opacity: 0.12;
-  }
-  100% {
-    transform: scale(1);
     opacity: 1;
   }
 }
