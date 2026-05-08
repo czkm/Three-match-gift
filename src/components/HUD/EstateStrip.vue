@@ -348,11 +348,9 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import EventBus from '@/core/eventBus'
 import { ESTATE_STRIP_STAGES } from '@/data/content'
-import { useAchievementStore } from '@/stores/achievementStore'
 import { useGameStore } from '@/stores/gameStore'
 import { TIMING } from '@/utils/timing'
 
-const achievements = useAchievementStore()
 const game = useGameStore()
 const stages = ESTATE_STRIP_STAGES
 const segments = stages.map(stage => ({
@@ -598,7 +596,6 @@ function onSceneBurst(payload = {}) {
 
 function onHotspot(id) {
   if (!interactive.value) return
-  achievements.track('hotspotClicked', { id })
 
   activeHotspotId.value = id
   displayCaption.value = captionForHotspot(id)
@@ -609,10 +606,12 @@ function onHotspot(id) {
 
   switch (id) {
     case 'white-raven':
-      // if (displayStage.value < 9) {
-      //   ravenFlying.value = true;
-      //   scheduleFx(() => { ravenFlying.value = false; }, 1200);
-      // }
+      if (displayStage.value < 9) {
+        ravenFlying.value = true
+        scheduleFx(() => {
+          ravenFlying.value = false
+        }, 1200)
+      }
       spawnBurst('feather', 7)
       break
     case 'roach':
@@ -1019,13 +1018,13 @@ onBeforeUnmount(() => {
   height: 16px;
 }
 
-.sky-raven {
+/* .sky-raven {
   position: absolute;
   left: -10%;
   top: 22px;
   font-size: 22px;
   animation: sky-raven-cross 7s linear infinite;
-}
+} */
 
 @keyframes sky-raven-cross {
   from {

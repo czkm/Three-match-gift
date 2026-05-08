@@ -171,14 +171,12 @@ function onRestart() {
 
 .raven {
   position: absolute;
-  top: 18%;
-  left: -10%;
-  font-size: 38px;
-  animation: raven-cross 8s linear infinite;
-}
-@keyframes raven-cross {
-  0%   { transform: translateX(0) translateY(0); }
-  100% { transform: translateX(120vw) translateY(-30px); }
+  top: 22%;
+  left: 50%;
+  font-size: 31px;
+  opacity: 0.9;
+  transform: translateX(72px) translateY(2px) rotate(-2deg);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
 }
 
 .lilac-portal {

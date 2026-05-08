@@ -28,6 +28,8 @@ const achievement = useAchievementStore();
 const game = useGameStore();
 const testerToast = ref('');
 let toastTimer = null;
+let jumpChordTimer = null;
+const jumpChordActive = ref(false);
 
 function onStart() {
   // Title has already called game.start() — fire-and-forget.
@@ -40,18 +42,49 @@ function onRestart() {
 function onTesterKeydown(event) {
   if (!(event.metaKey || event.ctrlKey)) return;
   const key = event.key.toLowerCase();
-  if (key === 'e') {
+
+  if (jumpChordActive.value && /^[1-9]$/.test(key)) {
     event.preventDefault();
-    const result = game.jumpToDayForTesting(9);
+    clearJumpChord();
+    const result = game.jumpToDayForTesting(Number(key));
     if (!result) return;
     showTesterToast(`测试跳转：已到第 ${result.day} 天“${result.building}”`);
     return;
   }
+
+  if (key === 'j') {
+    event.preventDefault();
+    const nextLocked = achievement.achievementList.find((item) => !achievement.unlockedSet.has(item.id))
+      || achievement.achievementList[0];
+    const ok = achievement.unlockForTesting(nextLocked?.id);
+    if (!ok) {
+      showTesterToast('测试成就：没有可解锁的新成就了');
+      return;
+    }
+    showTesterToast(`测试成就：已解锁“${nextLocked.title}”`);
+    return;
+  }
+
   if (key !== 'k') return;
   event.preventDefault();
-  const result = game.skipDayForTesting();
-  if (!result) return;
-  showTesterToast(`测试跳关：第 ${result.day} 天“${result.building}”进入完工过场`);
+  armJumpChord();
+}
+
+function armJumpChord() {
+  jumpChordActive.value = true;
+  if (jumpChordTimer) clearTimeout(jumpChordTimer);
+  jumpChordTimer = setTimeout(() => {
+    clearJumpChord();
+  }, 1800);
+  showTesterToast('测试跳转：继续按 1–9 跳到指定天');
+}
+
+function clearJumpChord() {
+  jumpChordActive.value = false;
+  if (jumpChordTimer) {
+    clearTimeout(jumpChordTimer);
+    jumpChordTimer = null;
+  }
 }
 
 function showTesterToast(text) {
@@ -82,6 +115,7 @@ onBeforeUnmount(() => {
   if (typeof document === 'undefined') return;
   window.removeEventListener('keydown', onTesterKeydown);
   if (toastTimer) clearTimeout(toastTimer);
+  clearJumpChord();
 });
 </script>
 

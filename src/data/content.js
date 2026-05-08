@@ -762,6 +762,7 @@ export const ACHIEVEMENTS = [
     title: '先把路找出来',
     description: '第 1 天完成庭院修复，且未使用白狼整顿。',
     icon: '🌿',
+    rarity: 'common',
     hidden: false,
     flavor: '石路露出来的时候，这里终于像能住人了。',
     trigger: { type: 'dayComplete', day: 1 }
@@ -771,6 +772,7 @@ export const ACHIEVEMENTS = [
     title: '藤蔓记得回家',
     description: '第 2 天完成葡萄园修复，且当日至少出现过一次 4 连或更大组。',
     icon: '🍇',
+    rarity: 'common',
     hidden: false,
     flavor: '藤蔓没有忘记该往哪里爬。',
     trigger: { type: 'dayComplete', day: 2 }
@@ -780,6 +782,7 @@ export const ACHIEVEMENTS = [
     title: '留一瓶',
     description: '第 3 天完成酒窖修复，且当天击退过水鬼。',
     icon: '🛢️',
+    rarity: 'common',
     hidden: false,
     flavor: '最深处，总该留一瓶给以后。',
     trigger: { type: 'dayComplete', day: 3 }
@@ -789,6 +792,7 @@ export const ACHIEVEMENTS = [
     title: '萝卜点头了',
     description: '第 4 天完成马厩修复，且至少使用过一次萝卜识途。',
     icon: '🐎',
+    rarity: 'common',
     hidden: false,
     flavor: '它不夸人，但今天算是默认了。',
     trigger: { type: 'dayComplete', day: 4 }
@@ -798,6 +802,7 @@ export const ACHIEVEMENTS = [
     title: '风里有丁香',
     description: '第 5 天完成花园修复，且完成时剩余步数至少为 6。',
     icon: '🪻',
+    rarity: 'rare',
     hidden: false,
     flavor: '香气先回来了，花会慢一点。',
     trigger: { type: 'dayComplete', day: 5 }
@@ -807,6 +812,7 @@ export const ACHIEVEMENTS = [
     title: '灯别熄',
     description: '第 6 天完成温室修复，且当天至少打出过一次 2 连锁或 4 连以上。',
     icon: '🌱',
+    rarity: 'rare',
     hidden: false,
     flavor: '灯亮着，脆弱的东西就愿意活下去。',
     trigger: { type: 'dayComplete', day: 6 }
@@ -816,6 +822,7 @@ export const ACHIEVEMENTS = [
     title: '先放一把椅子',
     description: '第 7 天完成露台修复，且至少使用过一次陶森特日落。',
     icon: '🌅',
+    rarity: 'rare',
     hidden: false,
     flavor: '有些等待，先摆一把椅子就够了。',
     trigger: { type: 'dayComplete', day: 7 }
@@ -825,6 +832,7 @@ export const ACHIEVEMENTS = [
     title: '汤会热着',
     description: '第 8 天完成厨房修复，且当天从未进入步数耗尽的夜幕。',
     icon: '🍲',
+    rarity: 'rare',
     hidden: false,
     flavor: '汤还没好，家已经有味道了。',
     trigger: { type: 'dayComplete', day: 8 }
@@ -834,6 +842,7 @@ export const ACHIEVEMENTS = [
     title: '为她留灯',
     description: '第 9 天完成紫丁香客房，并完整走到最终结局展示。',
     icon: '🛏️',
+    rarity: 'epic',
     hidden: true,
     flavor: '窗边留了花，床边留了光，也留了她的位置。',
     trigger: { type: 'ending' }
@@ -843,6 +852,7 @@ export const ACHIEVEMENTS = [
     title: '天光尚早',
     description: '任意一天完成修复时，剩余步数达到 10 或以上。',
     icon: '☀️',
+    rarity: 'common',
     hidden: false,
     flavor: '太阳还在，修好的地方已经先亮起来了。',
     trigger: { type: 'dayComplete' }
@@ -852,6 +862,7 @@ export const ACHIEVEMENTS = [
     title: '差一点也够',
     description: '任意一天完成修复时，剩余步数不超过 5。',
     icon: '⏳',
+    rarity: 'rare',
     hidden: false,
     flavor: '差一点也够。够把今天做完。',
     trigger: { type: 'dayComplete' }
@@ -861,6 +872,7 @@ export const ACHIEVEMENTS = [
     title: '连锁像诗',
     description: '单次行动打出 3 层或以上连锁。',
     icon: '✨',
+    rarity: 'epic',
     hidden: false,
     flavor: '一连串清响之后，整个庄园像跟着醒了一瞬。',
     trigger: { type: 'combo' }
@@ -870,8 +882,19 @@ export const ACHIEVEMENTS = [
     title: '丰收时刻',
     description: '出现任意一次 5 消或更大组。',
     icon: '🍷',
+    rarity: 'epic',
     hidden: false,
     flavor: '酒还没酿好，丰收的样子已经先来了。',
     trigger: { type: 'matchGroup' }
+  },
+  {
+    id: 'love_from_xiaokun',
+    title: '爱你的小坤',
+    description: '完整通关并走到最终结局之后解锁。',
+    icon: '💛',
+    rarity: 'gold',
+    hidden: true,
+    flavor: '这座葡萄园的尽头，是一封终于送达的心意。',
+    trigger: { type: 'ending' }
   }
 ];

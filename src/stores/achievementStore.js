@@ -158,6 +158,11 @@ export const useAchievementStore = defineStore('achievements', {
       return true;
     },
 
+    unlockForTesting(id) {
+      if (!ACHIEVEMENT_INDEX[id]) return false;
+      return this.unlock(id);
+    },
+
     track(event, payload = {}) {
       if (this.disabledForRun && event !== 'runStart') return;
 
@@ -185,6 +190,7 @@ export const useAchievementStore = defineStore('achievements', {
           return;
         case 'endingSeen':
           this.unlock('day9_room_for_her');
+          this.unlock('love_from_xiaokun');
           return;
         case 'hotspotClicked':
           this._trackHotspotClicked(payload);

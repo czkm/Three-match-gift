@@ -253,13 +253,8 @@ const petals = computed(() => {
   right: 28%;
   top: 34%;
   font-size: 32px;
-  opacity: 0;
+  opacity: 0.96;
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
-}
-.p1 .final-raven { animation: final-raven-arrive 1400ms cubic-bezier(0.32, 0.04, 0.4, 1) 2700ms forwards; }
-@keyframes final-raven-arrive {
-  0%   { opacity: 0; transform: translate(60px, -40px) rotate(12deg); }
-  60%  { opacity: 1; transform: translate(-6px, 4px) rotate(-4deg); }
-  100% { opacity: 1; transform: translate(0, 0) rotate(0); }
+  transform: translate(0, 0) rotate(0);
 }
 </style>
