@@ -889,16 +889,17 @@ function triggerSunsetRake() {
 .gameBoard {
   position: relative;
   padding: 10px;
-  border-radius: 18px;
-  transition: transform 200ms ease, filter 200ms ease;
+  border-radius: var(--radius-xl);
+  transition: transform 280ms var(--ease-out-expo), filter 280ms var(--ease-out-expo);
   background:
-    linear-gradient(180deg, rgba(255, 245, 220, 0.18) 0%, transparent 12%),
-    linear-gradient(145deg, var(--board-frame-1) 0%, var(--board-frame-2) 100%);
-  border: 1px solid rgba(220, 184, 122, 0.42);
+    linear-gradient(180deg, rgba(255, 245, 220, 0.2) 0%, transparent 12%),
+    linear-gradient(160deg, rgba(93, 66, 40, 0.95) 0%, rgba(36, 22, 12, 0.98) 100%);
+  border: 1px solid rgba(220, 184, 122, 0.48);
   box-shadow:
-    0 24px 44px rgba(14, 8, 6, 0.42),
-    inset 0 0 0 1px rgba(255, 242, 214, 0.08),
-    inset 0 0 0 6px rgba(18, 10, 7, 0.28);
+    0 28px 52px rgba(14, 8, 6, 0.48),
+    0 8px 16px rgba(14, 8, 6, 0.22),
+    inset 0 0 0 1px rgba(255, 242, 214, 0.1),
+    inset 0 0 0 6px rgba(18, 10, 7, 0.32);
 }
 
 .gameBoard::before,
@@ -912,19 +913,21 @@ function triggerSunsetRake() {
 .gameBoard::before {
   inset: 5px;
   background:
-    linear-gradient(145deg, rgba(255, 240, 214, 0.08), rgba(0, 0, 0, 0.08)),
-    linear-gradient(145deg, var(--board-inner-1) 0%, var(--board-inner-2) 100%);
+    linear-gradient(160deg, rgba(255, 240, 214, 0.1), rgba(0, 0, 0, 0.1)),
+    linear-gradient(160deg, var(--board-inner-1) 0%, var(--board-inner-2) 100%);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 240, 214, 0.08),
-    inset 0 0 0 3px rgba(22, 14, 10, 0.28);
+    inset 0 0 0 1px rgba(255, 240, 214, 0.1),
+    inset 0 0 0 3px rgba(22, 14, 10, 0.32),
+    inset 0 4px 12px rgba(0, 0, 0, 0.18);
 }
 
 .gameBoard::after {
   inset: 2px;
-  border: 1px solid rgba(242, 214, 164, 0.14);
+  border: 1px solid rgba(242, 214, 164, 0.18);
+  box-shadow: inset 0 1px 2px rgba(255, 242, 214, 0.06);
 }
 
-.gameBoard.shaking { animation: gb-shake 100ms 4 alternate; }
+.gameBoard.shaking { animation: gb-shake 100ms 4 alternate var(--ease-out-expo); }
 .gameBoard.dimmed  { filter: brightness(0.82) saturate(0.92); }
 .gameBoard.repairing.day2-growth {
   box-shadow:
@@ -935,26 +938,29 @@ function triggerSunsetRake() {
 }
 
 @keyframes gb-shake {
-  from { transform: translateX(-4px); }
-  to   { transform: translateX(4px); }
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-5px); }
+  75%      { transform: translateX(5px); }
 }
 
 .tileContainer {
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   background:
     linear-gradient(90deg, var(--board-grid) 0 1px, transparent 1px 100%),
     linear-gradient(180deg, var(--board-grid) 0 1px, transparent 1px 100%),
-    radial-gradient(circle at 30% 18%, rgba(255, 226, 166, 0.1) 0%, transparent 34%),
+    radial-gradient(circle at 30% 18%, rgba(255, 226, 166, 0.12) 0%, transparent 34%),
+    radial-gradient(circle at 78% 82%, rgba(0, 0, 0, 0.12) 0%, transparent 40%),
     linear-gradient(160deg, var(--board-cell-2) 0%, var(--board-cell-1) 100%);
-  background-size: 60px 60px, 60px 60px, auto, auto;
+  background-size: 60px 60px, 60px 60px, auto, auto, auto, auto;
   box-shadow:
-    inset 0 0 0 1px rgba(243, 218, 168, 0.1),
-    inset 0 18px 28px rgba(255, 228, 182, 0.04),
-    inset 0 -18px 26px rgba(0, 0, 0, 0.28);
+    inset 0 0 0 1px rgba(243, 218, 168, 0.12),
+    inset 0 18px 28px rgba(255, 228, 182, 0.05),
+    inset 0 -18px 26px rgba(0, 0, 0, 0.32),
+    inset 0 0 24px rgba(0, 0, 0, 0.15);
 }
 
 .gameBoard.day2-growth .tileContainer {
@@ -1155,21 +1161,27 @@ function triggerSunsetRake() {
 .line-btn {
   position: absolute;
   background:
-    linear-gradient(180deg, rgba(240, 216, 164, 0.94) 0%, rgba(185, 137, 72, 0.94) 100%);
+    linear-gradient(180deg, rgba(240, 216, 164, 0.96) 0%, rgba(185, 137, 72, 0.96) 100%);
   color: #2a1a10;
-  border-radius: 16px;
+  border-radius: var(--radius-pill);
   padding: 4px 10px;
   font-size: 12px;
   font-weight: 700;
+  letter-spacing: 0.04em;
   border: 1px solid rgba(86, 54, 24, 0.55);
   z-index: 8;
   cursor: pointer;
   box-shadow:
-    0 8px 18px rgba(18, 10, 8, 0.28),
-    inset 0 1px 0 rgba(255, 247, 224, 0.52);
+    0 8px 18px rgba(18, 10, 8, 0.3),
+    inset 0 1px 0 rgba(255, 247, 224, 0.55);
+  transition: transform 160ms var(--ease-out-expo), filter 160ms var(--ease-out-expo), box-shadow 160ms var(--ease-out-expo);
 }
 .line-btn:hover {
-  filter: brightness(1.06);
+  filter: brightness(1.08);
+  transform: scale(1.04);
+  box-shadow:
+    0 12px 24px rgba(18, 10, 8, 0.35),
+    inset 0 1px 0 rgba(255, 247, 224, 0.6);
 }
 .line-row {
   left: -84px;
@@ -1195,18 +1207,25 @@ function triggerSunsetRake() {
   right: -272px;
   width: 232px;
   padding: 14px 14px 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   text-align: center;
   z-index: 9;
   box-shadow: var(--surface-shadow);
+  animation: fade-in 300ms var(--ease-out-expo);
 }
-.targeting-hint p { margin: 0 0 8px; font-size: 14px; }
+.targeting-hint p { margin: 0 0 10px; font-size: 14px; }
 .cancel-btn {
   background: linear-gradient(180deg, #4f3827 0%, #2b1b12 100%);
   color: #f3e6c8;
-  border-radius: 999px;
-  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
   font-size: 12px;
-  border: 1px solid rgba(255, 231, 190, 0.12);
+  font-weight: 600;
+  border: 1px solid rgba(255, 231, 190, 0.14);
+  transition: transform 160ms var(--ease-out-expo), filter 160ms var(--ease-out-expo);
+}
+.cancel-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
 }
 </style>

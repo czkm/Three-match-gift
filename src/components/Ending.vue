@@ -1,5 +1,15 @@
 <template>
   <div class="ending">
+    <!-- Starfield -->
+    <div class="starfield">
+      <span
+        v-for="n in 32"
+        :key="`star-${n}`"
+        class="star"
+        :style="starStyle(n)"
+      />
+    </div>
+
     <!-- Stage 1: gazebo silhouette -->
     <div class="terrace">
       <div class="sky" />
@@ -79,6 +89,16 @@ const showAttemptedGift = computed(() => (
 
 const emit = defineEmits(['restart']);
 
+function starStyle(index) {
+  return {
+    left: `${(index * 7.3) % 100}%`,
+    top: `${(index * 11.7 + 5) % 55}%`,
+    animationDelay: `${(index * 0.4) % 3}s`,
+    animationDuration: `${2.5 + (index % 3) * 0.8}s`,
+    opacity: 0.3 + (index % 4) * 0.18
+  };
+}
+
 onMounted(() => {
   timers.push(setTimeout(() => { showPortal.value = true; }, 1200));
   timers.push(setTimeout(() => { showYen.value = true; },    1200 + TIMING.PORTAL_MS - 400));
@@ -115,7 +135,8 @@ function onRestart() {
   inset: 0;
   overflow: hidden;
   background:
-    radial-gradient(circle at 50% 18%, rgba(255, 206, 144, 0.18) 0%, transparent 26%),
+    radial-gradient(circle at 50% 18%, rgba(255, 206, 144, 0.22) 0%, transparent 30%),
+    radial-gradient(circle at 80% 60%, rgba(176, 148, 201, 0.08) 0%, transparent 40%),
     linear-gradient(180deg, #b85f3d 0%, #5b325a 60%, #20152d 100%);
 }
 
@@ -128,7 +149,8 @@ function onRestart() {
   top: 0; left: 0; right: 0;
   height: 60%;
   background:
-    radial-gradient(ellipse at 50% 100%, rgba(255, 200, 130, 0.72) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(255, 200, 130, 0.78) 0%, transparent 55%),
+    radial-gradient(circle at 72% 38%, rgba(255, 220, 160, 0.12) 0%, transparent 30%),
     linear-gradient(180deg, #e07c48 0%, #5c315b 100%);
 }
 .hills {
@@ -186,9 +208,12 @@ function onRestart() {
   width: 0; height: 0;
   border-radius: 50%;
   background: radial-gradient(circle, var(--lilac) 0%, var(--magic-1) 60%, transparent 100%);
-  box-shadow: 0 0 80px rgba(176, 148, 201, 0.7);
+  box-shadow:
+    0 0 80px rgba(176, 148, 201, 0.7),
+    0 0 140px rgba(176, 148, 201, 0.35),
+    inset 0 0 40px rgba(255, 248, 230, 0.15);
   transform: translate(-50%, -50%);
-  animation: portal-grow 2400ms ease forwards;
+  animation: portal-grow 2400ms var(--ease-out-expo) forwards;
 }
 @keyframes portal-grow {
   0%   { width: 0; height: 0; opacity: 0.3; }
@@ -204,12 +229,12 @@ function onRestart() {
   left: 33%;
   font-size: 56px;
   filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.5));
-  animation: yen-step 1.6s ease forwards;
+  animation: yen-step 1.6s var(--ease-out-expo) forwards;
 }
 @keyframes yen-step {
-  0%   { opacity: 0; transform: translateX(-30px); }
-  60%  { opacity: 1; transform: translateX(0); }
-  100% { opacity: 1; transform: translateX(0); }
+  0%   { opacity: 0; transform: translateX(-30px) scale(0.92); }
+  60%  { opacity: 1; transform: translateX(0) scale(1); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
 }
 .yen-fade-enter-active { transition: opacity 600ms ease; }
 .yen-fade-enter-from { opacity: 0; }
@@ -219,11 +244,13 @@ function onRestart() {
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
-  width: 610px;
-  padding: 24px 28px;
-  border-radius: 14px;
+  width: min(640px, 92vw);
+  padding: 26px 30px;
+  border-radius: var(--radius-lg);
   text-align: center;
-  box-shadow: var(--surface-shadow);
+  box-shadow:
+    var(--surface-shadow),
+    0 0 0 1px rgba(255, 242, 214, 0.08);
 }
 .card-fade-enter-active { transition: opacity 700ms ease, transform 700ms ease; }
 .card-fade-enter-from { opacity: 0; transform: translate(-50%, 20px); }
@@ -301,14 +328,27 @@ function onRestart() {
 }
 
 .restart {
-  margin-top: 8px;
+  margin-top: 10px;
   background: linear-gradient(180deg, var(--gold-soft) 0%, var(--gold) 100%);
   color: var(--ink);
-  padding: 9px 18px;
+  padding: 10px 22px;
   font-size: 13px;
   font-weight: 600;
-  border-radius: 999px;
-  border: 1px solid rgba(86, 54, 24, 0.34);
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(86, 54, 24, 0.38);
+  box-shadow:
+    0 8px 18px rgba(28, 18, 10, 0.22),
+    inset 0 1px 0 rgba(255, 248, 230, 0.35);
+  transition: transform 200ms var(--ease-out-expo), filter 200ms var(--ease-out-expo), box-shadow 200ms var(--ease-out-expo);
 }
-.restart:hover { filter: brightness(1.05); }
+.restart:hover {
+  filter: brightness(1.06);
+  transform: translateY(-2px);
+  box-shadow:
+    0 14px 28px rgba(28, 18, 10, 0.28),
+    inset 0 1px 0 rgba(255, 248, 230, 0.4);
+}
+.restart:active {
+  transform: translateY(0);
+}
 </style>

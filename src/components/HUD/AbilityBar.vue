@@ -136,17 +136,18 @@ function cancelLilac() {
 
 <style scoped>
 .ability-bar {
-  width: 238px;
-  padding: 16px 16px 18px;
-  border-radius: 14px;
+  width: 244px;
+  padding: 18px 18px 20px;
+  border-radius: var(--radius-md);
   position: relative;
   box-shadow: var(--surface-shadow);
 }
 h3 {
-  margin: 0 0 12px;
-  font-size: 13px;
-  letter-spacing: 0.16em;
+  margin: 0 0 14px;
+  font-size: 12px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
+  color: var(--ink-soft);
 }
 
 .bar-head {
@@ -162,23 +163,23 @@ h3 {
 }
 
 .achievement-entry {
-  padding: 6px 10px;
+  padding: 6px 12px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(255, 248, 230, 0.52);
   border: 1px solid rgba(208, 168, 87, 0.28);
   box-shadow: inset 0 1px 0 rgba(255, 243, 214, 0.16);
-  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+  transition: transform 200ms var(--ease-out-expo), box-shadow 200ms var(--ease-out-expo), background 200ms var(--ease-out-expo);
 }
 
 .achievement-entry:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 248, 230, 0.72);
+  transform: translateY(-2px);
+  background: rgba(255, 248, 230, 0.76);
   box-shadow:
-    inset 0 1px 0 rgba(255, 243, 214, 0.24),
-    0 8px 14px rgba(24, 16, 10, 0.12);
+    inset 0 1px 0 rgba(255, 243, 214, 0.28),
+    0 10px 18px rgba(24, 16, 10, 0.14);
 }
 
 .entry-icon {
@@ -197,44 +198,47 @@ h3 {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 10px;
-  border-radius: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
   background:
-    linear-gradient(180deg, rgba(255, 247, 224, 0.2) 0%, rgba(255, 247, 224, 0.04) 18%),
+    linear-gradient(180deg, rgba(255, 247, 224, 0.22) 0%, rgba(255, 247, 224, 0.04) 18%),
     linear-gradient(180deg, rgba(58, 42, 31, 0.1) 0%, rgba(58, 42, 31, 0.06) 100%);
   border: 1px solid rgba(208, 168, 87, 0.32);
-  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+  transition: background 200ms var(--ease-out-expo), border-color 200ms var(--ease-out-expo), transform 200ms var(--ease-out-expo), box-shadow 200ms var(--ease-out-expo);
   font-size: 13px;
   text-align: left;
   box-shadow:
-    inset 0 1px 0 rgba(255, 243, 214, 0.16),
-    0 6px 12px rgba(24, 16, 10, 0.08);
+    inset 0 1px 0 rgba(255, 243, 214, 0.18),
+    0 6px 14px rgba(24, 16, 10, 0.1);
 }
 .ab-btn:hover:not(:disabled) {
   background:
-    linear-gradient(180deg, rgba(255, 247, 224, 0.26) 0%, rgba(255, 247, 224, 0.08) 18%),
-    linear-gradient(180deg, rgba(208, 168, 87, 0.38) 0%, rgba(138, 93, 45, 0.26) 100%);
-  border-color: rgba(208, 168, 87, 0.52);
+    linear-gradient(180deg, rgba(255, 247, 224, 0.3) 0%, rgba(255, 247, 224, 0.1) 18%),
+    linear-gradient(180deg, rgba(208, 168, 87, 0.42) 0%, rgba(138, 93, 45, 0.28) 100%);
+  border-color: rgba(208, 168, 87, 0.58);
   transform: translateY(-2px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 243, 214, 0.28),
-    0 12px 20px rgba(24, 16, 10, 0.18);
+    inset 0 1px 0 rgba(255, 243, 214, 0.32),
+    0 14px 24px rgba(24, 16, 10, 0.2);
 }
 .ab-btn:active:not(:disabled) {
   background:
     linear-gradient(180deg, rgba(255, 247, 224, 0.18) 0%, rgba(255, 247, 224, 0.02) 18%),
-    linear-gradient(180deg, rgba(138, 93, 45, 0.16) 0%, rgba(208, 168, 87, 0.28) 100%);
-  border-color: rgba(208, 168, 87, 0.22);
+    linear-gradient(180deg, rgba(138, 93, 45, 0.18) 0%, rgba(208, 168, 87, 0.3) 100%);
+  border-color: rgba(208, 168, 87, 0.26);
   transform: translateY(0);
   box-shadow:
-    inset 0 1px 0 rgba(255, 243, 214, 0.12),
-    0 4px 8px rgba(24, 16, 10, 0.06);
+    inset 0 1px 0 rgba(255, 243, 214, 0.14),
+    0 4px 10px rgba(24, 16, 10, 0.08);
 }
 .ab-btn.pending {
   background:
-    linear-gradient(180deg, rgba(255, 247, 224, 0.22) 0%, rgba(255, 247, 224, 0.06) 18%),
-    linear-gradient(180deg, rgba(176, 148, 201, 0.42) 0%, rgba(116, 86, 140, 0.26) 100%);
-  border-color: rgba(126, 88, 161, 0.8);
+    linear-gradient(180deg, rgba(255, 247, 224, 0.24) 0%, rgba(255, 247, 224, 0.06) 18%),
+    linear-gradient(180deg, rgba(176, 148, 201, 0.48) 0%, rgba(116, 86, 140, 0.3) 100%);
+  border-color: rgba(126, 88, 161, 0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 243, 214, 0.2),
+    0 0 18px rgba(176, 148, 201, 0.22);
 }
 .ab-btn.disabled { opacity: 0.45; }
 .ab-icon { font-size: 19px; }
@@ -266,12 +270,13 @@ h3 {
   position: absolute;
   top: 100%;
   right: 0;
-  margin-top: 10px;
-  width: 294px;
-  padding: 14px 15px;
-  border-radius: 12px;
+  margin-top: 12px;
+  width: 300px;
+  padding: 16px 16px;
+  border-radius: var(--radius-sm);
   z-index: 12;
   box-shadow: var(--surface-shadow);
+  animation: fade-in 260ms var(--ease-out-expo);
 }
 .convert-panel p { margin: 0 0 6px; font-size: 13px; }
 .dual { display: flex; gap: 10px; }
@@ -292,10 +297,15 @@ h3 {
 .chip:disabled { opacity: 0.4; }
 .actions { display: flex; gap: 8px; margin-top: 10px; }
 .apply, .cancel {
-  padding: 5px 12px;
-  border-radius: 999px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
   font-size: 12px;
   font-weight: 600;
+  transition: transform 160ms var(--ease-out-expo), filter 160ms var(--ease-out-expo), box-shadow 160ms var(--ease-out-expo);
+}
+.apply:hover:not(:disabled), .cancel:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
 }
 .apply  {
   background: linear-gradient(180deg, var(--gold-soft) 0%, var(--gold) 100%);

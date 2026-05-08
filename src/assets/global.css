@@ -4,12 +4,18 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: "Georgia", "Songti SC", "STSong", "Noto Serif SC",
-               "Source Han Serif SC", serif;
+  font-family:
+    "Georgia",
+    "Songti SC", "STSong",
+    "Noto Serif SC", "Source Han Serif SC",
+    "PingFang SC", "Microsoft YaHei",
+    serif;
   color: var(--ink);
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -18,9 +24,26 @@ body {
     radial-gradient(circle at 82% 10%, rgba(202, 128, 72, 0.16) 0%, transparent 24%),
     linear-gradient(180deg, var(--bg-grad-1, #d7c08f) 0%, var(--bg-grad-2, #7f6d4e) 52%, var(--bg-grad-3, #2c2219) 100%);
   background-attachment: fixed;
-  transition: background var(--t-bg) ease, color var(--t-bg) ease;
+  transition: background var(--t-bg) var(--ease-out-expo), color var(--t-bg) var(--ease-out-expo);
   overflow: hidden;
   position: relative;
+}
+
+/* Selection — warm parchment tint */
+::selection {
+  background: rgba(208, 168, 87, 0.38);
+  color: var(--ink);
+}
+
+/* Scrollbar — minimal parchment */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(92, 60, 28, 0.28);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(92, 60, 28, 0.44);
 }
 
 #app {
@@ -37,16 +60,18 @@ button {
   background: transparent;
   border: none;
   padding: 0;
+  touch-action: manipulation;
 }
 
 button:disabled { cursor: not-allowed; opacity: 0.5; }
 
+/* ── Parchment surface ── */
 .parchment {
   background:
     linear-gradient(180deg, rgba(255, 248, 226, 0.5) 0%, transparent 18%),
     linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 72%, var(--paper-3) 100%);
   border: 1px solid rgba(92, 60, 28, 0.55);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   box-shadow:
     var(--surface-glow),
     var(--hud-shadow),
@@ -54,6 +79,19 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
   position: relative;
 }
 
+/* Glass surface — frosted translucent */
+.glass {
+  background:
+    linear-gradient(180deg, rgba(255, 248, 230, 0.65) 0%, rgba(232, 214, 178, 0.45) 100%);
+  backdrop-filter: blur(12px) saturate(1.1);
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+  border: 1px solid rgba(255, 242, 214, 0.35);
+  box-shadow:
+    0 8px 24px rgba(19, 11, 8, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+/* ── Typography utilities ── */
 .ink-title {
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -66,19 +104,54 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
   font-size: 13px;
 }
 
-.fadeIn  { animation: fade-in 800ms ease forwards; }
-.fadeOut { animation: fade-out 800ms ease forwards; }
+.ink-glow {
+  color: var(--gold-soft);
+  text-shadow:
+    0 0 8px rgba(208, 168, 87, 0.35),
+    0 1px 0 rgba(255, 245, 220, 0.42);
+}
+
+.label-caps {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* ── Animation utilities ── */
+.fadeIn  { animation: fade-in 800ms var(--ease-out-expo) forwards; }
+.fadeOut { animation: fade-out 800ms var(--ease-out-expo) forwards; }
+.float-gentle { animation: float-gentle 4s var(--ease-in-out-sine) infinite; }
+.pulse-soft   { animation: pulse-soft 2.4s var(--ease-in-out-sine) infinite; }
+.shimmer-gold { animation: shimmer-gold 2.8s linear infinite; background-size: 200% 100%; }
 
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
 @keyframes fade-out {
   from { opacity: 1; }
   to   { opacity: 0; }
 }
 
-/* Subtle grain texture for parchment feel — pure CSS, no images */
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.85; transform: scale(1.02); }
+}
+
+@keyframes shimmer-gold {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Subtle grain texture for parchment feel — pure CSS, no images ── */
 .grain::before {
   content: "";
   position: absolute;
@@ -91,6 +164,29 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
       135deg,
       rgba(255, 246, 220, 0.02) 0 2px,
       rgba(88, 60, 34, 0.02) 2px 4px
+    );
+  mix-blend-mode: overlay;
+  border-radius: inherit;
+}
+
+/* Enhanced grain with slightly more organic feel */
+.grain-rich::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 22% 28%, rgba(255, 238, 196, 0.22) 0, transparent 42%),
+    radial-gradient(circle at 78% 72%, rgba(94, 64, 34, 0.14) 0, transparent 48%),
+    repeating-linear-gradient(
+      135deg,
+      rgba(255, 246, 220, 0.025) 0 2px,
+      rgba(88, 60, 34, 0.025) 2px 4px
+    ),
+    repeating-linear-gradient(
+      45deg,
+      rgba(255, 246, 220, 0.015) 0 3px,
+      transparent 3px 6px
     );
   mix-blend-mode: overlay;
   border-radius: inherit;

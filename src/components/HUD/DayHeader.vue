@@ -35,9 +35,10 @@ const game = useGameStore()
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
-  border-radius: 12px;
-  width: 580px;
+  padding: 12px 22px;
+  border-radius: var(--radius-md);
+  width: 600px;
+  max-width: 96vw;
   margin: 0 auto 14px;
   box-shadow: var(--surface-shadow);
 }
@@ -54,10 +55,10 @@ const game = useGameStore()
 }
 .brand {
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--ink);
   display: block;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 .left {
@@ -69,14 +70,16 @@ const game = useGameStore()
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 18px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: rgba(255, 248, 229, 0.24);
-  box-shadow: inset 0 0 0 1px rgba(89, 58, 28, 0.12);
+  font-size: 17px;
+  padding: 5px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 248, 229, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(89, 58, 28, 0.14);
+  transition: background 240ms var(--ease-out-expo), box-shadow 240ms var(--ease-out-expo);
 }
 .building .emoji {
-  font-size: 24px;
+  font-size: 22px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
 }
 .steps {
   display: flex;
@@ -113,26 +116,27 @@ const game = useGameStore()
   box-shadow: 0 0 12px rgba(212, 168, 87, 0.7);
 }
 .step-value {
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--ink);
-  letter-spacing: 0.08em;
-  transition: color 200ms ease;
+  letter-spacing: 0.06em;
+  transition: color 300ms var(--ease-out-expo), transform 300ms var(--ease-out-expo);
 }
 .step-value.low {
-  color: var(--clay-2);
-  animation: pulse-low-steps 1.5s infinite ease-in-out;
+  color: #b0482e;
+  animation: pulse-low-steps 1.4s infinite var(--ease-in-out-sine);
 }
 
 @keyframes pulse-low-steps {
-  0%,
-  100% {
+  0%, 100% {
     transform: scale(1);
     opacity: 1;
+    text-shadow: 0 0 0 rgba(176, 72, 46, 0);
   }
   50% {
-    transform: scale(1.05);
-    opacity: 0.8;
+    transform: scale(1.06);
+    opacity: 0.85;
+    text-shadow: 0 0 8px rgba(176, 72, 46, 0.25);
   }
 }
 </style>
