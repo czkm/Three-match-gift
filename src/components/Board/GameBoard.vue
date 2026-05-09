@@ -160,6 +160,18 @@
           @click="confirmRowOrCol('col', c - 1)"
         >第 {{ c }} 列</button>
       </template>
+
+      <transition name="combo-praise">
+        <div
+          v-if="comboPraise"
+          :key="comboPraise.id"
+          class="combo-praise"
+          :class="comboPraise.tone"
+        >
+          <p class="combo-praise-label">{{ comboPraise.label }}</p>
+          <p v-if="comboPraise.subline" class="combo-praise-subline">{{ comboPraise.subline }}</p>
+        </div>
+      </transition>
     </div>
 
     <div v-if="targeting" class="targeting-hint parchment grain">
@@ -200,11 +212,13 @@ const tilePool = [];
 const selectedId = ref(null);
 const shaking = ref(false);
 const petals = ref([]);
+const comboPraise = ref(null);
 const hintIds = ref(new Set());
 const invalidIds = ref(new Set());
 const lastClearedMeta = ref(new Map());
 const lastClearSource = ref('match');
 const boardSyncTimers = [];
+let comboPraiseTimer = null;
 const awakeningBolts = ref([]);
 const awakeningSparks = ref([]);
 let awakeningTimer = null;
@@ -562,6 +576,7 @@ onBeforeUnmount(() => {
   EventBus.unbind('tilesSwapped', onTilesSwapped);
   EventBus.unbind('noMoreMoves', onNoMoreMoves);
   for (const timer of boardSyncTimers) clearTimeout(timer);
+  if (comboPraiseTimer) clearTimeout(comboPraiseTimer);
   if (awakeningTimer) clearTimeout(awakeningTimer);
   if (awakeningSettleTimer) clearTimeout(awakeningSettleTimer);
   if (djinnTransitionTimer) clearTimeout(djinnTransitionTimer);
@@ -903,6 +918,7 @@ function onTilesCleared(resourcesByChar, _swapSide, groupCount, groupSizes, chai
     chain: chain || 1,
     matchGroups: matchGroups || []
   });
+  showComboPraise(chain || 1, groupSizes || []);
   maybePraiseCombo(chain || 1, groupSizes || []);
   syncMonsterTilesFromEngine();
   // Trigger match continues as the engine queues; we only commit
@@ -961,6 +977,54 @@ function maybePraiseCombo(chain, groupSizes) {
   if (chain === 2 && groupSizes.some((size) => size >= 4)) {
     game.queueAmbientBark('不错。手感找到了。');
   }
+}
+
+function showComboPraise(chain, groupSizes) {
+  const biggest = Math.max(0, ...(groupSizes || []));
+  let label = '';
+  let subline = '';
+  let tone = 'warm';
+
+  if (chain >= 4) {
+    label = '传奇连击';
+    subline = `连锁 ${chain} 次`;
+    tone = 'epic';
+  } else if (biggest >= 5) {
+    label = '超大匹配';
+    subline = `${biggest} 连达成`;
+    tone = 'epic';
+  } else if (chain === 3) {
+    label = '华丽连击';
+    subline = '行云流水';
+    tone = 'rare';
+  } else if (biggest === 4) {
+    label = '精彩四连';
+    subline = '漂亮的一步';
+    tone = 'rare';
+  } else if (chain === 2) {
+    label = '连击';
+    subline = '继续保持';
+    tone = 'warm';
+  } else if (biggest === 3) {
+    label = '不错';
+    subline = '稳稳推进';
+    tone = 'warm';
+  }
+
+  if (!label) return;
+
+  comboPraise.value = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    label,
+    subline,
+    tone
+  };
+
+  if (comboPraiseTimer) clearTimeout(comboPraiseTimer);
+  comboPraiseTimer = setTimeout(() => {
+    comboPraise.value = null;
+    comboPraiseTimer = null;
+  }, 1350);
 }
 
 function maybeCommitTurn() {
@@ -1576,6 +1640,77 @@ function stopDjinnTransitionFx() {
   opacity: 0.14;
   transform: scale(0.82);
   animation: none;
+}
+
+.combo-praise {
+  position: absolute;
+  left: 50%;
+  top: 18px;
+  z-index: 12;
+  min-width: 168px;
+  padding: 12px 18px 10px;
+  border-radius: 16px;
+  text-align: center;
+  pointer-events: none;
+  transform: translateX(-50%);
+  background:
+    linear-gradient(180deg, rgba(44, 28, 18, 0.88), rgba(20, 12, 8, 0.84));
+  box-shadow:
+    0 14px 24px rgba(18, 10, 8, 0.28),
+    inset 0 1px 0 rgba(255, 244, 220, 0.14);
+}
+
+.combo-praise.warm {
+  border: 1px solid rgba(232, 188, 106, 0.42);
+}
+
+.combo-praise.rare {
+  border: 1px solid rgba(214, 196, 124, 0.46);
+  box-shadow:
+    0 14px 24px rgba(18, 10, 8, 0.28),
+    0 0 18px rgba(232, 196, 118, 0.18),
+    inset 0 1px 0 rgba(255, 244, 220, 0.18);
+}
+
+.combo-praise.epic {
+  border: 1px solid rgba(238, 208, 138, 0.58);
+  box-shadow:
+    0 16px 28px rgba(18, 10, 8, 0.3),
+    0 0 24px rgba(240, 213, 107, 0.28),
+    inset 0 1px 0 rgba(255, 247, 226, 0.24);
+}
+
+.combo-praise-label,
+.combo-praise-subline {
+  margin: 0;
+}
+
+.combo-praise-label {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0.04em;
+  color: #fff1cb;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+}
+
+.combo-praise-subline {
+  margin-top: 4px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 234, 186, 0.82);
+}
+
+.combo-praise-enter-active,
+.combo-praise-leave-active {
+  transition: opacity 220ms ease, transform 300ms var(--ease-out-back);
+}
+
+.combo-praise-enter-from,
+.combo-praise-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px) scale(0.92);
 }
 
 .djinn-awakening {
