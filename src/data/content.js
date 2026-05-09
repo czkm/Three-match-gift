@@ -305,7 +305,7 @@ export const MONSTERS = {
     emoji: '🕯️',
     uiLabel: '欢欣蜡烛',
     uiWeaknessShort: '这是第二愿的角落烛火，不参与匹配。',
-    uiPressureShort: '只要完成一次 4 连及以上匹配，它们就会一起亮起。',
+    uiPressureShort: '只要完成一次 4 连，或打出一次 2 连锁，它们就会一起亮起。',
     hp: 1,
     hits: 1,
     reward: {},
@@ -525,9 +525,20 @@ export const DAY_MONSTER_LAYOUTS = {
 }
 
 export const DJINN_WISHES = {
+  sleepTitle: '沉睡的迪精',
+  sleepHint: '她还在睡。先把紫丁香客房准备好，再唤醒最后的仪式。',
+  sleepLine: '迪精还在睡，头顶轻轻浮着 💤。',
+  wakeTitle: '迪精醒来',
+  wakeQuote: '最后一盏灯亮起来时，那团沉睡已久的光，也慢慢睁开了眼。',
+  wakeIntroLines: [
+    '客房里的风轻轻掀起窗帘，紫丁香的香气顺着门缝漫出来。',
+    '棋盘中央那团蜷着睡意的光轻轻一颤，头顶的 💤 一点点散开。',
+    '迪精抬起头，看向你，像终于等到了该说出口的祝福。'
+  ],
   readyTitle: '迪精',
   readyHint: '资源已经备齐。点击迪精，开始最后的仪式。',
   readyLine: '紫丁香客房已经准备好。剩下的，是要把祝福亲手送进去。',
+  wakeLine: '紫丁香客房已经准备好。迪精醒了，等你开始最后的仪式。',
   ceremonyDoneLine: '愿望已经说完，灯也亮起来了。',
   stages: {
     1: {
@@ -565,8 +576,8 @@ export const DJINN_WISHES = {
       objective: {
         type: 'joyBursts',
         total: 1,
-        label: '完成一次 4 连及以上匹配',
-        rulesText: '只要完成一次 4 连或更大组即可'
+        label: '完成一次 4 连，或打出一次 2 连锁',
+        rulesText: '完成一次 4 连或更大组，或打出一次 2 连锁即可'
       },
       resolveLines: [
         '彩带般的光从四角拢向中央，花园风里都带了笑意。',
@@ -590,9 +601,9 @@ export const DJINN_WISHES = {
         total: 3,
         label: '按顺序完成生日蛋糕',
         steps: [
-          '先达成一次葡萄 5 连，做出蛋糕底座。',
+          '先达成一次葡萄 4 连及以上，做出蛋糕底座。',
           '再达成一次草药 4 连及以上，铺出紫丁香奶油。',
-          '最后达成一次魔力 4 连及以上，或一次 2 连锁，点亮蜡烛。'
+          '最后达成一次魔力 3 连及以上，或一次 2 连锁，点亮蜡烛。'
         ]
       },
       resolveLines: [

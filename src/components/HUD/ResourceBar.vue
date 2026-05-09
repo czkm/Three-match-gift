@@ -45,7 +45,7 @@ const messageKind = computed(() => {
   if (game.phase === 'intro') return 'narration';
   if (game.barkLine) return 'geralt';
   if (game.phase === 'targeting') return 'system';
-  if ((game.djinnReady || game.djinnCeremonyActive || game.djinnHintVisible) && game.phase === 'playing') return 'system';
+  if ((game.djinnSleeping || game.djinnReady || game.djinnCeremonyActive || game.djinnHintVisible) && game.phase === 'playing') return 'system';
   return 'hint';
 });
 
@@ -74,8 +74,10 @@ const messageTitle = computed(() => {
   if (game.phase === 'intro') return game.today?.building?.cn || '';
   if (game.barkLine) return '临场自语';
   if (game.phase === 'targeting') return '当前指令';
-  if ((game.djinnReady || game.djinnCeremonyActive || game.djinnHintVisible) && game.phase === 'playing') {
-    return game.djinnObjectiveSummary?.title || '迪精';
+  if ((game.djinnSleeping || game.djinnReady || game.djinnCeremonyActive || game.djinnHintVisible) && game.phase === 'playing') {
+    return game.djinnSleeping
+      ? DJINN_WISHES.sleepTitle
+      : game.djinnObjectiveSummary?.title || '迪精';
   }
   return '今日建议';
 });
@@ -101,6 +103,10 @@ const messageText = computed(() => {
       case 'twoResources': return '在右侧能力栏里选两种资源，进行全局转换。';
       default: return ab?.desc || '';
     }
+  }
+
+  if (game.djinnSleeping && game.phase === 'playing') {
+    return DJINN_WISHES.sleepHint;
   }
 
   if (game.djinnReady && game.phase === 'playing') {

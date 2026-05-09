@@ -2,6 +2,17 @@
   <div class="wish-overlay" @click="onOverlayClick">
     <div class="veil" />
     <div class="card parchment grain">
+      <div v-if="showWakeStage" class="wake-stage" aria-hidden="true">
+        <span class="wake-ring ring-a" />
+        <span class="wake-ring ring-b" />
+        <span class="wake-glyph">🧞</span>
+        <span class="wake-z z-a">💤</span>
+        <span class="wake-z z-b">💤</span>
+        <span class="wake-spark spark-a">✦</span>
+        <span class="wake-spark spark-b">✦</span>
+        <span class="wake-spark spark-c">✦</span>
+      </div>
+
       <p class="title ink-title">{{ card.title }}</p>
       <p class="quote ink-subtle">{{ card.quote }}</p>
 
@@ -37,11 +48,16 @@ const dialogRef = ref(null);
 const card = computed(() => game.currentDjinnCard || { title: '', quote: '', lines: [] });
 const activeLine = computed(() => card.value.lines?.[lineIndex.value] || '');
 const readyForAdvance = computed(() => lineReady.value && lineIndex.value >= (card.value.lines?.length || 0));
+const showWakeStage = computed(() => game.djinnCardMode === 'wake');
 const actionLabel = computed(() => (
-  game.djinnCardMode === 'intro' ? '进入仪式棋盘' : (game.djinnStage >= 3 ? '迎向生日夜' : '继续下一愿')
+  game.djinnCardMode === 'wake'
+    ? '唤醒迪精'
+    : (game.djinnCardMode === 'intro' ? '进入仪式棋盘' : (game.djinnStage >= 3 ? '迎向生日夜' : '继续下一愿'))
 ));
 const actionHint = computed(() => (
-  game.djinnCardMode === 'intro' ? '点击进入仪式棋盘' : '点击继续'
+  game.djinnCardMode === 'wake'
+    ? '点击唤醒迪精'
+    : (game.djinnCardMode === 'intro' ? '点击进入仪式棋盘' : '点击继续')
 ));
 
 watch(() => game.djinnCardNonce, () => {
@@ -64,6 +80,10 @@ function onLineReady() {
 }
 
 function onAdvance() {
+  if (game.djinnCardMode === 'wake') {
+    game.finishDjinnWake();
+    return;
+  }
   if (game.djinnCardMode === 'intro') {
     game.beginDjinnBoardStage();
     return;
@@ -118,6 +138,94 @@ function onOverlayClick() {
     inset 0 1px 0 rgba(255, 248, 230, 0.3);
 }
 
+.wake-stage {
+  position: relative;
+  height: 136px;
+  margin: -6px 0 14px;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.wake-ring,
+.wake-glyph,
+.wake-z,
+.wake-spark {
+  position: absolute;
+}
+
+.wake-ring {
+  left: 50%;
+  top: 52%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.ring-a {
+  width: 112px;
+  height: 112px;
+  border: 1px solid rgba(240, 213, 107, 0.26);
+  box-shadow: 0 0 24px rgba(240, 213, 107, 0.18);
+  animation: wake-ring-a 2.4s ease-out infinite;
+}
+
+.ring-b {
+  width: 154px;
+  height: 154px;
+  border: 1px solid rgba(190, 154, 232, 0.18);
+  box-shadow: 0 0 28px rgba(190, 154, 232, 0.14);
+  animation: wake-ring-b 2.4s ease-out infinite;
+}
+
+.wake-glyph {
+  left: 50%;
+  top: 52%;
+  font-size: 64px;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 6px 18px rgba(240, 213, 107, 0.28));
+  animation: wake-glyph 2.4s ease-in-out infinite;
+}
+
+.wake-z {
+  font-size: 20px;
+  opacity: 0;
+  filter: drop-shadow(0 2px 8px rgba(24, 18, 12, 0.24));
+}
+
+.z-a {
+  left: calc(50% + 26px);
+  top: 26px;
+  animation: wake-z-a 2.4s ease-out infinite;
+}
+
+.z-b {
+  left: calc(50% + 48px);
+  top: 14px;
+  animation: wake-z-b 2.4s ease-out infinite;
+}
+
+.wake-spark {
+  color: rgba(255, 236, 180, 0.92);
+  text-shadow: 0 0 12px rgba(240, 213, 107, 0.28);
+}
+
+.spark-a {
+  left: calc(50% - 82px);
+  top: 42px;
+  animation: wake-spark 1.8s ease-in-out infinite;
+}
+
+.spark-b {
+  left: calc(50% + 76px);
+  top: 68px;
+  animation: wake-spark 1.8s ease-in-out 220ms infinite;
+}
+
+.spark-c {
+  left: calc(50% - 12px);
+  top: 8px;
+  animation: wake-spark 1.8s ease-in-out 420ms infinite;
+}
+
 .title {
   margin: 0 0 8px;
   font-size: 21px;
@@ -164,5 +272,39 @@ function onOverlayClick() {
 }
 .advance-btn:active {
   transform: translateY(0);
+}
+
+@keyframes wake-glyph {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.96); opacity: 0.84; }
+  50% { transform: translate(-50%, -54%) scale(1.03); opacity: 1; }
+}
+
+@keyframes wake-ring-a {
+  0% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.18; }
+  55% { opacity: 0.46; }
+  100% { transform: translate(-50%, -50%) scale(1.08); opacity: 0.08; }
+}
+
+@keyframes wake-ring-b {
+  0% { transform: translate(-50%, -50%) scale(0.84); opacity: 0.08; }
+  60% { opacity: 0.28; }
+  100% { transform: translate(-50%, -50%) scale(1.02); opacity: 0.04; }
+}
+
+@keyframes wake-z-a {
+  0% { transform: translate3d(0, 10px, 0) scale(0.9); opacity: 0.7; }
+  70% { opacity: 0.22; }
+  100% { transform: translate3d(10px, -10px, 0) scale(1.08); opacity: 0; }
+}
+
+@keyframes wake-z-b {
+  0%, 18% { transform: translate3d(0, 10px, 0) scale(0.88); opacity: 0; }
+  34% { opacity: 0.72; }
+  100% { transform: translate3d(10px, -12px, 0) scale(1.08); opacity: 0; }
+}
+
+@keyframes wake-spark {
+  0%, 100% { transform: scale(0.82); opacity: 0.24; }
+  50% { transform: scale(1.08); opacity: 0.86; }
 }
 </style>

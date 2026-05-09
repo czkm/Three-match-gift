@@ -50,6 +50,12 @@ export class Board {
     EventBus.trigger('draw', ['board.clear', { reason }]);
   }
 
+  setBoardStringAfterClear(tileString, reason = 'manual') {
+    this.tileString = '';
+    this._setGraphicsCallback(() => this.setBoardString(tileString));
+    EventBus.trigger('draw', ['board.clear', { reason }]);
+  }
+
   setBoardString(tileString) {
     this.tileString = tileString;
     this._setGraphicsCallback(() => {});

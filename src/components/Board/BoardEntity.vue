@@ -4,6 +4,7 @@
     :class="[entity.kind, {
       removed: entity.removed,
       djinn: entity.kind === 'djinn',
+      sleeping: entity.sleeping,
       hidden: entity.hidden
     }]"
     :style="style"
@@ -14,6 +15,7 @@
     <span class="slot-frame" />
     <span class="glyph">{{ monster?.emoji || '' }}</span>
     <span v-if="entity.kind === 'djinn'" class="djinn-core" :class="`p${djinnStage}`" />
+    <span v-if="entity.kind === 'djinn' && entity.sleeping" class="sleep-mark">💤</span>
     <div v-if="entity.kind !== 'joyCandle'" class="hp-bar">
       <span
         v-for="n in entity.hitsRequired || 1"
@@ -142,6 +144,12 @@ const style = computed(() => ({
   filter: drop-shadow(0 4px 12px rgba(240, 213, 107, 0.35));
 }
 
+.djinn.sleeping .glyph {
+  opacity: 0.58;
+  animation-duration: 2.4s;
+  filter: drop-shadow(0 2px 8px rgba(240, 213, 107, 0.18));
+}
+
 .djinn-core {
   position: absolute;
   inset: 14px;
@@ -155,6 +163,20 @@ const style = computed(() => ({
 .djinn-core.p1 { box-shadow: 0 0 20px rgba(240, 213, 107, 0.32); }
 .djinn-core.p2 { box-shadow: 0 0 30px rgba(240, 213, 107, 0.48); }
 .djinn-core.p3 { box-shadow: 0 0 42px rgba(240, 213, 107, 0.62); }
+
+.djinn.sleeping .djinn-core {
+  box-shadow: 0 0 10px rgba(240, 213, 107, 0.14);
+}
+
+.sleep-mark {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  z-index: 3;
+  font-size: 22px;
+  filter: drop-shadow(0 2px 6px rgba(24, 18, 12, 0.36));
+  animation: sleep-drift 2.4s ease-in-out infinite;
+}
 
 .joyCandle {
   background:
@@ -206,6 +228,11 @@ const style = computed(() => ({
 @keyframes djinn-pulse {
   0%, 100% { transform: scale(0.96); opacity: 0.8; }
   50% { transform: scale(1.04); opacity: 1; }
+}
+
+@keyframes sleep-drift {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.75; }
+  50% { transform: translate3d(-2px, -4px, 0); opacity: 1; }
 }
 
 @keyframes nue-giggle {

@@ -133,7 +133,7 @@ import { useTileDrag } from '@/composables/useTileDrag';
 import { useGameStore } from '@/stores/gameStore';
 import { TIMING } from '@/utils/timing';
 import { makeGuid } from '@/utils/guid';
-import { ABILITIES, MONSTER_BY_CHAR, MONSTERS, RESOURCE_BY_ID, ROT_CHAR, unlockedCharsForDay } from '@/data/content';
+import { ABILITIES, DJINN_WISHES, MONSTER_BY_CHAR, MONSTERS, RESOURCE_BY_ID, ROT_CHAR, unlockedCharsForDay } from '@/data/content';
 
 const game = useGameStore();
 const ROWS = 8, COLS = 8;
@@ -158,7 +158,7 @@ const hintIds = ref(new Set());
 const invalidIds = ref(new Set());
 const lastClearedMeta = ref(new Map());
 const lastClearSource = ref('match');
-let pendingDjinnBoardString = null;
+const boardSyncTimers = [];
 
 const rowsCount = computed(() => ROWS);
 const colsCount = computed(() => COLS);
@@ -302,6 +302,7 @@ watch(activeTile, (a) => {
 const tapBuffer = ref([]);   // for twoTiles ability
 
 function onPick(payload, evt) {
+  if (!board.value?.canMove?.()) return;
   bumpIdle();
   game.clearMonsterInfo();
   const monster = monsterAt(payload.row, payload.col);
@@ -314,19 +315,23 @@ function onPick(payload, evt) {
     }
     return;
   }
-  if (isBlockedCell(payload.row, payload.col)) {
-    selectedId.value = null;
-    const entity = entityAt(payload.row, payload.col);
-    if (entity?.kind === 'djinn') {
-      game.showMonsterInfo(entity.kind, entity.id, 'click');
+    if (isBlockedCell(payload.row, payload.col)) {
+      selectedId.value = null;
+      const entity = entityAt(payload.row, payload.col);
+      if (entity?.kind === 'djinn') {
+        game.showMonsterInfo(entity.kind, entity.id, 'click');
       if (game.djinnReady) {
         game.beginDjinnCeremony();
         return;
-      }
-      if (!game.barkLine) {
-        game.queueAmbientBark(game.djinnObjectiveSummary?.pressure || '仪式正在进行。');
-      }
-    } else if (entity) {
+        }
+        if (!game.barkLine) {
+          game.queueAmbientBark(
+            game.djinnSleeping
+              ? DJINN_WISHES.sleepLine
+              : game.djinnObjectiveSummary?.pressure || '仪式正在进行。'
+          );
+        }
+      } else if (entity) {
       const hint = MONSTERS[entity.kind]?.clearRule?.hint;
       const remain = Math.max(0, (entity.hitsRequired || 1) - (entity.hitsTaken || 0));
       game.showMonsterInfo(entity.kind, entity.id, 'click');
@@ -414,6 +419,9 @@ function onMonsterInspect({ kind, entityId }) {
     return;
   }
   game.showMonsterInfo(kind, entityId, 'click');
+  if (kind === 'djinn' && game.djinnSleeping && !game.barkLine) {
+    game.queueAmbientBark(DJINN_WISHES.sleepLine);
+  }
 }
 
 /* ---------- exposed for ability bar ---------- */
@@ -473,6 +481,7 @@ onBeforeUnmount(() => {
   EventBus.unbind('tilesCleared', onTilesCleared);
   EventBus.unbind('tilesSwapped', onTilesSwapped);
   EventBus.unbind('noMoreMoves', onNoMoreMoves);
+  for (const timer of boardSyncTimers) clearTimeout(timer);
   if (_idleTimer) clearTimeout(_idleTimer);
   resetBoard();
 });
@@ -608,6 +617,7 @@ function drawFill(tileString) {
       if (!entity.removed) entity.hidden = false;
     }
   }, TIMING.SWAP_RETURN_MS + fillTotal - 80);
+  scheduleBoardVisualSync(fillTotal + TIMING.SWAP_RETURN_MS);
   return fillTotal + TIMING.SWAP_RETURN_MS;
 }
 
@@ -645,6 +655,7 @@ function drawMatch(opts) {
   setTimeout(() => {
     reconcileTilesToBoardState(opts.added || []);
   }, TIMING.MATCH_SHIFT_DELAY_MS + bigMatchPause);
+  scheduleBoardVisualSync(TIMING.MATCH_RETURN_MS + bigMatchPause);
 
   // Petals on big matches
   if (opts.groupSizes && opts.groupSizes.some((n) => n >= 5)) {
@@ -661,6 +672,7 @@ function drawMatch(opts) {
 function drawConvert(opts) {
   syncMonsterTilesFromEngine();
   reconcileTilesToBoardState();
+  scheduleBoardVisualSync(TIMING.SWAP_RETURN_MS);
   return TIMING.SWAP_RETURN_MS;
 }
 
@@ -746,16 +758,55 @@ function syncMonsterTilesFromEngine() {
   game.applyMonsterPositionsFromBoard?.(board.value.tileString);
 }
 
+function scheduleBoardVisualSync(delayMs) {
+  const timer = setTimeout(() => {
+    const idx = boardSyncTimers.indexOf(timer);
+    if (idx >= 0) boardSyncTimers.splice(idx, 1);
+    hardSyncTilesFromBoardState();
+  }, Math.max(0, delayMs - 16));
+  boardSyncTimers.push(timer);
+}
+
+function hardSyncTilesFromBoardState() {
+  if (!board.value) return;
+  const targets = [];
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS; col++) {
+      if (isBlockedCell(row, col)) continue;
+      const ch = board.value.getTile(row, col);
+      if (!ch || ch === HOLE) continue;
+      targets.push({ row, col, char: ch });
+    }
+  }
+
+  const visibleTiles = tiles.value
+    .filter((tile) => !tile.pooled && !tile.hidden)
+    .sort((a, b) => (a.row - b.row) || (a.col - b.col));
+
+  let index = 0;
+  for (; index < targets.length; index++) {
+    const target = targets[index];
+    const tile = visibleTiles[index] || newTile({ type: typeFromChar(target.char), row: target.row, col: target.col });
+    tile.hidden = false;
+    tile.pooled = false;
+    tile.type = typeFromChar(target.char);
+    tile.row = target.row;
+    tile.col = target.col;
+  }
+
+  for (; index < visibleTiles.length; index++) {
+    poolTile(visibleTiles[index]);
+  }
+}
+
 function reloadDjinnBoard() {
   if (!board.value) return;
   const boardString = game.loadDjinnCeremonyBoard?.();
   if (!boardString) {
-    pendingDjinnBoardString = null;
     board.value.refreshBoard('djinn-layout-missing');
     return;
   }
-  pendingDjinnBoardString = boardString;
-  board.value.refreshBoard('djinn-layout-reload');
+  board.value.setBoardStringAfterClear(boardString, 'djinn-layout-reload');
 }
 
 /* ---------- gameplay event handlers ---------- */
@@ -779,12 +830,6 @@ function onTilesCleared(resourcesByChar, _swapSide, groupCount, groupSizes, chai
 
 let _lastSwapSettled = true;
 function onTilesSwapped(matched) {
-  if (pendingDjinnBoardString && board.value?.canMove()) {
-    syncMonsterTilesFromEngine();
-    board.value.setBoardString(pendingDjinnBoardString);
-    pendingDjinnBoardString = null;
-    return;
-  }
   _lastSwapSettled = true;
   setTimeout(() => maybeCommitTurn(), 30);
 }
@@ -809,8 +854,7 @@ function onNoMoreMoves() {
   if (game.djinnBoardStage) {
     const boardString = game.loadDjinnCeremonyBoard?.();
     if (boardString && board.value) {
-      pendingDjinnBoardString = boardString;
-      board.value.refreshBoard('djinn-no-moves-reload');
+      board.value.setBoardStringAfterClear(boardString, 'djinn-no-moves-reload');
       return;
     }
     if (!boardString && board.value) return;

@@ -10,6 +10,7 @@
  *   playing    — board is interactive.
  *   targeting  — waiting for an ability target click.
  *   repairing  — three-stage repair animation playing.
+ *   wish       — djinn wake vignette / wish narrative card.
  *   dayEnd     — out of steps, gentle reminder before next morning.
  *   ending     — Yennefer arrives, gazebo cinematic.
  *   final      — frozen frame with the dedication.
@@ -137,11 +138,14 @@ export const useGameStore = defineStore('game', {
     djinnActive(state) {
       return !!state.boardEntities.find((e) => e.kind === 'djinn' && !e.removed);
     },
+    djinnSleeping(state) {
+      return state.djinnState === 'sleeping';
+    },
     djinnReady(state) {
       return state.djinnState === 'ready';
     },
     djinnCeremonyActive(state) {
-      return state.djinnState !== 'idle' && state.djinnState !== 'completed';
+      return /^stage\d+/.test(state.djinnState);
     },
     djinnBoardStage(state) {
       return /^stage\d+Board$/.test(state.djinnState);
@@ -158,6 +162,7 @@ export const useGameStore = defineStore('game', {
       };
     },
     djinnCardMode(state) {
+      if (state.djinnState === 'wakeIntro') return 'wake';
       if (/Intro$/.test(state.djinnState)) return 'intro';
       if (/Resolve$/.test(state.djinnState)) return 'resolve';
       return null;
@@ -166,6 +171,14 @@ export const useGameStore = defineStore('game', {
       return DJINN_WISHES.stages[state.djinnStage] || null;
     },
     currentDjinnCard(state) {
+      if (state.djinnState === 'wakeIntro') {
+        return {
+          title: DJINN_WISHES.wakeTitle,
+          quote: DJINN_WISHES.wakeQuote,
+          lines: DJINN_WISHES.wakeIntroLines || []
+        };
+      }
+
       const stage = DJINN_WISHES.stages[state.djinnStage];
       if (!stage) return null;
       if (/Intro$/.test(state.djinnState)) {
@@ -236,6 +249,20 @@ export const useGameStore = defineStore('game', {
         const entity = state.boardEntities.find((item) => item.id === info.entityId && !item.removed && item.kind === 'djinn')
           || state.boardEntities.find((item) => !item.removed && item.kind === 'djinn');
         if (!entity) return null;
+
+        if (state.djinnState === 'sleeping') {
+          return {
+            kind: info.kind,
+            entityId: entity.id,
+            emoji: monster.emoji,
+            label: DJINN_WISHES.sleepTitle,
+            healthLabel: '睡眠中 💤',
+            weakness: DJINN_WISHES.sleepHint,
+            pressure: DJINN_WISHES.sleepLine,
+            echo: '先把房间准备好，再把她叫醒。',
+            source: info.source
+          };
+        }
 
         const summary = this.djinnObjectiveSummary;
         return {
@@ -352,7 +379,7 @@ export const useGameStore = defineStore('game', {
         if (monster?.introLine) this.queueBark(monster.introLine);
       }
       if (this.currentDay === DAYS.length - 1) {
-        this.djinnHintVisible = true;
+        this.djinnHintVisible = this.djinnState === 'ready';
       }
     },
 
@@ -488,7 +515,14 @@ export const useGameStore = defineStore('game', {
       if (this.currentDay === DAYS.length - 1 && this.djinnBoardStage) {
         return this._advanceDjinnObjective();
       }
-      if (this.currentDay === DAYS.length - 1 && needsReady && this.djinnState === 'idle' && !this.djinnReleased) {
+      if (this.currentDay === DAYS.length - 1 && needsReady && !this.djinnRepairCommitted) {
+        this.phase = 'repairing';
+        return 'complete';
+      }
+      if (this.currentDay === DAYS.length - 1 && this.djinnRepairCommitted && !this.djinnReleased) {
+        return 'continue';
+      }
+      if (this.currentDay === DAYS.length - 1 && needsReady && this.djinnState === 'sleeping' && !this.djinnReleased) {
         this.enterDjinnReadyState();
         return 'djinnReady';
       }
@@ -509,25 +543,31 @@ export const useGameStore = defineStore('game', {
     finishRepair() {
       const achievements = useAchievementStore();
       const day = DAYS[this.currentDay];
+      if (day.ending && this.djinnRepairCommitted) {
+        return this.djinnReleased ? 'completed' : 'djinnPending';
+      }
       if (!this.unlockedAbilities.includes(day.ability)) this.unlockedAbilities.push(day.ability);
       this.completedBanner = day.completedBanner;
       this.monologue = day.monologue;
       this.latestRestoredBuildingId = day.building.id;
       this.pendingEstateRevealId = day.building.id;
       this._refreshAbilityUses();
+      if (day.ending) this.djinnRepairCommitted = true;
       achievements.track('dayCompleted', {
         day: this.currentDay + 1,
         stepsLeft: this.stepsLeft
       });
 
-      if (day.ending) {
-        return 'ending';
-      }
+      if (day.ending) return 'djinnPending';
       return 'completed';
     },
 
     advanceFromRepair() {
       if (this.phase === 'ending' || this.phase === 'final') return;
+      if (this.currentDay === DAYS.length - 1 && this.djinnRepairCommitted && !this.djinnReleased) {
+        this.beginDjinnWakeCutscene();
+        return;
+      }
       this.nextDay();
     },
 
@@ -605,6 +645,19 @@ export const useGameStore = defineStore('game', {
       this.inspectedMonster = null;
     },
 
+    beginDjinnWakeCutscene() {
+      this.djinnState = 'wakeIntro';
+      this.djinnHintVisible = false;
+      this.pendingAbility = null;
+      this.clearMonsterInfo();
+      this.phase = 'wish';
+      this.djinnCardNonce++;
+    },
+
+    finishDjinnWake() {
+      this.enterDjinnReadyState();
+    },
+
     enterDjinnReadyState() {
       this.djinnState = 'ready';
       this.djinnStage = 0;
@@ -616,8 +669,11 @@ export const useGameStore = defineStore('game', {
       this.djinnPendingResolve = false;
       this.djinnHintVisible = true;
       this.pendingAbility = null;
+      for (const entity of this.boardEntities) {
+        if (entity.kind === 'djinn') entity.sleeping = false;
+      }
       this.phase = 'playing';
-      this.queueBark(DJINN_WISHES.readyLine);
+      this.queueBark(DJINN_WISHES.wakeLine || DJINN_WISHES.readyLine);
     },
 
     beginDjinnCeremony() {
@@ -749,9 +805,13 @@ export const useGameStore = defineStore('game', {
 
     spawnDjinnEncounter() {
       if (this.djinnActive || this.djinnReleased) return;
-      this.boardEntities = [this._newMonsterEntity('djinn', 3, 3, `djinn-${Date.now()}`, { width: 2, height: 2, seenIntro: true })];
-      this.djinnHintVisible = true;
-      this.queueBark(MONSTERS.djinn.introLine);
+      this.boardEntities = [this._newMonsterEntity('djinn', 3, 3, `djinn-${Date.now()}`, {
+        width: 2,
+        height: 2,
+        seenIntro: true,
+        sleeping: true
+      })];
+      if (this.djinnState === 'idle') this.djinnState = 'sleeping';
     },
 
     /* ---------- gift text ---------- */
@@ -832,10 +892,11 @@ export const useGameStore = defineStore('game', {
         .map((day) => day.ability);
 
       this._resetDaySpecialState();
+      achievements.disableForCurrentRun('tester-shortcut');
+      this.finishRepair();
       this.spawnDjinnEncounter();
       this._refreshAbilityUses();
       this.enterDjinnReadyState();
-      achievements.disableForCurrentRun('tester-shortcut');
 
       return {
         day: targetIndex + 1,
@@ -862,9 +923,10 @@ export const useGameStore = defineStore('game', {
       this.matchGroupsThisDay = 0;
       this.progress = { ...day.needs };
       if (this.currentDay === DAYS.length - 1) {
+        achievements.disableForCurrentRun('tester-shortcut');
+        this.finishRepair();
         this.spawnDjinnEncounter();
         this.enterDjinnReadyState();
-        achievements.disableForCurrentRun('tester-shortcut');
         return {
           kind: 'djinnReady',
           day: this.currentDay + 1,
@@ -895,7 +957,7 @@ export const useGameStore = defineStore('game', {
       this.dayBuffs = { extraResourcePerType: false };
       this.djinnHintVisible = false;
       this.djinnReleased = false;
-      this.djinnState = 'idle';
+      this.djinnState = this.boardEntities.some((entity) => entity.kind === 'djinn') ? 'sleeping' : 'idle';
       this.djinnStage = 0;
       this.djinnUnlimitedSteps = false;
       this.djinnLayoutId = null;
@@ -983,7 +1045,7 @@ export const useGameStore = defineStore('game', {
       }
 
       if (this.djinnObjective.type === 'joyBursts') {
-        const qualifies = (groupSizes || []).some((size) => size >= 4);
+        const qualifies = (groupSizes || []).some((size) => size >= 4) || chain >= 2;
         if (!qualifies) return;
         this.djinnObjective.progress = Math.min((this.djinnObjective.progress || 0) + 1, this.djinnObjective.total || 0);
         return;
@@ -992,16 +1054,16 @@ export const useGameStore = defineStore('game', {
       if (this.djinnObjective.type !== 'cakeSequence') return;
 
       if (this.djinnCakeLayer === 0) {
-        const hasGrapeFive = (matchGroups || []).some((group) => group.char === 'g' && group.size >= 5);
-        if (!hasGrapeFive) return;
+        const hasGrapeFour = (matchGroups || []).some((group) => group.char === 'g' && group.size >= 4);
+        if (!hasGrapeFour) return;
         this.djinnCakeLayer = 1;
       } else if (this.djinnCakeLayer === 1) {
         const hasHerbFour = (matchGroups || []).some((group) => group.char === 'h' && group.size >= 4);
         if (!hasHerbFour) return;
         this.djinnCakeLayer = 2;
       } else if (this.djinnCakeLayer === 2) {
-        const hasMagicFour = (matchGroups || []).some((group) => group.char === 'm' && group.size >= 4);
-        if (!hasMagicFour && chain < 2) return;
+        const hasMagicThree = (matchGroups || []).some((group) => group.char === 'm' && group.size >= 3);
+        if (!hasMagicThree && chain < 2) return;
         this.djinnCakeLayer = 3;
       }
 
@@ -1042,28 +1104,24 @@ export const useGameStore = defineStore('game', {
     },
 
     _completeDjinnCeremony() {
-      if (this.djinnRepairCommitted) {
-        this.phase = 'ending';
-        this.djinnState = 'completed';
-        return;
-      }
-
       const day = DAYS[this.currentDay];
       for (const entity of this.boardEntities) {
         if (entity.kind === 'djinn') {
+          entity.sleeping = false;
           entity.removed = true;
         }
       }
       for (const [id, need] of Object.entries(day.needs)) {
         this.progress[id] = this.needOverrides[id] ?? need;
       }
+      if (!this.djinnRepairCommitted) {
+        this.finishRepair();
+      }
 
       this.djinnReleased = true;
       this.djinnUnlimitedSteps = false;
       this.djinnHintVisible = false;
       this.djinnState = 'completed';
-      this.djinnRepairCommitted = true;
-      this.finishRepair();
       this.phase = 'ending';
     },
 
@@ -1355,7 +1413,11 @@ export const useGameStore = defineStore('game', {
         item.row,
         item.col,
         item.id,
-        { width: item.width || 1, height: item.height || 1 }
+        {
+          width: item.width || 1,
+          height: item.height || 1,
+          sleeping: item.kind === 'djinn'
+        }
       )).filter((item) => item.kind === 'djinn');
     },
 

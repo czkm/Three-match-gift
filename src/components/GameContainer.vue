@@ -57,14 +57,7 @@ function onDayEndAdvance() {
 }
 
 function onRepairAdvance() {
-  // PerDayCutscene has already called game.finishRepair() once the banner stamps in.
-  // Now move to next day or end.
-  if (game.today?.ending) {
-    // Last day → advance into ending (handled by App.vue switching).
-    game.phase = 'ending';
-  } else {
-    game.advanceFromRepair();
-  }
+  game.advanceFromRepair();
 }
 
 </script>
