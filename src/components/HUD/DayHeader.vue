@@ -15,7 +15,7 @@
     </div>
     <div class="right">
       <span class="steps">
-        <template v-if="game.phase === 'awakening' || game.djinnReady || game.djinnCeremonyActive">
+        <template v-if="game.phase === 'awakening' || game.phase === 'djinnTransition' || game.djinnReady || game.djinnCeremonyActive">
           <span class="ink-subtle">仪式中</span>
           <span class="step-value ritual">{{ game.stepsLeft }} / ∞</span>
         </template>

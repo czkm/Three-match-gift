@@ -46,6 +46,7 @@ const messageKind = computed(() => {
   if (game.barkLine) return 'geralt';
   if (game.phase === 'targeting') return 'system';
   if (game.phase === 'awakening') return 'system';
+  if (game.phase === 'djinnTransition') return 'system';
   if ((game.djinnSleeping || game.djinnReady || game.djinnCeremonyActive || game.djinnHintVisible) && game.phase === 'playing') return 'system';
   return 'hint';
 });
@@ -76,6 +77,7 @@ const messageTitle = computed(() => {
   if (game.barkLine) return '临场自语';
   if (game.phase === 'targeting') return '当前指令';
   if (game.phase === 'awakening') return DJINN_WISHES.wakeTitle;
+  if (game.phase === 'djinnTransition') return game.currentDjinnTransition?.title || '封印重组';
   if ((game.djinnSleeping || game.djinnReady || game.djinnCeremonyActive || game.djinnHintVisible) && game.phase === 'playing') {
     return game.djinnSleeping
       ? DJINN_WISHES.sleepTitle
@@ -109,6 +111,10 @@ const messageText = computed(() => {
 
   if (game.phase === 'awakening') {
     return '棋盘上的雷光正在汇向中央。等迪精醒来，最后的仪式就会开始。';
+  }
+
+  if (game.phase === 'djinnTransition') {
+    return game.currentDjinnTransition?.hint || '封印正在重组，下一愿即将显现。';
   }
 
   if (game.djinnSleeping && game.phase === 'playing') {

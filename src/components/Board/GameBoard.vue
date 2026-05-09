@@ -112,6 +112,35 @@
             :style="spark.style"
           >✦</span>
         </div>
+
+        <div v-if="showDjinnTransition" class="djinn-transition" :style="djinnTransitionVars">
+          <span class="transition-dim" />
+          <span class="transition-core" :style="djinnCoreStyle" />
+          <span
+            v-for="trace in transitionTraces"
+            :key="trace.id"
+            class="transition-trace"
+            :style="trace.style"
+          />
+          <span
+            v-for="shard in transitionShards"
+            :key="shard.id"
+            class="transition-shard"
+            :style="shard.style"
+          >{{ shard.glyph }}</span>
+          <span
+            v-for="flare in transitionFlares"
+            :key="flare.id"
+            class="transition-flare"
+            :style="flare.style"
+          >{{ flare.glyph }}</span>
+          <span
+            v-for="ring in transitionRings"
+            :key="ring.id"
+            class="transition-ring"
+            :style="ring.style"
+          />
+        </div>
       </div>
 
       <!-- Targeting overlay: row/col selectors for sunset ability -->
@@ -180,6 +209,12 @@ const awakeningBolts = ref([]);
 const awakeningSparks = ref([]);
 let awakeningTimer = null;
 let awakeningSettleTimer = null;
+const transitionShards = ref([]);
+const transitionTraces = ref([]);
+const transitionFlares = ref([]);
+const transitionRings = ref([]);
+let djinnTransitionTimer = null;
+let djinnTransitionSettleTimer = null;
 
 const rowsCount = computed(() => ROWS);
 const colsCount = computed(() => COLS);
@@ -210,6 +245,7 @@ const djinnMarks = computed(() => {
 });
 const showCakeBuild = computed(() => game.djinnCeremonyActive && game.djinnLayoutId === 'cake');
 const showDjinnAwakening = computed(() => game.phase === 'awakening');
+const showDjinnTransition = computed(() => game.phase === 'djinnTransition');
 const djinnCoreStyle = computed(() => {
   const entity = game.djinnEntity;
   if (!entity) return {};
@@ -222,6 +258,14 @@ const djinnCoreStyle = computed(() => {
     top: `${top}px`,
     width: `${width + 36}px`,
     height: `${height + 36}px`
+  };
+});
+const djinnTransitionVars = computed(() => {
+  const palette = game.currentDjinnTransition?.palette || {};
+  return {
+    '--transition-primary': palette.primary || 'rgba(255, 238, 196, 0.92)',
+    '--transition-secondary': palette.secondary || 'rgba(176, 148, 201, 0.88)',
+    '--transition-glow': palette.glow || 'rgba(255, 220, 136, 0.96)'
   };
 });
 
@@ -520,6 +564,8 @@ onBeforeUnmount(() => {
   for (const timer of boardSyncTimers) clearTimeout(timer);
   if (awakeningTimer) clearTimeout(awakeningTimer);
   if (awakeningSettleTimer) clearTimeout(awakeningSettleTimer);
+  if (djinnTransitionTimer) clearTimeout(djinnTransitionTimer);
+  if (djinnTransitionSettleTimer) clearTimeout(djinnTransitionSettleTimer);
   if (_idleTimer) clearTimeout(_idleTimer);
   resetBoard();
 });
@@ -920,6 +966,7 @@ function maybePraiseCombo(chain, groupSizes) {
 function maybeCommitTurn() {
   // Wait until the board has nothing pending.
   if (!board.value) return;
+  if (game.phase === 'djinnTransition' || game.phase === 'awakening' || game.phase === 'wish') return;
   if (!board.value.canMove()) return;
   const pressureActions = board.value.applyEndTurnMonsterPressure?.((api) => game.applyMonsterPressure(api)) || [];
   if (pressureActions.length) {
@@ -981,7 +1028,12 @@ watch(() => game.phase, (phase) => {
     startDjinnAwakeningFx();
     return;
   }
+  if (phase === 'djinnTransition') {
+    startDjinnTransitionFx();
+    return;
+  }
   stopDjinnAwakeningFx();
+  stopDjinnTransitionFx();
   if (phase !== 'wish') return;
   clearActive();
   selectedId.value = null;
@@ -1108,6 +1160,126 @@ function stopDjinnAwakeningFx() {
   }
   awakeningBolts.value = [];
   awakeningSparks.value = [];
+}
+
+let _transitionCounter = 0;
+function startDjinnTransitionFx() {
+  clearActive();
+  selectedId.value = null;
+  tapBuffer.value = [];
+  hintIds.value = new Set();
+  invalidIds.value = new Set();
+  stopDjinnTransitionFx();
+
+  const transition = game.currentDjinnTransition;
+  if (!transition) return;
+
+  const sources = transition.sourceCells || [];
+  const targets = transition.targetCells || [];
+  const traces = [];
+  const shards = [];
+  const flares = [];
+  const rings = [];
+  const durationMs = transition.durationMs || 2000;
+
+  sources.forEach((cell, index) => {
+    const target = targets[index % Math.max(1, targets.length)] || targets[0];
+    if (!target) return;
+    const startX = cell.col * TILE_SIZE + TILE_SIZE / 2;
+    const startY = cell.row * TILE_SIZE + TILE_SIZE / 2;
+    const endX = target.col * TILE_SIZE + TILE_SIZE / 2;
+    const endY = target.row * TILE_SIZE + TILE_SIZE / 2;
+    const dx = endX - startX;
+    const dy = endY - startY;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    const delay = (0.18 + index * 0.08).toFixed(3);
+
+    traces.push({
+      id: `trace-${++_transitionCounter}`,
+      style: {
+        left: `${startX}px`,
+        top: `${startY}px`,
+        width: `${len}px`,
+        '--angle': `${angle}deg`,
+        '--delay': `${delay}s`
+      }
+    });
+
+    shards.push({
+      id: `shard-${++_transitionCounter}`,
+      glyph: transition.id === 'blightToJoy' ? '✦' : '🕯️',
+      style: {
+        left: `${startX}px`,
+        top: `${startY}px`,
+        '--dx': `${dx}px`,
+        '--dy': `${dy}px`,
+        '--delay': `${delay}s`,
+        '--dur': `${(1.2 + index * 0.06).toFixed(2)}s`,
+        '--curve': `${Math.round((index % 2 === 0 ? 1 : -1) * (28 + index * 4))}px`
+      }
+    });
+  });
+
+  targets.forEach((cell, index) => {
+    const centerX = cell.col * TILE_SIZE + TILE_SIZE / 2;
+    const centerY = cell.row * TILE_SIZE + TILE_SIZE / 2;
+    flares.push({
+      id: `flare-${++_transitionCounter}`,
+      glyph: transition.id === 'blightToJoy' ? '🕯️' : '✦',
+      style: {
+        left: `${centerX}px`,
+        top: `${centerY}px`,
+        '--delay': `${(1.12 + index * 0.1).toFixed(3)}s`
+      }
+    });
+  });
+
+  if (transition.id === 'joyToCake') {
+    [96, 136, 176].forEach((size, index) => {
+      rings.push({
+        id: `ring-${++_transitionCounter}`,
+        style: {
+          left: `${(3.5 * TILE_SIZE) + TILE_SIZE / 2}px`,
+          top: `${(3.5 * TILE_SIZE) + TILE_SIZE / 2}px`,
+          width: `${size}px`,
+          height: `${size}px`,
+          '--delay': `${(0.74 + index * 0.16).toFixed(3)}s`
+        }
+      });
+    });
+  }
+
+  transitionTraces.value = traces;
+  transitionShards.value = shards;
+  transitionFlares.value = flares;
+  transitionRings.value = rings;
+  EventBus.trigger('sceneBurst', [{ kind: 'gold', count: 10 }]);
+
+  djinnTransitionTimer = setTimeout(() => {
+    game.finishDjinnTransition();
+  }, durationMs);
+  djinnTransitionSettleTimer = setTimeout(() => {
+    transitionTraces.value = [];
+    transitionShards.value = [];
+    transitionFlares.value = [];
+    transitionRings.value = [];
+  }, durationMs + 80);
+}
+
+function stopDjinnTransitionFx() {
+  if (djinnTransitionTimer) {
+    clearTimeout(djinnTransitionTimer);
+    djinnTransitionTimer = null;
+  }
+  if (djinnTransitionSettleTimer) {
+    clearTimeout(djinnTransitionSettleTimer);
+    djinnTransitionSettleTimer = null;
+  }
+  transitionTraces.value = [];
+  transitionShards.value = [];
+  transitionFlares.value = [];
+  transitionRings.value = [];
 }
 
 </script>
@@ -1464,6 +1636,90 @@ function stopDjinnAwakeningFx() {
   animation: awakening-spark var(--dur) ease-out var(--delay) forwards;
 }
 
+.djinn-transition {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.transition-dim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 248, 230, 0.06), transparent 32%),
+    linear-gradient(180deg, rgba(24, 14, 22, 0.08), rgba(24, 14, 22, 0.26));
+  animation: djinn-transition-dim 2s ease-out forwards;
+}
+
+.transition-core {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--transition-glow) 22%, transparent), transparent 58%),
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--transition-secondary) 26%, transparent), transparent 74%);
+  box-shadow:
+    0 0 28px color-mix(in srgb, var(--transition-glow) 34%, transparent),
+    0 0 72px color-mix(in srgb, var(--transition-secondary) 22%, transparent);
+  animation: djinn-transition-core 2s ease-out forwards;
+}
+
+.transition-trace,
+.transition-shard,
+.transition-flare,
+.transition-ring {
+  position: absolute;
+}
+
+.transition-trace {
+  height: 2px;
+  transform-origin: left center;
+  transform: translateY(-50%) rotate(var(--angle));
+  background: linear-gradient(90deg, transparent 0%, var(--transition-secondary) 24%, var(--transition-glow) 68%, transparent 100%);
+  box-shadow:
+    0 0 10px color-mix(in srgb, var(--transition-secondary) 30%, transparent),
+    0 0 18px color-mix(in srgb, var(--transition-glow) 22%, transparent);
+  opacity: 0;
+  animation: djinn-transition-trace 1.2s ease-out var(--delay) forwards;
+}
+
+.transition-shard {
+  font-size: 20px;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  color: var(--transition-glow);
+  text-shadow:
+    0 0 10px color-mix(in srgb, var(--transition-secondary) 30%, transparent),
+    0 0 16px color-mix(in srgb, var(--transition-glow) 24%, transparent);
+  opacity: 0;
+  animation: djinn-transition-shard var(--dur) ease-out var(--delay) forwards;
+}
+
+.transition-flare {
+  font-size: 24px;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  color: var(--transition-glow);
+  text-shadow:
+    0 0 12px color-mix(in srgb, var(--transition-glow) 42%, transparent),
+    0 0 22px color-mix(in srgb, var(--transition-secondary) 28%, transparent);
+  opacity: 0;
+  animation: djinn-transition-flare 0.7s ease-out var(--delay) forwards;
+}
+
+.transition-ring {
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--transition-glow) 48%, transparent);
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--transition-glow) 22%, transparent),
+    inset 0 0 18px color-mix(in srgb, var(--transition-secondary) 12%, transparent);
+  opacity: 0;
+  animation: djinn-transition-ring 0.9s ease-out var(--delay) forwards;
+}
+
 @keyframes awakening-flash {
   0% { opacity: 0; }
   18% { opacity: 1; }
@@ -1503,6 +1759,51 @@ function stopDjinnAwakeningFx() {
     opacity: 0;
     transform: translate(calc(-50% + var(--drift-x)), calc(-50% + var(--drift-y))) scale(1.2);
   }
+}
+
+@keyframes djinn-transition-dim {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  72% { opacity: 0.92; }
+  100% { opacity: 0; }
+}
+
+@keyframes djinn-transition-core {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.88); }
+  24% { opacity: 1; transform: translate(-50%, -50%) scale(1.02); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.16); }
+}
+
+@keyframes djinn-transition-trace {
+  0% { opacity: 0; transform: translateY(-50%) rotate(var(--angle)) scaleX(0.12); }
+  25% { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(-50%) rotate(var(--angle)) scaleX(1); }
+}
+
+@keyframes djinn-transition-shard {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.72);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) + var(--curve))) scale(1.18);
+  }
+}
+
+@keyframes djinn-transition-flare {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.72); }
+  45% { opacity: 1; transform: translate(-50%, -50%) scale(1.16); }
+  100% { opacity: 0.18; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes djinn-transition-ring {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.74); }
+  30% { opacity: 0.82; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.06); }
 }
 
 @keyframes seal-pulse {

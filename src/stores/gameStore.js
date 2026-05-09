@@ -31,6 +31,7 @@ import {
   DJINN_WISHES,
   DJINN_CEREMONY_LAYOUTS,
   DJINN_MARK_SETS,
+  DJINN_STAGE_TRANSITIONS,
   ROT_CHAR,
   unlockedCharsForDay
 } from '@/data/content';
@@ -94,7 +95,8 @@ export const useGameStore = defineStore('game', {
     djinnCakeLayer: 0,
     djinnPendingResolve: false,
     djinnCardNonce: 0,
-    djinnRepairCommitted: false
+    djinnRepairCommitted: false,
+    djinnTransition: null
   }),
 
   getters: {
@@ -202,6 +204,9 @@ export const useGameStore = defineStore('game', {
       if (/Intro$/.test(state.djinnState)) return 'intro';
       if (/Resolve$/.test(state.djinnState)) return 'resolve';
       return null;
+    },
+    currentDjinnTransition(state) {
+      return state.djinnTransition;
     },
     currentDjinnStageConfig(state) {
       return DJINN_WISHES.stages[state.djinnStage] || null;
@@ -756,7 +761,28 @@ export const useGameStore = defineStore('game', {
         this._completeDjinnCeremony();
         return;
       }
-      this.startDjinnStage(this.djinnStage + 1);
+      this.beginDjinnStageTransition(this.djinnStage, this.djinnStage + 1);
+    },
+
+    beginDjinnStageTransition(fromStage, toStage) {
+      const transition = DJINN_STAGE_TRANSITIONS[`${fromStage}-${toStage}`];
+      if (!transition) {
+        this.startDjinnStage(toStage);
+        return;
+      }
+      this.djinnTransition = structuredClone(transition);
+      this.djinnState = `stage${fromStage}Transition`;
+      this.djinnHintVisible = false;
+      this.pendingAbility = null;
+      this.clearMonsterInfo();
+      this.phase = 'djinnTransition';
+    },
+
+    finishDjinnTransition() {
+      const nextStage = this.djinnTransition?.toStage;
+      this.djinnTransition = null;
+      if (!nextStage) return;
+      this.startDjinnStage(nextStage);
     },
 
     resolveBoardEntities(clearedTiles = [], chain = 1, source = 'match', matchGroups = []) {
@@ -995,6 +1021,7 @@ export const useGameStore = defineStore('game', {
       this.djinnPendingResolve = false;
       this.djinnCardNonce = 0;
       this.djinnRepairCommitted = false;
+      this.djinnTransition = null;
     },
 
     _buildDjinnMarks(layoutId) {

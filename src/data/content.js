@@ -664,6 +664,44 @@ export const DJINN_MARK_SETS = {
   ]
 }
 
+export const DJINN_STAGE_TRANSITIONS = {
+  '1-2': {
+    id: 'blightToJoy',
+    fromStage: 1,
+    toStage: 2,
+    durationMs: 2000,
+    title: '封印重组',
+    hint: '病气正在散去，四角的烛火即将亮起。',
+    sourceCells: DJINN_MARK_SETS.health.map((cell) => ({ row: cell.row, col: cell.col })),
+    targetCells: DJINN_MARK_SETS.joy.map((cell) => ({ row: cell.row, col: cell.col })),
+    palette: {
+      primary: 'rgba(168, 214, 156, 0.92)',
+      secondary: 'rgba(176, 148, 201, 0.9)',
+      glow: 'rgba(255, 220, 136, 0.96)'
+    }
+  },
+  '2-3': {
+    id: 'joyToCake',
+    fromStage: 2,
+    toStage: 3,
+    durationMs: 2000,
+    title: '祝福成形',
+    hint: '角落的光正在向中央汇拢，最后的愿望即将成形。',
+    sourceCells: DJINN_MARK_SETS.joy.map((cell) => ({ row: cell.row, col: cell.col })),
+    targetCells: [
+      { row: 3, col: 3 },
+      { row: 3, col: 4 },
+      { row: 4, col: 3 },
+      { row: 4, col: 4 }
+    ],
+    palette: {
+      primary: 'rgba(255, 222, 142, 0.96)',
+      secondary: 'rgba(214, 164, 255, 0.82)',
+      glow: 'rgba(255, 186, 108, 0.94)'
+    }
+  }
+}
+
 /* -------- Estate strip -------- */
 export const ESTATE_STRIP_STAGES = [
   {

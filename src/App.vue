@@ -1,7 +1,7 @@
 <template>
   <Title v-if="game.phase === 'title'" @start="onStart" />
   <GameContainer
-    v-else-if="['intro', 'playing', 'targeting', 'dayEnd', 'repairing', 'awakening', 'wish'].includes(game.phase)"
+    v-else-if="['intro', 'playing', 'targeting', 'dayEnd', 'repairing', 'awakening', 'djinnTransition', 'wish'].includes(game.phase)"
   />
   <Ending
     v-else-if="['ending', 'final'].includes(game.phase)"
