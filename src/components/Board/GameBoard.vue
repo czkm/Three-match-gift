@@ -166,11 +166,20 @@
           v-if="comboPraise"
           :key="comboPraise.id"
           class="combo-praise"
-          :class="comboPraise.tone"
+          :class="[comboPraise.tone, { giant: comboPraise.giant }]"
         >
           <p class="combo-praise-label">{{ comboPraise.label }}</p>
+          <p v-if="comboPraise.comboText" class="combo-praise-combo">{{ comboPraise.comboText }}</p>
           <p v-if="comboPraise.subline" class="combo-praise-subline">{{ comboPraise.subline }}</p>
         </div>
+      </transition>
+
+      <transition name="combo-flash">
+        <div
+          v-if="comboPraise?.flash"
+          :key="`flash-${comboPraise.id}`"
+          class="combo-flash"
+        />
       </transition>
     </div>
 
@@ -984,31 +993,38 @@ function showComboPraise(chain, groupSizes) {
   let label = '';
   let subline = '';
   let tone = 'warm';
+  let giant = false;
+  let flash = false;
+  let comboText = '';
 
   if (chain >= 4) {
     label = '传奇连击';
     subline = `连锁 ${chain} 次`;
     tone = 'epic';
+    giant = true;
+    flash = true;
+    comboText = `${chain} COMBO`;
   } else if (biggest >= 5) {
     label = '超大匹配';
     subline = `${biggest} 连达成`;
     tone = 'epic';
+    giant = true;
+    flash = true;
   } else if (chain === 3) {
     label = '华丽连击';
     subline = '行云流水';
     tone = 'rare';
+    comboText = '3 COMBO';
   } else if (biggest === 4) {
     label = '精彩四连';
     subline = '漂亮的一步';
     tone = 'rare';
+    giant = true;
   } else if (chain === 2) {
     label = '连击';
     subline = '继续保持';
     tone = 'warm';
-  } else if (biggest === 3) {
-    label = '不错';
-    subline = '稳稳推进';
-    tone = 'warm';
+    comboText = '2 COMBO';
   }
 
   if (!label) return;
@@ -1017,7 +1033,10 @@ function showComboPraise(chain, groupSizes) {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     label,
     subline,
-    tone
+    tone,
+    giant,
+    flash,
+    comboText
   };
 
   if (comboPraiseTimer) clearTimeout(comboPraiseTimer);
@@ -1680,7 +1699,15 @@ function stopDjinnTransitionFx() {
     inset 0 1px 0 rgba(255, 247, 226, 0.24);
 }
 
+.combo-praise.giant {
+  top: 30px;
+  min-width: 220px;
+  padding: 16px 22px 14px;
+  border-radius: 20px;
+}
+
 .combo-praise-label,
+.combo-praise-combo,
 .combo-praise-subline {
   margin: 0;
 }
@@ -1692,6 +1719,20 @@ function stopDjinnTransitionFx() {
   letter-spacing: 0.04em;
   color: #fff1cb;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+}
+
+.combo-praise.giant .combo-praise-label {
+  font-size: 30px;
+  letter-spacing: 0.06em;
+}
+
+.combo-praise-combo {
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 239, 198, 0.92);
 }
 
 .combo-praise-subline {
@@ -1711,6 +1752,27 @@ function stopDjinnTransitionFx() {
 .combo-praise-leave-to {
   opacity: 0;
   transform: translateX(-50%) translateY(-10px) scale(0.92);
+}
+
+.combo-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 240, 194, 0.22), transparent 22%),
+    radial-gradient(circle at 50% 48%, rgba(240, 213, 107, 0.18), transparent 52%);
+  mix-blend-mode: screen;
+}
+
+.combo-flash-enter-active,
+.combo-flash-leave-active {
+  transition: opacity 260ms ease;
+}
+
+.combo-flash-enter-from,
+.combo-flash-leave-to {
+  opacity: 0;
 }
 
 .djinn-awakening {
