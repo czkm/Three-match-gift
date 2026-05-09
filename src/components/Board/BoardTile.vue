@@ -68,11 +68,11 @@ const glyph = computed(() => {
 const monsterSignal = computed(() => {
   const monster = props.monster;
   if (!monster) return null;
-  if (monster.kind === 'nekkers') return { glyph: '↕', className: 'signal-nekkers' };
-  if (monster.kind === 'drowner') return { glyph: '↕', className: 'signal-drowner' };
-  if (monster.kind === 'ghoul') return { glyph: '▾', className: 'signal-ghoul' };
-  if (monster.kind === 'griffinChick') return { glyph: '4+', className: 'signal-griffin' };
-  if (monster.kind === 'wraith') return { glyph: monster.shield > 0 ? '◐' : '4+', className: 'signal-wraith' };
+  if (monster.kind === 'nekkers') return { glyph: '🦴', className: 'signal-nekkers' };
+  if (monster.kind === 'drowner') return { glyph: '💧', className: 'signal-drowner' };
+  if (monster.kind === 'ghoul') return { glyph: '☠️', className: 'signal-ghoul' };
+  if (monster.kind === 'griffinChick') return { glyph: '🪶', className: 'signal-griffin' };
+  if (monster.kind === 'wraith') return { glyph: monster.shield > 0 ? '🫧' : '🌫️', className: 'signal-wraith' };
   return null;
 });
 
@@ -98,14 +98,14 @@ function onPick(evt) {
   right: 6px;
   top: 4px;
   z-index: 3;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
   border-radius: var(--radius-pill);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   line-height: 1;
   color: #fff4d2;
@@ -115,9 +115,9 @@ function onPick(evt) {
   letter-spacing: 0.02em;
 }
 
-.signal-drowner { color: #a8e0ff; }
-.signal-ghoul { color: #e8cc92; }
-.signal-griffin { color: #ffe08a; }
-.signal-wraith { color: #dcb8ff; }
-.signal-nekkers { color: #ffb89e; }
+.signal-drowner { color: #8fdcff; }
+.signal-ghoul { color: #f0d7a2; }
+.signal-griffin { color: #ffe39c; }
+.signal-wraith { color: #d8c3ff; }
+.signal-nekkers { color: #ffc3a8; }
 </style>
