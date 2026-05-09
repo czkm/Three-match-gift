@@ -46,7 +46,7 @@ import { useGameStore } from '@/stores/gameStore';
 
 const game = useGameStore();
 const boardEl = ref(null);
-const showEstateStrip = computed(() => ['intro', 'playing', 'targeting', 'dayEnd', 'repairing'].includes(game.phase));
+const showEstateStrip = computed(() => ['intro', 'playing', 'targeting', 'dayEnd', 'repairing', 'awakening'].includes(game.phase));
 
 function onIntroDone() {
   game.startPlay();

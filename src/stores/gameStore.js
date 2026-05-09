@@ -10,7 +10,8 @@
  *   playing    — board is interactive.
  *   targeting  — waiting for an ability target click.
  *   repairing  — three-stage repair animation playing.
- *   wish       — djinn wake vignette / wish narrative card.
+ *   awakening  — board-bound djinn wake effect.
+ *   wish       — djinn wish narrative card.
  *   dayEnd     — out of steps, gentle reminder before next morning.
  *   ending     — Yennefer arrives, gazebo cinematic.
  *   final      — frozen frame with the dedication.
@@ -30,7 +31,8 @@ import {
   DJINN_WISHES,
   DJINN_CEREMONY_LAYOUTS,
   DJINN_MARK_SETS,
-  ROT_CHAR
+  ROT_CHAR,
+  unlockedCharsForDay
 } from '@/data/content';
 
 const MAX_STEPS = 20;
@@ -161,8 +163,42 @@ export const useGameStore = defineStore('game', {
         c: 1
       };
     },
+    boardTileWeights(state) {
+      if (this.djinnTileWeights) return this.djinnTileWeights;
+
+      const day = DAYS[state.currentDay];
+      if (!day) return null;
+
+      const allowed = unlockedCharsForDay(state.currentDay);
+      if (!allowed.length) return null;
+
+      const requiredIds = Object.keys(day.needs || {});
+      if (!requiredIds.length) return null;
+
+      const remainingById = Object.fromEntries(
+        requiredIds.map((id) => [id, Math.max(0, (day.needs[id] || 0) - (state.progress[id] || 0))])
+      );
+      const maxRemaining = Math.max(...Object.values(remainingById), 0);
+      const weights = {};
+
+      for (const ch of allowed) {
+        const resource = RESOURCE_BY_CHAR[ch];
+        if (!resource) continue;
+
+        const remaining = remainingById[resource.id] ?? 0;
+        if (remaining > 0) {
+          const urgency = maxRemaining > 0 ? remaining / maxRemaining : 0;
+          weights[ch] = 3 + urgency * 2;
+        } else if (resource.id in day.needs) {
+          weights[ch] = 1.35;
+        } else {
+          weights[ch] = 1.15;
+        }
+      }
+
+      return weights;
+    },
     djinnCardMode(state) {
-      if (state.djinnState === 'wakeIntro') return 'wake';
       if (/Intro$/.test(state.djinnState)) return 'intro';
       if (/Resolve$/.test(state.djinnState)) return 'resolve';
       return null;
@@ -171,14 +207,6 @@ export const useGameStore = defineStore('game', {
       return DJINN_WISHES.stages[state.djinnStage] || null;
     },
     currentDjinnCard(state) {
-      if (state.djinnState === 'wakeIntro') {
-        return {
-          title: DJINN_WISHES.wakeTitle,
-          quote: DJINN_WISHES.wakeQuote,
-          lines: DJINN_WISHES.wakeIntroLines || []
-        };
-      }
-
       const stage = DJINN_WISHES.stages[state.djinnStage];
       if (!stage) return null;
       if (/Intro$/.test(state.djinnState)) {
@@ -646,12 +674,11 @@ export const useGameStore = defineStore('game', {
     },
 
     beginDjinnWakeCutscene() {
-      this.djinnState = 'wakeIntro';
+      this.djinnState = 'waking';
       this.djinnHintVisible = false;
       this.pendingAbility = null;
       this.clearMonsterInfo();
-      this.phase = 'wish';
-      this.djinnCardNonce++;
+      this.phase = 'awakening';
     },
 
     finishDjinnWake() {

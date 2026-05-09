@@ -95,6 +95,23 @@
           <span v-if="game.djinnCakeLayer >= 2" class="cake-lilac">🪻</span>
           <span v-if="game.djinnCakeLayer >= 3" class="cake-candles">🕯️🕯️🕯️</span>
         </div>
+
+        <div v-if="showDjinnAwakening" class="djinn-awakening">
+          <span class="awakening-flash" />
+          <span class="awakening-core" :style="djinnCoreStyle" />
+          <span
+            v-for="bolt in awakeningBolts"
+            :key="bolt.id"
+            class="awakening-bolt"
+            :style="bolt.style"
+          >⚡️</span>
+          <span
+            v-for="spark in awakeningSparks"
+            :key="spark.id"
+            class="awakening-spark"
+            :style="spark.style"
+          >✦</span>
+        </div>
       </div>
 
       <!-- Targeting overlay: row/col selectors for sunset ability -->
@@ -159,6 +176,10 @@ const invalidIds = ref(new Set());
 const lastClearedMeta = ref(new Map());
 const lastClearSource = ref('match');
 const boardSyncTimers = [];
+const awakeningBolts = ref([]);
+const awakeningSparks = ref([]);
+let awakeningTimer = null;
+let awakeningSettleTimer = null;
 
 const rowsCount = computed(() => ROWS);
 const colsCount = computed(() => COLS);
@@ -188,6 +209,21 @@ const djinnMarks = computed(() => {
   }));
 });
 const showCakeBuild = computed(() => game.djinnCeremonyActive && game.djinnLayoutId === 'cake');
+const showDjinnAwakening = computed(() => game.phase === 'awakening');
+const djinnCoreStyle = computed(() => {
+  const entity = game.djinnEntity;
+  if (!entity) return {};
+  const width = (entity.width || 1) * TILE_SIZE;
+  const height = (entity.height || 1) * TILE_SIZE;
+  const left = entity.col * TILE_SIZE + width / 2;
+  const top = entity.row * TILE_SIZE + height / 2;
+  return {
+    left: `${left}px`,
+    top: `${top}px`,
+    width: `${width + 36}px`,
+    height: `${height + 36}px`
+  };
+});
 
 const containerStyle = computed(() => ({
   width:  `${COLS * TILE_SIZE}px`,
@@ -464,7 +500,7 @@ onMounted(() => {
     rows: ROWS,
     columns: COLS,
     allowedChars: () => unlockedCharsForDay(game.currentDay),
-    tileWeights: () => game.djinnTileWeights,
+    tileWeights: () => game.boardTileWeights,
     blockedCells: () => game.blockedCellKeys,
     monsterCharAt: (row, col) => game.monsterAt?.(row, col)?.char || null,
     resolveMonsterHits: (clearedTiles, chain, source) => game.resolveBoardEntities(clearedTiles, chain, source)?.removedCells || []
@@ -482,6 +518,8 @@ onBeforeUnmount(() => {
   EventBus.unbind('tilesSwapped', onTilesSwapped);
   EventBus.unbind('noMoreMoves', onNoMoreMoves);
   for (const timer of boardSyncTimers) clearTimeout(timer);
+  if (awakeningTimer) clearTimeout(awakeningTimer);
+  if (awakeningSettleTimer) clearTimeout(awakeningSettleTimer);
   if (_idleTimer) clearTimeout(_idleTimer);
   resetBoard();
 });
@@ -939,6 +977,11 @@ watch(() => game.phase, (phase) => {
   if (phase !== 'playing') {
     game.clearMonsterInfo();
   }
+  if (phase === 'awakening') {
+    startDjinnAwakeningFx();
+    return;
+  }
+  stopDjinnAwakeningFx();
   if (phase !== 'wish') return;
   clearActive();
   selectedId.value = null;
@@ -988,6 +1031,83 @@ function triggerSunsetRake() {
   rake.className = 'sunset-rake';
   layer.appendChild(rake);
   setTimeout(() => rake.remove(), 800);
+}
+
+let _awakeningCounter = 0;
+function startDjinnAwakeningFx() {
+  clearActive();
+  selectedId.value = null;
+  tapBuffer.value = [];
+  hintIds.value = new Set();
+  invalidIds.value = new Set();
+  stopDjinnAwakeningFx();
+
+  const bolts = [];
+  const sparks = [];
+  const entity = game.djinnEntity;
+  const centerCol = entity ? entity.col + (entity.width || 1) / 2 : COLS / 2;
+  const centerRow = entity ? entity.row + (entity.height || 1) / 2 : ROWS / 2;
+
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS; col++) {
+      if (entity && row >= entity.row && row < entity.row + (entity.height || 1) && col >= entity.col && col < entity.col + (entity.width || 1)) {
+        continue;
+      }
+      const dx = (centerCol - (col + 0.5)) * TILE_SIZE;
+      const dy = (centerRow - (row + 0.5)) * TILE_SIZE;
+      bolts.push({
+        id: `bolt-${++_awakeningCounter}`,
+        style: {
+          left: `${col * TILE_SIZE + TILE_SIZE / 2}px`,
+          top: `${row * TILE_SIZE + TILE_SIZE / 2}px`,
+          '--dx': `${dx}px`,
+          '--dy': `${dy}px`,
+          '--delay': `${(row * 0.035 + col * 0.02).toFixed(3)}s`,
+          '--dur': `${(0.88 + ((row + col) % 4) * 0.08).toFixed(2)}s`,
+          '--rot': `${Math.round((Math.random() - 0.5) * 46)}deg`
+        }
+      });
+    }
+  }
+
+  for (let i = 0; i < 18; i++) {
+    sparks.push({
+      id: `spark-${++_awakeningCounter}`,
+      style: {
+        left: `${centerCol * TILE_SIZE + (Math.random() - 0.5) * 52}px`,
+        top: `${centerRow * TILE_SIZE + (Math.random() - 0.5) * 46}px`,
+        '--delay': `${(0.38 + i * 0.03).toFixed(3)}s`,
+        '--dur': `${(0.8 + (i % 3) * 0.16).toFixed(2)}s`,
+        '--drift-x': `${Math.round((Math.random() - 0.5) * 86)}px`,
+        '--drift-y': `${Math.round((Math.random() - 0.5) * 72)}px`
+      }
+    });
+  }
+
+  awakeningBolts.value = bolts;
+  awakeningSparks.value = sparks;
+  EventBus.trigger('sceneBurst', [{ kind: 'gold', count: 18 }, { kind: 'petal', count: 8 }]);
+  awakeningTimer = setTimeout(() => {
+    game.queueBark(DJINN_WISHES.wakeLine);
+    game.finishDjinnWake();
+  }, 1650);
+  awakeningSettleTimer = setTimeout(() => {
+    awakeningBolts.value = [];
+    awakeningSparks.value = [];
+  }, 1900);
+}
+
+function stopDjinnAwakeningFx() {
+  if (awakeningTimer) {
+    clearTimeout(awakeningTimer);
+    awakeningTimer = null;
+  }
+  if (awakeningSettleTimer) {
+    clearTimeout(awakeningSettleTimer);
+    awakeningSettleTimer = null;
+  }
+  awakeningBolts.value = [];
+  awakeningSparks.value = [];
 }
 
 </script>
@@ -1284,6 +1404,105 @@ function triggerSunsetRake() {
   opacity: 0.14;
   transform: scale(0.82);
   animation: none;
+}
+
+.djinn-awakening {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.awakening-flash {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 238, 196, 0.18), transparent 24%),
+    radial-gradient(circle at 50% 50%, rgba(186, 132, 255, 0.16), transparent 54%),
+    linear-gradient(180deg, rgba(255, 246, 214, 0.08), rgba(91, 54, 124, 0.16));
+  animation: awakening-flash 1.65s ease-out forwards;
+}
+
+.awakening-core {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 244, 214, 0.16), transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(190, 154, 232, 0.22), transparent 72%);
+  box-shadow:
+    0 0 42px rgba(240, 213, 107, 0.28),
+    0 0 88px rgba(190, 154, 232, 0.2);
+  animation: awakening-core 1.65s ease-out forwards;
+}
+
+.awakening-bolt,
+.awakening-spark {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+}
+
+.awakening-bolt {
+  font-size: 26px;
+  line-height: 1;
+  filter:
+    drop-shadow(0 0 8px rgba(255, 220, 126, 0.42))
+    drop-shadow(0 0 18px rgba(190, 154, 232, 0.32));
+  animation: awakening-bolt var(--dur) ease-out var(--delay) forwards;
+}
+
+.awakening-spark {
+  font-size: 18px;
+  color: rgba(255, 242, 214, 0.92);
+  text-shadow:
+    0 0 8px rgba(255, 224, 144, 0.38),
+    0 0 18px rgba(190, 154, 232, 0.24);
+  opacity: 0;
+  animation: awakening-spark var(--dur) ease-out var(--delay) forwards;
+}
+
+@keyframes awakening-flash {
+  0% { opacity: 0; }
+  18% { opacity: 1; }
+  72% { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+
+@keyframes awakening-core {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.44); }
+  28% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.28); }
+}
+
+@keyframes awakening-bolt {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--rot)) scale(0.7);
+  }
+  16% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(calc(var(--rot) * 0.4)) scale(1.22);
+  }
+}
+
+@keyframes awakening-spark {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+  18% {
+    opacity: 0.92;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--drift-x)), calc(-50% + var(--drift-y))) scale(1.2);
+  }
 }
 
 @keyframes seal-pulse {

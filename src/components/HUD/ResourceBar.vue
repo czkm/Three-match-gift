@@ -45,6 +45,7 @@ const messageKind = computed(() => {
   if (game.phase === 'intro') return 'narration';
   if (game.barkLine) return 'geralt';
   if (game.phase === 'targeting') return 'system';
+  if (game.phase === 'awakening') return 'system';
   if ((game.djinnSleeping || game.djinnReady || game.djinnCeremonyActive || game.djinnHintVisible) && game.phase === 'playing') return 'system';
   return 'hint';
 });
@@ -74,6 +75,7 @@ const messageTitle = computed(() => {
   if (game.phase === 'intro') return game.today?.building?.cn || '';
   if (game.barkLine) return '临场自语';
   if (game.phase === 'targeting') return '当前指令';
+  if (game.phase === 'awakening') return DJINN_WISHES.wakeTitle;
   if ((game.djinnSleeping || game.djinnReady || game.djinnCeremonyActive || game.djinnHintVisible) && game.phase === 'playing') {
     return game.djinnSleeping
       ? DJINN_WISHES.sleepTitle
@@ -103,6 +105,10 @@ const messageText = computed(() => {
       case 'twoResources': return '在右侧能力栏里选两种资源，进行全局转换。';
       default: return ab?.desc || '';
     }
+  }
+
+  if (game.phase === 'awakening') {
+    return '棋盘上的雷光正在汇向中央。等迪精醒来，最后的仪式就会开始。';
   }
 
   if (game.djinnSleeping && game.phase === 'playing') {
