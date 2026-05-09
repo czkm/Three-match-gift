@@ -45,7 +45,7 @@ const messageKind = computed(() => {
   if (game.phase === 'intro') return 'narration';
   if (game.barkLine) return 'geralt';
   if (game.phase === 'targeting') return 'system';
-  if (game.djinnHintVisible && game.phase === 'playing') return 'system';
+  if ((game.djinnReady || game.djinnCeremonyActive || game.djinnHintVisible) && game.phase === 'playing') return 'system';
   return 'hint';
 });
 
@@ -74,7 +74,9 @@ const messageTitle = computed(() => {
   if (game.phase === 'intro') return game.today?.building?.cn || '';
   if (game.barkLine) return '临场自语';
   if (game.phase === 'targeting') return '当前指令';
-  if (game.djinnHintVisible && game.phase === 'playing') return '迪精';
+  if ((game.djinnReady || game.djinnCeremonyActive || game.djinnHintVisible) && game.phase === 'playing') {
+    return game.djinnObjectiveSummary?.title || '迪精';
+  }
   return '今日建议';
 });
 
@@ -101,8 +103,20 @@ const messageText = computed(() => {
     }
   }
 
+  if (game.djinnReady && game.phase === 'playing') {
+    return DJINN_WISHES.readyHint;
+  }
+
+  if (game.djinnCeremonyActive && game.phase === 'playing') {
+    return [
+      game.djinnObjectiveSummary?.healthLabel,
+      game.djinnObjectiveSummary?.weakness,
+      game.djinnObjectiveSummary?.pressure
+    ].filter(Boolean).join('\n');
+  }
+
   if (game.djinnHintVisible && game.phase === 'playing') {
-    return DJINN_WISHES.introHint;
+    return DJINN_WISHES.readyLine;
   }
 
   return '点击棋盘开始整理。优先凑出顺手的三消，让资源稳稳涨起来。';

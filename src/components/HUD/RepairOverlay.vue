@@ -113,38 +113,60 @@ function onAdvance() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at 50% 40%, rgba(255, 220, 160, 0.4), rgba(40, 28, 18, 0.65));
-  backdrop-filter: blur(2px);
+  background:
+    radial-gradient(circle at 50% 40%, rgba(255, 220, 160, 0.45), transparent 45%),
+    radial-gradient(circle at 30% 70%, rgba(176, 148, 201, 0.08), transparent 35%),
+    rgba(40, 28, 18, 0.68);
+  backdrop-filter: blur(3px);
 }
 
 .banner {
   position: relative;
-  width: 480px;
-  padding: 22px 26px;
+  width: min(500px, 92vw);
+  padding: 26px 30px;
   text-align: center;
-  border-radius: 8px;
-  animation: banner-in 700ms ease forwards;
+  border-radius: var(--radius-md);
+  animation: banner-in 800ms var(--ease-out-expo) forwards;
   z-index: 5;
+  box-shadow:
+    var(--surface-shadow),
+    0 0 0 1px rgba(255, 242, 214, 0.08),
+    inset 0 1px 0 rgba(255, 248, 230, 0.3);
 }
-.banner-emoji  { font-size: 56px; margin: 0; }
-.banner-line   { font-size: 22px; margin: 4px 0 6px; }
-.banner-sub    { font-size: 13px; margin-bottom: 14px; }
+.banner-emoji  { font-size: 56px; margin: 0; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)); }
+.banner-line   { font-size: 22px; margin: 6px 0 8px; }
+.banner-sub    { font-size: 13px; margin-bottom: 16px; letter-spacing: 0.06em; }
 
 .advance-btn {
-  margin-top: 14px;
-  padding: 8px 20px;
-  background: var(--gold);
+  margin-top: 16px;
+  padding: 10px 24px;
+  background: linear-gradient(180deg, var(--gold-soft) 0%, var(--gold) 100%);
   color: var(--ink);
-  border-radius: 6px;
+  border-radius: var(--radius-pill);
   font-weight: 700;
   font-size: 14px;
+  letter-spacing: 0.06em;
+  border: 1px solid rgba(86, 54, 24, 0.34);
+  box-shadow:
+    0 8px 18px rgba(28, 18, 10, 0.2),
+    inset 0 1px 0 rgba(255, 248, 230, 0.3);
+  transition: transform 200ms var(--ease-out-expo), filter 200ms var(--ease-out-expo), box-shadow 200ms var(--ease-out-expo);
 }
-.advance-btn:hover { background: var(--gold-soft); }
+.advance-btn:hover {
+  filter: brightness(1.06);
+  transform: translateY(-2px);
+  box-shadow:
+    0 14px 28px rgba(28, 18, 10, 0.26),
+    inset 0 1px 0 rgba(255, 248, 230, 0.35);
+}
+.advance-btn:active {
+  transform: translateY(0);
+}
 
 .mono { margin-top: 10px; }
 
 @keyframes banner-in {
-  from { opacity: 0; transform: translateY(8px) scale(0.95); }
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 </style>

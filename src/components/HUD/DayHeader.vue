@@ -15,10 +15,16 @@
     </div>
     <div class="right">
       <span class="steps">
-        <span class="ink-subtle">步数</span>
-        <span class="step-value" :class="{ low: game.stepsLeft <= 5 }">
-          {{ game.stepsLeft }} / 20
-        </span>
+        <template v-if="game.djinnReady || game.djinnCeremonyActive">
+          <span class="ink-subtle">仪式中</span>
+          <span class="step-value ritual">{{ game.stepsLeft }} / ∞</span>
+        </template>
+        <template v-else>
+          <span class="ink-subtle">步数</span>
+          <span class="step-value" :class="{ low: game.stepsLeft <= 5 }">
+            {{ game.stepsLeft }} / 20
+          </span>
+        </template>
       </span>
     </div>
   </div>
@@ -75,7 +81,9 @@ const game = useGameStore()
   border-radius: var(--radius-pill);
   background: rgba(255, 248, 229, 0.28);
   box-shadow: inset 0 0 0 1px rgba(89, 58, 28, 0.14);
-  transition: background 240ms var(--ease-out-expo), box-shadow 240ms var(--ease-out-expo);
+  transition:
+    background 240ms var(--ease-out-expo),
+    box-shadow 240ms var(--ease-out-expo);
 }
 .building .emoji {
   font-size: 22px;
@@ -120,15 +128,22 @@ const game = useGameStore()
   font-weight: 700;
   color: var(--ink);
   letter-spacing: 0.06em;
-  transition: color 300ms var(--ease-out-expo), transform 300ms var(--ease-out-expo);
+  transition:
+    color 300ms var(--ease-out-expo),
+    transform 300ms var(--ease-out-expo);
 }
 .step-value.low {
   color: #b0482e;
   animation: pulse-low-steps 1.4s infinite var(--ease-in-out-sine);
 }
 
+.step-value.ritual {
+  color: #9a6a1c;
+}
+
 @keyframes pulse-low-steps {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
     text-shadow: 0 0 0 rgba(176, 72, 46, 0);

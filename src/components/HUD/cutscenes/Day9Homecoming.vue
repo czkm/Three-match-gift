@@ -24,6 +24,7 @@
         <span class="seg-window suite-window" />
         <span class="seg-glow suite-glow" />
         <span class="curtain" />
+        <span class="final-raven">🕊</span>
         <span class="vase">🪻</span>
         <span class="seg-roof suite-roof" />
       </div>
@@ -43,9 +44,6 @@
         '--rot': p.rot + 'deg'
       }"
     >🪻</span>
-
-    <!-- The white raven landing on the suite window sill at the end -->
-    <span class="final-raven">🕊</span>
 
     <!-- A soft light bloom under the curtain when the camera arrives -->
     <span class="suite-bloom" />
@@ -250,11 +248,13 @@ const petals = computed(() => {
 /* The white raven flies in to land at the suite window when camera arrives */
 .final-raven {
   position: absolute;
-  right: 28%;
-  top: 34%;
-  font-size: 32px;
+  left: 50%;
+  bottom: 86px;
+  margin-left: 54px;
+  font-size: 24px;
   opacity: 0.96;
+  z-index: 3;
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
-  transform: translate(0, 0) rotate(0);
+  transform: rotate(8deg) scale(0.92);
 }
 </style>

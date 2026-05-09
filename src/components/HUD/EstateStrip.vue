@@ -772,8 +772,9 @@ onBeforeUnmount(() => {
   width: 680px;
   max-width: 92vw;
   min-height: 242px;
-  padding: 14px 16px 14px;
+  padding: 16px 18px 16px;
   overflow: hidden;
+  box-shadow: var(--surface-shadow);
 }
 
 .estate-strip.locked {
@@ -787,7 +788,7 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .title-group {
@@ -798,8 +799,8 @@ onBeforeUnmount(() => {
 
 .eyebrow {
   margin: 0;
-  font-size: 12px;
-  letter-spacing: 0.14em;
+  font-size: 11px;
+  letter-spacing: 0.16em;
   color: var(--ink-soft);
   text-transform: uppercase;
 }
@@ -809,7 +810,7 @@ onBeforeUnmount(() => {
   min-height: 20px;
   font-size: 13px;
   color: var(--ink);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 .head-tags {
@@ -823,8 +824,8 @@ onBeforeUnmount(() => {
 .phase-pill,
 .reveal-tag {
   margin: 0;
-  padding: 5px 10px;
-  border-radius: 999px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -832,26 +833,29 @@ onBeforeUnmount(() => {
 }
 
 .phase-pill {
-  background: rgba(255, 248, 233, 0.72);
+  background: rgba(255, 248, 233, 0.78);
   color: var(--ink-soft);
-  border: 1px solid rgba(122, 90, 52, 0.16);
+  border: 1px solid rgba(122, 90, 52, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .reveal-tag {
   background: linear-gradient(
     135deg,
-    rgba(212, 168, 87, 0.95),
-    rgba(176, 148, 201, 0.88)
+    rgba(212, 168, 87, 0.96),
+    rgba(176, 148, 201, 0.9)
   );
   color: #fff8ee;
-  box-shadow: 0 8px 18px rgba(58, 42, 31, 0.2);
+  box-shadow:
+    0 8px 18px rgba(58, 42, 31, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .reveal-tag-enter-active,
 .reveal-tag-leave-active {
   transition:
-    opacity 260ms ease,
-    transform 260ms ease;
+    opacity 280ms var(--ease-out-expo),
+    transform 280ms var(--ease-out-expo);
 }
 
 .reveal-tag-enter-from,
@@ -863,9 +867,9 @@ onBeforeUnmount(() => {
 .strip-scene {
   position: relative;
   height: 192px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   overflow: hidden;
-  border: 1px solid rgba(122, 90, 52, 0.24);
+  border: 1px solid rgba(122, 90, 52, 0.26);
   background: linear-gradient(
     180deg,
     rgba(227, 212, 188, 0.98) 0%,
@@ -873,8 +877,11 @@ onBeforeUnmount(() => {
     rgba(94, 83, 99, 0.96) 100%
   );
   transition:
-    background 500ms ease,
-    filter 360ms ease;
+    background 500ms var(--ease-out-expo),
+    filter 360ms var(--ease-out-expo);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 230, 0.12),
+    inset 0 -8px 16px rgba(0, 0, 0, 0.12);
 }
 
 .strip-scene.time-morning {

@@ -275,12 +275,12 @@ watch(
 
 .achievement-toast-enter-active,
 .achievement-toast-leave-active {
-  transition: opacity 220ms ease, transform 220ms ease;
+  transition: opacity 280ms var(--ease-out-expo), transform 280ms var(--ease-out-expo);
 }
 
 .achievement-toast-enter-from,
 .achievement-toast-leave-to {
   opacity: 0;
-  transform: translateX(22px);
+  transform: translateX(28px) scale(0.96);
 }
 </style>

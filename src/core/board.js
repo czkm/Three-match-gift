@@ -501,7 +501,10 @@ export class Board {
     const allowed = (typeof this.opts.allowedChars === 'function')
       ? this.opts.allowedChars()
       : RESOURCE_CHARS;
-    for (const ch of allowed) m[ch] = 2;
+    const weights = typeof this.opts.tileWeights === 'function'
+      ? this.opts.tileWeights()
+      : null;
+    for (const ch of allowed) m[ch] = Math.max(0, weights?.[ch] ?? 2);
     return m;
   }
 

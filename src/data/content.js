@@ -273,6 +273,57 @@ export const DAY_END_LINES = [
 ]
 
 export const MONSTERS = {
+  blightMark: {
+    id: 'blightMark',
+    char: 'B',
+    name: '疾病印记',
+    emoji: '🦠',
+    uiLabel: '疾病印记',
+    uiWeaknessShort: '弱点：在它上下左右打出一次三消。',
+    uiPressureShort: '这是第一愿要驱散的病气。',
+    hp: 1,
+    hits: 1,
+    reward: {},
+    clearReward: {},
+    damageRule: {
+      type: 'orthogonalAdjacent',
+      hint: '在它上下左右打出一次 3 连及以上匹配，就能驱散这个疾病印记。'
+    },
+    pressureRule: { type: 'none' },
+    telegraph: '病气',
+    echoLabel: '清掉全部 6 个印记，就能完成第一愿。',
+    clearRule: {
+      type: 'adjacentMatch',
+      hint: '在它上下左右打出一次 3 连及以上匹配，就能驱散这个疾病印记。'
+    },
+    introLine: '病气浮出来了。先把它们清干净。',
+    removeLine: '又散掉一个。'
+  },
+  joyCandle: {
+    id: 'joyCandle',
+    name: '欢欣蜡烛',
+    emoji: '🕯️',
+    uiLabel: '欢欣蜡烛',
+    uiWeaknessShort: '这是第二愿的角落烛火，不参与匹配。',
+    uiPressureShort: '只要完成一次 4 连及以上匹配，它们就会一起亮起。',
+    hp: 1,
+    hits: 1,
+    reward: {},
+    clearReward: {},
+    damageRule: {
+      type: 'none',
+      hint: '它只是第二愿的角落烛火占位，不会参与匹配，也不会被消除。'
+    },
+    pressureRule: { type: 'none' },
+    telegraph: '角落烛火',
+    echoLabel: '四个角落的蜡烛会一直守在原位。',
+    clearRule: {
+      type: 'none',
+      hint: '它只是第二愿的角落烛火占位，不会参与匹配，也不会被消除。'
+    },
+    introLine: '四角的烛火已经就位了。',
+    removeLine: ''
+  },
   nekkers: {
     id: 'nekkers',
     char: 'N',
@@ -474,80 +525,132 @@ export const DAY_MONSTER_LAYOUTS = {
 }
 
 export const DJINN_WISHES = {
-  introHint: '迪精在棋盘上。消除它外围一圈的格子，命中三次之后它会现身。',
-  releaseLine: '愿望这种东西……最后一个，不用说出来。命运已经听见了。',
+  readyTitle: '迪精',
+  readyHint: '资源已经备齐。点击迪精，开始最后的仪式。',
+  readyLine: '紫丁香客房已经准备好。剩下的，是要把祝福亲手送进去。',
+  ceremonyDoneLine: '愿望已经说完，灯也亮起来了。',
   stages: {
     1: {
-      title: '第一个愿望',
-      quote:
-        '那时他只是想把麻烦赶走。后来才明白，愿望一旦出口，总会留下些什么。',
-      lines: [
-        '第一次见到迪精，是在一条河边。',
-        '丹德里恩把瓶子打碎，红雾就冲了出来。',
-        '我念了句自己也不懂的古语，以为那只是一句驱魔咒。',
-        '后来才知道，那句话真正的意思只是——',
-        '滚开。去自己玩自己。'
+      id: 'health',
+      title: '第一愿 · 祛病',
+      quote: '先把所有不该留下的阴影驱散，让身体安稳，让病痛退场。',
+      introLines: [
+        '迪精在棋盘中央缓慢呼吸，像一团还没说出口的光。',
+        '第一愿落下时，外圈浮起六道病气印记。',
+        '把它们一一清掉，愿小云身体健康，所有疾病都远离她。'
       ],
-      choices: [
-        {
-          id: 'banish',
-          label: '让庄园里的麻烦都散去吧。',
-          effectLabel: '庄园里的怪物会被愿望驱散。'
-        }
-      ],
-      resolveLine: '那时候不懂。现在懂了。'
+      wishText: '愿小云身体健康，所有疾病都远离她。',
+      layoutId: 'health',
+      objective: {
+        type: 'clearMarks',
+        total: 6,
+        label: '在印记周围打出三消，清掉全部 6 个病气印记'
+      },
+      resolveLines: [
+        '病气散了，药草色的光沿着封印慢慢亮起。',
+        '第一愿已经被听见。'
+      ]
     },
     2: {
-      title: '第二个愿望',
-      quote:
-        '脱口而出的话，迪精也会当真。真正可怕的不是力量，而是你究竟想留下什么。',
-      lines: [
-        '第二个愿望，是我在牢里说的。',
-        '那个守卫每天打我。我靠在墙角，看着他走过来。',
-        '我说：但愿你会炸开。',
-        '然后他真的炸了。'
+      id: 'joy',
+      title: '第二愿 · 欢欣',
+      quote: '愿日子不只平稳，还能发亮，能热闹，能笑出来。',
+      introLines: [
+        '第一圈封印暖下来，四角点起细小的欢乐火花。',
+        '接下来要让它们全部亮透。',
+        '愿小云生活快乐，每天都能乐趣多多。'
       ],
-      choices: [
-        {
-          id: 'ease-estate',
-          label: '愿庄园不再荒芜。',
-          effectLabel: '当前建筑需求降低 30%，棋盘重新洗牌。'
-        },
-        {
-          id: 'rich-vintage',
-          label: '愿酒窖的酒永远醇香。',
-          effectLabel: '立即 +5 步，之后每次消除的每种资源额外 +1。'
-        },
-        {
-          id: 'roach-healthy',
-          label: '愿萝卜永远健康。',
-          effectLabel: '本日“萝卜识途”可用次数提升至 4 次。'
-        }
-      ],
-      resolveLine: '脱口而出的话，迪精也会当真。'
+      wishText: '愿小云生活快乐，每天都能乐趣多多。',
+      layoutId: 'joy',
+      objective: {
+        type: 'joyBursts',
+        total: 1,
+        label: '完成一次 4 连及以上匹配',
+        rulesText: '只要完成一次 4 连或更大组即可'
+      },
+      resolveLines: [
+        '彩带般的光从四角拢向中央，花园风里都带了笑意。',
+        '第二愿已经被听见。'
+      ]
     },
     3: {
-      title: '第三个愿望',
-      quote:
-        '有些愿望不是召唤谁来到身边，而是承认自己愿意把往后的路，和她系在同一条命运上。',
-      lines: [
-        '第三个愿望。',
-        '上一次，我不肯承认自己说了什么。',
-        '我不想用魔法把她困在我身边。',
-        '我不想她的感情，来自一个咒语。',
-        '可我也知道，真正留下我们的，从来不是咒语。',
-        '是我终于愿意承认，往后的命运，我想和她系在一起。'
+      id: 'cake',
+      title: '第三愿 · 生日蛋糕',
+      quote: '最后这一愿，不是驱散，也不是点亮，是把以后的日子认真摆在桌上。',
+      introLines: [
+        '迪精抬起头，光从封印里一层层褪开。',
+        '这一次，不再是对抗，而是亲手完成一份祝福。',
+        '最后一个愿望本来想让你许，但是我私心帮你许了。',
+        '愿小云平安幸福，永远和小坤生活在一起。'
       ],
-      choices: [
-        {
-          id: 'bind-fate',
-          label: '让她来。',
-          effectLabel: '迪精解放，紫丁香客房立即完成。'
-        }
-      ],
-      resolveLine: '命运已经听见了。'
+      wishText: '最后一个愿望本来想让你许，但是我私心帮你许了。愿小云平安幸福，永远和小坤生活在一起。',
+      layoutId: 'cake',
+      objective: {
+        type: 'cakeSequence',
+        total: 3,
+        label: '按顺序完成生日蛋糕',
+        steps: [
+          '先达成一次葡萄 5 连，做出蛋糕底座。',
+          '再达成一次草药 4 连及以上，铺出紫丁香奶油。',
+          '最后达成一次魔力 4 连及以上，或一次 2 连锁，点亮蜡烛。'
+        ]
+      },
+      resolveLines: [
+        '蛋糕终于完整立在桌上，烛光一层层升起，像把往后的日子都照亮了。',
+        '第三愿也已经被听见。'
+      ]
     }
   }
+}
+
+export const DJINN_CEREMONY_LAYOUTS = {
+  health: [
+    'gwwhhmwg',
+    'whmghhwg',
+    'ghgmhhmh',
+    'mwhOOgwh',
+    'hhgOOwhg',
+    'wgmhhgwm',
+    'ghwhmgwh',
+    'mwgghhwm'
+  ],
+  joy: [
+    'gwhmghwg',
+    'mghwhmgh',
+    'whgmghwh',
+    'ghmOOghm',
+    'mwhOOmwg',
+    'ghwmghwh',
+    'whgmwhgm',
+    'mghwhgwm'
+  ],
+  cake: [
+    'ggwhmghm',
+    'wghmghwg',
+    'hmgwhwgh',
+    'mghOOhmg',
+    'gghOOmgw',
+    'whmgghwm',
+    'mghwhmgm',
+    'ghwmghwg'
+  ]
+}
+
+export const DJINN_MARK_SETS = {
+  health: [
+    { id: 'djinn-blight-1', kind: 'blightMark', row: 2, col: 2 },
+    { id: 'djinn-blight-2', kind: 'blightMark', row: 2, col: 3 },
+    { id: 'djinn-blight-3', kind: 'blightMark', row: 2, col: 4 },
+    { id: 'djinn-blight-4', kind: 'blightMark', row: 2, col: 5 },
+    { id: 'djinn-blight-5', kind: 'blightMark', row: 3, col: 2 },
+    { id: 'djinn-blight-6', kind: 'blightMark', row: 3, col: 5 }
+  ],
+  joy: [
+    { id: 'djinn-joy-1', row: 0, col: 0 },
+    { id: 'djinn-joy-2', row: 0, col: 7 },
+    { id: 'djinn-joy-3', row: 7, col: 0 },
+    { id: 'djinn-joy-4', row: 7, col: 7 }
+  ]
 }
 
 /* -------- Estate strip -------- */
@@ -737,17 +840,50 @@ export const ESTATE_STRIP_STAGES = [
 
 /* -------- Ending -------- */
 export const ENDING = {
-  lines: [
-    { who: '叶奈法', text: '……不算糟。' },
-    { who: '杰洛特', text: '藤还没爬满。' },
-    { who: '叶奈法', text: '我有很多时间。' },
-    { who: null, text: '风吹过葡萄藤。' },
-    { who: '杰洛特', text: '……嗯。' }
+  beats: [
+    {
+      id: 'suite',
+      title: '紫丁香客房',
+      lines: [
+        '紫丁香客房，已为她准备好。',
+        '风从半开的窗里吹进来，窗帘轻轻动了一下。'
+      ]
+    },
+    {
+      id: 'cake',
+      title: '生日夜',
+      lines: [
+        '桌上摆着刚刚完成的生日蛋糕，烛光还在一层层亮起。',
+        '白鸦停在窗边，像是也安静下来，等这份祝福落定。'
+      ]
+    },
+    {
+      id: 'wishes',
+      title: '三条愿望',
+      lines: [
+        '愿小云身体健康，所有疾病都远离她。',
+        '愿小云生活快乐，每天都能乐趣多多。',
+        '愿小云平安幸福，永远和小坤生活在一起。'
+      ]
+    },
+    {
+      id: 'blessing',
+      title: '留灯',
+      lines: [
+        'Corvo Bianco 的灯终于都亮了起来。',
+        '今夜的祝福，会留在这里，陪他们把以后的日子慢慢过完。'
+      ]
+    }
   ],
-  defaultGift: '献给小芸。',
-  lockedGift: '献给小芸。',
-  blessingLine: '也祝小坤和小芸的命运永远相连。',
-  interceptLine: '哦，我想起来了。你不是小芸吗？还在选什么，我帮你填下去就行。',
+  candleLines: [
+    '第一支蜡烛亮起，为健康。',
+    '第二支蜡烛亮起，为快乐。',
+    '第三支蜡烛亮起，为平安与相守。'
+  ],
+  defaultGift: '献给小云。',
+  lockedGift: '献给小云。',
+  blessingLine: '也愿小坤和小云平安幸福，长久相伴。',
+  interceptLine: '哦，我想起来了。你不是小云吗？还在选什么，我帮你填下去就行。',
   giftPresets: [
     { id: 'friend', label: '朋友', text: '朋友' },
     { id: 'lover', label: '恋人', text: '恋人' },

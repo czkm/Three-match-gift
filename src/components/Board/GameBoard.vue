@@ -35,12 +35,14 @@
         />
 
         <span
-          v-for="cell in djinnSealCells"
-          :key="`seal-${cell.row}-${cell.col}-${cell.stage}`"
+          v-for="cell in djinnMarks"
+          :key="cell.id"
           class="seal-cell"
-          :class="`stage-${cell.stage + 1}`"
+          :class="[cell.variantClass, { cleared: cell.cleared }]"
           :style="{ transform: `translate3d(${cell.col * TILE_SIZE}px, ${cell.row * TILE_SIZE}px, 0)` }"
-        />
+        >
+          <span class="seal-glyph">{{ cell.glyph }}</span>
+        </span>
 
         <span
           v-for="cell in visibleRotCells"
@@ -84,6 +86,14 @@
               '--dx': p.dx + 'px'
             }"
           >{{ p.glyph }}</span>
+        </div>
+
+        <div v-if="showCakeBuild" class="cake-build" :class="`layer-${game.djinnCakeLayer}`">
+          <span class="cake-glow" />
+          <span class="cake-plate">🍽️</span>
+          <span v-if="game.djinnCakeLayer >= 1" class="cake-base">🎂</span>
+          <span v-if="game.djinnCakeLayer >= 2" class="cake-lilac">🪻</span>
+          <span v-if="game.djinnCakeLayer >= 3" class="cake-candles">🕯️🕯️🕯️</span>
         </div>
       </div>
 
@@ -148,6 +158,7 @@ const hintIds = ref(new Set());
 const invalidIds = ref(new Set());
 const lastClearedMeta = ref(new Map());
 const lastClearSource = ref('match');
+let pendingDjinnBoardString = null;
 
 const rowsCount = computed(() => ROWS);
 const colsCount = computed(() => COLS);
@@ -166,25 +177,17 @@ const selectedTilePos = computed(() => {
   return tile ? { row: tile.row, col: tile.col } : null;
 });
 const visibleRotCells = computed(() => game.rotCells || []);
-const djinnSealCells = computed(() => {
-  const entity = game.djinnEntity;
-  if (!entity) return [];
-  const stage = entity.hitsTaken || 0;
-  const cells = [];
-  const top = entity.row - 1;
-  const left = entity.col - 1;
-  const bottom = entity.row + (entity.height || 2);
-  const right = entity.col + (entity.width || 2);
-  for (let row = top; row <= bottom; row++) {
-    for (let col = left; col <= right; col++) {
-      const inside = row >= entity.row && row < entity.row + (entity.height || 2) && col >= entity.col && col < entity.col + (entity.width || 2);
-      if (inside || row < 0 || row >= ROWS || col < 0 || col >= COLS) continue;
-      if (stage === 1 && col !== entity.col - 1 && col !== entity.col + (entity.width || 2)) continue;
-      cells.push({ row, col, stage });
-    }
-  }
-  return cells;
+const djinnMarks = computed(() => {
+  if (!game.djinnCeremonyActive) return [];
+  const stage = game.currentDjinnStageConfig;
+  if (stage?.layoutId === 'cake' || stage?.layoutId === 'joy') return [];
+  return (game.djinnMarks || []).map((mark) => ({
+    ...mark,
+    variantClass: 'blight-cell',
+    glyph: '🦠'
+  }));
 });
+const showCakeBuild = computed(() => game.djinnCeremonyActive && game.djinnLayoutId === 'cake');
 
 const containerStyle = computed(() => ({
   width:  `${COLS * TILE_SIZE}px`,
@@ -266,7 +269,7 @@ const { activeTile, pickTile, moveDrag, endDrag, clearActive, previewTile } = us
   },
   onSwap: (a, b) => {
     selectedId.value = null;
-    if (game.stepsLeft <= 0) return;
+    if (!game.djinnUnlimitedSteps && game.stepsLeft <= 0) return;
     if (
       isBlockedCell(a.row, a.col) || isBlockedCell(b.row, b.col) ||
       monsterAt(a.row, a.col) || monsterAt(b.row, b.col)
@@ -316,9 +319,12 @@ function onPick(payload, evt) {
     const entity = entityAt(payload.row, payload.col);
     if (entity?.kind === 'djinn') {
       game.showMonsterInfo(entity.kind, entity.id, 'click');
-      const remain = Math.max(0, game.djinnHitsRequired - game.djinnHitCount);
+      if (game.djinnReady) {
+        game.beginDjinnCeremony();
+        return;
+      }
       if (!game.barkLine) {
-        game.queueAmbientBark(remain > 0 ? `迪精封印还需命中 ${remain} 次。` : '迪精即将解放。');
+        game.queueAmbientBark(game.djinnObjectiveSummary?.pressure || '仪式正在进行。');
       }
     } else if (entity) {
       const hint = MONSTERS[entity.kind]?.clearRule?.hint;
@@ -328,6 +334,10 @@ function onPick(payload, evt) {
         game.queueAmbientBark(hint || `还需命中 ${remain} 次。`);
       }
     }
+    return;
+  }
+  if (game.djinnReady) {
+    game.queueAmbientBark('只差最后一步了。点击迪精，开始仪式。');
     return;
   }
   if (game.phase === 'targeting') {
@@ -399,6 +409,10 @@ function onMonsterHoverLeave({ entityId }) {
 
 function onMonsterInspect({ kind, entityId }) {
   if (!kind) return;
+  if (kind === 'djinn' && game.djinnReady) {
+    game.beginDjinnCeremony();
+    return;
+  }
   game.showMonsterInfo(kind, entityId, 'click');
 }
 
@@ -418,15 +432,9 @@ defineExpose({
     const toChar   = RESOURCE_BY_ID[toId].char;
     board.value.convertResource(fromChar, toChar);
   },
-  refreshAfterWish() {
-    syncTilesFromEngine();
-    setTimeout(() => {
-      if (board.value?.canMove()) board.value.refreshBoard('wish');
-    }, 30);
-  },
-  releaseWishCells(cells = []) {
-    if (!board.value || !cells.length) return;
-    board.value.collapseAt(cells);
+  loadDjinnCeremonyBoard() {
+    if (!board.value) return;
+    reloadDjinnBoard();
   }
 });
 
@@ -448,6 +456,7 @@ onMounted(() => {
     rows: ROWS,
     columns: COLS,
     allowedChars: () => unlockedCharsForDay(game.currentDay),
+    tileWeights: () => game.djinnTileWeights,
     blockedCells: () => game.blockedCellKeys,
     monsterCharAt: (row, col) => game.monsterAt?.(row, col)?.char || null,
     resolveMonsterHits: (clearedTiles, chain, source) => game.resolveBoardEntities(clearedTiles, chain, source)?.removedCells || []
@@ -494,10 +503,22 @@ watch(
   () => game.blockedCellKeys.slice().join('|'),
   () => {
     if (!board.value) return;
-    if (game.phase === 'wish') return;
+    if (game.phase === 'wish' || game.djinnBoardStage) return;
     setTimeout(() => {
       if (board.value && board.value.canMove()) board.value.refreshBoard('blockedCells');
     }, 20);
+  }
+);
+
+watch(
+  () => game.djinnLayoutId,
+  (layoutId) => {
+    if (!layoutId || !board.value) return;
+    clearActive();
+    selectedId.value = null;
+    tapBuffer.value = [];
+    hintIds.value = new Set();
+    reloadDjinnBoard();
   }
 );
 
@@ -603,7 +624,6 @@ function drawSwap(opts) {
 function drawMatch(opts) {
   lastClearSource.value = opts.lineSweep ? 'lineSweep' : 'match';
   syncMonsterTilesFromEngine();
-  const removedByCol = {};
   const matchMeta = new Map();
   const bigMatchPause = opts.groupSizes && opts.groupSizes.some((n) => n >= 5)
     ? BIG_MATCH_BREATH_MS
@@ -619,54 +639,11 @@ function drawMatch(opts) {
       const { row, col } = r.position;
       const t = tileAt(row, col);
       if (t) poolTile(t);
-      (removedByCol[col] ??= new Set()).add(row);
     }
   }
 
   setTimeout(() => {
-    const removedEntityCells = opts.removedEntityCells || [];
-    const removedMonsterTiles = opts.removedMonsterTiles || [];
-    for (const colKey of Object.keys(removedByCol)) {
-      const col = +colKey;
-      const removedRows = removedByCol[col];
-      const survivors = tiles.value.filter(
-        (t) => t.col === col && !t.pooled && !t.hidden
-      );
-      for (const t of survivors) {
-        let drop = 0;
-        for (const r of removedRows) if (r > t.row) drop++;
-        if (drop > 0) t.row += drop;
-      }
-    }
-
-    for (const cell of removedMonsterTiles) {
-      const t = tileAt(cell.row, cell.col);
-      if (t) poolTile(t);
-      const survivors = tiles.value.filter(
-        (tile) => tile.col === cell.col && !tile.pooled && !tile.hidden && tile.row < cell.row
-      );
-      for (const tile of survivors) tile.row += 1;
-    }
-
-    for (const cell of removedEntityCells) {
-      const survivors = tiles.value.filter(
-        (t) => t.col === cell.col && !t.pooled && !t.hidden && t.row < cell.row
-      );
-      for (const t of survivors) t.row += 1;
-    }
-
-    if (opts.added) {
-      for (const a of opts.added) {
-        const t = newTile({ type: typeFromChar(a.char), row: a.row - ROWS, col: a.col });
-        requestAnimationFrame(() => {
-          t.pooled = false;
-          requestAnimationFrame(() => {
-            t.row = a.row;
-            t.col = a.col;
-          });
-        });
-      }
-    }
+    reconcileTilesToBoardState(opts.added || []);
   }, TIMING.MATCH_SHIFT_DELAY_MS + bigMatchPause);
 
   // Petals on big matches
@@ -682,10 +659,8 @@ function drawMatch(opts) {
 }
 
 function drawConvert(opts) {
-  // Tiles we render still need to update char-by-char to mirror the
-  // tileString. Refresh the whole grid against the engine's state.
   syncMonsterTilesFromEngine();
-  syncTilesFromEngine();
+  reconcileTilesToBoardState();
   return TIMING.SWAP_RETURN_MS;
 }
 
@@ -704,15 +679,95 @@ function syncTilesFromEngine() {
   }
 }
 
+function reconcileTilesToBoardState(addedTiles = []) {
+  if (!board.value) return;
+
+  const targetMap = new Map();
+  const addedLookup = new Map(addedTiles.map((tile) => [`${tile.row}:${tile.col}`, tile]));
+
+  for (let col = 0; col < COLS; col++) {
+    const targets = [];
+    for (let row = 0; row < ROWS; row++) {
+      if (isBlockedCell(row, col)) continue;
+      const ch = board.value.getTile(row, col);
+      if (!ch || ch === HOLE) continue;
+      const target = { row, col, char: ch };
+      targets.push(target);
+      targetMap.set(`${row}:${col}`, target);
+    }
+
+    const survivors = tiles.value
+      .filter((tile) => tile.col === col && !tile.pooled && !tile.hidden)
+      .sort((a, b) => a.row - b.row);
+
+    let survivorIndex = survivors.length - 1;
+
+    for (let targetIndex = targets.length - 1; targetIndex >= 0; targetIndex--) {
+      const target = targets[targetIndex];
+      const added = addedLookup.get(`${target.row}:${target.col}`);
+      if (added) {
+        const fresh = newTile({ type: typeFromChar(target.char), row: added.row - ROWS, col: target.col });
+        requestAnimationFrame(() => {
+          fresh.pooled = false;
+          requestAnimationFrame(() => {
+            fresh.row = target.row;
+            fresh.col = target.col;
+          });
+        });
+        continue;
+      }
+
+      const tile = survivors[survivorIndex];
+      survivorIndex--;
+      if (!tile) continue;
+      tile.type = typeFromChar(target.char);
+      tile.col = target.col;
+      tile.row = target.row;
+    }
+
+    for (let i = 0; i <= survivorIndex; i++) {
+      poolTile(survivors[i]);
+    }
+  }
+
+  for (const tile of tiles.value) {
+    if (tile.pooled || tile.hidden) continue;
+    const target = targetMap.get(`${tile.row}:${tile.col}`);
+    if (!target) {
+      poolTile(tile);
+      continue;
+    }
+    tile.type = typeFromChar(target.char);
+  }
+}
+
 function syncMonsterTilesFromEngine() {
   if (!board.value) return;
   game.applyMonsterPositionsFromBoard?.(board.value.tileString);
 }
 
+function reloadDjinnBoard() {
+  if (!board.value) return;
+  const boardString = game.loadDjinnCeremonyBoard?.();
+  if (!boardString) {
+    pendingDjinnBoardString = null;
+    board.value.refreshBoard('djinn-layout-missing');
+    return;
+  }
+  pendingDjinnBoardString = boardString;
+  board.value.refreshBoard('djinn-layout-reload');
+}
+
 /* ---------- gameplay event handlers ---------- */
 
-function onTilesCleared(resourcesByChar, _swapSide, groupCount, groupSizes, chain) {
+function onTilesCleared(resourcesByChar, _swapSide, groupCount, groupSizes, chain, matchGroups) {
   game.gainResources(resourcesByChar, groupSizes || [], chain || 1);
+  game.recordDjinnBoardProgress({
+    clearedPositions: collectClearedPositions(),
+    groupSizes: groupSizes || [],
+    chain: chain || 1,
+    matchGroups: matchGroups || []
+  });
   maybePraiseCombo(chain || 1, groupSizes || []);
   syncMonsterTilesFromEngine();
   // Trigger match continues as the engine queues; we only commit
@@ -724,6 +779,12 @@ function onTilesCleared(resourcesByChar, _swapSide, groupCount, groupSizes, chai
 
 let _lastSwapSettled = true;
 function onTilesSwapped(matched) {
+  if (pendingDjinnBoardString && board.value?.canMove()) {
+    syncMonsterTilesFromEngine();
+    board.value.setBoardString(pendingDjinnBoardString);
+    pendingDjinnBoardString = null;
+    return;
+  }
   _lastSwapSettled = true;
   setTimeout(() => maybeCommitTurn(), 30);
 }
@@ -745,6 +806,15 @@ function collectClearedPositions() {
 }
 
 function onNoMoreMoves() {
+  if (game.djinnBoardStage) {
+    const boardString = game.loadDjinnCeremonyBoard?.();
+    if (boardString && board.value) {
+      pendingDjinnBoardString = boardString;
+      board.value.refreshBoard('djinn-no-moves-reload');
+      return;
+    }
+    if (!boardString && board.value) return;
+  }
   // Visual nudge — no step cost.
   shaking.value = true;
   setTimeout(() => { shaking.value = false; }, 400);
@@ -1141,21 +1211,90 @@ function triggerSunsetRake() {
 .seal-cell {
   z-index: 2;
   border-radius: 14px;
-  box-shadow: inset 0 0 0 2px rgba(238, 204, 118, 0.55), 0 0 16px rgba(236, 190, 92, 0.28);
-  animation: seal-pulse 1.2s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  animation: none;
 }
 
-.seal-cell.stage-2 {
-  box-shadow: inset 0 0 0 2px rgba(120, 190, 238, 0.62), 0 0 16px rgba(92, 172, 236, 0.32);
+.seal-glyph {
+  font-size: 25px;
+  line-height: 1;
+  filter: none;
 }
 
-.seal-cell.stage-3 {
-  box-shadow: inset 0 0 0 2px rgba(206, 154, 255, 0.68), 0 0 18px rgba(182, 120, 255, 0.38);
+.seal-cell.blight-cell {
+  background: transparent;
+}
+
+.seal-cell.spark-cell {
+  border-radius: 18px;
+  box-shadow: inset 0 0 0 2px rgba(255, 230, 148, 0.76), 0 0 16px rgba(255, 201, 84, 0.42);
+  background:
+    radial-gradient(circle at 50% 58%, rgba(255, 246, 214, 0.38), transparent 32%),
+    linear-gradient(180deg, rgba(255, 230, 156, 0.2), rgba(255, 190, 96, 0.06));
+}
+
+.seal-cell.cleared {
+  opacity: 0.14;
+  transform: scale(0.82);
+  animation: none;
 }
 
 @keyframes seal-pulse {
   0%, 100% { opacity: 0.46; }
   50% { opacity: 0.82; }
+}
+
+.cake-build {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.cake-glow,
+.cake-plate,
+.cake-base,
+.cake-lilac,
+.cake-candles {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.cake-glow {
+  bottom: 90px;
+  width: 240px;
+  height: 180px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 225, 158, 0.18), transparent 70%);
+}
+
+.cake-plate {
+  bottom: 68px;
+  font-size: 46px;
+  opacity: 0.82;
+}
+
+.cake-base {
+  bottom: 84px;
+  font-size: 72px;
+  filter: drop-shadow(0 10px 16px rgba(30, 18, 16, 0.2));
+}
+
+.cake-lilac {
+  bottom: 140px;
+  font-size: 34px;
+}
+
+.cake-candles {
+  bottom: 172px;
+  font-size: 24px;
+  letter-spacing: 6px;
+  color: #ffe08c;
+  text-shadow: 0 0 12px rgba(255, 214, 112, 0.6);
 }
 
 .line-btn {

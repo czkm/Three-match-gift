@@ -56,6 +56,7 @@ const glyph = computed(() => {
     case 'magic': return '✨';
     case 'rot': return '🟫';
     case 'monster-nekkers': return '👺';
+    case 'monster-blightMark': return '🦠';
     case 'monster-drowner': return '🧟';
     case 'monster-ghoul': return '🧌';
     case 'monster-griffinChick': return '🦅';
@@ -83,30 +84,40 @@ function onPick(evt) {
 <style scoped>
 .glyph {
   pointer-events: none;
-  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.25));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.28));
+  transition: transform 180ms var(--ease-out-expo), filter 180ms var(--ease-out-expo);
+}
+
+.tile:hover .glyph {
+  transform: scale(1.08);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
 }
 
 .monster-signal {
   position: absolute;
-  right: 7px;
-  top: 5px;
+  right: 6px;
+  top: 4px;
   z-index: 3;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 3px;
-  border-radius: 999px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: var(--radius-pill);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 10px;
+  font-weight: 700;
   line-height: 1;
   color: #fff4d2;
-  background: rgba(28, 18, 14, 0.62);
-  box-shadow: 0 0 8px rgba(255, 226, 152, 0.18);
+  background: rgba(28, 18, 14, 0.68);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(2px);
+  letter-spacing: 0.02em;
 }
 
-.signal-drowner { color: #bfe9ff; }
-.signal-ghoul { color: #d8bd8a; }
-.signal-griffin { color: #f6d49a; }
-.signal-wraith { color: #e2c6ff; }
+.signal-drowner { color: #a8e0ff; }
+.signal-ghoul { color: #e8cc92; }
+.signal-griffin { color: #ffe08a; }
+.signal-wraith { color: #dcb8ff; }
+.signal-nekkers { color: #ffb89e; }
 </style>

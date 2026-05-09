@@ -65,6 +65,14 @@ function onTesterKeydown(event) {
     return;
   }
 
+  if (key === 'l') {
+    event.preventDefault();
+    const result = game.jumpToDjinnReadyForTesting();
+    if (!result) return;
+    showTesterToast(`测试跳转：已进入第 ${result.day} 天 djinnReady`);
+    return;
+  }
+
   if (key !== 'k') return;
   event.preventDefault();
   armJumpChord();
@@ -126,21 +134,25 @@ onBeforeUnmount(() => {
   right: 18px;
   z-index: 120;
   margin: 0;
-  padding: 10px 14px;
-  border-radius: 8px;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
   font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   color: var(--ink);
-  box-shadow: 0 10px 24px rgba(35, 24, 14, 0.18);
+  box-shadow:
+    0 12px 28px rgba(35, 24, 14, 0.2),
+    0 0 0 1px rgba(255, 242, 214, 0.1);
 }
 
 .tester-toast-enter-active,
 .tester-toast-leave-active {
-  transition: opacity 220ms ease, transform 220ms ease;
+  transition: opacity 240ms var(--ease-out-expo), transform 240ms var(--ease-out-expo);
 }
 
 .tester-toast-enter-from,
 .tester-toast-leave-to {
   opacity: 0;
-  transform: translateY(-8px);
+  transform: translateY(-10px);
 }
 </style>

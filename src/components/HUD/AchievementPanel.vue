@@ -91,16 +91,21 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at 50% 22%, rgba(120, 152, 192, 0.12), rgba(12, 16, 24, 0.86));
-  backdrop-filter: blur(4px);
+  background:
+    radial-gradient(circle at 50% 22%, rgba(120, 152, 192, 0.14), rgba(12, 16, 24, 0.88)),
+    radial-gradient(circle at 78% 78%, rgba(176, 148, 201, 0.06), transparent 30%);
+  backdrop-filter: blur(5px);
 }
 
 .achievement-panel {
   width: min(920px, calc(100vw - 40px));
   max-height: calc(100vh - 60px);
-  padding: 24px 24px 20px;
+  padding: 26px 26px 22px;
   overflow: auto;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
+  box-shadow:
+    var(--surface-shadow),
+    0 0 0 1px rgba(255, 242, 214, 0.08);
 }
 
 .panel-head {
@@ -129,10 +134,18 @@ onBeforeUnmount(() => {
 }
 
 .panel-close {
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: rgba(255, 248, 230, 0.48);
-  border: 1px solid rgba(92, 60, 28, 0.18);
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 248, 230, 0.52);
+  border: 1px solid rgba(92, 60, 28, 0.2);
+  font-weight: 600;
+  font-size: 13px;
+  transition: transform 160ms var(--ease-out-expo), background 160ms var(--ease-out-expo), box-shadow 160ms var(--ease-out-expo);
+}
+.panel-close:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 248, 230, 0.72);
+  box-shadow: 0 6px 14px rgba(28, 18, 12, 0.12);
 }
 
 .achievement-grid {
@@ -144,15 +157,18 @@ onBeforeUnmount(() => {
 .achievement-card {
   min-height: 152px;
   padding: 14px;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   position: relative;
   background:
     linear-gradient(180deg, rgba(255, 248, 230, 0.52), rgba(228, 206, 166, 0.42)),
     rgba(255, 255, 255, 0.18);
   border: 1px solid rgba(92, 60, 28, 0.12);
   box-shadow: inset 0 1px 0 rgba(255, 244, 214, 0.16);
-  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  transition: transform 200ms var(--ease-out-expo), box-shadow 200ms var(--ease-out-expo), border-color 200ms var(--ease-out-expo);
   overflow: hidden;
+}
+.achievement-card:hover {
+  transform: translateY(-2px);
 }
 
 .achievement-card.unlocked {
@@ -235,11 +251,11 @@ onBeforeUnmount(() => {
 }
 
 .achievement-card.highlight {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   border-color: rgba(118, 170, 224, 0.78);
   box-shadow:
     0 0 0 2px rgba(118, 170, 224, 0.18),
-    0 12px 20px rgba(28, 18, 12, 0.1);
+    0 14px 24px rgba(28, 18, 12, 0.12);
 }
 
 .card-top {
@@ -337,7 +353,7 @@ onBeforeUnmount(() => {
 
 .panel-fade-enter-active,
 .panel-fade-leave-active {
-  transition: opacity 220ms ease;
+  transition: opacity 260ms var(--ease-out-expo);
 }
 
 .panel-fade-enter-from,

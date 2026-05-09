@@ -41,31 +41,45 @@ defineExpose({
 <style scoped>
 .dialog-box {
   position: relative;
-  padding: 16px 20px;
-  border-radius: 6px;
+  padding: 18px 22px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   user-select: none;
   font-size: 15px;
-  line-height: 1.7;
+  line-height: 1.75;
   color: var(--ink);
   white-space: pre-wrap;
   max-width: 720px;
   margin: 0 auto;
+  transition: transform 200ms var(--ease-out-expo), box-shadow 200ms var(--ease-out-expo);
+}
+.dialog-box:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    var(--surface-glow),
+    var(--hud-shadow),
+    0 8px 20px rgba(28, 18, 12, 0.1),
+    inset 0 0 0 1px rgba(255, 244, 214, 0.28);
 }
 .text { margin: 0; }
 .cursor {
   display: inline-block;
   margin-left: 2px;
-  color: var(--gold);
-  animation: blink 700ms steps(1) infinite;
+  color: var(--gold-soft);
+  animation: blink 760ms steps(1) infinite;
 }
 .hint {
   position: absolute;
   right: 14px;
   bottom: 8px;
   font-size: 11px;
-  color: var(--ink-soft);
-  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  letter-spacing: 0.12em;
+  opacity: 0.85;
+  transition: opacity 200ms ease;
+}
+.dialog-box:hover .hint {
+  opacity: 1;
 }
 @keyframes blink { 50% { opacity: 0; } }
 </style>

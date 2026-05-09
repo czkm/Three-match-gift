@@ -145,30 +145,31 @@ function onOverlayClick() {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  animation: fade-in 400ms var(--ease-out-expo);
 }
 
 /* ───────── Backdrop (per-day tint) ───────── */
 .backdrop {
   position: absolute;
   inset: 0;
-  backdrop-filter: blur(2px);
-  animation: backdrop-in 600ms ease forwards;
-  background: radial-gradient(circle at 50% 40%, rgba(255, 220, 160, 0.4), rgba(40, 28, 18, 0.65));
+  backdrop-filter: blur(3px);
+  animation: backdrop-in 600ms var(--ease-out-expo) forwards;
+  background: radial-gradient(circle at 50% 40%, rgba(255, 220, 160, 0.45), rgba(40, 28, 18, 0.68));
 }
 @keyframes backdrop-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-.day-1 .backdrop { background: radial-gradient(circle at 50% 30%, rgba(220, 210, 188, 0.42), rgba(34, 28, 22, 0.7)); }
-.day-2 .backdrop { background: radial-gradient(circle at 50% 36%, rgba(180, 200, 130, 0.38), rgba(40, 38, 22, 0.7)); }
-.day-3 .backdrop { background: radial-gradient(circle at 50% 36%, rgba(214, 162, 88, 0.42), rgba(34, 24, 16, 0.74)); }
-.day-4 .backdrop { background: radial-gradient(circle at 50% 42%, rgba(196, 168, 130, 0.4), rgba(36, 28, 22, 0.7)); }
-.day-5 .backdrop { background: radial-gradient(circle at 50% 32%, rgba(204, 174, 220, 0.4), rgba(36, 28, 38, 0.7)); }
-.day-6 .backdrop { background: radial-gradient(circle at 50% 30%, rgba(190, 220, 200, 0.36), rgba(28, 32, 28, 0.74)); }
-.day-7 .backdrop { background: radial-gradient(circle at 50% 30%, rgba(238, 168, 96, 0.5), rgba(60, 32, 30, 0.78)); }
-.day-8 .backdrop { background: radial-gradient(circle at 50% 36%, rgba(244, 184, 100, 0.45), rgba(40, 26, 20, 0.78)); }
-.day-9 .backdrop { background: radial-gradient(circle at 50% 28%, rgba(216, 178, 232, 0.5), rgba(48, 32, 56, 0.82)); }
+.day-1 .backdrop { background: radial-gradient(circle at 50% 30%, rgba(220, 210, 188, 0.46), rgba(34, 28, 22, 0.74)); }
+.day-2 .backdrop { background: radial-gradient(circle at 50% 36%, rgba(180, 200, 130, 0.42), rgba(40, 38, 22, 0.74)); }
+.day-3 .backdrop { background: radial-gradient(circle at 50% 36%, rgba(214, 162, 88, 0.46), rgba(34, 24, 16, 0.78)); }
+.day-4 .backdrop { background: radial-gradient(circle at 50% 42%, rgba(196, 168, 130, 0.44), rgba(36, 28, 22, 0.74)); }
+.day-5 .backdrop { background: radial-gradient(circle at 50% 32%, rgba(204, 174, 220, 0.44), rgba(36, 28, 38, 0.74)); }
+.day-6 .backdrop { background: radial-gradient(circle at 50% 30%, rgba(190, 220, 200, 0.4), rgba(28, 32, 28, 0.78)); }
+.day-7 .backdrop { background: radial-gradient(circle at 50% 30%, rgba(238, 168, 96, 0.54), rgba(60, 32, 30, 0.82)); }
+.day-8 .backdrop { background: radial-gradient(circle at 50% 36%, rgba(244, 184, 100, 0.5), rgba(40, 26, 20, 0.82)); }
+.day-9 .backdrop { background: radial-gradient(circle at 50% 28%, rgba(216, 178, 232, 0.54), rgba(48, 32, 56, 0.86)); }
 
 /* ───────── Petal layer ───────── */
 .petal-layer {
@@ -212,12 +213,16 @@ function onOverlayClick() {
   position: relative;
   width: 480px;
   max-width: 92vw;
-  padding: 24px 28px 22px;
+  padding: 26px 30px 24px;
   text-align: center;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
+  box-shadow:
+    var(--surface-shadow),
+    0 0 0 1px rgba(255, 242, 214, 0.08),
+    inset 0 1px 0 rgba(255, 248, 230, 0.3);
 }
 .banner-fade-enter-active {
-  transition: opacity 720ms ease, transform 720ms cubic-bezier(0.22, 0.95, 0.34, 1);
+  transition: opacity 720ms var(--ease-out-expo), transform 720ms var(--ease-out-expo);
 }
 .banner-fade-enter-from {
   opacity: 0;
@@ -275,14 +280,16 @@ function onOverlayClick() {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(212, 168, 87, 0.95), rgba(176, 148, 201, 0.86));
+  padding: 7px 16px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, rgba(212, 168, 87, 0.96), rgba(176, 148, 201, 0.9));
   color: #fff8ee;
   font-weight: 700;
   font-size: 13px;
   letter-spacing: 0.06em;
-  box-shadow: 0 6px 14px rgba(58, 42, 31, 0.18);
+  box-shadow:
+    0 8px 18px rgba(58, 42, 31, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .ability-icon { font-size: 16px; }
 .ability-quote {

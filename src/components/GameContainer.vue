@@ -25,7 +25,7 @@
     <!-- Day-end gentle reminder -->
     <DayEndOverlay v-if="game.phase === 'dayEnd'" @advance="onDayEndAdvance" />
 
-    <WishOverlay v-if="game.phase === 'wish'" :board-ref="boardEl" />
+    <DjinnCeremonyOverlay v-if="game.phase === 'wish'" :board-ref="boardEl" />
 
     <!-- Repair sequence: per-day differentiated cutscene -->
     <PerDayCutscene v-if="game.phase === 'repairing'" @advance="onRepairAdvance" />
@@ -41,7 +41,7 @@ import PerDayCutscene from './HUD/PerDayCutscene.vue';
 import DayEndOverlay from './HUD/DayEndOverlay.vue';
 import EstateStrip from './HUD/EstateStrip.vue';
 import GameBoard from './Board/GameBoard.vue';
-import WishOverlay from './HUD/WishOverlay.vue';
+import DjinnCeremonyOverlay from './HUD/DjinnCeremonyOverlay.vue';
 import { useGameStore } from '@/stores/gameStore';
 
 const game = useGameStore();
@@ -86,22 +86,25 @@ function onRepairAdvance() {
 .game-container::after {
   content: "";
   position: absolute;
-  inset: 0;
   pointer-events: none;
 }
 
 .game-container::before {
+  inset: 0;
   background:
-    radial-gradient(circle at 50% 18%, rgba(255, 219, 158, 0.18) 0%, transparent 32%),
-    linear-gradient(180deg, rgba(20, 12, 8, 0.04) 0%, rgba(20, 12, 8, 0.18) 100%);
+    radial-gradient(circle at 50% 18%, rgba(255, 219, 158, 0.2) 0%, transparent 32%),
+    radial-gradient(circle at 18% 82%, rgba(255, 200, 140, 0.08) 0%, transparent 28%),
+    linear-gradient(180deg, rgba(20, 12, 8, 0.04) 0%, rgba(20, 12, 8, 0.2) 100%);
   z-index: -2;
 }
 
 .game-container::after {
-  inset: 14px;
-  border: 1px solid rgba(231, 206, 158, 0.08);
-  border-radius: 22px;
-  box-shadow: inset 0 0 0 1px rgba(34, 22, 14, 0.24);
+  inset: 12px;
+  border: 1px solid rgba(231, 206, 158, 0.1);
+  border-radius: var(--radius-xl);
+  box-shadow:
+    inset 0 0 0 1px rgba(34, 22, 14, 0.28),
+    inset 0 0 48px rgba(0, 0, 0, 0.08);
   z-index: -1;
 }
 
@@ -110,8 +113,8 @@ function onRepairAdvance() {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  gap: 22px;
-  margin-top: 4px;
+  gap: 24px;
+  margin-top: 6px;
 }
 .side {
   flex: none;
@@ -127,7 +130,7 @@ function onRepairAdvance() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .intro-overlay {
@@ -139,7 +142,20 @@ function onRepairAdvance() {
 
 @media (max-width: 1180px) {
   .game-main {
-    gap: 16px;
+    gap: 18px;
+  }
+}
+
+@media (max-width: 960px) {
+  .game-container {
+    padding: 14px 16px 22px;
+  }
+  .game-container::after {
+    inset: 8px;
+    border-radius: var(--radius-lg);
+  }
+  .game-main {
+    gap: 14px;
   }
 }
 

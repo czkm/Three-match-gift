@@ -28,18 +28,27 @@ function onContinue() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at 50% 50%, rgba(40, 28, 18, 0.45), rgba(26, 14, 8, 0.85));
-  animation: fade-in 400ms ease;
-  backdrop-filter: blur(1px);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(40, 28, 18, 0.5), rgba(26, 14, 8, 0.88)),
+    radial-gradient(circle at 62% 38%, rgba(176, 148, 201, 0.06), transparent 30%);
+  animation: fade-in 500ms var(--ease-out-expo);
+  backdrop-filter: blur(2px);
 }
 .card {
-  width: 360px;
-  padding: 22px 24px;
+  width: min(380px, 88vw);
+  padding: 26px 28px;
   text-align: center;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
+  box-shadow:
+    var(--surface-shadow),
+    0 0 0 1px rgba(255, 242, 214, 0.06);
 }
-.moon { font-size: 40px; margin: 0; }
-.line { font-size: 18px; margin: 8px 0 6px; }
-.hint { font-size: 12px; margin-bottom: 14px; }
+.moon { font-size: 44px; margin: 0; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25)); animation: moon-float 3s var(--ease-in-out-sine) infinite; }
+@keyframes moon-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.line { font-size: 18px; margin: 10px 0 8px; }
+.hint { font-size: 12px; margin-bottom: 16px; letter-spacing: 0.04em; }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 </style>

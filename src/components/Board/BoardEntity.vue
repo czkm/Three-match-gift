@@ -14,7 +14,7 @@
     <span class="slot-frame" />
     <span class="glyph">{{ monster?.emoji || '' }}</span>
     <span v-if="entity.kind === 'djinn'" class="djinn-core" :class="`p${djinnStage}`" />
-    <div class="hp-bar">
+    <div v-if="entity.kind !== 'joyCandle'" class="hp-bar">
       <span
         v-for="n in entity.hitsRequired || 1"
         :key="`hp-${entity.id}-${n}`"
@@ -52,33 +52,34 @@ const style = computed(() => ({
   justify-content: center;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   z-index: 7;
   pointer-events: auto;
   cursor: help;
-  border: 1px solid rgba(232, 212, 178, 0.2);
+  border: 1px solid rgba(232, 212, 178, 0.22);
   box-shadow:
-    inset 0 1px 0 rgba(255, 246, 226, 0.08),
-    inset 0 0 0 1px rgba(255, 248, 232, 0.08),
-    inset 0 -10px 18px rgba(22, 14, 10, 0.32),
-    0 6px 14px rgba(16, 10, 8, 0.28);
-  transition: opacity 240ms ease, transform 260ms ease, filter 180ms ease;
+    inset 0 1px 0 rgba(255, 246, 226, 0.1),
+    inset 0 0 0 1px rgba(255, 248, 232, 0.1),
+    inset 0 -10px 18px rgba(22, 14, 10, 0.34),
+    0 8px 18px rgba(16, 10, 8, 0.3);
+  transition: opacity 280ms var(--ease-out-expo), transform 300ms var(--ease-out-expo), filter 200ms var(--ease-out-expo);
 }
 
 .entity.removed,
 .entity.hidden {
   opacity: 0;
   transform: scale(0.7);
+  filter: blur(2px);
 }
 
 .slot-frame {
   position: absolute;
   inset: 3px;
-  border-radius: 11px;
-  border: 1px solid rgba(255, 243, 218, 0.12);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 243, 218, 0.14);
   box-shadow:
-    inset 0 1px 0 rgba(255, 247, 236, 0.18),
-    inset 0 -8px 12px rgba(0, 0, 0, 0.16);
+    inset 0 1px 0 rgba(255, 247, 236, 0.2),
+    inset 0 -8px 12px rgba(0, 0, 0, 0.18);
   z-index: 0;
 }
 
@@ -87,6 +88,11 @@ const style = computed(() => ({
   z-index: 2;
   font-size: 34px;
   filter: drop-shadow(0 4px 8px rgba(24, 18, 12, 0.42));
+  transition: transform 200ms var(--ease-out-expo), filter 200ms var(--ease-out-expo);
+}
+.entity:hover .glyph {
+  transform: scale(1.1);
+  filter: drop-shadow(0 6px 12px rgba(24, 18, 12, 0.5));
 }
 
 .nekkers {
@@ -131,53 +137,74 @@ const style = computed(() => ({
 
 .djinn .glyph {
   font-size: 82px;
-  opacity: 0.86;
-  animation: djinn-pulse 1.5s ease-in-out infinite;
+  opacity: 0.88;
+  animation: djinn-pulse 1.5s var(--ease-in-out-sine) infinite;
+  filter: drop-shadow(0 4px 12px rgba(240, 213, 107, 0.35));
 }
 
 .djinn-core {
   position: absolute;
   inset: 14px;
   border-radius: 18px;
-  border: 1px solid rgba(240, 213, 107, 0.28);
-  box-shadow: 0 0 16px rgba(240, 213, 107, 0.2);
+  border: 1px solid rgba(240, 213, 107, 0.3);
+  box-shadow: 0 0 16px rgba(240, 213, 107, 0.22);
   z-index: 1;
+  transition: box-shadow 400ms var(--ease-out-expo);
 }
 
-.djinn-core.p1 { box-shadow: 0 0 18px rgba(240, 213, 107, 0.28); }
-.djinn-core.p2 { box-shadow: 0 0 26px rgba(240, 213, 107, 0.42); }
-.djinn-core.p3 { box-shadow: 0 0 34px rgba(240, 213, 107, 0.55); }
+.djinn-core.p1 { box-shadow: 0 0 20px rgba(240, 213, 107, 0.32); }
+.djinn-core.p2 { box-shadow: 0 0 30px rgba(240, 213, 107, 0.48); }
+.djinn-core.p3 { box-shadow: 0 0 42px rgba(240, 213, 107, 0.62); }
+
+.joyCandle {
+  background:
+    linear-gradient(180deg, rgba(255, 245, 214, 0.08) 0%, transparent 16%),
+    radial-gradient(circle at 50% 24%, rgba(255, 230, 148, 0.26), transparent 32%),
+    linear-gradient(160deg, rgba(118, 82, 44, 0.94) 0%, rgba(56, 38, 18, 0.98) 100%);
+  border-color: rgba(240, 213, 107, 0.22);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 244, 214, 0.08),
+    inset 0 -14px 20px rgba(22, 12, 8, 0.28),
+    0 8px 18px rgba(24, 12, 8, 0.22);
+}
+
+.joyCandle .glyph {
+  font-size: 30px;
+  filter: drop-shadow(0 2px 8px rgba(255, 204, 110, 0.28));
+}
 
 .hp-bar {
   position: absolute;
   left: 50%;
-  bottom: 2px;
+  bottom: 3px;
   display: flex;
-  gap: 4px;
+  gap: 5px;
   transform: translateX(-50%);
   z-index: 2;
-  opacity: 0.42;
+  opacity: 0.45;
+  transition: opacity 200ms var(--ease-out-expo);
 }
 
 .hp-dot {
   width: 8px;
   height: 8px;
-  border-radius: 999px;
-  background: rgba(255, 242, 204, 0.9);
-  box-shadow: 0 0 8px rgba(255, 227, 148, 0.35);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 242, 204, 0.92);
+  box-shadow: 0 0 8px rgba(255, 227, 148, 0.4);
+  transition: background 200ms var(--ease-out-expo), box-shadow 200ms var(--ease-out-expo);
 }
 
 .hp-dot.spent {
-  background: rgba(90, 72, 52, 0.45);
-  box-shadow: none;
+  background: rgba(90, 72, 52, 0.5);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .entity:hover .hp-bar {
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 @keyframes djinn-pulse {
-  0%, 100% { transform: scale(0.96); opacity: 0.78; }
+  0%, 100% { transform: scale(0.96); opacity: 0.8; }
   50% { transform: scale(1.04); opacity: 1; }
 }
 
