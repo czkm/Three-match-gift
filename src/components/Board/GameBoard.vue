@@ -2,7 +2,8 @@
   <div class="board-wrap">
     <div
       class="gameBoard parchment grain"
-      :class="{ shaking: shaking, dimmed: targeting, repairing: game.phase === 'repairing', 'day2-growth': boardGrowthTheme === 'vineyard' }"
+      :class="{ shaking: shaking, dimmed: targeting, repairing: game.phase === 'repairing' }"
+      :data-theme="boardThemeKey || undefined"
       :style="boardThemeStyle"
       @mouseup="onPointerUp"
       @touchend="onPointerUp"
@@ -11,16 +12,58 @@
       @touchmove="onPointerMove"
     >
       <div class="tileContainer" :style="containerStyle">
-        <div v-if="boardGrowthTheme === 'vineyard'" class="board-growth board-growth-vineyard">
+        <div v-if="boardThemeKey" class="board-growth" :class="`board-growth-${boardThemeKey}`">
           <span class="growth-veil" />
-          <span class="growth-vine vine-a" />
-          <span class="growth-vine vine-b" />
-          <span class="growth-vine vine-c" />
-          <span class="growth-leaf leaf-a">🌿</span>
-          <span class="growth-leaf leaf-b">🍃</span>
-          <span class="growth-leaf leaf-c">🌿</span>
-          <span class="growth-grape grape-a">🍇</span>
-          <span class="growth-grape grape-b">🍇</span>
+          <template v-if="boardThemeKey === 'courtyard'">
+            <span class="growth-mote mote-a">🍂</span>
+            <span class="growth-mote mote-b">🌿</span>
+            <span class="growth-mote mote-c">🍂</span>
+          </template>
+          <template v-else-if="boardThemeKey === 'vineyard'">
+            <span class="growth-vine vine-a" />
+            <span class="growth-vine vine-b" />
+            <span class="growth-vine vine-c" />
+            <span class="growth-leaf leaf-a">🌿</span>
+            <span class="growth-leaf leaf-b">🍃</span>
+            <span class="growth-leaf leaf-c">🌿</span>
+            <span class="growth-grape grape-a">🍇</span>
+            <span class="growth-grape grape-b">🍇</span>
+          </template>
+          <template v-else-if="boardThemeKey === 'cellar'">
+            <span class="growth-mote mote-a">✨</span>
+            <span class="growth-mote mote-b">🟤</span>
+            <span class="growth-mote mote-c">✨</span>
+          </template>
+          <template v-else-if="boardThemeKey === 'stables'">
+            <span class="growth-mote mote-a">🌾</span>
+            <span class="growth-mote mote-b">✨</span>
+            <span class="growth-mote mote-c">🌾</span>
+          </template>
+          <template v-else-if="boardThemeKey === 'garden'">
+            <span class="growth-bloom bloom-a">🪻</span>
+            <span class="growth-bloom bloom-b">🌸</span>
+            <span class="growth-bloom bloom-c">🪻</span>
+          </template>
+          <template v-else-if="boardThemeKey === 'greenhouse'">
+            <span class="growth-mote mote-a">💧</span>
+            <span class="growth-mote mote-b">🌱</span>
+            <span class="growth-mote mote-c">💧</span>
+          </template>
+          <template v-else-if="boardThemeKey === 'gazebo'">
+            <span class="growth-ray ray-a" />
+            <span class="growth-ray ray-b" />
+            <span class="growth-mote mote-b">✨</span>
+          </template>
+          <template v-else-if="boardThemeKey === 'kitchen'">
+            <span class="growth-glow ember-a" />
+            <span class="growth-glow ember-b" />
+            <span class="growth-mote mote-c">✦</span>
+          </template>
+          <template v-else-if="boardThemeKey === 'lilacSuite'">
+            <span class="growth-bloom bloom-a">🪻</span>
+            <span class="growth-bloom bloom-b">🕯️</span>
+            <span class="growth-bloom bloom-c">🪻</span>
+          </template>
         </div>
 
         <div
@@ -245,14 +288,18 @@ let djinnTransitionSettleTimer = null;
 const rowsCount = computed(() => ROWS);
 const colsCount = computed(() => COLS);
 const boardGrowthProgress = computed(() => Math.max(0, Math.min(1, game.repairProgressPct || 0)));
-const boardGrowthTheme = computed(() => {
-  if (game.today?.building?.id !== 'vineyard') return null;
-  if (!game.isComplete) return 'vineyard';
-  if (game.phase === 'repairing') return 'vineyard';
-  return null;
-});
+const boardThemeKey = computed(() => game.today?.building?.id || null);
 const boardThemeStyle = computed(() => ({
-  '--board-growth-progress': boardGrowthProgress.value.toFixed(3)
+  '--board-growth-progress': boardGrowthProgress.value.toFixed(3),
+  '--board-theme-hue': boardThemeKey.value === 'garden' ? 'rgba(182, 140, 204, 0.18)'
+    : boardThemeKey.value === 'greenhouse' ? 'rgba(118, 168, 126, 0.16)'
+    : boardThemeKey.value === 'gazebo' ? 'rgba(232, 168, 104, 0.16)'
+    : boardThemeKey.value === 'kitchen' ? 'rgba(232, 142, 82, 0.16)'
+    : boardThemeKey.value === 'lilacSuite' ? 'rgba(196, 166, 220, 0.2)'
+    : boardThemeKey.value === 'cellar' ? 'rgba(182, 126, 72, 0.14)'
+    : boardThemeKey.value === 'stables' ? 'rgba(198, 172, 102, 0.14)'
+    : boardThemeKey.value === 'vineyard' ? 'rgba(148, 176, 92, 0.16)'
+    : 'rgba(186, 168, 118, 0.12)'
 }));
 const selectedTilePos = computed(() => {
   const tile = tiles.value.find((item) => item.id === selectedId.value && !item.pooled && !item.hidden);
@@ -1533,7 +1580,7 @@ function stopDjinnTransitionFx() {
 
 .gameBoard.shaking { animation: gb-shake 100ms 4 alternate var(--ease-out-expo); }
 .gameBoard.dimmed  { filter: brightness(0.82) saturate(0.92); }
-.gameBoard.repairing.day2-growth {
+.gameBoard.repairing[data-theme='vineyard'] {
   box-shadow:
     0 24px 44px rgba(14, 8, 6, 0.42),
     0 0 28px rgba(122, 192, 88, 0.18),
@@ -1567,7 +1614,11 @@ function stopDjinnTransitionFx() {
     inset 0 0 24px rgba(0, 0, 0, 0.15);
 }
 
-.gameBoard.day2-growth .tileContainer {
+.gameBoard .tileContainer {
+  --board-theme-tint: var(--board-theme-hue);
+}
+
+.gameBoard[data-theme='vineyard'] .tileContainer {
   background:
     linear-gradient(90deg, rgba(148, 176, 92, calc(var(--board-growth-progress) * 0.16)) 0 1px, transparent 1px 100%),
     linear-gradient(180deg, rgba(148, 176, 92, calc(var(--board-growth-progress) * 0.16)) 0 1px, transparent 1px 100%),
@@ -1581,12 +1632,67 @@ function stopDjinnTransitionFx() {
   background-size: 60px 60px, 60px 60px, auto, auto;
 }
 
+.gameBoard[data-theme='courtyard'] .tileContainer {
+  background:
+    linear-gradient(90deg, rgba(164, 176, 126, calc(var(--board-growth-progress) * 0.08)) 0 1px, transparent 1px 100%),
+    linear-gradient(180deg, rgba(164, 176, 126, calc(var(--board-growth-progress) * 0.08)) 0 1px, transparent 1px 100%),
+    radial-gradient(circle at 22% 22%, rgba(154, 168, 122, calc(var(--board-growth-progress) * 0.14)), transparent 32%),
+    linear-gradient(160deg, rgba(72, 66, 58, 0.98) 0%, rgba(46, 38, 30, 0.98) 100%);
+  background-size: 60px 60px, 60px 60px, auto, auto;
+}
+
+.gameBoard[data-theme='cellar'] .tileContainer {
+  background:
+    linear-gradient(90deg, rgba(168, 122, 74, calc(var(--board-growth-progress) * 0.1)) 0 1px, transparent 1px 100%),
+    linear-gradient(180deg, rgba(168, 122, 74, calc(var(--board-growth-progress) * 0.1)) 0 1px, transparent 1px 100%),
+    radial-gradient(circle at 18% 20%, rgba(196, 144, 88, calc(var(--board-growth-progress) * 0.16)), transparent 28%),
+    linear-gradient(160deg, rgba(84, 54, 38, 0.98) 0%, rgba(40, 24, 18, 0.98) 100%);
+  background-size: 60px 60px, 60px 60px, auto, auto;
+}
+
+.gameBoard[data-theme='garden'] .tileContainer {
+  background:
+    linear-gradient(90deg, rgba(176, 132, 198, calc(var(--board-growth-progress) * 0.12)) 0 1px, transparent 1px 100%),
+    linear-gradient(180deg, rgba(176, 132, 198, calc(var(--board-growth-progress) * 0.12)) 0 1px, transparent 1px 100%),
+    radial-gradient(circle at 78% 18%, rgba(214, 180, 232, calc(var(--board-growth-progress) * 0.14)), transparent 32%),
+    linear-gradient(160deg, rgba(76, 54, 80, 0.98) 0%, rgba(42, 28, 50, 0.98) 100%);
+  background-size: 60px 60px, 60px 60px, auto, auto;
+}
+
+.gameBoard[data-theme='gazebo'] .tileContainer {
+  background:
+    linear-gradient(90deg, rgba(228, 162, 102, calc(var(--board-growth-progress) * 0.12)) 0 1px, transparent 1px 100%),
+    linear-gradient(180deg, rgba(228, 162, 102, calc(var(--board-growth-progress) * 0.12)) 0 1px, transparent 1px 100%),
+    radial-gradient(circle at 26% 14%, rgba(255, 208, 144, calc(var(--board-growth-progress) * 0.18)), transparent 30%),
+    linear-gradient(160deg, rgba(94, 62, 42, 0.98) 0%, rgba(52, 34, 28, 0.98) 100%);
+  background-size: 60px 60px, 60px 60px, auto, auto;
+}
+
+.gameBoard[data-theme='kitchen'] .tileContainer {
+  background:
+    linear-gradient(90deg, rgba(220, 128, 72, calc(var(--board-growth-progress) * 0.14)) 0 1px, transparent 1px 100%),
+    linear-gradient(180deg, rgba(220, 128, 72, calc(var(--board-growth-progress) * 0.14)) 0 1px, transparent 1px 100%),
+    radial-gradient(circle at 80% 80%, rgba(255, 172, 96, calc(var(--board-growth-progress) * 0.2)), transparent 32%),
+    linear-gradient(160deg, rgba(88, 52, 34, 0.98) 0%, rgba(44, 24, 16, 0.98) 100%);
+  background-size: 60px 60px, 60px 60px, auto, auto;
+}
+
+.gameBoard[data-theme='lilacSuite'] .tileContainer {
+  background:
+    linear-gradient(90deg, rgba(196, 166, 220, calc(var(--board-growth-progress) * 0.12)) 0 1px, transparent 1px 100%),
+    linear-gradient(180deg, rgba(196, 166, 220, calc(var(--board-growth-progress) * 0.12)) 0 1px, transparent 1px 100%),
+    radial-gradient(circle at 50% 18%, rgba(224, 202, 238, calc(var(--board-growth-progress) * 0.16)), transparent 34%),
+    linear-gradient(160deg, rgba(78, 60, 92, 0.98) 0%, rgba(44, 32, 58, 0.98) 100%);
+  background-size: 60px 60px, 60px 60px, auto, auto;
+}
+
 .tileContainer::before {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
+    radial-gradient(circle at 50% 50%, var(--board-theme-hue) 0%, transparent 54%),
     radial-gradient(circle at 50% 50%, rgba(198, 164, 102, 0.06) 0%, transparent 60%),
     linear-gradient(180deg, rgba(255, 243, 216, 0.02) 0%, rgba(0, 0, 0, 0.08) 100%);
   mix-blend-mode: screen;
@@ -1603,7 +1709,11 @@ function stopDjinnTransitionFx() {
 .growth-veil,
 .growth-vine,
 .growth-leaf,
-.growth-grape {
+.growth-grape,
+.growth-mote,
+.growth-bloom,
+.growth-ray,
+.growth-glow {
   position: absolute;
 }
 
@@ -1611,8 +1721,8 @@ function stopDjinnTransitionFx() {
   inset: 0;
   opacity: calc(var(--board-growth-progress) * 0.78);
   background:
-    radial-gradient(circle at 16% 88%, rgba(98, 142, 72, 0.5), transparent 26%),
-    radial-gradient(circle at 84% 16%, rgba(156, 204, 118, 0.24), transparent 22%),
+    radial-gradient(circle at 16% 88%, var(--board-theme-hue), transparent 26%),
+    radial-gradient(circle at 84% 16%, rgba(255, 236, 184, 0.12), transparent 22%),
     linear-gradient(180deg, rgba(96, 142, 72, 0.04), rgba(76, 132, 54, 0.18));
   transition: opacity 420ms ease;
 }
@@ -1686,6 +1796,74 @@ function stopDjinnTransitionFx() {
   filter: saturate(calc(0.34 + var(--board-growth-progress) * 0.72));
 }
 
+.growth-mote,
+.growth-bloom {
+  z-index: 0;
+  transition: opacity 360ms ease, transform 520ms ease;
+}
+
+.growth-mote {
+  font-size: 18px;
+  opacity: max(0, calc((var(--board-growth-progress) - 0.18) * 1.8));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18));
+}
+
+.mote-a { left: 24px; top: 30px; }
+.mote-b { right: 34px; top: 58px; }
+.mote-c { left: 208px; bottom: 28px; }
+
+.growth-bloom {
+  font-size: 22px;
+  opacity: max(0, calc((var(--board-growth-progress) - 0.26) * 1.7));
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.18));
+}
+
+.bloom-a { left: 22px; bottom: 30px; }
+.bloom-b { right: 42px; top: 38px; }
+.bloom-c { left: 216px; bottom: 84px; }
+
+.growth-ray {
+  z-index: 0;
+  width: 180px;
+  height: 52px;
+  opacity: max(0, calc((var(--board-growth-progress) - 0.2) * 1.5));
+  background: linear-gradient(135deg, rgba(255, 212, 128, 0.18), transparent 68%);
+  filter: blur(1px);
+}
+
+.ray-a {
+  left: -8px;
+  top: 24px;
+  transform: rotate(-8deg);
+}
+
+.ray-b {
+  right: -18px;
+  bottom: 18px;
+  transform: rotate(12deg);
+}
+
+.growth-glow {
+  z-index: 0;
+  border-radius: 999px;
+  opacity: max(0, calc((var(--board-growth-progress) - 0.22) * 1.7));
+  background: radial-gradient(circle, rgba(255, 166, 82, 0.24), transparent 68%);
+}
+
+.ember-a {
+  right: 20px;
+  bottom: 24px;
+  width: 92px;
+  height: 72px;
+}
+
+.ember-b {
+  left: 28px;
+  top: 24px;
+  width: 66px;
+  height: 52px;
+}
+
 .grape-a {
   left: 118px;
   bottom: 22px;
@@ -1700,10 +1878,20 @@ function stopDjinnTransitionFx() {
   transform: scale(calc(0.38 + var(--board-growth-progress) * 0.68));
 }
 
-.gameBoard.repairing.day2-growth .growth-vine,
-.gameBoard.repairing.day2-growth .growth-leaf,
-.gameBoard.repairing.day2-growth .growth-grape {
+.gameBoard.repairing[data-theme='vineyard'] .growth-vine,
+.gameBoard.repairing[data-theme='vineyard'] .growth-leaf,
+.gameBoard.repairing[data-theme='vineyard'] .growth-grape {
   animation: board-growth-breathe 2.8s ease-in-out infinite;
+}
+
+.gameBoard.repairing[data-theme='courtyard'] .growth-mote,
+.gameBoard.repairing[data-theme='cellar'] .growth-mote,
+.gameBoard.repairing[data-theme='garden'] .growth-bloom,
+.gameBoard.repairing[data-theme='gazebo'] .growth-ray,
+.gameBoard.repairing[data-theme='kitchen'] .growth-glow,
+.gameBoard.repairing[data-theme='kitchen'] .growth-mote,
+.gameBoard.repairing[data-theme='lilacSuite'] .growth-bloom {
+  animation: board-growth-breathe 2.6s ease-in-out infinite;
 }
 
 @keyframes board-growth-breathe {
