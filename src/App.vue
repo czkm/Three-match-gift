@@ -12,20 +12,24 @@
   </transition>
   <AchievementToastStack />
   <AchievementPanel />
+  <AudioControls />
 </template>
 
 <script setup>
 import { onMounted, onBeforeUnmount, ref, watchEffect } from 'vue';
+import AudioControls from './components/HUD/AudioControls.vue';
 import AchievementPanel from './components/HUD/AchievementPanel.vue';
 import AchievementToastStack from './components/HUD/AchievementToastStack.vue';
 import Title from './components/Title.vue';
 import GameContainer from './components/GameContainer.vue';
 import Ending from './components/Ending.vue';
+import { useAudio } from '@/composables/useAudio';
 import { useAchievementStore } from '@/stores/achievementStore';
 import { useGameStore } from '@/stores/gameStore';
 
 const achievement = useAchievementStore();
 const game = useGameStore();
+useAudio();
 const testerToast = ref('');
 let toastTimer = null;
 let jumpChordTimer = null;

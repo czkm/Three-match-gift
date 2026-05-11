@@ -79,6 +79,7 @@
 
 <script setup>
 import { computed, ref } from 'vue';
+import { audioManager } from '@/audio/AudioManager';
 import { useAchievementStore } from '@/stores/achievementStore';
 import { useGameStore } from '@/stores/gameStore';
 import { ABILITIES, RESOURCES, unlockedCharsForDay } from '@/data/content';
@@ -107,6 +108,7 @@ function onTrigger(ab) {
     props.boardRef?.abilityRefresh?.();
     game.consumeAbility(ab.id);
   } else if (ab.id === 'hearthStew') {
+    audioManager.playSFX('decoction', { vol: 0.6 });
     game.recoverSteps(5);
     game.consumeAbility(ab.id);
   } else if (ab.id === 'lilacSeed') {

@@ -9,12 +9,14 @@
 </template>
 
 <script setup>
+import { audioManager } from '@/audio/AudioManager';
 import { useGameStore } from '@/stores/gameStore';
 
 const game = useGameStore();
 const emit = defineEmits(['advance']);
 
 function onContinue() {
+  audioManager.playSFX('pageflip', { vol: 0.4 });
   game.advanceFromDayEnd();
   emit('advance');
 }

@@ -58,6 +58,7 @@
 
 <script setup>
 import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref } from 'vue';
+import { audioManager } from '@/audio/AudioManager';
 import Dialog from './Dialog.vue';
 import { ABILITIES } from '@/data/content';
 import { useGameStore } from '@/stores/gameStore';
@@ -112,6 +113,7 @@ onMounted(() => {
   const motifMs = MOTIF_MS[day.value] || 2400;
   timers.push(setTimeout(() => {
     phase.value = 2;
+    audioManager.playSFX('repair', { vol: 0.7 });
     game.finishRepair();
     timers.push(setTimeout(() => { showMono.value = true; }, 800));
   }, 280 + motifMs));
@@ -124,7 +126,10 @@ onBeforeUnmount(() => {
 function onMonoReady() { showAdvance.value = true; }
 
 const emit = defineEmits(['advance']);
-function onAdvance() { emit('advance'); }
+function onAdvance() {
+  audioManager.playSFX('pageflip', { vol: 0.4 });
+  emit('advance');
+}
 
 function onOverlayClick() {
   if (!showMono.value) return;

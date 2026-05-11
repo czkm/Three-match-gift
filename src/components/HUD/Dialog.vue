@@ -7,6 +7,7 @@
 
 <script setup>
 import { toRef, watch } from 'vue';
+import { audioManager } from '@/audio/AudioManager';
 import { useTypewriter } from '@/composables/useTypewriter';
 
 const props = defineProps({
@@ -21,9 +22,11 @@ const { display, done, skip } = useTypewriter(textRef, { speed: props.speed });
 
 function onSkip() {
   if (!done.value) {
+    audioManager.playSFX('pageflip', { vol: 0.4 });
     skip();
     emit('skip');
   } else {
+    audioManager.playSFX('pageflip', { vol: 0.4 });
     emit('done');
   }
 }

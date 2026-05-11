@@ -28,6 +28,7 @@
 
 <script setup>
 import { computed, watch } from 'vue';
+import { audioManager } from '@/audio/AudioManager';
 import { ACHIEVEMENTS } from '@/data/content';
 import { useAchievementStore } from '@/stores/achievementStore';
 
@@ -61,6 +62,10 @@ watch(
   visibleEntries,
   (entries) => {
     for (const entry of entries) {
+      if (!entry._playedSound) {
+        entry._playedSound = true;
+        audioManager.playSFX('achievement', { vol: 0.7 });
+      }
       if (entry._timer) continue;
       entry._timer = setTimeout(() => {
         dismiss(entry.id);

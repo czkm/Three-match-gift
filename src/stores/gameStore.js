@@ -17,6 +17,7 @@
  *   final      — frozen frame with the dedication.
  */
 import { defineStore } from 'pinia';
+import { audioManager } from '@/audio/AudioManager';
 import { useAchievementStore } from '@/stores/achievementStore';
 import {
   DAYS,
@@ -471,7 +472,10 @@ export const useGameStore = defineStore('game', {
 
     /** Add `n` steps, capped at MAX_STEPS. */
     recoverSteps(n) {
-      this.stepsLeft = Math.min(MAX_STEPS, this.stepsLeft + n);
+      const next = Math.min(MAX_STEPS, this.stepsLeft + n);
+      const gained = next - this.stepsLeft;
+      this.stepsLeft = next;
+      if (gained > 0) audioManager.playSFX('steprestore', { vol: 0.6 });
     },
 
     /**
@@ -630,6 +634,7 @@ export const useGameStore = defineStore('game', {
     },
 
     advanceFromDayEnd() {
+      audioManager.playSFX('dayend', { vol: 0.6 });
       this.stepsLeft = MAX_STEPS;
       this.matchGroupsThisDay = 0;
       this.phase = 'playing';
@@ -846,6 +851,7 @@ export const useGameStore = defineStore('game', {
           entity.hitsTaken = (entity.hitsTaken || 0) + 1;
           if (entity.hitsTaken >= entity.hitsRequired) {
             entity.removed = true;
+            audioManager.playSFX('seal_break', { vol: 0.7 });
             removed.push(entity);
           }
         }

@@ -194,6 +194,7 @@
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import BoardTile from './BoardTile.vue';
 import BoardEntity from './BoardEntity.vue';
+import { audioManager } from '@/audio/AudioManager';
 import EventBus from '@/core/eventBus';
 import { getBoard, resetBoard, SEP, HOLE } from '@/core/board';
 import { useTileDrag } from '@/composables/useTileDrag';
@@ -228,6 +229,8 @@ const lastClearedMeta = ref(new Map());
 const lastClearSource = ref('match');
 const boardSyncTimers = [];
 let comboPraiseTimer = null;
+const spawnedMonsterIds = new Set();
+let hintSoundKey = '';
 const awakeningBolts = ref([]);
 const awakeningSparks = ref([]);
 let awakeningTimer = null;
@@ -378,14 +381,19 @@ const { activeTile, pickTile, moveDrag, endDrag, clearActive, previewTile } = us
       monsterAt(a.row, a.col) || monsterAt(b.row, b.col)
     ) {
       flagInvalid(a, b);
+      audioManager.playSFX('error', { vol: 0.3 });
       return;
     }
     // If the swap won't match, schedule a gentle "nope" tremble before
     // the engine reverts; the engine still consumes a step (matches the
     // gridland-vue feel) but the player gets a soft cue.
     const willMatch = board.value.wouldMatch(a, b);
-    if (!willMatch) flagInvalid(a, b);
+    if (!willMatch) {
+      flagInvalid(a, b);
+      audioManager.playSFX('error', { vol: 0.3 });
+    }
     game.consumeStep();
+    audioManager.playSFX('swap', { vol: 0.4 });
     board.value.switchTiles(
       { row: a.row, col: a.col },
       { row: b.row, col: b.col }
@@ -465,6 +473,7 @@ function handleTargetingPick(pos) {
   if (ab.needsTarget === 'grape') {
     const t = tileAt(pos.row, pos.col);
     if (!t || t.type !== 'grape') return;
+    audioManager.playSFX('ability_harvest', { vol: 0.6 });
     board.value.convert3x3(pos.row, pos.col, 'g');
     flashAbility();
     game.consumeAbility(ab.id);
@@ -481,7 +490,11 @@ function handleTargetingPick(pos) {
       if (
         isBlockedCell(a.row, a.col) || isBlockedCell(pos.row, pos.col) ||
         monsterAt(a.row, a.col) || monsterAt(pos.row, pos.col)
-      ) return;
+      ) {
+        audioManager.playSFX('error', { vol: 0.3 });
+        return;
+      }
+      audioManager.playSFX('ability_roach', { vol: 0.6 });
       board.value.swapAny(a, pos);
       flashAbility();
       game.consumeAbility(ab.id);
@@ -493,6 +506,8 @@ function confirmRowOrCol(axis, index) {
   const ab = ABILITIES[game.pendingAbility];
   if (!ab) return;
   bumpIdle();
+  audioManager.playSFX('ability_sunset', { vol: 0.7 });
+  audioManager.playSFX('lineclear', { vol: 0.5 });
   triggerSunsetRake();
   board.value.clearLine(axis, index);
   game.consumeAbility(ab.id);
@@ -535,12 +550,14 @@ function onMonsterInspect({ kind, entityId }) {
 defineExpose({
   abilityRefresh() {
     bumpIdle();
+    audioManager.playSFX('ability_wolf', { vol: 0.6 });
     flashAbility();
     game.rerollBoardEntities?.();
     board.value.refreshBoard('whiteWolfTidy');
   },
   abilityConvertResource(fromId, toId) {
     bumpIdle();
+    audioManager.playSFX('lilac', { vol: 0.7 });
     flashAbility();
     const fromChar = RESOURCE_BY_ID[fromId].char;
     const toChar   = RESOURCE_BY_ID[toId].char;
@@ -764,6 +781,9 @@ function drawMatch(opts) {
   }
 
   setTimeout(() => {
+    if ((opts.added || []).length) {
+      audioManager.playSFX('land', { vol: 0.25 });
+    }
     reconcileTilesToBoardState(opts.added || []);
   }, TIMING.MATCH_SHIFT_DELAY_MS + bigMatchPause);
   scheduleBoardVisualSync(TIMING.MATCH_RETURN_MS + bigMatchPause);
@@ -804,6 +824,7 @@ function syncTilesFromEngine() {
 
 function reconcileTilesToBoardState(addedTiles = []) {
   if (!board.value) return;
+  let spawnedCount = 0;
 
   const targetMap = new Map();
   const addedLookup = new Map(addedTiles.map((tile) => [`${tile.row}:${tile.col}`, tile]));
@@ -829,6 +850,7 @@ function reconcileTilesToBoardState(addedTiles = []) {
       const target = targets[targetIndex];
       const added = addedLookup.get(`${target.row}:${target.col}`);
       if (added) {
+        spawnedCount++;
         const fresh = newTile({ type: typeFromChar(target.char), row: added.row - ROWS, col: target.col });
         requestAnimationFrame(() => {
           fresh.pooled = false;
@@ -861,6 +883,10 @@ function reconcileTilesToBoardState(addedTiles = []) {
       continue;
     }
     tile.type = typeFromChar(target.char);
+  }
+
+  if (spawnedCount > 0) {
+    audioManager.playSFX('spawn', { vol: 0.2 });
   }
 }
 
@@ -923,6 +949,11 @@ function reloadDjinnBoard() {
 /* ---------- gameplay event handlers ---------- */
 
 function onTilesCleared(resourcesByChar, _swapSide, groupCount, groupSizes, chain, matchGroups) {
+  const safeGroupSizes = groupSizes || [];
+  const safeChain = chain || 1;
+  const totalCleared = safeGroupSizes.reduce((sum, size) => sum + size, 0);
+  if (totalCleared > 0) audioManager.playMatch(totalCleared);
+  if (safeChain >= 2) audioManager.playCombo(safeChain);
   game.gainResources(resourcesByChar, groupSizes || [], chain || 1);
   game.releaseBarrenGravesForProgress?.(game.repairProgressPct || 0);
   game.recordDjinnBoardProgress({
@@ -1109,6 +1140,7 @@ function bumpIdle() {
 
 function refreshHints(opts = {}) {
   hintIds.value = new Set();
+  hintSoundKey = '';
   if (!opts.force && !game.showHints) return;
   if (!board.value) return;
   const hint = board.value.findHint();
@@ -1119,6 +1151,11 @@ function refreshHints(opts = {}) {
   if (a) s.add(a.id);
   if (b) s.add(b.id);
   hintIds.value = s;
+  const nextKey = `${hint.a.row}:${hint.a.col}-${hint.b.row}:${hint.b.col}`;
+  if (nextKey !== hintSoundKey) {
+    hintSoundKey = nextKey;
+    audioManager.playSFX('hint', { vol: 0.4 });
+  }
 }
 
 watch(() => game.stepsLeft, () => {
@@ -1202,6 +1239,7 @@ function startDjinnAwakeningFx() {
   hintIds.value = new Set();
   invalidIds.value = new Set();
   stopDjinnAwakeningFx();
+  audioManager.playSFX('djinn_appear', { vol: 0.8 });
 
   const bolts = [];
   const sparks = [];
@@ -1282,6 +1320,7 @@ function startDjinnTransitionFx() {
 
   const transition = game.currentDjinnTransition;
   if (!transition) return;
+  audioManager.playSFX('rune_hit', { vol: 0.6 });
 
   const sources = transition.sourceCells || [];
   const targets = transition.targetCells || [];
@@ -1375,6 +1414,44 @@ function startDjinnTransitionFx() {
     transitionRings.value = [];
   }, durationMs + 80);
 }
+
+function syncMonsterSpawnAudio() {
+  for (const monster of game.activeMonsterTiles) {
+    spawnedMonsterIds.add(monster.id);
+  }
+
+  for (const entity of game.activeBoardEntities) {
+    spawnedMonsterIds.add(entity.id);
+  }
+}
+
+watch(
+  () => [
+    game.activeMonsterTiles.map((monster) => monster.id).join('|'),
+    game.activeBoardEntities.map((entity) => `${entity.kind}:${entity.id}`).join('|')
+  ],
+  () => {
+    syncMonsterSpawnAudio();
+  },
+  { immediate: true }
+);
+
+watch(
+  () => [game.djinnStage, game.djinnState, game.phase],
+  ([stage, state, phase], [prevStage, prevState, prevPhase] = []) => {
+    if (phase !== 'wish') return;
+    if (state === prevState && stage === prevStage && phase === prevPhase) return;
+    if (/Resolve$/.test(state)) {
+      if (stage === 1) audioManager.playSFX('wish1', { vol: 0.8 });
+      else if (stage === 2) audioManager.playSFX('wish2', { vol: 0.8 });
+      else if (stage === 3) audioManager.playSFX('wish3', { vol: 0.9 });
+      return;
+    }
+    if (/Intro$/.test(state) && stage > 1) {
+      audioManager.playSFX('rune_hit', { vol: 0.6 });
+    }
+  }
+);
 
 function stopDjinnTransitionFx() {
   if (djinnTransitionTimer) {

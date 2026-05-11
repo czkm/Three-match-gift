@@ -59,6 +59,7 @@
 
 <script setup>
 import { computed, onMounted, onBeforeUnmount, ref } from 'vue';
+import { audioManager } from '@/audio/AudioManager';
 import { useAchievementStore } from '@/stores/achievementStore';
 import { useGameStore } from '@/stores/gameStore';
 import { ENDING } from '@/data/content';
@@ -122,6 +123,7 @@ function revealBeat() {
 
 function onAdvance() {
   if (!beatDone.value) return;
+  audioManager.playSFX('pageflip', { vol: 0.4 });
   if (isLastBeat.value) {
     emit('restart');
     return;

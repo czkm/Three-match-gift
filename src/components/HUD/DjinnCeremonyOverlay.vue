@@ -27,6 +27,7 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue';
+import { audioManager } from '@/audio/AudioManager';
 import Dialog from './Dialog.vue';
 import { useGameStore } from '@/stores/gameStore';
 
@@ -64,6 +65,7 @@ function onLineReady() {
 }
 
 function onAdvance() {
+  audioManager.playSFX('pageflip', { vol: 0.4 });
   if (game.djinnCardMode === 'intro') {
     game.beginDjinnBoardStage();
     return;
