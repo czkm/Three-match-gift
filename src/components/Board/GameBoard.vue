@@ -1,7 +1,7 @@
 <template>
   <div class="board-wrap">
     <div
-      class="gameBoard parchment grain"
+      class="gameBoard grain"
       :class="{ shaking: shaking, dimmed: targeting, repairing: game.phase === 'repairing' }"
       :data-theme="boardThemeKey || undefined"
       :style="boardThemeStyle"
@@ -226,7 +226,7 @@
       </transition>
     </div>
 
-    <div v-if="targeting" class="targeting-hint parchment grain">
+    <div v-if="targeting" class="targeting-hint glass grain">
       <p class="ink-title">{{ targetingHint }}</p>
       <button class="cancel-btn" @click="cancelTarget">取消</button>
     </div>
@@ -1014,7 +1014,6 @@ function onTilesCleared(resourcesByChar, _swapSide, groupCount, groupSizes, chai
   if (totalCleared > 0) audioManager.playMatch(totalCleared);
   if (safeChain >= 2) audioManager.playCombo(safeChain);
   game.gainResources(resourcesByChar, groupSizes || [], chain || 1);
-  game.releaseBarrenGravesForProgress?.(game.repairProgressPct || 0);
   game.recordDjinnBoardProgress({
     clearedPositions: collectClearedPositions(),
     groupSizes: groupSizes || [],
@@ -1169,12 +1168,6 @@ function maybeCommitTurn() {
   }
   bumpIdle();
   refreshHints();
-  const releasedCells = game.consumeReleasedEntityCells?.() || [];
-  if (releasedCells.length) {
-    board.value.releaseBlockedCells?.(releasedCells);
-    setTimeout(() => maybeCommitTurn(), 60);
-    return;
-  }
   const action = game.onAfterMove();
   if (action === 'complete') {
     EventBus.trigger('repairBegin');
@@ -1221,8 +1214,8 @@ watch(() => game.stepsLeft, () => {
   refreshHints();
   if (game.phase !== 'playing') return;
   if (game.stepsLeft > 5) return;
-  if (!game.activeMonsterTiles.some((monster) => monster.kind === 'nekkers')) return;
-  game.queueBark('那只孽鬼还在。');
+  if (!game.activeMonsterTiles.length) return;
+  game.queueBark('前面还有怪物挡着。');
 });
 watch(() => game.unlockedAbilities.length, refreshHints);
 watch(() => game.phase, (phase) => {
@@ -1543,14 +1536,14 @@ function stopDjinnTransitionFx() {
   border-radius: var(--radius-xl);
   transition: transform 280ms var(--ease-out-expo), filter 280ms var(--ease-out-expo);
   background:
-    linear-gradient(180deg, rgba(255, 245, 220, 0.2) 0%, transparent 12%),
+    linear-gradient(180deg, rgba(255, 248, 230, 0.16) 0%, transparent 12%),
     linear-gradient(160deg, rgba(93, 66, 40, 0.95) 0%, rgba(36, 22, 12, 0.98) 100%);
-  border: 1px solid rgba(220, 184, 122, 0.48);
+  border: 1px solid rgba(220, 188, 132, 0.42);
   box-shadow:
-    0 28px 52px rgba(14, 8, 6, 0.48),
-    0 8px 16px rgba(14, 8, 6, 0.22),
-    inset 0 0 0 1px rgba(255, 242, 214, 0.1),
-    inset 0 0 0 6px rgba(18, 10, 7, 0.32);
+    0 24px 48px rgba(14, 8, 6, 0.42),
+    0 6px 14px rgba(14, 8, 6, 0.18),
+    inset 0 0 0 1px rgba(255, 245, 218, 0.10),
+    inset 0 0 0 5px rgba(20, 12, 8, 0.28);
 }
 
 .gameBoard::before,
@@ -1564,18 +1557,18 @@ function stopDjinnTransitionFx() {
 .gameBoard::before {
   inset: 5px;
   background:
-    linear-gradient(160deg, rgba(255, 240, 214, 0.1), rgba(0, 0, 0, 0.1)),
+    linear-gradient(160deg, rgba(255, 245, 222, 0.08), rgba(0, 0, 0, 0.08)),
     linear-gradient(160deg, var(--board-inner-1) 0%, var(--board-inner-2) 100%);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 240, 214, 0.1),
-    inset 0 0 0 3px rgba(22, 14, 10, 0.32),
-    inset 0 4px 12px rgba(0, 0, 0, 0.18);
+    inset 0 0 0 1px rgba(255, 245, 222, 0.08),
+    inset 0 0 0 3px rgba(22, 14, 10, 0.28),
+    inset 0 3px 10px rgba(0, 0, 0, 0.14);
 }
 
 .gameBoard::after {
   inset: 2px;
-  border: 1px solid rgba(242, 214, 164, 0.18);
-  box-shadow: inset 0 1px 2px rgba(255, 242, 214, 0.06);
+  border: 1px solid rgba(242, 218, 172, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 245, 218, 0.06);
 }
 
 .gameBoard.shaking { animation: gb-shake 100ms 4 alternate var(--ease-out-expo); }
@@ -1608,10 +1601,10 @@ function stopDjinnTransitionFx() {
     linear-gradient(160deg, var(--board-cell-2) 0%, var(--board-cell-1) 100%);
   background-size: 60px 60px, 60px 60px, auto, auto, auto, auto;
   box-shadow:
-    inset 0 0 0 1px rgba(243, 218, 168, 0.12),
-    inset 0 18px 28px rgba(255, 228, 182, 0.05),
-    inset 0 -18px 26px rgba(0, 0, 0, 0.32),
-    inset 0 0 24px rgba(0, 0, 0, 0.15);
+    inset 0 0 0 1px rgba(245, 225, 178, 0.10),
+    inset 0 16px 24px rgba(255, 232, 190, 0.04),
+    inset 0 -16px 22px rgba(0, 0, 0, 0.28),
+    inset 0 0 20px rgba(0, 0, 0, 0.12);
 }
 
 .gameBoard .tileContainer {
@@ -2466,18 +2459,17 @@ function stopDjinnTransitionFx() {
   border-radius: var(--radius-md);
   text-align: center;
   z-index: 9;
-  box-shadow: var(--surface-shadow);
   animation: fade-in 300ms var(--ease-out-expo);
 }
 .targeting-hint p { margin: 0 0 10px; font-size: 14px; }
 .cancel-btn {
-  background: linear-gradient(180deg, #4f3827 0%, #2b1b12 100%);
+  background: linear-gradient(180deg, #5a4434 0%, #3a2818 100%);
   color: #f3e6c8;
   border-radius: var(--radius-pill);
   padding: 6px 14px;
   font-size: 12px;
   font-weight: 600;
-  border: 1px solid rgba(255, 231, 190, 0.14);
+  border: 1px solid rgba(255, 244, 222, 0.16);
   transition: transform 160ms var(--ease-out-expo), filter 160ms var(--ease-out-expo);
 }
 .cancel-btn:hover {

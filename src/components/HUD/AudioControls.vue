@@ -1,5 +1,5 @@
 <template>
-  <div class="audio-controls parchment grain" :class="{ expanded }">
+  <div class="audio-controls glass grain" :class="{ expanded }">
     <button class="audio-btn primary" :title="muted ? '开启声音' : '静音'" @click="toggleMute">
       <span class="icon">{{ muted ? '🔇' : '🔊' }}</span>
       <span class="label">{{ muted ? '静音中' : '声音' }}</span>

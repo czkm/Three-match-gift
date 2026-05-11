@@ -1,6 +1,6 @@
 <template>
   <section
-    class="estate-strip parchment grain"
+    class="estate-strip glass grain"
     :class="{ locked: !interactive }"
   >
     <header class="strip-head">

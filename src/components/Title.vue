@@ -49,7 +49,7 @@
         >{{ p.label }}</button>
       </div>
 
-      <button class="achievement-entry parchment" @click="openAchievements">
+      <button class="achievement-entry" @click="openAchievements">
         <span class="entry-icon">🏆</span>
         <span class="entry-text">成就 {{ achievement.unlockedCount }} / {{ achievement.totalCount }}</span>
       </button>
@@ -294,10 +294,10 @@ h2.sub { font-size: 18px; margin: 6px 0 8px; letter-spacing: 0.44em; color: var(
   line-height: 1.65;
   border-left: 3px solid var(--gold-soft);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  background: rgba(255, 246, 224, 0.22);
+  background: rgba(255, 252, 244, 0.18);
   text-align: left;
   color: var(--ink-soft);
-  box-shadow: inset 0 0 0 1px rgba(208, 168, 87, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(180, 152, 104, 0.08);
 }
 .quote footer { margin-top: 8px; text-align: right; font-size: 12px; color: var(--ink); }
 
@@ -319,8 +319,8 @@ h2.sub { font-size: 18px; margin: 6px 0 8px; letter-spacing: 0.44em; color: var(
 }
 .gift-input {
   padding: 10px 12px;
-  border: 1px solid rgba(132, 88, 38, 0.46);
-  background: rgba(255, 251, 242, 0.56);
+  border: 1px solid rgba(180, 152, 104, 0.38);
+  background: rgba(255, 252, 244, 0.52);
   font-family: inherit;
   font-size: 14px;
   color: var(--ink);
@@ -329,10 +329,10 @@ h2.sub { font-size: 18px; margin: 6px 0 8px; letter-spacing: 0.44em; color: var(
 .gift-input:focus {
   outline: none;
   box-shadow:
-    0 0 0 3px rgba(208, 168, 87, 0.2),
-    0 12px 24px rgba(30, 20, 14, 0.1);
-  border-color: rgba(208, 168, 87, 0.65);
-  background: rgba(255, 251, 242, 0.72);
+    0 0 0 3px rgba(212, 172, 92, 0.18),
+    0 10px 20px rgba(30, 20, 14, 0.08);
+  border-color: rgba(212, 172, 92, 0.58);
+  background: rgba(255, 252, 244, 0.68);
 }
 .gift-input:disabled {
   cursor: default;
@@ -394,16 +394,16 @@ h2.sub { font-size: 18px; margin: 6px 0 8px; letter-spacing: 0.44em; color: var(
   align-items: center;
   gap: 8px;
   border-radius: var(--radius-pill);
-  background: rgba(255, 248, 230, 0.62);
-  border: 1px solid rgba(92, 60, 28, 0.24);
-  box-shadow: 0 8px 18px rgba(28, 18, 12, 0.12);
+  background: rgba(255, 252, 244, 0.48);
+  border: 1px solid rgba(180, 152, 104, 0.22);
+  box-shadow: 0 6px 14px rgba(28, 18, 12, 0.08);
   transition: transform 200ms var(--ease-out-expo), box-shadow 200ms var(--ease-out-expo), background 200ms var(--ease-out-expo);
 }
 
 .achievement-entry:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 24px rgba(28, 18, 12, 0.18);
-  background: rgba(255, 248, 230, 0.82);
+  box-shadow: 0 10px 20px rgba(28, 18, 12, 0.14);
+  background: rgba(255, 252, 244, 0.68);
 }
 
 .entry-icon {
@@ -419,10 +419,10 @@ h2.sub { font-size: 18px; margin: 6px 0 8px; letter-spacing: 0.44em; color: var(
 .preset {
   font-size: 11px;
   padding: 5px 11px;
-  border: 1px solid rgba(208, 168, 87, 0.4);
+  border: 1px solid rgba(180, 152, 104, 0.32);
   border-radius: 999px;
   color: var(--ink-soft);
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 252, 244, 0.30);
   transition: background 180ms ease, color 180ms ease, transform 180ms ease;
 }
 .preset:hover:not(:disabled) {
@@ -440,8 +440,8 @@ h2.sub { font-size: 18px; margin: 6px 0 8px; letter-spacing: 0.44em; color: var(
   margin: 6px 0 14px;
   padding: 11px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(208, 168, 87, 0.28);
-  background: rgba(255, 250, 240, 0.18);
+  border: 1px solid rgba(180, 152, 104, 0.22);
+  background: rgba(255, 252, 244, 0.14);
   text-align: left;
   opacity: 0;
   transform: translateY(6px);
@@ -480,23 +480,23 @@ h2.sub { font-size: 18px; margin: 6px 0 8px; letter-spacing: 0.44em; color: var(
   font-weight: 700;
   letter-spacing: 0.1em;
   transition: opacity 200ms var(--ease-out-expo), transform 200ms var(--ease-out-expo), box-shadow 200ms var(--ease-out-expo), filter 200ms var(--ease-out-expo);
-  border: 1px solid rgba(86, 54, 24, 0.38);
+  border: 1px solid rgba(120, 80, 30, 0.30);
   box-shadow:
-    0 8px 18px rgba(28, 18, 10, 0.22),
-    inset 0 1px 0 rgba(255, 248, 230, 0.35);
+    0 6px 14px rgba(28, 18, 10, 0.18),
+    inset 0 1px 0 rgba(255, 248, 230, 0.30);
 }
 .start:hover:not(:disabled) {
   filter: brightness(1.06);
   transform: translateY(-2px);
   box-shadow:
-    0 14px 28px rgba(28, 18, 10, 0.28),
-    inset 0 1px 0 rgba(255, 248, 230, 0.4);
+    0 10px 22px rgba(28, 18, 10, 0.24),
+    inset 0 1px 0 rgba(255, 248, 230, 0.36);
 }
 .start:active:not(:disabled) {
   transform: translateY(0);
   box-shadow:
-    0 4px 10px rgba(28, 18, 10, 0.18),
-    inset 0 1px 0 rgba(255, 248, 230, 0.3);
+    0 3px 8px rgba(28, 18, 10, 0.14),
+    inset 0 1px 0 rgba(255, 248, 230, 0.26);
 }
 .start:disabled {
   opacity: 0.45;

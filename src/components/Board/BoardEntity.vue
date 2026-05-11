@@ -197,13 +197,15 @@ const style = computed(() => ({
 
 .barrenGrave {
   background:
-    radial-gradient(circle at 50% 18%, rgba(190, 182, 160, 0.12), transparent 26%),
-    radial-gradient(circle at 24% 70%, rgba(96, 82, 60, 0.28), transparent 34%),
-    linear-gradient(180deg, rgba(80, 58, 36, 0.18) 0%, rgba(56, 42, 28, 0.14) 42%, transparent 42% 100%),
-    linear-gradient(160deg, rgba(74, 62, 50, 0.96) 0%, rgba(34, 28, 22, 0.98) 100%);
-  border-color: rgba(168, 150, 122, 0.26);
+    linear-gradient(180deg, rgba(244, 221, 162, 0.05) 0%, transparent 18%),
+    radial-gradient(circle at 50% 32%, rgba(208, 173, 102, 0.12), transparent 34%),
+    radial-gradient(circle at 24% 74%, rgba(96, 82, 60, 0.26), transparent 34%),
+    linear-gradient(180deg, rgba(80, 58, 36, 0.16) 0%, rgba(56, 42, 28, 0.12) 44%, transparent 44% 100%),
+    linear-gradient(160deg, rgba(70, 58, 50, 0.96) 0%, rgba(30, 24, 22, 0.98) 100%);
+  border-color: rgba(214, 184, 112, 0.24);
   box-shadow:
-    inset 0 0 0 1px rgba(224, 208, 180, 0.06),
+    inset 0 0 0 1px rgba(255, 238, 196, 0.08),
+    inset 0 0 22px rgba(214, 184, 112, 0.08),
     inset 0 -18px 24px rgba(14, 10, 8, 0.38),
     0 8px 18px rgba(12, 9, 7, 0.28);
 }
@@ -222,16 +224,32 @@ const style = computed(() => ({
   z-index: 1;
 }
 
+.barrenGrave::after {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  border-radius: 12px;
+  border: 1px solid rgba(214, 184, 112, 0.22);
+  box-shadow:
+    0 0 0 1px rgba(255, 241, 204, 0.04),
+    inset 0 0 12px rgba(214, 184, 112, 0.08);
+  opacity: 0.86;
+  z-index: 1;
+}
+
 .barrenGrave .glyph {
   font-size: 30px;
   transform: translateY(-7px);
-  filter: drop-shadow(0 3px 6px rgba(10, 8, 6, 0.42));
+  filter:
+    drop-shadow(0 3px 6px rgba(10, 8, 6, 0.42))
+    drop-shadow(0 0 8px rgba(214, 184, 112, 0.12));
 }
 
 .barrenGrave .slot-frame {
-  border-color: rgba(214, 198, 170, 0.08);
+  border-color: rgba(214, 184, 112, 0.12);
   box-shadow:
     inset 0 1px 0 rgba(255, 247, 236, 0.08),
+    inset 0 0 12px rgba(214, 184, 112, 0.06),
     inset 0 -10px 14px rgba(0, 0, 0, 0.22);
 }
 

@@ -25,7 +25,7 @@
     </div>
 
     <!-- Banner & monologue -->
-    <div v-if="bannerVisible" class="banner parchment grain">
+    <div v-if="bannerVisible" class="banner glass grain">
       <p class="banner-emoji">{{ today.building.emoji }}</p>
       <p class="banner-line ink-title">{{ today.completedBanner }}</p>
       <p class="banner-sub ink-subtle">解锁能力 · {{ ABILITIES[today.ability].name }}</p>

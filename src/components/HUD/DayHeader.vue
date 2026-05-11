@@ -1,5 +1,5 @@
 <template>
-  <div class="day-header parchment grain">
+  <div class="day-header glass grain">
     <div class="left">
       <span class="brand">Corvo Bianco · 白鸦葡萄园</span>
       <span class="ink-subtle">
@@ -46,7 +46,6 @@ const game = useGameStore()
   width: 600px;
   max-width: 96vw;
   margin: 0 auto 14px;
-  box-shadow: var(--surface-shadow);
 }
 .left,
 .middle,
@@ -79,8 +78,8 @@ const game = useGameStore()
   font-size: 17px;
   padding: 5px 14px;
   border-radius: var(--radius-pill);
-  background: rgba(255, 248, 229, 0.28);
-  box-shadow: inset 0 0 0 1px rgba(89, 58, 28, 0.14);
+  background: rgba(255, 252, 244, 0.36);
+  box-shadow: inset 0 0 0 1px rgba(180, 152, 104, 0.18);
   transition:
     background 240ms var(--ease-out-expo),
     box-shadow 240ms var(--ease-out-expo);
@@ -95,7 +94,7 @@ const game = useGameStore()
   align-items: flex-end;
   gap: 2px;
   padding-left: 12px;
-  border-left: 1px solid rgba(97, 68, 38, 0.18);
+  border-left: 1px solid rgba(180, 152, 104, 0.22);
 }
 
 .djinn-progress {

@@ -20,8 +20,8 @@ html, body {
 
 body {
   background:
-    radial-gradient(circle at 18% 20%, rgba(255, 223, 170, 0.24) 0%, transparent 28%),
-    radial-gradient(circle at 82% 10%, rgba(202, 128, 72, 0.16) 0%, transparent 24%),
+    radial-gradient(circle at 18% 20%, rgba(255, 223, 170, 0.18) 0%, transparent 28%),
+    radial-gradient(circle at 82% 10%, rgba(202, 128, 72, 0.10) 0%, transparent 24%),
     linear-gradient(180deg, var(--bg-grad-1, #d7c08f) 0%, var(--bg-grad-2, #7f6d4e) 52%, var(--bg-grad-3, #2c2219) 100%);
   background-attachment: fixed;
   transition: background var(--t-bg) var(--ease-out-expo), color var(--t-bg) var(--ease-out-expo);
@@ -31,7 +31,7 @@ body {
 
 /* Selection — warm parchment tint */
 ::selection {
-  background: rgba(208, 168, 87, 0.38);
+  background: rgba(208, 168, 87, 0.30);
   color: var(--ink);
 }
 
@@ -39,11 +39,11 @@ body {
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(92, 60, 28, 0.28);
+  background: rgba(92, 60, 28, 0.22);
   border-radius: var(--radius-pill);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(92, 60, 28, 0.44);
+  background: rgba(92, 60, 28, 0.36);
 }
 
 #app {
@@ -65,30 +65,32 @@ button {
 
 button:disabled { cursor: not-allowed; opacity: 0.5; }
 
-/* ── Parchment surface ── */
+/* ── Glass surface — frosted HUD (primary surface) ── */
+.glass {
+  background:
+    linear-gradient(180deg, rgba(255, 252, 246, 0.56) 0%, rgba(248, 240, 226, 0.40) 100%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.08);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.08);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  box-shadow:
+    var(--surface-shadow),
+    inset 0 1px 0 rgba(255, 252, 244, 0.38);
+  position: relative;
+}
+
+/* ── Parchment surface — kept for title/ending cards ── */
 .parchment {
   background:
-    linear-gradient(180deg, rgba(255, 248, 226, 0.5) 0%, transparent 18%),
+    linear-gradient(180deg, rgba(255, 248, 226, 0.42) 0%, transparent 18%),
     linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 72%, var(--paper-3) 100%);
-  border: 1px solid rgba(92, 60, 28, 0.55);
+  border: 1px solid rgba(160, 130, 82, 0.38);
   border-radius: var(--radius-md);
   box-shadow:
     var(--surface-glow),
     var(--hud-shadow),
-    inset 0 0 0 1px rgba(255, 244, 214, 0.24);
+    inset 0 0 0 1px rgba(255, 244, 214, 0.18);
   position: relative;
-}
-
-/* Glass surface — frosted translucent */
-.glass {
-  background:
-    linear-gradient(180deg, rgba(255, 248, 230, 0.65) 0%, rgba(232, 214, 178, 0.45) 100%);
-  backdrop-filter: blur(12px) saturate(1.1);
-  -webkit-backdrop-filter: blur(12px) saturate(1.1);
-  border: 1px solid rgba(255, 242, 214, 0.35);
-  box-shadow:
-    0 8px 24px rgba(19, 11, 8, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 /* ── Typography utilities ── */
@@ -96,7 +98,7 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--ink);
-  text-shadow: 0 1px 0 rgba(255, 245, 220, 0.42);
+  text-shadow: 0 1px 0 rgba(255, 245, 220, 0.32);
 }
 
 .ink-subtle {
@@ -107,8 +109,8 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .ink-glow {
   color: var(--gold-soft);
   text-shadow:
-    0 0 8px rgba(208, 168, 87, 0.35),
-    0 1px 0 rgba(255, 245, 220, 0.42);
+    0 0 8px rgba(208, 168, 87, 0.30),
+    0 1px 0 rgba(255, 245, 220, 0.32);
 }
 
 .label-caps {
@@ -151,43 +153,23 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
   100% { background-position: -200% 0; }
 }
 
-/* ── Subtle grain texture for parchment feel — pure CSS, no images ── */
+/* ── Subtle grain texture — lighter for modern feel ── */
 .grain::before {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 18% 24%, rgba(255, 238, 196, 0.18) 0, transparent 38%),
-    radial-gradient(circle at 76% 78%, rgba(94, 64, 34, 0.12) 0, transparent 44%),
-    repeating-linear-gradient(
-      135deg,
-      rgba(255, 246, 220, 0.02) 0 2px,
-      rgba(88, 60, 34, 0.02) 2px 4px
-    );
+    radial-gradient(circle at 18% 24%, rgba(255, 238, 196, 0.10) 0, transparent 38%),
+    radial-gradient(circle at 76% 78%, rgba(94, 64, 34, 0.06) 0, transparent 44%);
   mix-blend-mode: overlay;
   border-radius: inherit;
 }
 
-/* Enhanced grain with slightly more organic feel */
-.grain-rich::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+/* Reduced grain for glass surfaces */
+.glass.grain::before {
   background:
-    radial-gradient(circle at 22% 28%, rgba(255, 238, 196, 0.22) 0, transparent 42%),
-    radial-gradient(circle at 78% 72%, rgba(94, 64, 34, 0.14) 0, transparent 48%),
-    repeating-linear-gradient(
-      135deg,
-      rgba(255, 246, 220, 0.025) 0 2px,
-      rgba(88, 60, 34, 0.025) 2px 4px
-    ),
-    repeating-linear-gradient(
-      45deg,
-      rgba(255, 246, 220, 0.015) 0 3px,
-      transparent 3px 6px
-    );
-  mix-blend-mode: overlay;
-  border-radius: inherit;
+    radial-gradient(circle at 22% 28%, rgba(255, 238, 196, 0.06) 0, transparent 42%),
+    radial-gradient(circle at 78% 72%, rgba(94, 64, 34, 0.04) 0, transparent 48%);
+  mix-blend-mode: soft-light;
 }

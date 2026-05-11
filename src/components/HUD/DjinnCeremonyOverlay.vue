@@ -1,7 +1,7 @@
 <template>
   <div class="wish-overlay" @click="onOverlayClick">
     <div class="veil" />
-    <div class="card parchment grain">
+    <div class="card glass grain">
       <p class="title ink-title">{{ card.title }}</p>
       <p class="quote ink-subtle">{{ card.quote }}</p>
 

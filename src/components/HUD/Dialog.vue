@@ -1,5 +1,5 @@
 <template>
-  <div class="dialog-box parchment grain" @click.stop="onSkip">
+  <div class="dialog-box glass grain" @click.stop="onSkip">
     <p class="text">{{ display }}<span v-if="!done" class="cursor">▍</span></p>
     <span v-if="done && hint" class="hint">{{ hint }}</span>
   </div>

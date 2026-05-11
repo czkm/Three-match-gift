@@ -1,5 +1,5 @@
 <template>
-  <div class="ability-bar parchment grain">
+  <div class="ability-bar glass grain">
     <div class="bar-head">
       <h3 class="ink-title">能力</h3>
       <button class="achievement-entry" @click="achievement.openPanel()">
@@ -26,7 +26,7 @@
     </div>
 
     <!-- Resource conversion (lilacSeed) inline modal -->
-    <div v-if="lilacOpen" class="convert-panel parchment">
+    <div v-if="lilacOpen" class="convert-panel glass">
       <p class="ink-title">将哪种资源变成哪种？</p>
       <div class="dual">
         <div>
@@ -142,7 +142,6 @@ function cancelLilac() {
   padding: 18px 18px 20px;
   border-radius: var(--radius-md);
   position: relative;
-  box-shadow: var(--surface-shadow);
 }
 h3 {
   margin: 0 0 14px;
@@ -170,18 +169,18 @@ h3 {
   align-items: center;
   gap: 6px;
   border-radius: var(--radius-pill);
-  background: rgba(255, 248, 230, 0.52);
-  border: 1px solid rgba(208, 168, 87, 0.28);
-  box-shadow: inset 0 1px 0 rgba(255, 243, 214, 0.16);
+  background: rgba(255, 252, 244, 0.40);
+  border: 1px solid rgba(180, 152, 104, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 252, 244, 0.18);
   transition: transform 200ms var(--ease-out-expo), box-shadow 200ms var(--ease-out-expo), background 200ms var(--ease-out-expo);
 }
 
 .achievement-entry:hover {
   transform: translateY(-2px);
-  background: rgba(255, 248, 230, 0.76);
+  background: rgba(255, 252, 244, 0.62);
   box-shadow:
-    inset 0 1px 0 rgba(255, 243, 214, 0.28),
-    0 10px 18px rgba(24, 16, 10, 0.14);
+    inset 0 1px 0 rgba(255, 252, 244, 0.28),
+    0 8px 16px rgba(24, 16, 10, 0.10);
 }
 
 .entry-icon {
@@ -203,44 +202,40 @@ h3 {
   padding: 10px 12px;
   border-radius: var(--radius-sm);
   background:
-    linear-gradient(180deg, rgba(255, 247, 224, 0.22) 0%, rgba(255, 247, 224, 0.04) 18%),
-    linear-gradient(180deg, rgba(58, 42, 31, 0.1) 0%, rgba(58, 42, 31, 0.06) 100%);
-  border: 1px solid rgba(208, 168, 87, 0.32);
+    linear-gradient(180deg, rgba(255, 252, 246, 0.28) 0%, rgba(255, 250, 240, 0.08) 100%);
+  border: 1px solid rgba(180, 152, 104, 0.24);
   transition: background 200ms var(--ease-out-expo), border-color 200ms var(--ease-out-expo), transform 200ms var(--ease-out-expo), box-shadow 200ms var(--ease-out-expo);
   font-size: 13px;
   text-align: left;
   box-shadow:
-    inset 0 1px 0 rgba(255, 243, 214, 0.18),
-    0 6px 14px rgba(24, 16, 10, 0.1);
+    inset 0 1px 0 rgba(255, 252, 244, 0.20),
+    0 4px 10px rgba(24, 16, 10, 0.08);
 }
 .ab-btn:hover:not(:disabled) {
   background:
-    linear-gradient(180deg, rgba(255, 247, 224, 0.3) 0%, rgba(255, 247, 224, 0.1) 18%),
-    linear-gradient(180deg, rgba(208, 168, 87, 0.42) 0%, rgba(138, 93, 45, 0.28) 100%);
-  border-color: rgba(208, 168, 87, 0.58);
+    linear-gradient(180deg, rgba(255, 252, 246, 0.42) 0%, rgba(248, 238, 218, 0.24) 100%);
+  border-color: rgba(180, 152, 104, 0.42);
   transform: translateY(-2px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 243, 214, 0.32),
-    0 14px 24px rgba(24, 16, 10, 0.2);
+    inset 0 1px 0 rgba(255, 252, 244, 0.30),
+    0 12px 20px rgba(24, 16, 10, 0.14);
 }
 .ab-btn:active:not(:disabled) {
   background:
-    linear-gradient(180deg, rgba(255, 247, 224, 0.18) 0%, rgba(255, 247, 224, 0.02) 18%),
-    linear-gradient(180deg, rgba(138, 93, 45, 0.18) 0%, rgba(208, 168, 87, 0.3) 100%);
-  border-color: rgba(208, 168, 87, 0.26);
+    linear-gradient(180deg, rgba(248, 238, 218, 0.20) 0%, rgba(255, 250, 240, 0.06) 100%);
+  border-color: rgba(180, 152, 104, 0.20);
   transform: translateY(0);
   box-shadow:
-    inset 0 1px 0 rgba(255, 243, 214, 0.14),
-    0 4px 10px rgba(24, 16, 10, 0.08);
+    inset 0 1px 0 rgba(255, 252, 244, 0.14),
+    0 2px 6px rgba(24, 16, 10, 0.06);
 }
 .ab-btn.pending {
   background:
-    linear-gradient(180deg, rgba(255, 247, 224, 0.24) 0%, rgba(255, 247, 224, 0.06) 18%),
-    linear-gradient(180deg, rgba(176, 148, 201, 0.48) 0%, rgba(116, 86, 140, 0.3) 100%);
-  border-color: rgba(126, 88, 161, 0.85);
+    linear-gradient(180deg, rgba(176, 148, 201, 0.38) 0%, rgba(116, 86, 140, 0.22) 100%);
+  border-color: rgba(126, 88, 161, 0.72);
   box-shadow:
-    inset 0 1px 0 rgba(255, 243, 214, 0.2),
-    0 0 18px rgba(176, 148, 201, 0.22);
+    inset 0 1px 0 rgba(255, 252, 244, 0.16),
+    0 0 14px rgba(176, 148, 201, 0.18);
 }
 .ab-btn.disabled { opacity: 0.45; }
 .ab-icon { font-size: 19px; }
@@ -255,7 +250,7 @@ h3 {
   border-radius: 999px;
 }
 
-.passive-list { margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(58, 42, 31, 0.22); }
+.passive-list { margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(180, 152, 104, 0.22); }
 .passive-list .title { margin: 0 0 6px; font-size: 11px; letter-spacing: 0.1em; }
 .passive {
   display: flex;
@@ -265,7 +260,7 @@ h3 {
   font-size: 12px;
   color: var(--ink-soft);
   border-radius: 10px;
-  background: rgba(255, 248, 228, 0.16);
+  background: rgba(255, 252, 244, 0.14);
 }
 
 .convert-panel {
@@ -277,7 +272,6 @@ h3 {
   padding: 16px 16px;
   border-radius: var(--radius-sm);
   z-index: 12;
-  box-shadow: var(--surface-shadow);
   animation: fade-in 260ms var(--ease-out-expo);
 }
 .convert-panel p { margin: 0 0 6px; font-size: 13px; }
@@ -285,11 +279,11 @@ h3 {
 .dual > div { flex: 1; }
 .chips { display: flex; flex-wrap: wrap; gap: 4px; }
 .chip {
-  background: rgba(58, 42, 31, 0.08);
+  background: rgba(180, 152, 104, 0.08);
   padding: 4px 8px;
   border-radius: 999px;
   font-size: 11px;
-  border: 1px solid rgba(58, 42, 31, 0.18);
+  border: 1px solid rgba(180, 152, 104, 0.18);
 }
 .chip.active {
   background: var(--lilac);
@@ -316,8 +310,8 @@ h3 {
 }
 .apply:disabled { background: rgba(208, 168, 87, 0.4); }
 .cancel {
-  background: linear-gradient(180deg, #4f3827 0%, #2b1b12 100%);
+  background: linear-gradient(180deg, #5a4434 0%, #3a2818 100%);
   color: var(--paper);
-  border: 1px solid rgba(255, 231, 190, 0.12);
+  border: 1px solid rgba(255, 244, 222, 0.14);
 }
 </style>

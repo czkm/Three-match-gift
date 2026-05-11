@@ -26,7 +26,7 @@
       </div>
 
       <transition name="banner-fade">
-        <div v-if="phase >= 2" class="banner parchment grain">
+        <div v-if="phase >= 2" class="banner glass grain">
           <!-- Wax-seal-style emoji stamp -->
           <div class="seal" :class="{ stamped: phase >= 2 }">
             <span class="seal-ring" />
@@ -222,16 +222,16 @@ function onOverlayClick() {
   text-align: center;
   border-radius: var(--radius-md);
   box-shadow:
-    var(--surface-shadow),
-    0 0 0 1px rgba(255, 242, 214, 0.08),
-    inset 0 1px 0 rgba(255, 248, 230, 0.3);
+    0 14px 36px rgba(20, 14, 10, 0.20),
+    0 1px 0 rgba(255, 245, 218, 0.12),
+    inset 0 1px 0 rgba(255, 252, 244, 0.28);
 }
 .banner-fade-enter-active {
-  transition: opacity 720ms var(--ease-out-expo), transform 720ms var(--ease-out-expo);
+  transition: opacity 800ms var(--ease-out-expo), transform 800ms var(--ease-out-expo);
 }
 .banner-fade-enter-from {
   opacity: 0;
-  transform: translateY(14px) scale(0.94);
+  transform: translateY(18px) scale(0.94);
 }
 
 /* Wax-seal stamp around the building emoji */

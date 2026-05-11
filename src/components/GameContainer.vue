@@ -93,11 +93,11 @@ function onRepairAdvance() {
 
 .game-container::after {
   inset: 12px;
-  border: 1px solid rgba(231, 206, 158, 0.1);
+  border: 1px solid rgba(235, 215, 170, 0.08);
   border-radius: var(--radius-xl);
   box-shadow:
-    inset 0 0 0 1px rgba(34, 22, 14, 0.28),
-    inset 0 0 48px rgba(0, 0, 0, 0.08);
+    inset 0 0 0 1px rgba(36, 24, 16, 0.22),
+    inset 0 0 40px rgba(0, 0, 0, 0.06);
   z-index: -1;
 }
 

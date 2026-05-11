@@ -15,7 +15,6 @@
     @touchstart.prevent="onPick"
   >
     <span class="glyph">{{ glyph }}</span>
-    <span v-if="monsterSignal" class="monster-signal" :class="monsterSignal.className">{{ monsterSignal.glyph }}</span>
   </div>
 </template>
 
@@ -65,17 +64,6 @@ const glyph = computed(() => {
   }
 });
 
-const monsterSignal = computed(() => {
-  const monster = props.monster;
-  if (!monster) return null;
-  if (monster.kind === 'nekkers') return { glyph: '🦴', className: 'signal-nekkers' };
-  if (monster.kind === 'drowner') return { glyph: '💧', className: 'signal-drowner' };
-  if (monster.kind === 'ghoul') return { glyph: '☠️', className: 'signal-ghoul' };
-  if (monster.kind === 'griffinChick') return { glyph: '🪶', className: 'signal-griffin' };
-  if (monster.kind === 'wraith') return { glyph: monster.shield > 0 ? '🫧' : '🌫️', className: 'signal-wraith' };
-  return null;
-});
-
 function onPick(evt) {
   emit('pick', { row: props.tile.row, col: props.tile.col }, evt);
 }
@@ -93,31 +81,4 @@ function onPick(evt) {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
 }
 
-.monster-signal {
-  position: absolute;
-  right: 6px;
-  top: 4px;
-  z-index: 3;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 3px;
-  border-radius: var(--radius-pill);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1;
-  color: #fff4d2;
-  background: rgba(28, 18, 14, 0.68);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(2px);
-  letter-spacing: 0.02em;
-}
-
-.signal-drowner { color: #8fdcff; }
-.signal-ghoul { color: #f0d7a2; }
-.signal-griffin { color: #ffe39c; }
-.signal-wraith { color: #d8c3ff; }
-.signal-nekkers { color: #ffc3a8; }
 </style>

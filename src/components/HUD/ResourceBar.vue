@@ -1,5 +1,5 @@
 <template>
-  <div class="resource-bar parchment grain">
+  <div class="resource-bar glass grain">
     <h3 class="ink-title">修复进度</h3>
     <div v-for="r in game.repairView" :key="r.id" class="row">
       <span class="emoji">{{ r.emoji }}</span>
@@ -173,7 +173,6 @@ onBeforeUnmount(() => {
   width: 244px;
   padding: 18px 18px 20px;
   border-radius: var(--radius-md);
-  box-shadow: var(--surface-shadow);
 }
 h3 {
   margin: 0 0 14px;
@@ -195,12 +194,12 @@ h3 {
   flex: 1;
   height: 10px;
   background:
-    linear-gradient(180deg, rgba(44, 28, 18, 0.38) 0%, rgba(82, 58, 36, 0.28) 100%);
+    linear-gradient(180deg, rgba(44, 30, 20, 0.30) 0%, rgba(82, 60, 40, 0.22) 100%);
   border-radius: var(--radius-pill);
   overflow: hidden;
   box-shadow:
-    inset 0 1px 2px rgba(0, 0, 0, 0.28),
-    inset 0 0 0 1px rgba(255, 238, 208, 0.08);
+    inset 0 1px 2px rgba(0, 0, 0, 0.22),
+    inset 0 0 0 1px rgba(255, 244, 222, 0.10);
 }
 .fill {
   height: 100%;
@@ -237,10 +236,10 @@ h3 {
   margin-top: 20px;
   padding: 14px 14px 13px 16px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(58, 42, 31, 0.14);
+  border: 1px solid rgba(180, 152, 104, 0.18);
   overflow: hidden;
   transition: transform 280ms var(--ease-out-expo), box-shadow 280ms var(--ease-out-expo), border-color 280ms var(--ease-out-expo), background 280ms var(--ease-out-expo);
-  box-shadow: inset 0 1px 0 rgba(255, 245, 220, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 252, 244, 0.20);
 }
 
 .message-box::before {
@@ -251,7 +250,7 @@ h3 {
   bottom: 10px;
   width: 4px;
   border-radius: 999px;
-  background: rgba(58, 42, 31, 0.2);
+  background: rgba(180, 152, 104, 0.24);
 }
 
 .message-box.fresh {
@@ -314,8 +313,8 @@ h3 {
 
 .kind-narration {
   background:
-    linear-gradient(180deg, rgba(119, 146, 88, 0.12), rgba(255, 245, 224, 0.58));
-  border-color: rgba(120, 144, 88, 0.22);
+    linear-gradient(180deg, rgba(119, 146, 88, 0.10), rgba(255, 250, 240, 0.48));
+  border-color: rgba(120, 144, 88, 0.20);
 }
 
 .kind-narration::before {
@@ -328,8 +327,8 @@ h3 {
 
 .kind-geralt {
   background:
-    linear-gradient(180deg, rgba(90, 72, 52, 0.08), rgba(255, 248, 238, 0.72));
-  border-color: rgba(90, 72, 52, 0.2);
+    linear-gradient(180deg, rgba(90, 72, 52, 0.06), rgba(255, 250, 242, 0.58));
+  border-color: rgba(180, 152, 104, 0.18);
 }
 
 .kind-geralt::before {
@@ -342,7 +341,7 @@ h3 {
 
 .kind-geralt .message-title,
 .kind-geralt .message-eyebrow {
-  color: #5a4330;
+  color: #6a5240;
 }
 
 .kind-geralt .message-text {
@@ -351,8 +350,8 @@ h3 {
 
 .kind-system {
   background:
-    linear-gradient(180deg, rgba(212, 168, 87, 0.16), rgba(176, 148, 201, 0.12));
-  border-color: rgba(184, 134, 46, 0.3);
+    linear-gradient(180deg, rgba(212, 168, 87, 0.12), rgba(176, 148, 201, 0.10));
+  border-color: rgba(180, 152, 104, 0.24);
 }
 
 .kind-system::before {
@@ -370,8 +369,8 @@ h3 {
 
 .kind-monster {
   background:
-    linear-gradient(180deg, rgba(96, 78, 58, 0.16), rgba(255, 248, 238, 0.72));
-  border-color: rgba(102, 72, 44, 0.28);
+    linear-gradient(180deg, rgba(96, 78, 58, 0.12), rgba(255, 250, 242, 0.58));
+  border-color: rgba(180, 152, 104, 0.22);
 }
 
 .kind-monster::before {
@@ -389,8 +388,8 @@ h3 {
 
 .kind-hint {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(232, 214, 173, 0.45));
-  border-color: rgba(58, 42, 31, 0.14);
+    linear-gradient(180deg, rgba(255, 252, 244, 0.24), rgba(248, 240, 226, 0.38));
+  border-color: rgba(180, 152, 104, 0.16);
 }
 
 .kind-hint::before {
@@ -404,20 +403,20 @@ h3 {
 @keyframes message-flash {
   0% {
     box-shadow:
-      0 0 0 rgba(212, 168, 87, 0),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      0 0 0 rgba(212, 172, 92, 0),
+      inset 0 0 0 1px rgba(255, 252, 244, 0.10);
   }
   35% {
     box-shadow:
-      0 0 0 5px rgba(212, 168, 87, 0.16),
-      0 12px 28px rgba(58, 42, 31, 0.16),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.38);
+      0 0 0 5px rgba(212, 172, 92, 0.14),
+      0 10px 24px rgba(44, 30, 22, 0.12),
+      inset 0 0 0 1px rgba(255, 252, 244, 0.32);
   }
   100% {
     box-shadow:
-      0 0 0 rgba(212, 168, 87, 0),
-      0 12px 26px rgba(58, 42, 31, 0.14),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+      0 0 0 rgba(212, 172, 92, 0),
+      0 10px 22px rgba(44, 30, 22, 0.10),
+      inset 0 0 0 1px rgba(255, 252, 244, 0.24);
   }
 }
 </style>

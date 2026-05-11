@@ -77,6 +77,13 @@ function onTesterKeydown(event) {
     return;
   }
 
+  if (key === 'e') {
+    event.preventDefault();
+    game.jumpToEndingForTesting();
+    showTesterToast('测试跳转：已进入结局画面');
+    return;
+  }
+
   if (key !== 'k') return;
   event.preventDefault();
   armJumpChord();

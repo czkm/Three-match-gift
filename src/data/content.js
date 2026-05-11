@@ -279,23 +279,23 @@ export const MONSTERS = {
     emoji: '🪦',
     category: 'terrain',
     uiLabel: '贫瘠土地',
-    statusLabel: '土地仍封着 · 暂不可恢复',
-    uiWeaknessShort: '随着修缮推进，墓碑会自己退去。',
-    uiPressureShort: '这片地太冷太荒，还得先把庄园重新暖起来。',
+    statusLabel: '土地仍封着 · 本日不可恢复',
+    uiWeaknessShort: '随着庄园逐日恢复，这片封着的地才会慢慢松开。',
+    uiPressureShort: '这片地太冷太荒，今天还不会重新长起来。',
     hp: 0,
     hits: 0,
     reward: {},
     clearReward: {},
     damageRule: {
       type: 'none',
-      hint: '土地仍太贫瘠，暂时无法恢复。继续推进当天修缮，墓碑会逐步退去。'
+      hint: '土地仍太贫瘠，今天还无法恢复。等后面的日子继续修整，这些墓碑才会逐渐减少。'
     },
     pressureRule: { type: 'none' },
     telegraph: '荒地封印',
-    echoLabel: '修复进度越高，这片地越容易重新松开。',
+    echoLabel: '随着天数推进，庄园会一点点把这些荒地重新要回来。',
     clearRule: {
       type: 'none',
-      hint: '土地仍太贫瘠，暂时无法恢复。继续推进当天修缮，墓碑会逐步退去。'
+      hint: '土地仍太贫瘠，今天还无法恢复。等后面的日子继续修整，这些墓碑才会逐渐减少。'
     },
     introLine: ''
   },
@@ -308,8 +308,8 @@ export const MONSTERS = {
     uiLabel: '疾病印记',
     uiWeaknessShort: '弱点：在它上下左右打出一次三消。',
     uiPressureShort: '这是第一愿要驱散的病气。',
-    hp: 1,
-    hits: 1,
+    hp: 3,
+    hits: 3,
     reward: {},
     clearReward: {},
     damageRule: {
@@ -335,8 +335,8 @@ export const MONSTERS = {
     statusLabel: '守在角落 · 不参与匹配',
     uiWeaknessShort: '这是第二愿的角落烛火，不参与匹配。',
     uiPressureShort: '只要完成一次 4 连，或打出一次 2 连锁，它们就会一起亮起。',
-    hp: 1,
-    hits: 1,
+    hp: 3,
+    hits: 3,
     reward: {},
     clearReward: {},
     damageRule: {
@@ -359,22 +359,22 @@ export const MONSTERS = {
     name: '孽鬼',
     emoji: '👺',
     uiLabel: '孽鬼',
-    uiWeaknessShort: '弱点：上下左右贴身三消。',
-    uiPressureShort: '若没受伤，回合末会向最近边缘跳 1 格。',
-    hp: 1,
-    hits: 1,
+    uiWeaknessShort: '弱点：在它上下左右打出一次三消。',
+    uiPressureShort: '它不会移动，只会一直占住这一格。',
+    hp: 3,
+    hits: 3,
     reward: {},
     clearReward: {},
     damageRule: {
       type: 'orthogonalAdjacent',
-      hint: '在它上下左右打出一次 3 连及以上匹配，就会把它驱走。'
+      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
     },
-    pressureRule: { type: 'edgeJump' },
-    telegraph: '正交贴身',
-    echoLabel: '移走一个乱跑的干扰点。',
+    pressureRule: { type: 'none' },
+    telegraph: '静止占位',
+    echoLabel: '击退后，空出这一格。',
     clearRule: {
       type: 'adjacentMatch',
-      hint: '在它上下左右打出一次 3 连及以上匹配，就会把它驱走。'
+      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
     },
     introLine: '孽鬼。闻到葡萄味了。',
     removeLine: '去别处找吃的。'
@@ -385,22 +385,22 @@ export const MONSTERS = {
     name: '水鬼',
     emoji: '🧟',
     uiLabel: '水鬼',
-    uiWeaknessShort: '弱点：正上或正下的纵向匹配。',
-    uiPressureShort: '若没受伤，回合末会下沉 1 格。',
-    hp: 2,
-    hits: 2,
-    reward: { grape: 2 },
-    clearReward: { grape: 2 },
+    uiWeaknessShort: '弱点：在它上下左右打出一次三消。',
+    uiPressureShort: '它不会移动，只会一直占住这一格。',
+    hp: 4,
+    hits: 4,
+    reward: {},
+    clearReward: {},
     damageRule: {
-      type: 'verticalAdjacent',
-      hint: '只有纵向匹配命中它的正上方或正下方，才会掉 1 点生命。'
+      type: 'orthogonalAdjacent',
+      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
     },
-    pressureRule: { type: 'sink' },
-    telegraph: '纵向箭头',
-    echoLabel: '击退后该列正常坍塌，并额外给 +2 葡萄。',
+    pressureRule: { type: 'none' },
+    telegraph: '静止占位',
+    echoLabel: '击退后，空出这一格。',
     clearRule: {
       type: 'adjacentMatch',
-      hint: '只有纵向匹配命中它的正上方或正下方，才会掉 1 点生命。'
+      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
     },
     introLine: '水鬼。闻到葡萄味了？',
     removeLine: '回水里去。'
@@ -411,22 +411,22 @@ export const MONSTERS = {
     name: '食尸鬼',
     emoji: '🧌',
     uiLabel: '食尸鬼',
-    uiWeaknessShort: '弱点：脚下清空，或本行横向擦到它。',
-    uiPressureShort: '若没受伤，回合末会在脚下留下腐土。',
-    hp: 2,
-    hits: 2,
-    reward: { herb: 2 },
-    clearReward: { herb: 2 },
+    uiWeaknessShort: '弱点：在它上下左右打出一次三消。',
+    uiPressureShort: '它不会移动，只会一直占住这一格。',
+    hp: 4,
+    hits: 4,
+    reward: {},
+    clearReward: {},
     damageRule: {
-      type: 'underfootOrRowHorizontal',
-      hint: '清到它脚下那格，或在同一行做横向匹配擦到它，才会掉 1 点生命。'
+      type: 'orthogonalAdjacent',
+      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
     },
-    pressureRule: { type: 'rotUnderfoot' },
-    telegraph: '脚下腐土',
-    echoLabel: '击退后清掉它生成的腐土，并给 +2 草药。',
+    pressureRule: { type: 'none' },
+    telegraph: '静止占位',
+    echoLabel: '击退后，空出这一格。',
     clearRule: {
       type: 'adjacentMatch',
-      hint: '清到它脚下那格，或在同一行做横向匹配擦到它，才会掉 1 点生命。'
+      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
     },
     introLine: '食尸鬼。大概是跟着我来的。',
     removeLine: '走吧。这里没你要的。'
@@ -437,22 +437,22 @@ export const MONSTERS = {
     name: '狮鹫幼雏',
     emoji: '🦅',
     uiLabel: '狮鹫幼雏',
-    uiWeaknessShort: '弱点：本行 4 连及以上的横向匹配。',
-    uiPressureShort: '若没受伤，回合末向上飞 1 格。',
-    hp: 2,
-    hits: 2,
-    reward: { magic: 2 },
-    clearReward: { magic: 2 },
+    uiWeaknessShort: '弱点：在它上下左右打出一次三消。',
+    uiPressureShort: '它不会移动，只会一直占住这一格。',
+    hp: 5,
+    hits: 5,
+    reward: {},
+    clearReward: {},
     damageRule: {
-      type: 'rowBigHorizontal',
-      hint: '在它所在那一行，打出 4 连及以上的横向匹配，才会掉 1 点生命。'
+      type: 'orthogonalAdjacent',
+      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
     },
-    pressureRule: { type: 'flyUp' },
-    telegraph: '振翅',
-    echoLabel: '击退后，下方一格的资源额外 +1 魔力。',
+    pressureRule: { type: 'none' },
+    telegraph: '静止占位',
+    echoLabel: '击退后，空出这一格。',
     clearRule: {
       type: 'adjacentMatch',
-      hint: '在它所在那一行，打出 4 连及以上的横向匹配，才会掉 1 点生命。'
+      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
     },
     introLine: '狮鹫幼雏。在等大的回来。',
     removeLine: '飞远点。等大的来接你。'
@@ -463,22 +463,22 @@ export const MONSTERS = {
     name: '怨灵',
     emoji: '👻',
     uiLabel: '怨灵',
-    uiWeaknessShort: '弱点：连锁 ≥2，或附近 4 连及以上。',
-    uiPressureShort: '若没受有效伤害，回合末恢复 1 层护纱。',
-    hp: 2,
-    hits: 2,
-    reward: { magic: 2 },
-    clearReward: { magic: 2 },
+    uiWeaknessShort: '弱点：在它上下左右打出一次三消。',
+    uiPressureShort: '它不会移动，只会一直占住这一格。',
+    hp: 5,
+    hits: 5,
+    reward: {},
+    clearReward: {},
     damageRule: {
-      type: 'qualityAdjacent',
-      hint: '只有连锁层数 ≥2，或 4 连及以上命中它附近，才算有效伤害。'
+      type: 'orthogonalAdjacent',
+      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
     },
-    pressureRule: { type: 'restoreShield' },
-    telegraph: '护纱',
-    echoLabel: '击退后，其他怪物下一回合不触发骚扰，并给 +2 魔力。',
+    pressureRule: { type: 'none' },
+    telegraph: '静止占位',
+    echoLabel: '击退后，空出这一格。',
     clearRule: {
       type: 'adjacentMatch',
-      hint: '只有连锁层数 ≥2，或 4 连及以上命中它附近，才算有效伤害。'
+      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
     },
     introLine: '怨灵。得用点魔力才能让它散。',
     removeLine: '安静了。'
@@ -524,10 +524,7 @@ export const MONSTER_CHARS = Object.keys(MONSTER_BY_CHAR)
 
 export const DAY_MONSTER_LAYOUTS = {
   0: [{ id: 'd1-nekkers-a', kind: 'nekkers', row: 2, col: 5 }],
-  1: [
-    { id: 'd2-nekkers-a', kind: 'nekkers', row: 1, col: 2 },
-    { id: 'd2-nekkers-b', kind: 'nekkers', row: 4, col: 5 }
-  ],
+  1: [{ id: 'd2-nekkers-a', kind: 'nekkers', row: 3, col: 4 }],
   2: [{ id: 'd3-drowner-a', kind: 'drowner', row: 2, col: 5 }],
   3: [
     { id: 'd4-drowner-a', kind: 'drowner', row: 1, col: 5 },
@@ -539,8 +536,7 @@ export const DAY_MONSTER_LAYOUTS = {
   ],
   5: [
     { id: 'd6-wraith-a', kind: 'wraith', row: 1, col: 5 },
-    { id: 'd6-ghoul-a', kind: 'ghoul', row: 2, col: 2 },
-    { id: 'd6-drowner-a', kind: 'drowner', row: 5, col: 5 }
+    { id: 'd6-ghoul-a', kind: 'ghoul', row: 4, col: 2 }
   ],
   6: [
     { id: 'd7-griffinChick-a', kind: 'griffinChick', row: 2, col: 5 },
@@ -553,54 +549,117 @@ export const DAY_MONSTER_LAYOUTS = {
   8: [{ id: 'd9-djinn-a', kind: 'djinn', row: 3, col: 3, width: 2, height: 2 }]
 }
 
-// Early-board pacing curve tuned around the 8x8 board:
-//   3 resources -> heavy pressure so runs tend to finish in ~5-8 turns
-//   4 resources -> clearly lighter, let the extra symbol variety do the work
-//   5+ resources -> retire the system quickly so later days rely on monsters and goals
-// Count curve by day: 11 / 9 / 6 / 4 / 2
+// Early-board pacing curve tuned around the 8x8 board.
+// Graves only change between days now; there is no mid-day release.
+// Count curve by day 1-7: 25 / 20 / 18 / 15 / 10 / 6 / 0
 export const BARREN_GRAVE_LAYOUTS = {
   0: [
     { id: 'd1-barren-a', row: 0, col: 0 },
-    { id: 'd1-barren-b', row: 0, col: 1, releaseAtProgress: 0.22 },
-    { id: 'd1-barren-c', row: 1, col: 0 },
-    { id: 'd1-barren-d', row: 0, col: 6 },
-    { id: 'd1-barren-e', row: 1, col: 7, releaseAtProgress: 0.52 },
-    { id: 'd1-barren-f', row: 4, col: 0 },
-    { id: 'd1-barren-g', row: 5, col: 0, releaseAtProgress: 0.38 },
-    { id: 'd1-barren-h', row: 6, col: 1 },
-    { id: 'd1-barren-i', row: 7, col: 6, releaseAtProgress: 0.68 },
-    { id: 'd1-barren-j', row: 6, col: 7 },
-    { id: 'd1-barren-k', row: 3, col: 7, releaseAtProgress: 0.82 }
+    { id: 'd1-barren-b', row: 0, col: 1 },
+    { id: 'd1-barren-c', row: 0, col: 2 },
+    { id: 'd1-barren-d', row: 0, col: 4 },
+    { id: 'd1-barren-e', row: 0, col: 5 },
+    { id: 'd1-barren-f', row: 0, col: 6 },
+    { id: 'd1-barren-g', row: 0, col: 7 },
+    { id: 'd1-barren-h', row: 1, col: 0 },
+    { id: 'd1-barren-i', row: 1, col: 7 },
+    { id: 'd1-barren-j', row: 2, col: 0 },
+    { id: 'd1-barren-k', row: 2, col: 7 },
+    { id: 'd1-barren-l', row: 3, col: 0 },
+    { id: 'd1-barren-m', row: 3, col: 7 },
+    { id: 'd1-barren-n', row: 4, col: 0 },
+    { id: 'd1-barren-o', row: 4, col: 7 },
+    { id: 'd1-barren-p', row: 5, col: 0 },
+    { id: 'd1-barren-q', row: 5, col: 7 },
+    { id: 'd1-barren-r', row: 6, col: 0 },
+    { id: 'd1-barren-s', row: 6, col: 7 },
+    { id: 'd1-barren-t', row: 7, col: 0 },
+    { id: 'd1-barren-u', row: 7, col: 1 },
+    { id: 'd1-barren-v', row: 7, col: 2 },
+    { id: 'd1-barren-w', row: 7, col: 5 },
+    { id: 'd1-barren-x', row: 7, col: 6 },
+    { id: 'd1-barren-y', row: 7, col: 7 }
   ],
   1: [
     { id: 'd2-barren-a', row: 0, col: 0 },
     { id: 'd2-barren-b', row: 0, col: 1 },
-    { id: 'd2-barren-c', row: 0, col: 6 },
-    { id: 'd2-barren-d', row: 1, col: 7, releaseAtProgress: 0.22 },
-    { id: 'd2-barren-e', row: 5, col: 0 },
-    { id: 'd2-barren-f', row: 6, col: 1, releaseAtProgress: 0.5 },
-    { id: 'd2-barren-g', row: 7, col: 6 },
-    { id: 'd2-barren-h', row: 3, col: 7, releaseAtProgress: 0.76 },
-    { id: 'd2-barren-i', row: 7, col: 3 }
+    { id: 'd2-barren-c', row: 0, col: 2 },
+    { id: 'd2-barren-d', row: 0, col: 4 },
+    { id: 'd2-barren-e', row: 0, col: 5 },
+    { id: 'd2-barren-f', row: 0, col: 6 },
+    { id: 'd2-barren-g', row: 0, col: 7 },
+    { id: 'd2-barren-h', row: 1, col: 0 },
+    { id: 'd2-barren-i', row: 1, col: 7 },
+    { id: 'd2-barren-j', row: 2, col: 0 },
+    { id: 'd2-barren-k', row: 2, col: 7 },
+    { id: 'd2-barren-l', row: 3, col: 0 },
+    { id: 'd2-barren-m', row: 3, col: 7 },
+    { id: 'd2-barren-n', row: 5, col: 0 },
+    { id: 'd2-barren-o', row: 5, col: 7 },
+    { id: 'd2-barren-p', row: 6, col: 0 },
+    { id: 'd2-barren-q', row: 6, col: 7 },
+    { id: 'd2-barren-r', row: 7, col: 0 },
+    { id: 'd2-barren-s', row: 7, col: 1 },
+    { id: 'd2-barren-t', row: 7, col: 6 }
   ],
   2: [
     { id: 'd3-barren-a', row: 0, col: 0 },
-    { id: 'd3-barren-b', row: 0, col: 1, releaseAtProgress: 0.34 },
-    { id: 'd3-barren-c', row: 1, col: 7 },
-    { id: 'd3-barren-d', row: 5, col: 0, releaseAtProgress: 0.66 },
-    { id: 'd3-barren-e', row: 6, col: 6 },
-    { id: 'd3-barren-f', row: 7, col: 5 }
+    { id: 'd3-barren-b', row: 0, col: 1 },
+    { id: 'd3-barren-c', row: 0, col: 2 },
+    { id: 'd3-barren-d', row: 0, col: 5 },
+    { id: 'd3-barren-e', row: 0, col: 6 },
+    { id: 'd3-barren-f', row: 0, col: 7 },
+    { id: 'd3-barren-g', row: 1, col: 0 },
+    { id: 'd3-barren-h', row: 1, col: 7 },
+    { id: 'd3-barren-i', row: 2, col: 0 },
+    { id: 'd3-barren-j', row: 2, col: 7 },
+    { id: 'd3-barren-k', row: 3, col: 0 },
+    { id: 'd3-barren-l', row: 3, col: 7 },
+    { id: 'd3-barren-m', row: 5, col: 0 },
+    { id: 'd3-barren-n', row: 5, col: 7 },
+    { id: 'd3-barren-o', row: 6, col: 0 },
+    { id: 'd3-barren-p', row: 6, col: 7 },
+    { id: 'd3-barren-q', row: 7, col: 0 },
+    { id: 'd3-barren-r', row: 7, col: 1 }
   ],
   3: [
     { id: 'd4-barren-a', row: 0, col: 0 },
-    { id: 'd4-barren-b', row: 0, col: 6, releaseAtProgress: 0.4 },
-    { id: 'd4-barren-c', row: 6, col: 0 },
-    { id: 'd4-barren-d', row: 7, col: 6, releaseAtProgress: 0.75 }
+    { id: 'd4-barren-b', row: 0, col: 1 },
+    { id: 'd4-barren-c', row: 0, col: 2 },
+    { id: 'd4-barren-d', row: 0, col: 6 },
+    { id: 'd4-barren-e', row: 0, col: 7 },
+    { id: 'd4-barren-f', row: 1, col: 0 },
+    { id: 'd4-barren-g', row: 2, col: 0 },
+    { id: 'd4-barren-h', row: 2, col: 7 },
+    { id: 'd4-barren-i', row: 3, col: 0 },
+    { id: 'd4-barren-j', row: 3, col: 7 },
+    { id: 'd4-barren-k', row: 5, col: 0 },
+    { id: 'd4-barren-l', row: 5, col: 7 },
+    { id: 'd4-barren-m', row: 6, col: 0 },
+    { id: 'd4-barren-n', row: 6, col: 7 },
+    { id: 'd4-barren-o', row: 7, col: 0 }
   ],
   4: [
-    { id: 'd5-barren-a', row: 0, col: 7, releaseAtProgress: 0.58 },
-    { id: 'd5-barren-b', row: 7, col: 0 }
-  ]
+    { id: 'd5-barren-a', row: 0, col: 0 },
+    { id: 'd5-barren-b', row: 0, col: 1 },
+    { id: 'd5-barren-c', row: 0, col: 6 },
+    { id: 'd5-barren-d', row: 0, col: 7 },
+    { id: 'd5-barren-e', row: 1, col: 0 },
+    { id: 'd5-barren-f', row: 1, col: 7 },
+    { id: 'd5-barren-g', row: 6, col: 0 },
+    { id: 'd5-barren-h', row: 6, col: 7 },
+    { id: 'd5-barren-i', row: 7, col: 0 },
+    { id: 'd5-barren-j', row: 7, col: 7 }
+  ],
+  5: [
+    { id: 'd6-barren-a', row: 0, col: 0 },
+    { id: 'd6-barren-b', row: 0, col: 7 },
+    { id: 'd6-barren-c', row: 3, col: 0 },
+    { id: 'd6-barren-d', row: 3, col: 7 },
+    { id: 'd6-barren-e', row: 7, col: 0 },
+    { id: 'd6-barren-f', row: 7, col: 7 }
+  ],
+  6: []
 }
 
 export const DJINN_WISHES = {

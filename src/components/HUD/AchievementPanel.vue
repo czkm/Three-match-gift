@@ -1,7 +1,7 @@
 <template>
   <transition name="panel-fade">
     <div v-if="achievement.panelOpen" class="achievement-panel-overlay" @click="achievement.closePanel">
-      <section class="achievement-panel parchment grain" @click.stop>
+      <section class="achievement-panel glass grain" @click.stop>
         <header class="panel-head">
           <div>
             <p class="panel-eyebrow">Steam 风格成就册</p>

@@ -78,7 +78,6 @@ export const useGameStore = defineStore('game', {
     barkLine: '',
     barkNonce: 0,
     inspectedMonster: null,        // { kind, entityId, source }
-    releasedEntityCells: [],
 
     // Day-specific modifiers
     needOverrides: {},
@@ -342,14 +341,13 @@ export const useGameStore = defineStore('game', {
       const hitsRequired = entity.hitsRequired || monster.hp || monster.hits || 1;
       const hitsTaken = entity.hitsTaken || 0;
       const remaining = Math.max(0, hitsRequired - hitsTaken);
-      const shield = entity.shield || 0;
 
       return {
         kind: info.kind,
         entityId: entity.id,
         emoji: monster.emoji,
         label: monster.uiLabel || monster.name,
-        healthLabel: shield > 0 ? `剩余 ${remaining} / ${hitsRequired} · 护纱 ${shield}` : `剩余 ${remaining} / ${hitsRequired}`,
+        healthLabel: `剩余 ${remaining} / ${hitsRequired}`,
         weakness: monster.uiWeaknessShort || monster.damageRule?.hint || monster.clearRule?.hint || '',
         pressure: monster.uiPressureShort || '若放着不管，会继续占住做局空间。',
         echo: monster.echoLabel || '',
@@ -418,7 +416,6 @@ export const useGameStore = defineStore('game', {
       this.giftText = ENDING.defaultGift;
       this.giftAttemptedText = '';
       this.giftWasOverridden = false;
-      this.releasedEntityCells = [];
       this._resetDaySpecialState();
       this.phase = 'intro';
       achievements.track('runStart');
@@ -450,7 +447,6 @@ export const useGameStore = defineStore('game', {
       this.matchGroupsThisDay = 0;
       this.introShown = false;
       this.hintMove = null;
-      this.releasedEntityCells = [];
       this._resetDaySpecialState();
       this._refreshAbilityUses();
       if (this.currentDay >= DAYS.length) {
@@ -822,10 +818,6 @@ export const useGameStore = defineStore('game', {
         return { removedCount: 0, djinnHit: false };
       }
       const removed = [];
-      if (clearedTiles.some((tile) => tile.char === ROT_CHAR)) {
-        const clearedRot = new Set(clearedTiles.filter((tile) => tile.char === ROT_CHAR).map((tile) => `${tile.row}:${tile.col}`));
-        this.rotCells = this.rotCells.filter((cell) => !clearedRot.has(`${cell.row}:${cell.col}`));
-      }
 
       if (source === 'match') {
         for (const monster of this.monsterTiles) {
@@ -833,10 +825,6 @@ export const useGameStore = defineStore('game', {
           const hit = this._monsterWasHit(monster, clearedTiles, chain, matchGroups);
           if (!hit) continue;
           monster.lastDamagedTurn = this.turnId;
-          if ((monster.shield || 0) > 0) {
-            monster.shield = Math.max(0, (monster.shield || 0) - 1);
-            continue;
-          }
           monster.hitsTaken = (monster.hitsTaken || 0) + 1;
           if (monster.hitsTaken >= monster.hitsRequired) {
             monster.removed = true;
@@ -857,14 +845,6 @@ export const useGameStore = defineStore('game', {
         }
       }
 
-      const removedRotCells = [];
-      for (const entity of removed) {
-        if (entity.kind !== 'ghoul') continue;
-        for (const cell of this.rotCells) {
-          if (cell.ownerId === entity.id) removedRotCells.push({ row: cell.row, col: cell.col });
-        }
-      }
-
       if (removed.length) {
         for (const entity of removed) this._grantMonsterReward(entity.kind);
         this._countMonsterClears(removed.length);
@@ -880,10 +860,7 @@ export const useGameStore = defineStore('game', {
       return {
         removedCount: removed.length,
         djinnHit: false,
-        removedCells: [
-          ...removed.map((monster) => ({ row: monster.row, col: monster.col })),
-          ...removedRotCells
-        ]
+        removedCells: removed.map((monster) => ({ row: monster.row, col: monster.col }))
       };
     },
 
@@ -930,8 +907,6 @@ export const useGameStore = defineStore('game', {
       this.latestRestoredBuildingId = null;
       this.pendingEstateRevealId = null;
       this.hintMove = null;
-      this.releasedEntityCells = [];
-
       this.unlockedAbilities = DAYS
         .slice(0, targetIndex)
         .map((day) => day.ability);
@@ -971,8 +946,6 @@ export const useGameStore = defineStore('game', {
       this.latestRestoredBuildingId = null;
       this.pendingEstateRevealId = null;
       this.hintMove = null;
-      this.releasedEntityCells = [];
-
       this.unlockedAbilities = DAYS
         .slice(0, targetIndex)
         .map((day) => day.ability);
@@ -1008,7 +981,6 @@ export const useGameStore = defineStore('game', {
       this.hintMove = null;
       this.matchGroupsThisDay = 0;
       this.progress = { ...day.needs };
-      this.releasedEntityCells = [];
       if (this.currentDay === DAYS.length - 1) {
         achievements.disableForCurrentRun('tester-shortcut');
         this.finishRepair();
@@ -1029,6 +1001,15 @@ export const useGameStore = defineStore('game', {
       };
     },
 
+    jumpToEndingForTesting() {
+      const achievements = useAchievementStore();
+      achievements.disableForCurrentRun('tester-shortcut');
+      this.giftText = ENDING.defaultGift;
+      this.giftAttemptedText = '';
+      this.giftWasOverridden = false;
+      this.phase = 'ending';
+    },
+
     /* ---------- internals ---------- */
 
     _resetDaySpecialState() {
@@ -1040,7 +1021,6 @@ export const useGameStore = defineStore('game', {
       this.barkLine = '';
       this.barkNonce = 0;
       this.inspectedMonster = null;
-      this.releasedEntityCells = [];
       this.needOverrides = {};
       this.dayBuffs = { extraResourcePerType: false };
       this.djinnHintVisible = false;
@@ -1246,17 +1226,6 @@ export const useGameStore = defineStore('game', {
       for (const id of Object.keys(reward)) {
         this.progress[id] = (this.progress[id] || 0) + reward[id];
       }
-      if (kind === 'ghoul') this._clearOwnedRotCells(kind);
-      if (kind === 'wraith') this.skipMonsterPressureTurn = this.turnId + 1;
-    },
-
-    _clearOwnedRotCells(ownerIdOrKind) {
-      const owners = new Set(
-        this.monsterTiles
-          .filter((monster) => monster.id === ownerIdOrKind || monster.kind === ownerIdOrKind)
-          .map((monster) => monster.id)
-      );
-      this.rotCells = this.rotCells.filter((cell) => !owners.has(cell.ownerId));
     },
 
     _hasCurrentNeedsMet() {
@@ -1267,31 +1236,6 @@ export const useGameStore = defineStore('game', {
         if ((this.progress[id] || 0) < targetNeed) return false;
       }
       return true;
-    },
-
-    consumeReleasedEntityCells() {
-      const released = [...this.releasedEntityCells];
-      this.releasedEntityCells = [];
-      return released;
-    },
-
-    releaseBarrenGravesForProgress(progressRatio = 0) {
-      if (!Number.isFinite(progressRatio)) return [];
-      const released = [];
-      for (const entity of this.boardEntities) {
-        if (entity.removed || entity.kind !== 'barrenGrave') continue;
-        if (entity.releaseAtProgress == null) continue;
-        if (progressRatio + 1e-6 < entity.releaseAtProgress) continue;
-        entity.removed = true;
-        entity.hidden = false;
-        released.push({ row: entity.row, col: entity.col });
-      }
-      if (released.length) {
-        this.releasedEntityCells.push(...released);
-        this.clearMonsterInfo();
-        this.queueAmbientBark('荒土松开了一点，新的地块露出来了。');
-      }
-      return released;
     },
 
     _countMonsterClears(n) {
@@ -1305,95 +1249,7 @@ export const useGameStore = defineStore('game', {
 
     applyMonsterPressure(boardApi) {
       if (!boardApi || this.phase !== 'playing') return [];
-      if (this.skipMonsterPressureTurn === this.turnId) return [];
-
-      const actions = [];
-      const occupiedByMonster = () => new Set(
-        this.monsterTiles
-          .filter((monster) => !monster.removed)
-          .map((monster) => `${monster.row}:${monster.col}`)
-      );
-
-      for (const monster of this.monsterTiles) {
-        if (monster.removed) continue;
-        if (monster.lastPressureTurn === this.turnId) continue;
-        if (monster.lastDamagedTurn === this.turnId) continue;
-        const rule = MONSTERS[monster.kind]?.pressureRule?.type;
-
-        if (rule === 'edgeJump') {
-          const next = this._nextEdgeJumpCell(monster, boardApi, occupiedByMonster());
-          if (!next) continue;
-          const char = boardApi.getTile(monster.row, monster.col);
-          const target = boardApi.getTile(next.row, next.col);
-          boardApi.setTile(monster.row, monster.col, target || boardApi.hole);
-          boardApi.setTile(next.row, next.col, char);
-          monster.row = next.row;
-          monster.col = next.col;
-          monster.lastPressureTurn = this.turnId;
-          actions.push({ type: 'edgeJump', id: monster.id, row: next.row, col: next.col });
-        } else if (rule === 'sink') {
-          const row = monster.row + 1;
-          const col = monster.col;
-          if (row >= BOARD_ROWS || boardApi.isBlocked(row, col) || boardApi.isMonster(boardApi.getTile(row, col))) continue;
-          const char = boardApi.getTile(monster.row, monster.col);
-          const target = boardApi.getTile(row, col);
-          boardApi.setTile(monster.row, monster.col, target || boardApi.hole);
-          boardApi.setTile(row, col, char);
-          monster.row = row;
-          monster.col = col;
-          monster.lastPressureTurn = this.turnId;
-          actions.push({ type: 'sink', id: monster.id, row, col });
-        } else if (rule === 'flyUp') {
-          const row = monster.row - 1;
-          const col = monster.col;
-          if (row < 0 || boardApi.isBlocked(row, col) || boardApi.isMonster(boardApi.getTile(row, col))) continue;
-          const char = boardApi.getTile(monster.row, monster.col);
-          const target = boardApi.getTile(row, col);
-          boardApi.setTile(monster.row, monster.col, target || boardApi.hole);
-          boardApi.setTile(row, col, char);
-          monster.row = row;
-          monster.col = col;
-          monster.lastPressureTurn = this.turnId;
-          actions.push({ type: 'flyUp', id: monster.id, row, col });
-        } else if (rule === 'rotUnderfoot') {
-          const row = monster.row + 1;
-          const col = monster.col;
-          if (row >= BOARD_ROWS || boardApi.isBlocked(row, col) || boardApi.isMonster(boardApi.getTile(row, col))) continue;
-          boardApi.setTile(row, col, ROT_CHAR);
-          this._upsertRotCell(row, col, monster.id);
-          monster.ownedRotCells = [...new Set([...(monster.ownedRotCells || []), `${row}:${col}`])];
-          monster.lastPressureTurn = this.turnId;
-          actions.push({ type: 'rotUnderfoot', id: monster.id, row, col });
-        } else if (rule === 'restoreShield') {
-          monster.shield = Math.min(1, (monster.shield || 0) + 1);
-          monster.lastPressureTurn = this.turnId;
-          actions.push({ type: 'restoreShield', id: monster.id, shield: monster.shield });
-        }
-      }
-
-      return actions;
-    },
-
-    _upsertRotCell(row, col, ownerId) {
-      const existing = this.rotCells.find((cell) => cell.row === row && cell.col === col);
-      if (existing) {
-        existing.ownerId = ownerId;
-        return;
-      }
-      this.rotCells.push({ row, col, ownerId });
-    },
-
-    _nextEdgeJumpCell(monster, boardApi, occupied) {
-      const rowDir = monster.row < (BOARD_ROWS - 1) / 2 ? -1 : 1;
-      const colDir = monster.col < (BOARD_COLS - 1) / 2 ? -1 : 1;
-      const candidates = Math.min(monster.row, BOARD_ROWS - 1 - monster.row) <= Math.min(monster.col, BOARD_COLS - 1 - monster.col)
-        ? [{ row: monster.row + rowDir, col: monster.col }, { row: monster.row, col: monster.col + colDir }]
-        : [{ row: monster.row, col: monster.col + colDir }, { row: monster.row + rowDir, col: monster.col }];
-
-      return candidates.find((cell) => (
-        cell.row >= 0 && cell.row < BOARD_ROWS && cell.col >= 0 && cell.col < BOARD_COLS &&
-        !boardApi.isBlocked(cell.row, cell.col) && !occupied.has(`${cell.row}:${cell.col}`)
-      )) || null;
+      return [];
     },
 
     _entityAdjacencyKeys(entity) {
@@ -1480,7 +1336,7 @@ export const useGameStore = defineStore('game', {
         height: 1,
         hitsTaken: 0,
         hitsRequired: MONSTERS[kind].hp || MONSTERS[kind].hits || 0,
-        shield: kind === 'wraith' ? 1 : 0,
+        shield: 0,
         lastDamagedTurn: null,
         lastPressureTurn: null,
         ownedRotCells: [],
@@ -1502,7 +1358,7 @@ export const useGameStore = defineStore('game', {
         col,
         hitsTaken: 0,
         hitsRequired: MONSTERS[kind].hp || MONSTERS[kind].hits,
-        shield: kind === 'wraith' ? 1 : 0,
+        shield: 0,
         lastDamagedTurn: null,
         lastPressureTurn: null,
         ownedRotCells: [],
@@ -1529,10 +1385,7 @@ export const useGameStore = defineStore('game', {
           'barrenGrave',
           item.row,
           item.col,
-          item.id,
-          {
-            releaseAtProgress: item.releaseAtProgress ?? null
-          }
+          item.id
         )),
         ...layout.map((item) => this._newMonsterEntity(
           item.kind,
