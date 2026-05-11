@@ -137,7 +137,7 @@ export class AudioManager {
 
     await Promise.all([
       this.preload('bgm_dayplay.mp3'),
-      this.preload('bgm_dayplay.mp3'),
+      this.preload('bgm_brithday.mp3'),
       this.preload('sfx_click.mp3'),
       this.preload('drop.mp3'),
       this.preload('eliminate1.mp3'),

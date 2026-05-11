@@ -18,8 +18,8 @@ const PHASE_AUDIO_MAP: Record<string, PhaseConfig> = {
   awakening: { bgm: 'dayplay', ambient: null, bgmVolume: 0.38 },
   djinnTransition: { bgm: 'dayplay', ambient: null, bgmVolume: 0.36 },
   wish: { bgm: 'dayplay', ambient: null, bgmVolume: 0.36 },
-  ending: { bgm: 'dayplay', ambient: null, bgmVolume: 0.34 },
-  final: { bgm: 'dayplay', ambient: null, bgmVolume: 0.3 }
+  ending: { bgm: 'brithday', ambient: null, bgmVolume: 0.32 },
+  final: { bgm: 'brithday', ambient: null, bgmVolume: 0.28 }
 };
 
 let mountedCount = 0;
@@ -38,7 +38,8 @@ async function syncSceneAudio(game: ReturnType<typeof useGameStore>) {
   const config = getSceneConfig(game);
   if (!config) return;
 
-  const shouldStartBGM = !audioManager.currentBGMName;
+  const targetBGMName = config.bgm ? `/audio/bgm_${config.bgm}.mp3` : '';
+  const shouldStartBGM = Boolean(config.bgm) && audioManager.currentBGMName !== targetBGMName;
 
   if (typeof config.bgmVolume === 'number') {
     audioManager.bgmVolume = config.bgmVolume;
