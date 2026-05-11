@@ -195,6 +195,50 @@ const style = computed(() => ({
   filter: drop-shadow(0 2px 8px rgba(255, 204, 110, 0.28));
 }
 
+.barrenGrave {
+  background:
+    radial-gradient(circle at 50% 18%, rgba(190, 182, 160, 0.12), transparent 26%),
+    radial-gradient(circle at 24% 70%, rgba(96, 82, 60, 0.28), transparent 34%),
+    linear-gradient(180deg, rgba(80, 58, 36, 0.18) 0%, rgba(56, 42, 28, 0.14) 42%, transparent 42% 100%),
+    linear-gradient(160deg, rgba(74, 62, 50, 0.96) 0%, rgba(34, 28, 22, 0.98) 100%);
+  border-color: rgba(168, 150, 122, 0.26);
+  box-shadow:
+    inset 0 0 0 1px rgba(224, 208, 180, 0.06),
+    inset 0 -18px 24px rgba(14, 10, 8, 0.38),
+    0 8px 18px rgba(12, 9, 7, 0.28);
+}
+
+.barrenGrave::before {
+  content: '';
+  position: absolute;
+  inset: auto 7px 7px;
+  height: 18px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 36% 42%, rgba(128, 114, 92, 0.46), transparent 24%),
+    radial-gradient(circle at 68% 58%, rgba(84, 72, 56, 0.34), transparent 26%),
+    linear-gradient(180deg, rgba(40, 28, 22, 0.82) 0%, rgba(28, 20, 16, 0.96) 100%);
+  filter: blur(0.2px);
+  z-index: 1;
+}
+
+.barrenGrave .glyph {
+  font-size: 30px;
+  transform: translateY(-7px);
+  filter: drop-shadow(0 3px 6px rgba(10, 8, 6, 0.42));
+}
+
+.barrenGrave .slot-frame {
+  border-color: rgba(214, 198, 170, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 247, 236, 0.08),
+    inset 0 -10px 14px rgba(0, 0, 0, 0.22);
+}
+
+.barrenGrave .hp-bar {
+  display: none;
+}
+
 .hp-bar {
   position: absolute;
   left: 50%;

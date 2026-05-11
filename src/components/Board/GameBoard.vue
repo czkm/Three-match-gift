@@ -166,7 +166,7 @@
           v-if="comboPraise"
           :key="comboPraise.id"
           class="combo-praise"
-          :class="[comboPraise.tone, { giant: comboPraise.giant }]"
+          :class="[comboPraise.tone, comboPraise.theme, { giant: comboPraise.giant }]"
         >
           <p class="combo-praise-label">{{ comboPraise.label }}</p>
           <p v-if="comboPraise.comboText" class="combo-praise-combo">{{ comboPraise.comboText }}</p>
@@ -418,7 +418,7 @@ function onPick(payload, evt) {
     }
     return;
   }
-    if (isBlockedCell(payload.row, payload.col)) {
+  if (isBlockedCell(payload.row, payload.col)) {
       selectedId.value = null;
       const entity = entityAt(payload.row, payload.col);
       if (entity?.kind === 'djinn') {
@@ -435,13 +435,16 @@ function onPick(payload, evt) {
           );
         }
       } else if (entity) {
-      const hint = MONSTERS[entity.kind]?.clearRule?.hint;
-      const remain = Math.max(0, (entity.hitsRequired || 1) - (entity.hitsTaken || 0));
-      game.showMonsterInfo(entity.kind, entity.id, 'click');
-      if (!game.barkLine) {
-        game.queueAmbientBark(hint || `还需命中 ${remain} 次。`);
+        const monster = MONSTERS[entity.kind];
+        const hint = monster?.clearRule?.hint;
+        const remain = Math.max(0, (entity.hitsRequired || 1) - (entity.hitsTaken || 0));
+        game.showMonsterInfo(entity.kind, entity.id, 'click');
+        if (!game.barkLine) {
+          game.queueAmbientBark(
+            hint || monster?.uiPressureShort || `还需命中 ${remain} 次。`
+          );
+        }
       }
-    }
     return;
   }
   if (game.djinnReady) {
@@ -921,13 +924,14 @@ function reloadDjinnBoard() {
 
 function onTilesCleared(resourcesByChar, _swapSide, groupCount, groupSizes, chain, matchGroups) {
   game.gainResources(resourcesByChar, groupSizes || [], chain || 1);
+  game.releaseBarrenGravesForProgress?.(game.repairProgressPct || 0);
   game.recordDjinnBoardProgress({
     clearedPositions: collectClearedPositions(),
     groupSizes: groupSizes || [],
     chain: chain || 1,
     matchGroups: matchGroups || []
   });
-  showComboPraise(chain || 1, groupSizes || []);
+  showComboPraise(chain || 1, groupSizes || [], matchGroups || []);
   maybePraiseCombo(chain || 1, groupSizes || []);
   syncMonsterTilesFromEngine();
   // Trigger match continues as the engine queues; we only commit
@@ -988,7 +992,7 @@ function maybePraiseCombo(chain, groupSizes) {
   }
 }
 
-function showComboPraise(chain, groupSizes) {
+function showComboPraise(chain, groupSizes, matchGroups = []) {
   const biggest = Math.max(0, ...(groupSizes || []));
   let label = '';
   let subline = '';
@@ -996,6 +1000,7 @@ function showComboPraise(chain, groupSizes) {
   let giant = false;
   let flash = false;
   let comboText = '';
+  let theme = pickPraiseTheme(matchGroups);
 
   if (chain >= 4) {
     label = '传奇连击';
@@ -1036,7 +1041,8 @@ function showComboPraise(chain, groupSizes) {
     tone,
     giant,
     flash,
-    comboText
+    comboText,
+    theme
   };
 
   if (comboPraiseTimer) clearTimeout(comboPraiseTimer);
@@ -1044,6 +1050,20 @@ function showComboPraise(chain, groupSizes) {
     comboPraise.value = null;
     comboPraiseTimer = null;
   }, 1350);
+}
+
+function pickPraiseTheme(matchGroups = []) {
+  if (!matchGroups.length) return 'theme-gold';
+  const primary = [...matchGroups].sort((a, b) => (b.size || 0) - (a.size || 0))[0];
+  switch (primary?.char) {
+    case 'g': return 'theme-grape';
+    case 'w': return 'theme-wood';
+    case 's': return 'theme-stone';
+    case 'c': return 'theme-clay';
+    case 'h': return 'theme-herb';
+    case 'm': return 'theme-magic';
+    default: return 'theme-gold';
+  }
 }
 
 function maybeCommitTurn() {
@@ -1059,6 +1079,12 @@ function maybeCommitTurn() {
   }
   bumpIdle();
   refreshHints();
+  const releasedCells = game.consumeReleasedEntityCells?.() || [];
+  if (releasedCells.length) {
+    board.value.releaseBlockedCells?.(releasedCells);
+    setTimeout(() => maybeCommitTurn(), 60);
+    return;
+  }
   const action = game.onAfterMove();
   if (action === 'complete') {
     EventBus.trigger('repairBegin');
@@ -1679,6 +1705,41 @@ function stopDjinnTransitionFx() {
     inset 0 1px 0 rgba(255, 244, 220, 0.14);
 }
 
+.combo-praise.theme-gold {
+  background:
+    linear-gradient(180deg, rgba(70, 48, 24, 0.92), rgba(28, 18, 10, 0.86));
+}
+
+.combo-praise.theme-grape {
+  background:
+    linear-gradient(180deg, rgba(88, 48, 94, 0.92), rgba(34, 18, 40, 0.88));
+}
+
+.combo-praise.theme-wood {
+  background:
+    linear-gradient(180deg, rgba(102, 64, 36, 0.92), rgba(40, 24, 14, 0.88));
+}
+
+.combo-praise.theme-stone {
+  background:
+    linear-gradient(180deg, rgba(92, 92, 94, 0.92), rgba(34, 34, 38, 0.88));
+}
+
+.combo-praise.theme-clay {
+  background:
+    linear-gradient(180deg, rgba(118, 62, 48, 0.92), rgba(46, 20, 16, 0.88));
+}
+
+.combo-praise.theme-herb {
+  background:
+    linear-gradient(180deg, rgba(62, 94, 58, 0.92), rgba(24, 40, 22, 0.88));
+}
+
+.combo-praise.theme-magic {
+  background:
+    linear-gradient(180deg, rgba(96, 72, 32, 0.94), rgba(42, 26, 12, 0.9));
+}
+
 .combo-praise.warm {
   border: 1px solid rgba(232, 188, 106, 0.42);
 }
@@ -1697,6 +1758,24 @@ function stopDjinnTransitionFx() {
     0 16px 28px rgba(18, 10, 8, 0.3),
     0 0 24px rgba(240, 213, 107, 0.28),
     inset 0 1px 0 rgba(255, 247, 226, 0.24);
+}
+
+.combo-praise.theme-grape.warm,
+.combo-praise.theme-grape.rare,
+.combo-praise.theme-grape.epic {
+  border-color: rgba(196, 146, 220, 0.56);
+}
+
+.combo-praise.theme-magic.warm,
+.combo-praise.theme-magic.rare,
+.combo-praise.theme-magic.epic {
+  border-color: rgba(240, 213, 107, 0.66);
+}
+
+.combo-praise.theme-herb.warm,
+.combo-praise.theme-herb.rare,
+.combo-praise.theme-herb.epic {
+  border-color: rgba(168, 210, 134, 0.54);
 }
 
 .combo-praise.giant {

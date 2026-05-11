@@ -28,6 +28,7 @@ import {
   MONSTER_CHARS,
   MONSTERS,
   DAY_MONSTER_LAYOUTS,
+  BARREN_GRAVE_LAYOUTS,
   DJINN_WISHES,
   DJINN_CEREMONY_LAYOUTS,
   DJINN_MARK_SETS,
@@ -76,6 +77,7 @@ export const useGameStore = defineStore('game', {
     barkLine: '',
     barkNonce: 0,
     inspectedMonster: null,        // { kind, entityId, source }
+    releasedEntityCells: [],
 
     // Day-specific modifiers
     needOverrides: {},
@@ -311,6 +313,27 @@ export const useGameStore = defineStore('game', {
         };
       }
 
+      const boardEntity = state.boardEntities.find((item) => item.id === info.entityId && !item.removed)
+        || state.boardEntities.find((item) => !item.removed && item.kind === info.kind);
+      if (boardEntity) {
+        const hitsRequired = boardEntity.hitsRequired || monster.hp || monster.hits || 0;
+        const hitsTaken = boardEntity.hitsTaken || 0;
+        const remaining = Math.max(0, hitsRequired - hitsTaken);
+        const statusLabel = monster.statusLabel || (hitsRequired > 0 ? `剩余 ${remaining} / ${hitsRequired}` : '暂不可匹配');
+
+        return {
+          kind: info.kind,
+          entityId: boardEntity.id,
+          emoji: monster.emoji,
+          label: monster.uiLabel || monster.name,
+          healthLabel: statusLabel,
+          weakness: monster.uiWeaknessShort || monster.damageRule?.hint || monster.clearRule?.hint || '',
+          pressure: monster.uiPressureShort || '',
+          echo: monster.echoLabel || '',
+          source: info.source
+        };
+      }
+
       const entity = state.monsterTiles.find((item) => item.id === info.entityId && !item.removed)
         || state.monsterTiles.find((item) => !item.removed && item.kind === info.kind);
       if (!entity) return null;
@@ -394,6 +417,7 @@ export const useGameStore = defineStore('game', {
       this.giftText = ENDING.defaultGift;
       this.giftAttemptedText = '';
       this.giftWasOverridden = false;
+      this.releasedEntityCells = [];
       this._resetDaySpecialState();
       this.phase = 'intro';
       achievements.track('runStart');
@@ -425,6 +449,7 @@ export const useGameStore = defineStore('game', {
       this.matchGroupsThisDay = 0;
       this.introShown = false;
       this.hintMove = null;
+      this.releasedEntityCells = [];
       this._resetDaySpecialState();
       this._refreshAbilityUses();
       if (this.currentDay >= DAYS.length) {
@@ -899,6 +924,7 @@ export const useGameStore = defineStore('game', {
       this.latestRestoredBuildingId = null;
       this.pendingEstateRevealId = null;
       this.hintMove = null;
+      this.releasedEntityCells = [];
 
       this.unlockedAbilities = DAYS
         .slice(0, targetIndex)
@@ -939,6 +965,7 @@ export const useGameStore = defineStore('game', {
       this.latestRestoredBuildingId = null;
       this.pendingEstateRevealId = null;
       this.hintMove = null;
+      this.releasedEntityCells = [];
 
       this.unlockedAbilities = DAYS
         .slice(0, targetIndex)
@@ -975,6 +1002,7 @@ export const useGameStore = defineStore('game', {
       this.hintMove = null;
       this.matchGroupsThisDay = 0;
       this.progress = { ...day.needs };
+      this.releasedEntityCells = [];
       if (this.currentDay === DAYS.length - 1) {
         achievements.disableForCurrentRun('tester-shortcut');
         this.finishRepair();
@@ -1006,6 +1034,7 @@ export const useGameStore = defineStore('game', {
       this.barkLine = '';
       this.barkNonce = 0;
       this.inspectedMonster = null;
+      this.releasedEntityCells = [];
       this.needOverrides = {};
       this.dayBuffs = { extraResourcePerType: false };
       this.djinnHintVisible = false;
@@ -1183,7 +1212,7 @@ export const useGameStore = defineStore('game', {
       const fixed = [];
       for (const entity of this.boardEntities) {
         if (entity.removed) continue;
-        if (entity.kind === 'djinn') fixed.push(entity);
+        if (entity.kind === 'djinn' || entity.kind === 'barrenGrave') fixed.push(entity);
       }
 
       const occupied = new Set();
@@ -1232,6 +1261,31 @@ export const useGameStore = defineStore('game', {
         if ((this.progress[id] || 0) < targetNeed) return false;
       }
       return true;
+    },
+
+    consumeReleasedEntityCells() {
+      const released = [...this.releasedEntityCells];
+      this.releasedEntityCells = [];
+      return released;
+    },
+
+    releaseBarrenGravesForProgress(progressRatio = 0) {
+      if (!Number.isFinite(progressRatio)) return [];
+      const released = [];
+      for (const entity of this.boardEntities) {
+        if (entity.removed || entity.kind !== 'barrenGrave') continue;
+        if (entity.releaseAtProgress == null) continue;
+        if (progressRatio + 1e-6 < entity.releaseAtProgress) continue;
+        entity.removed = true;
+        entity.hidden = false;
+        released.push({ row: entity.row, col: entity.col });
+      }
+      if (released.length) {
+        this.releasedEntityCells.push(...released);
+        this.clearMonsterInfo();
+        this.queueAmbientBark('荒土松开了一点，新的地块露出来了。');
+      }
+      return released;
     },
 
     _countMonsterClears(n) {
@@ -1372,6 +1426,7 @@ export const useGameStore = defineStore('game', {
       const hasBigAdjacent = clearedTiles.some((tile) => adjacentKeys.has(`${tile.row}:${tile.col}`) && (tile.groupSize || 0) >= 4);
 
       switch (rule.type) {
+        case 'none': return false;
         case 'verticalAdjacent': return hasAdjacentVertical;
         case 'underfootOrRowHorizontal': return hasUnderfoot || hasRowHorizontal;
         case 'rowBigHorizontal': return hasRowBigHorizontal;
@@ -1462,17 +1517,29 @@ export const useGameStore = defineStore('game', {
 
     _buildDayLayout(dayIndex) {
       const layout = DAY_MONSTER_LAYOUTS[dayIndex] || [];
-      return layout.map((item) => this._newMonsterEntity(
-        item.kind,
-        item.row,
-        item.col,
-        item.id,
-        {
-          width: item.width || 1,
-          height: item.height || 1,
-          sleeping: item.kind === 'djinn'
-        }
-      )).filter((item) => item.kind === 'djinn');
+      const graves = BARREN_GRAVE_LAYOUTS[dayIndex] || [];
+      return [
+        ...graves.map((item) => this._newMonsterEntity(
+          'barrenGrave',
+          item.row,
+          item.col,
+          item.id,
+          {
+            releaseAtProgress: item.releaseAtProgress ?? null
+          }
+        )),
+        ...layout.map((item) => this._newMonsterEntity(
+          item.kind,
+          item.row,
+          item.col,
+          item.id,
+          {
+            width: item.width || 1,
+            height: item.height || 1,
+            sleeping: item.kind === 'djinn'
+          }
+        ))
+      ].filter((item) => item.kind === 'djinn' || item.kind === 'barrenGrave');
     },
 
     _buildDayMonsters(dayIndex) {

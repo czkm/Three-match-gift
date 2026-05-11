@@ -53,7 +53,7 @@ const messageKind = computed(() => {
 
 const messageEyebrow = computed(() => {
   switch (messageKind.value) {
-    case 'monster': return '怪物情报';
+    case 'monster': return '棋盘情报';
     case 'narration': return '今日场景';
     case 'geralt': return '杰洛特';
     case 'system': return '系统提示';

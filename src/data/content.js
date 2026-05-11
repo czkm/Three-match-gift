@@ -273,11 +273,38 @@ export const DAY_END_LINES = [
 ]
 
 export const MONSTERS = {
+  barrenGrave: {
+    id: 'barrenGrave',
+    name: '贫瘠土地',
+    emoji: '🪦',
+    category: 'terrain',
+    uiLabel: '贫瘠土地',
+    statusLabel: '土地仍封着 · 暂不可恢复',
+    uiWeaknessShort: '随着修缮推进，墓碑会自己退去。',
+    uiPressureShort: '这片地太冷太荒，还得先把庄园重新暖起来。',
+    hp: 0,
+    hits: 0,
+    reward: {},
+    clearReward: {},
+    damageRule: {
+      type: 'none',
+      hint: '土地仍太贫瘠，暂时无法恢复。继续推进当天修缮，墓碑会逐步退去。'
+    },
+    pressureRule: { type: 'none' },
+    telegraph: '荒地封印',
+    echoLabel: '修复进度越高，这片地越容易重新松开。',
+    clearRule: {
+      type: 'none',
+      hint: '土地仍太贫瘠，暂时无法恢复。继续推进当天修缮，墓碑会逐步退去。'
+    },
+    introLine: ''
+  },
   blightMark: {
     id: 'blightMark',
     char: 'B',
     name: '疾病印记',
     emoji: '🦠',
+    category: 'ritual',
     uiLabel: '疾病印记',
     uiWeaknessShort: '弱点：在它上下左右打出一次三消。',
     uiPressureShort: '这是第一愿要驱散的病气。',
@@ -303,7 +330,9 @@ export const MONSTERS = {
     id: 'joyCandle',
     name: '欢欣蜡烛',
     emoji: '🕯️',
+    category: 'ritual',
     uiLabel: '欢欣蜡烛',
+    statusLabel: '守在角落 · 不参与匹配',
     uiWeaknessShort: '这是第二愿的角落烛火，不参与匹配。',
     uiPressureShort: '只要完成一次 4 连，或打出一次 2 连锁，它们就会一起亮起。',
     hp: 1,
@@ -522,6 +551,56 @@ export const DAY_MONSTER_LAYOUTS = {
     { id: 'd8-wraith-a', kind: 'wraith', row: 4, col: 5 }
   ],
   8: [{ id: 'd9-djinn-a', kind: 'djinn', row: 3, col: 3, width: 2, height: 2 }]
+}
+
+// Early-board pacing curve tuned around the 8x8 board:
+//   3 resources -> heavy pressure so runs tend to finish in ~5-8 turns
+//   4 resources -> clearly lighter, let the extra symbol variety do the work
+//   5+ resources -> retire the system quickly so later days rely on monsters and goals
+// Count curve by day: 11 / 9 / 6 / 4 / 2
+export const BARREN_GRAVE_LAYOUTS = {
+  0: [
+    { id: 'd1-barren-a', row: 0, col: 0 },
+    { id: 'd1-barren-b', row: 0, col: 1, releaseAtProgress: 0.22 },
+    { id: 'd1-barren-c', row: 1, col: 0 },
+    { id: 'd1-barren-d', row: 0, col: 6 },
+    { id: 'd1-barren-e', row: 1, col: 7, releaseAtProgress: 0.52 },
+    { id: 'd1-barren-f', row: 4, col: 0 },
+    { id: 'd1-barren-g', row: 5, col: 0, releaseAtProgress: 0.38 },
+    { id: 'd1-barren-h', row: 6, col: 1 },
+    { id: 'd1-barren-i', row: 7, col: 6, releaseAtProgress: 0.68 },
+    { id: 'd1-barren-j', row: 6, col: 7 },
+    { id: 'd1-barren-k', row: 3, col: 7, releaseAtProgress: 0.82 }
+  ],
+  1: [
+    { id: 'd2-barren-a', row: 0, col: 0 },
+    { id: 'd2-barren-b', row: 0, col: 1 },
+    { id: 'd2-barren-c', row: 0, col: 6 },
+    { id: 'd2-barren-d', row: 1, col: 7, releaseAtProgress: 0.22 },
+    { id: 'd2-barren-e', row: 5, col: 0 },
+    { id: 'd2-barren-f', row: 6, col: 1, releaseAtProgress: 0.5 },
+    { id: 'd2-barren-g', row: 7, col: 6 },
+    { id: 'd2-barren-h', row: 3, col: 7, releaseAtProgress: 0.76 },
+    { id: 'd2-barren-i', row: 7, col: 3 }
+  ],
+  2: [
+    { id: 'd3-barren-a', row: 0, col: 0 },
+    { id: 'd3-barren-b', row: 0, col: 1, releaseAtProgress: 0.34 },
+    { id: 'd3-barren-c', row: 1, col: 7 },
+    { id: 'd3-barren-d', row: 5, col: 0, releaseAtProgress: 0.66 },
+    { id: 'd3-barren-e', row: 6, col: 6 },
+    { id: 'd3-barren-f', row: 7, col: 5 }
+  ],
+  3: [
+    { id: 'd4-barren-a', row: 0, col: 0 },
+    { id: 'd4-barren-b', row: 0, col: 6, releaseAtProgress: 0.4 },
+    { id: 'd4-barren-c', row: 6, col: 0 },
+    { id: 'd4-barren-d', row: 7, col: 6, releaseAtProgress: 0.75 }
+  ],
+  4: [
+    { id: 'd5-barren-a', row: 0, col: 7, releaseAtProgress: 0.58 },
+    { id: 'd5-barren-b', row: 7, col: 0 }
+  ]
 }
 
 export const DJINN_WISHES = {
