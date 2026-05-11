@@ -10,10 +10,46 @@ type MonsterEvent = 'spawn' | 'hit' | 'defeat';
 type SFXOptions = {
   vol?: number;
   rate?: number;
+  bypassThrottle?: boolean;
 };
 type BGMOptions = {
   fade?: number;
   loop?: boolean;
+};
+
+type SFXThrottlePolicy = {
+  sameMs?: number;
+  group?: string | null;
+  groupMs?: number;
+  priority?: number;
+};
+
+const SFX_THROTTLE: Record<string, SFXThrottlePolicy> = {
+  click: { sameMs: 70, group: 'ui', groupMs: 40, priority: 3 },
+  pageflip: { sameMs: 120, group: 'ui', groupMs: 60, priority: 3 },
+  error: { sameMs: 110, group: 'feedback', groupMs: 70, priority: 3 },
+  hint: { sameMs: 600, group: 'feedback', groupMs: 120, priority: 1 },
+  lowsteps: { sameMs: 1400, group: 'feedback', groupMs: 200, priority: 3 },
+  steprestore: { sameMs: 100, group: 'feedback', groupMs: 80, priority: 2 },
+  dayend: { sameMs: 250, group: 'feedback', groupMs: 120, priority: 2 },
+  achievement: { sameMs: 180, group: 'ui', groupMs: 100, priority: 3 },
+  repair: { sameMs: 220, group: 'feedback', groupMs: 120, priority: 2 },
+  swap: { sameMs: 70, group: 'board', groupMs: 36, priority: 3 },
+  land: { sameMs: 95, group: 'board', groupMs: 55, priority: 1 },
+  spawn: { sameMs: 110, group: 'board', groupMs: 65, priority: 1 },
+  lineclear: { sameMs: 180, group: 'board', groupMs: 120, priority: 2 },
+  seal_break: { sameMs: 180, group: 'ritual', groupMs: 110, priority: 3 },
+  rune_hit: { sameMs: 160, group: 'ritual', groupMs: 90, priority: 2 },
+  djinn_appear: { sameMs: 320, group: 'ritual', groupMs: 220, priority: 3 },
+  wish1: { sameMs: 320, group: 'ritual', groupMs: 220, priority: 3 },
+  wish2: { sameMs: 320, group: 'ritual', groupMs: 220, priority: 3 },
+  wish3: { sameMs: 320, group: 'ritual', groupMs: 220, priority: 3 },
+  ability_wolf: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
+  ability_harvest: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
+  ability_roach: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
+  ability_sunset: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
+  decoction: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
+  lilac: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 }
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -56,6 +92,8 @@ export class AudioManager {
 
   private readonly preloadCache = new Map<string, Promise<void>>();
   private readonly listeners = new Set<() => void>();
+  private readonly sfxLastPlayedAt = new Map<string, number>();
+  private readonly sfxGroupLastPlayedAt = new Map<string, number>();
 
   private constructor() {}
 
@@ -165,6 +203,7 @@ export class AudioManager {
   async playSFX(name: string, opts: SFXOptions = {}) {
     if (this._isMuted) return;
     if (!await this.ensureReady()) return;
+    if (!opts.bypassThrottle && !this.shouldPlaySFX(name)) return;
 
     while (this.activeSFXs.size >= MAX_SFX) {
       const oldest = this.activeSFXs.values().next().value;
@@ -198,7 +237,8 @@ export class AudioManager {
   playMatch(count: number) {
     const index = clamp(Math.round(count), 1, 8);
     this.playLooseFile(`eliminate${index}.mp3`, {
-      vol: clamp(0.46 + index * 0.045, 0.5, 0.86)
+      vol: clamp(0.46 + index * 0.045, 0.5, 0.86),
+      bypassThrottle: true
     });
   }
 
@@ -207,7 +247,14 @@ export class AudioManager {
     const comboCount = clamp(level, 3, 7);
     const fileName = `contnuousMatch${comboCount}.mp3`;
     this.playLooseFile(fileName, {
-      vol: clamp(0.4 + comboCount * 0.07, 0.52, 0.88)
+      vol: clamp(0.4 + comboCount * 0.07, 0.52, 0.88),
+      bypassThrottle: true
+    });
+  }
+
+  playBoardDrop(fallCount = 1) {
+    this.playLooseFile('drop.mp3', {
+      vol: clamp(0.26 + Math.min(fallCount, 8) * 0.035, 0.28, 0.56)
     });
   }
 
@@ -388,6 +435,7 @@ export class AudioManager {
   private async playLooseFile(fileName: string, opts: SFXOptions = {}) {
     if (this._isMuted) return;
     if (!await this.ensureReady()) return;
+    if (!opts.bypassThrottle && !this.shouldPlayLooseFile(fileName)) return;
     await this.preload(fileName).catch(() => {});
 
     while (this.activeSFXs.size >= MAX_SFX) {
@@ -421,6 +469,63 @@ export class AudioManager {
 
   private emitState() {
     for (const listener of this.listeners) listener();
+  }
+
+  private shouldPlaySFX(name: string) {
+    const policy = SFX_THROTTLE[name];
+    return this.shouldPlayWithPolicy(`sfx:${name}`, policy);
+  }
+
+  private shouldPlayLooseFile(fileName: string) {
+    if (/^eliminate\d+\.mp3$/.test(fileName)) {
+      return this.shouldPlayWithPolicy(`loose:${fileName}`, {
+        sameMs: 95,
+        group: 'match',
+        groupMs: 78,
+        priority: 2
+      });
+    }
+
+    if (/^contnuousMatch\d+\.mp3$/.test(fileName)) {
+      return this.shouldPlayWithPolicy(`loose:${fileName}`, {
+        sameMs: 130,
+        group: 'combo',
+        groupMs: 105,
+        priority: 3
+      });
+    }
+
+    if (fileName === 'drop.mp3') {
+      return this.shouldPlayWithPolicy(`loose:${fileName}`, {
+        sameMs: 90,
+        group: 'board',
+        groupMs: 60,
+        priority: 2
+      });
+    }
+
+    return true;
+  }
+
+  private shouldPlayWithPolicy(key: string, policy?: SFXThrottlePolicy) {
+    if (!policy) return true;
+
+    const now = performance.now();
+    const sameMs = policy.sameMs ?? 0;
+    const groupMs = policy.groupMs ?? 0;
+    const group = policy.group || null;
+    const lastSelf = this.sfxLastPlayedAt.get(key) ?? -Infinity;
+    const lastGroup = group ? (this.sfxGroupLastPlayedAt.get(group) ?? -Infinity) : -Infinity;
+
+    if (sameMs > 0 && now - lastSelf < sameMs) return false;
+
+    if (group && groupMs > 0 && now - lastGroup < groupMs) {
+      return (policy.priority ?? 0) >= 3;
+    }
+
+    this.sfxLastPlayedAt.set(key, now);
+    if (group) this.sfxGroupLastPlayedAt.set(group, now);
+    return true;
   }
 }
 

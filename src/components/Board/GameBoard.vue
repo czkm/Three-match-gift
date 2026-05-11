@@ -781,9 +781,6 @@ function drawMatch(opts) {
   }
 
   setTimeout(() => {
-    if ((opts.added || []).length) {
-      audioManager.playSFX('land', { vol: 0.25 });
-    }
     reconcileTilesToBoardState(opts.added || []);
   }, TIMING.MATCH_SHIFT_DELAY_MS + bigMatchPause);
   scheduleBoardVisualSync(TIMING.MATCH_RETURN_MS + bigMatchPause);
@@ -825,6 +822,8 @@ function syncTilesFromEngine() {
 function reconcileTilesToBoardState(addedTiles = []) {
   if (!board.value) return;
   let spawnedCount = 0;
+  let fallingCount = 0;
+  let maxFallDistance = 0;
 
   const targetMap = new Map();
   const addedLookup = new Map(addedTiles.map((tile) => [`${tile.row}:${tile.col}`, tile]));
@@ -865,6 +864,10 @@ function reconcileTilesToBoardState(addedTiles = []) {
       const tile = survivors[survivorIndex];
       survivorIndex--;
       if (!tile) continue;
+      if (target.row > tile.row) {
+        fallingCount++;
+        maxFallDistance = Math.max(maxFallDistance, target.row - tile.row);
+      }
       tile.type = typeFromChar(target.char);
       tile.col = target.col;
       tile.row = target.row;
@@ -883,6 +886,15 @@ function reconcileTilesToBoardState(addedTiles = []) {
       continue;
     }
     tile.type = typeFromChar(target.char);
+  }
+
+  if (fallingCount > 0) {
+    audioManager.playBoardDrop(fallingCount + Math.max(0, maxFallDistance - 1));
+    setTimeout(() => {
+      audioManager.playSFX('land', {
+        vol: Math.min(0.22 + Math.max(fallingCount, maxFallDistance) * 0.02, 0.38)
+      });
+    }, Math.max(120, TIMING.TILE_FALL_MS - 30));
   }
 
   if (spawnedCount > 0) {
