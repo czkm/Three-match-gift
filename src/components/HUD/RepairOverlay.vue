@@ -117,7 +117,6 @@ function onAdvance() {
     radial-gradient(circle at 50% 40%, rgba(255, 220, 160, 0.45), transparent 45%),
     radial-gradient(circle at 30% 70%, rgba(176, 148, 201, 0.08), transparent 35%),
     rgba(40, 28, 18, 0.68);
-  backdrop-filter: blur(3px);
 }
 
 .banner {

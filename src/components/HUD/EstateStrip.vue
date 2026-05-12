@@ -1,8 +1,5 @@
 <template>
-  <section
-    class="estate-strip glass grain"
-    :class="{ locked: !interactive }"
-  >
+  <section class="estate-strip glass grain" :class="{ locked: !interactive }">
     <header class="strip-head">
       <div class="title-group">
         <p class="eyebrow">
@@ -2106,8 +2103,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   border-radius: 50%;
   border: 1px solid rgba(255, 247, 225, 0.86);
-  background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(2px);
+  background: linear-gradient(180deg, rgba(248, 236, 208, 0.82), rgba(204, 180, 132, 0.76));
   box-shadow: 0 0 0 0 rgba(255, 230, 170, 0.35);
   transition:
     transform 180ms ease,
@@ -2143,8 +2139,8 @@ onBeforeUnmount(() => {
 }
 
 .gate-raven {
-  left: 26%;
-  top: 18%;
+  left: 50%;
+  top: 30%;
 }
 
 .vine-hotspot {

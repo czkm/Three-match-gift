@@ -35,7 +35,6 @@ function onContinue() {
   background:
     radial-gradient(circle at 50% 50%, rgba(36, 24, 16, 0.56), rgba(22, 12, 6, 0.90)),
     radial-gradient(circle at 62% 38%, rgba(176, 148, 201, 0.04), transparent 30%);
-  backdrop-filter: blur(4px);
   animation: overlay-in 600ms var(--ease-out-expo) forwards;
 }
 

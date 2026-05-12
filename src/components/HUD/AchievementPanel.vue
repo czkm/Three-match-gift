@@ -94,7 +94,6 @@ onBeforeUnmount(() => {
   background:
     radial-gradient(circle at 50% 22%, rgba(120, 152, 192, 0.14), rgba(12, 16, 24, 0.88)),
     radial-gradient(circle at 78% 78%, rgba(176, 148, 201, 0.06), transparent 30%);
-  backdrop-filter: blur(5px);
 }
 
 .achievement-panel {

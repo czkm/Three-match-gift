@@ -173,6 +173,10 @@ onBeforeUnmount(() => {
   width: 244px;
   padding: 18px 18px 20px;
   border-radius: var(--radius-md);
+  overflow: hidden;
+  isolation: isolate;
+  contain: paint;
+  background-clip: padding-box;
 }
 h3 {
   margin: 0 0 14px;
@@ -236,10 +240,12 @@ h3 {
   margin-top: 20px;
   padding: 14px 14px 13px 16px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(180, 152, 104, 0.18);
+  border: 1px solid transparent;
   overflow: hidden;
   transition: transform 280ms var(--ease-out-expo), box-shadow 280ms var(--ease-out-expo), border-color 280ms var(--ease-out-expo), background 280ms var(--ease-out-expo);
-  box-shadow: inset 0 1px 0 rgba(255, 252, 244, 0.20);
+  box-shadow:
+    inset 0 0 0 1px rgba(180, 152, 104, 0.18),
+    inset 0 1px 0 rgba(255, 252, 244, 0.20);
 }
 
 .message-box::before {

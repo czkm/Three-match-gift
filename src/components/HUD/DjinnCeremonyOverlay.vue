@@ -104,7 +104,6 @@ function onOverlayClick() {
     radial-gradient(circle at 50% 46%, rgba(214, 182, 110, 0.16), transparent 30%),
     radial-gradient(circle at 34% 62%, rgba(176, 148, 201, 0.08), transparent 35%),
     radial-gradient(circle at 50% 50%, rgba(48, 30, 24, 0.4), rgba(20, 10, 8, 0.85));
-  backdrop-filter: blur(3px);
 }
 
 .card {

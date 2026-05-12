@@ -157,7 +157,6 @@ function onOverlayClick() {
 .backdrop {
   position: absolute;
   inset: 0;
-  backdrop-filter: blur(3px);
   animation: backdrop-in 600ms var(--ease-out-expo) forwards;
   background: radial-gradient(circle at 50% 40%, rgba(255, 220, 160, 0.45), rgba(40, 28, 18, 0.68));
 }
