@@ -3,6 +3,8 @@
     <!-- Sky band that shifts hue -->
     <span class="sky" />
 
+    <span class="pig">🐷</span>
+
     <!-- The sun descending towards the horizon -->
     <span class="sun" />
 
@@ -47,10 +49,24 @@ defineProps({ phase: { type: Number, default: 0 } });
   opacity: 0;
 }
 .p1 .sky { animation: sky-warm 2200ms ease forwards; }
+.pig {
+  position: absolute;
+  left: 16%;
+  bottom: 18%;
+  font-size: 24px;
+  opacity: 0;
+}
+.p1 .pig { animation: pig-sunset-settle 1800ms ease-out 2050ms forwards; }
 @keyframes sky-warm {
   0%   { opacity: 0;   filter: hue-rotate(20deg); }
   40%  { opacity: 0.9; filter: hue-rotate(0deg); }
   100% { opacity: 1;   filter: hue-rotate(-12deg) saturate(1.15); }
+}
+@keyframes pig-sunset-settle {
+  0%   { opacity: 0; transform: translateX(0); }
+  16%  { opacity: 0.92; }
+  70%  { opacity: 0.92; transform: translateX(152px); }
+  100% { opacity: 0.92; transform: translateX(152px) translateY(2px); }
 }
 
 /* The sun: large warm disc descending */

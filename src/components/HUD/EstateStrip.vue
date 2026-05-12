@@ -314,6 +314,14 @@
         </article>
       </div>
 
+      <EstatePetPig
+        :display-stage="displayStage"
+        :interactive="interactive"
+        :repairing="repairing"
+        :active="activeHotspotId === 'pet-pig'"
+        @inspect="onPigInspect"
+      />
+
       <div class="scene-burst-layer">
         <span
           v-for="burst in bursts"
@@ -333,7 +341,8 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import EventBus from '@/core/eventBus'
-import { ESTATE_STRIP_STAGES } from '@/data/content'
+import EstatePetPig from './EstatePetPig.vue'
+import { ESTATE_PIG_LINES, ESTATE_STRIP_STAGES } from '@/data/content'
 import { useGameStore } from '@/stores/gameStore'
 import { TIMING } from '@/utils/timing'
 
@@ -499,6 +508,12 @@ function roachLine() {
   return lines[(lineCursor.roach ?? 0) % lines.length]
 }
 
+function pigLines() {
+  if (displayStage.value >= 7) return ESTATE_PIG_LINES.late
+  if (displayStage.value >= 4) return ESTATE_PIG_LINES.mid
+  return ESTATE_PIG_LINES.early
+}
+
 function captionForHotspot(id) {
   switch (id) {
     case 'white-raven':
@@ -516,6 +531,8 @@ function captionForHotspot(id) {
       lineCursor.roach = (lineCursor.roach ?? 0) + 1
       return line
     }
+    case 'pet-pig':
+      return nextLine('pet-pig', pigLines())
     case 'butterfly':
       return '蝴蝶飞起盘旋一圈，又轻轻落回花苞旁。'
     case 'greenhouse-door':
@@ -624,6 +641,10 @@ function onHotspot(id) {
     default:
       break
   }
+}
+
+function onPigInspect() {
+  onHotspot('pet-pig')
 }
 
 function fogStyle(index) {

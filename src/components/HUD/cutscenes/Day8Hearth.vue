@@ -5,6 +5,8 @@
     <span class="window" />
     <span class="chimney" />
 
+    <span class="pig">🐷</span>
+
     <!-- Window glow that warms up -->
     <span class="window-glow" />
 
@@ -52,8 +54,22 @@ defineProps({ phase: { type: Number, default: 0 } });
   transform: translateY(20px);
 }
 .p1 .kitchen-wall { animation: wall-rise 700ms cubic-bezier(0.22, 0.9, 0.34, 1) 200ms forwards; }
+.pig {
+  position: absolute;
+  left: 34%;
+  bottom: 16%;
+  font-size: 24px;
+  opacity: 0;
+}
+.p1 .pig { animation: pig-broth-sniff 2400ms ease-in-out 1500ms forwards; }
 @keyframes wall-rise {
   to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pig-broth-sniff {
+  0%   { opacity: 0; transform: translateX(0); }
+  15%  { opacity: 0.92; }
+  50%  { opacity: 0.92; transform: translateX(48px); }
+  100% { opacity: 0.92; transform: translateX(52px) translateY(-2px); }
 }
 
 .window {

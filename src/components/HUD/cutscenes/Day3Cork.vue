@@ -4,6 +4,9 @@
     <span class="barrel barrel-l">🛢️</span>
     <span class="barrel barrel-r">🛢️</span>
 
+    <span class="pig">🐷</span>
+    <span class="pig-puff">💨</span>
+
     <!-- The wine bottle that gets uncorked -->
     <span class="bottle">🍾</span>
 
@@ -46,6 +49,26 @@ defineProps({ phase: { type: Number, default: 0 } });
 .barrel-r { right: 22%; }
 .p1 .barrel-l { animation: barrel-roll-l 800ms cubic-bezier(0.22, 0.9, 0.34, 1) 200ms forwards; }
 .p1 .barrel-r { animation: barrel-roll-r 800ms cubic-bezier(0.22, 0.9, 0.34, 1) 320ms forwards; }
+.pig {
+  position: absolute;
+  left: 26%;
+  bottom: 18%;
+  font-size: 24px;
+  opacity: 0;
+}
+.pig-puff {
+  position: absolute;
+  left: 32%;
+  bottom: 26%;
+  font-size: 14px;
+  opacity: 0;
+}
+.p1 .pig {
+  animation:
+    pig-sniff-cork 1500ms ease-in-out 900ms forwards,
+    pig-hop-back 560ms ease-out 1450ms forwards;
+}
+.p1 .pig-puff { animation: pig-puff-away 520ms ease-out 1460ms forwards; }
 @keyframes barrel-roll-l {
   from { opacity: 0; transform: translateX(-80px) rotate(-180deg); }
   to   { opacity: 1; transform: translateX(0) rotate(0); }
@@ -53,6 +76,20 @@ defineProps({ phase: { type: Number, default: 0 } });
 @keyframes barrel-roll-r {
   from { opacity: 0; transform: translateX(80px) rotate(180deg); }
   to   { opacity: 1; transform: translateX(0) rotate(0); }
+}
+@keyframes pig-sniff-cork {
+  0%   { opacity: 0; transform: translateX(0); }
+  20%  { opacity: 0.9; }
+  100% { opacity: 0.9; transform: translateX(34px); }
+}
+@keyframes pig-hop-back {
+  from { transform: translateX(34px); }
+  to   { transform: translateX(4px); opacity: 0.9; }
+}
+@keyframes pig-puff-away {
+  0%   { opacity: 0; transform: translateX(0) scale(0.7); }
+  40%  { opacity: 0.8; }
+  100% { opacity: 0; transform: translateX(18px) translateY(-6px) scale(1.2); }
 }
 
 .bottle {

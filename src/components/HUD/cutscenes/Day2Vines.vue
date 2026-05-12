@@ -5,6 +5,8 @@
     <span class="trellis-post post-r" />
     <span class="trellis-beam" />
 
+    <span class="pig">🐖</span>
+
     <!-- Vines that shoot up the trellis, staggered -->
     <span
       v-for="n in 5"
@@ -74,8 +76,21 @@ defineProps({ phase: { type: Number, default: 0 } });
   transform-origin: left;
 }
 .p1 .trellis-beam { animation: beam-grow 600ms cubic-bezier(0.22, 0.9, 0.34, 1) 220ms forwards; }
+.pig {
+  position: absolute;
+  left: 8%;
+  bottom: 16%;
+  font-size: 24px;
+  opacity: 0;
+}
+.p1 .pig { animation: pig-cross 1600ms cubic-bezier(0.22, 0.9, 0.34, 1) 1680ms forwards; }
 @keyframes beam-grow {
   to { opacity: 1; transform: scaleX(1); }
+}
+@keyframes pig-cross {
+  0%   { opacity: 0; transform: translateX(0); }
+  10%  { opacity: 0.92; }
+  100% { opacity: 0.92; transform: translateX(240px); }
 }
 
 /* Vines as vertical green strokes that grow upward */

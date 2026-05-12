@@ -5,6 +5,9 @@
     <span class="stable-frame" />
     <span class="hay" />
 
+    <span class="pig">🐷</span>
+    <span class="pig-puff">💨</span>
+
     <!-- Dust trail Roach kicks up -->
     <span
       v-for="n in 6"
@@ -74,11 +77,45 @@ defineProps({ phase: { type: Number, default: 0 } });
 .p1 .stable-roof  { animation: stable-rise 700ms cubic-bezier(0.22, 0.9, 0.34, 1) 200ms forwards; }
 .p1 .stable-frame { animation: stable-rise 700ms cubic-bezier(0.22, 0.9, 0.34, 1) 280ms forwards; }
 .p1 .hay          { animation: hay-fade 500ms ease 800ms forwards; }
+.pig {
+  position: absolute;
+  left: 26%;
+  bottom: 18%;
+  font-size: 24px;
+  opacity: 0;
+}
+.pig-puff {
+  position: absolute;
+  left: 34%;
+  bottom: 26%;
+  font-size: 16px;
+  opacity: 0;
+}
+.p1 .pig {
+  animation:
+    pig-hesitate 1400ms ease-out 900ms forwards,
+    pig-scurry 800ms cubic-bezier(0.22, 0.9, 0.34, 1) 1650ms forwards;
+}
+.p1 .pig-puff { animation: pig-roach-puff 700ms ease-out 1760ms forwards; }
 @keyframes stable-rise {
   to { opacity: 1; transform: translateY(0); }
 }
 @keyframes hay-fade {
   to { opacity: 1; }
+}
+@keyframes pig-hesitate {
+  0%   { opacity: 0; transform: translateX(0); }
+  20%  { opacity: 0.92; }
+  100% { opacity: 0.92; transform: translateX(20px); }
+}
+@keyframes pig-scurry {
+  from { transform: translateX(20px); opacity: 0.92; }
+  to   { transform: translateX(-60px); opacity: 0.92; }
+}
+@keyframes pig-roach-puff {
+  0%   { opacity: 0; transform: translateX(0) scale(0.8); }
+  35%  { opacity: 0.82; }
+  100% { opacity: 0; transform: translateX(-26px) translateY(-4px) scale(1.4); }
 }
 
 /* Roach charges in from the right edge */

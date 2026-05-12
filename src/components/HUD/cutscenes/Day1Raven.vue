@@ -4,6 +4,8 @@
     <span class="gate-post" />
     <span class="gate-cap" />
 
+    <span class="pig">🐷</span>
+
     <!-- The raven itself -->
     <span class="raven">🕊</span>
 
@@ -56,8 +58,23 @@ defineProps({ phase: { type: Number, default: 0 } });
 }
 .p1 .gate-post { animation: post-rise 720ms cubic-bezier(0.22, 0.95, 0.34, 1) 200ms forwards; }
 .p1 .gate-cap  { animation: post-rise 720ms cubic-bezier(0.22, 0.95, 0.34, 1) 360ms forwards; }
+.pig {
+  position: absolute;
+  left: 12%;
+  bottom: 18%;
+  font-size: 24px;
+  opacity: 0;
+  transform: translateX(-18px);
+}
+.p1 .pig { animation: pig-peek 1500ms cubic-bezier(0.22, 0.9, 0.34, 1) 2100ms forwards; }
 @keyframes post-rise {
   to { transform: translateY(0); opacity: 1; }
+}
+@keyframes pig-peek {
+  0%   { opacity: 0; transform: translateX(-18px); }
+  30%  { opacity: 0.92; transform: translateX(0); }
+  70%  { opacity: 0.92; transform: translateX(4px); }
+  100% { opacity: 0.92; transform: translateX(8px); }
 }
 
 /* Raven flies a low arc from upper-right, circles, lands */

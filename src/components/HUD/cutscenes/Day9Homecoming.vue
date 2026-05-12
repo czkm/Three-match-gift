@@ -30,6 +30,8 @@
       </div>
     </div>
 
+    <span class="pig">🐖</span>
+
     <!-- Lilac petal storm: starts as a few, builds to a flood -->
     <span
       v-for="p in petals"
@@ -93,9 +95,25 @@ const petals = computed(() => {
   transform: translateX(0);
 }
 .p1 .pan-camera { animation: camera-pan 4000ms cubic-bezier(0.42, 0, 0.42, 1) 200ms forwards; }
+.pig {
+  position: absolute;
+  left: 30%;
+  bottom: 16%;
+  font-size: 24px;
+  opacity: 0;
+  z-index: 2;
+}
+.p1 .pig { animation: pig-homecoming 3600ms cubic-bezier(0.22, 0.9, 0.34, 1) 900ms forwards; }
 @keyframes camera-pan {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-680px); }
+}
+@keyframes pig-homecoming {
+  0%   { opacity: 0; transform: translateX(0); }
+  10%  { opacity: 0.92; }
+  62%  { opacity: 0.92; transform: translateX(180px); }
+  76%  { opacity: 0.92; transform: translateX(212px); }
+  100% { opacity: 0.92; transform: translateX(266px); }
 }
 
 /* Each manor segment is a column ~340px wide */

@@ -270,6 +270,7 @@ const hintIds = ref(new Set());
 const invalidIds = ref(new Set());
 const lastClearedMeta = ref(new Map());
 const lastClearSource = ref('match');
+const pendingComboAudioLevel = ref(0);
 const boardSyncTimers = [];
 let comboPraiseTimer = null;
 const spawnedMonsterIds = new Set();
@@ -1016,7 +1017,9 @@ function onTilesCleared(resourcesByChar, _swapSide, groupCount, groupSizes, chai
   const safeChain = chain || 1;
   const totalCleared = safeGroupSizes.reduce((sum, size) => sum + size, 0);
   if (totalCleared > 0) audioManager.playMatch(totalCleared);
-  if (safeChain >= 2) audioManager.playCombo(safeChain);
+  if (safeChain >= 2) {
+    pendingComboAudioLevel.value = Math.max(pendingComboAudioLevel.value, safeChain);
+  }
   game.gainResources(resourcesByChar, groupSizes || [], chain || 1);
   game.recordDjinnBoardProgress({
     clearedPositions: collectClearedPositions(),
@@ -1170,6 +1173,12 @@ function maybeCommitTurn() {
     setTimeout(() => maybeCommitTurn(), 60);
     return;
   }
+
+  if (pendingComboAudioLevel.value >= 2) {
+    audioManager.playCombo(pendingComboAudioLevel.value);
+    pendingComboAudioLevel.value = 0;
+  }
+
   bumpIdle();
   refreshHints();
   const action = game.onAfterMove();

@@ -5,6 +5,8 @@
     <span class="g-roof" />
     <span class="g-door" />
 
+    <span class="pig">🐷</span>
+
     <!-- The 6 panes that light up sequentially -->
     <span
       v-for="n in 6"
@@ -82,8 +84,22 @@ defineProps({ phase: { type: Number, default: 0 } });
 .p1 .g-body { animation: greenhouse-rise 700ms cubic-bezier(0.22, 0.9, 0.34, 1) 200ms forwards; }
 .p1 .g-roof { animation: greenhouse-rise 700ms cubic-bezier(0.22, 0.9, 0.34, 1) 320ms forwards; }
 .p1 .g-door { animation: greenhouse-rise 700ms cubic-bezier(0.22, 0.9, 0.34, 1) 420ms forwards; }
+.pig {
+  position: absolute;
+  left: 42%;
+  bottom: 16%;
+  font-size: 24px;
+  opacity: 0;
+}
+.p1 .pig { animation: pig-door-sniff 2200ms ease-in-out 1280ms forwards; }
 @keyframes greenhouse-rise {
   to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pig-door-sniff {
+  0%   { opacity: 0; transform: translateX(0); }
+  20%  { opacity: 0.92; }
+  58%  { opacity: 0.92; transform: translateX(18px); }
+  100% { opacity: 0.92; transform: translateX(8px); }
 }
 
 /* Six glass panes that pulse on in sequence */

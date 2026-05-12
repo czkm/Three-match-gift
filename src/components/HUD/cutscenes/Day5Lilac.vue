@@ -3,6 +3,8 @@
     <!-- Furrow of soil where the seed lands -->
     <span class="soil" />
 
+    <span class="pig">🐖</span>
+
     <!-- The seed: 🌰 -> sprout 🌱 -> herb 🌿 -> lilac 🪻 (one position, swap stages) -->
     <span class="stage seed">🌰</span>
     <span class="stage sprout">🌱</span>
@@ -55,7 +57,21 @@ defineProps({ phase: { type: Number, default: 0 } });
   opacity: 0;
 }
 .p1 .soil { animation: soil-fade 500ms ease 100ms forwards; }
+.pig {
+  position: absolute;
+  left: 18%;
+  bottom: 18%;
+  font-size: 24px;
+  opacity: 0;
+}
+.p1 .pig { animation: pig-chase-pollen 2000ms ease-in-out 1650ms forwards; }
 @keyframes soil-fade { to { opacity: 1; } }
+@keyframes pig-chase-pollen {
+  0%   { opacity: 0; transform: translateX(0); }
+  12%  { opacity: 0.92; }
+  55%  { opacity: 0.92; transform: translateX(74px) translateY(-3px); }
+  100% { opacity: 0.92; transform: translateX(108px) translateY(0); }
+}
 
 /* Each stage shares position; we toggle which one is visible per phase */
 .stage {
