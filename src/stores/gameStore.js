@@ -184,6 +184,11 @@ export const useGameStore = defineStore('game', {
       );
       const maxRemaining = Math.max(...Object.values(remainingById), 0);
       const weights = {};
+      const targetCount = requiredIds.length || 1;
+      const allowedCount = allowed.length || 1;
+      const nonTargetBase = targetCount >= allowedCount ? 1 : 0.94;
+      const targetBase = targetCount >= allowedCount ? 1 : 1.08;
+      const targetBoostCap = targetCount <= 2 ? 0.26 : 0.18;
 
       for (const ch of allowed) {
         const resource = RESOURCE_BY_CHAR[ch];
@@ -192,11 +197,11 @@ export const useGameStore = defineStore('game', {
         const remaining = remainingById[resource.id] ?? 0;
         if (remaining > 0) {
           const urgency = maxRemaining > 0 ? remaining / maxRemaining : 0;
-          weights[ch] = 3 + urgency * 2;
+          weights[ch] = targetBase + urgency * targetBoostCap;
         } else if (resource.id in day.needs) {
-          weights[ch] = 1.35;
+          weights[ch] = 0.98;
         } else {
-          weights[ch] = 1.15;
+          weights[ch] = nonTargetBase;
         }
       }
 
