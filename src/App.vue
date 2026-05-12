@@ -52,7 +52,8 @@ function onTesterKeydown(event) {
     clearJumpChord();
     const result = game.jumpToDayForTesting(Number(key));
     if (!result) return;
-    showTesterToast(`测试跳转：已到第 ${result.day} 天“${result.building}”`);
+    game.startPlay();
+    showTesterToast(`测试跳转：已到第 ${result.day} 天“${result.building}”并直接开始`);
     return;
   }
 

@@ -1132,12 +1132,12 @@ export const useGameStore = defineStore('game', {
       if (this.djinnObjective.type !== 'cakeSequence') return;
 
       if (this.djinnCakeLayer === 0) {
-        const hasGrapeFour = (matchGroups || []).some((group) => group.char === 'g' && group.size >= 4);
-        if (!hasGrapeFour) return;
+        const hasGrapeThree = (matchGroups || []).some((group) => group.char === 'g' && group.size >= 3);
+        if (!hasGrapeThree) return;
         this.djinnCakeLayer = 1;
       } else if (this.djinnCakeLayer === 1) {
-        const hasHerbFour = (matchGroups || []).some((group) => group.char === 'h' && group.size >= 4);
-        if (!hasHerbFour) return;
+        const hasHerbThree = (matchGroups || []).some((group) => group.char === 'h' && group.size >= 3);
+        if (!hasHerbThree) return;
         this.djinnCakeLayer = 2;
       } else if (this.djinnCakeLayer === 2) {
         const hasMagicThree = (matchGroups || []).some((group) => group.char === 'm' && group.size >= 3);

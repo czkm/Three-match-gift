@@ -250,7 +250,7 @@ export const DAYS = [
       en: 'Lilac Suite',
       emoji: '🛏️'
     },
-    needs: { wood: 35, herb: 25, magic: 25 },
+    needs: { wood: 30, herb: 22, magic: 18 },
     ability: 'hearthStew',
     intro: `最后一间房朝向花园。
 早晨有阳光，傍晚能闻到丁香。
@@ -685,15 +685,15 @@ export const DJINN_WISHES = {
       quote: '先把所有不该留下的阴影驱散，让身体安稳，让病痛退场。',
       introLines: [
         '迪精在棋盘中央缓慢呼吸，像一团还没说出口的光。',
-        '第一愿落下时，外圈浮起六道病气印记。',
+        '第一愿落下时，迪精周围浮起一圈病气印记。',
         '把它们一一清掉，愿小云身体健康，所有疾病都远离她。'
       ],
       wishText: '愿小云身体健康，所有疾病都远离她。',
       layoutId: 'health',
       objective: {
         type: 'clearMarks',
-        total: 6,
-        label: '在印记周围打出三消，清掉全部 6 个病气印记'
+        total: 8,
+        label: '在印记周围打出三消，清掉围住迪精一圈的 8 个病气印记'
       },
       resolveLines: [
         '病气散了，药草色的光沿着封印慢慢亮起。',
@@ -739,8 +739,8 @@ export const DJINN_WISHES = {
         total: 3,
         label: '按顺序完成生日蛋糕',
         steps: [
-          '先达成一次葡萄 4 连及以上，做出蛋糕底座。',
-          '再达成一次草药 4 连及以上，铺出紫丁香奶油。',
+          '先达成一次葡萄 3 连及以上，做出蛋糕底座。',
+          '再达成一次草药 3 连及以上，铺出紫丁香奶油。',
           '最后达成一次魔力 3 连及以上，或一次 2 连锁，点亮蜡烛。'
         ]
       },
@@ -787,12 +787,14 @@ export const DJINN_CEREMONY_LAYOUTS = {
 
 export const DJINN_MARK_SETS = {
   health: [
-    { id: 'djinn-blight-1', kind: 'blightMark', row: 2, col: 2 },
-    { id: 'djinn-blight-2', kind: 'blightMark', row: 2, col: 3 },
-    { id: 'djinn-blight-3', kind: 'blightMark', row: 2, col: 4 },
-    { id: 'djinn-blight-4', kind: 'blightMark', row: 2, col: 5 },
-    { id: 'djinn-blight-5', kind: 'blightMark', row: 3, col: 2 },
-    { id: 'djinn-blight-6', kind: 'blightMark', row: 3, col: 5 }
+    { id: 'djinn-blight-1', kind: 'blightMark', row: 2, col: 3 },
+    { id: 'djinn-blight-2', kind: 'blightMark', row: 2, col: 4 },
+    { id: 'djinn-blight-3', kind: 'blightMark', row: 3, col: 2 },
+    { id: 'djinn-blight-4', kind: 'blightMark', row: 3, col: 5 },
+    { id: 'djinn-blight-5', kind: 'blightMark', row: 4, col: 2 },
+    { id: 'djinn-blight-6', kind: 'blightMark', row: 4, col: 5 },
+    { id: 'djinn-blight-7', kind: 'blightMark', row: 5, col: 3 },
+    { id: 'djinn-blight-8', kind: 'blightMark', row: 5, col: 4 }
   ],
   joy: [
     { id: 'djinn-joy-1', row: 0, col: 0 },

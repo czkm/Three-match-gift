@@ -603,12 +603,16 @@ defineExpose({
     board.value.refreshBoard('whiteWolfTidy');
   },
   abilityConvertResource(fromId, toId) {
+    if (!board.value) return false;
+    if (!RESOURCE_BY_ID[fromId] || !RESOURCE_BY_ID[toId]) return false;
+    if (fromId === toId) return false;
     bumpIdle();
     audioManager.playSFX('lilac', { vol: 0.7 });
     flashAbility();
     const fromChar = RESOURCE_BY_ID[fromId].char;
     const toChar   = RESOURCE_BY_ID[toId].char;
     board.value.convertResource(fromChar, toChar);
+    return true;
   },
   loadDjinnCeremonyBoard() {
     if (!board.value) return;

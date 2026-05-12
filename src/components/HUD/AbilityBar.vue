@@ -155,6 +155,7 @@ function cancelLilac() {
   padding: 18px 18px 20px;
   border-radius: var(--radius-md);
   position: relative;
+  overflow: visible;
 }
 h3 {
   margin: 0 0 14px;
