@@ -829,6 +829,8 @@ export const useGameStore = defineStore('game', {
           if (monster.hitsTaken >= monster.hitsRequired) {
             monster.removed = true;
             removed.push(monster);
+          } else {
+            audioManager.playSFX('rune_hit', { vol: 0.44, rate: 0.92 });
           }
         }
         for (const entity of this.boardEntities) {
@@ -841,6 +843,8 @@ export const useGameStore = defineStore('game', {
             entity.removed = true;
             audioManager.playSFX('seal_break', { vol: 0.7 });
             removed.push(entity);
+          } else {
+            audioManager.playSFX('rune_hit', { vol: 0.44, rate: 0.92 });
           }
         }
       }

@@ -5,7 +5,8 @@
       removed: entity.removed,
       djinn: entity.kind === 'djinn',
       sleeping: entity.sleeping,
-      hidden: entity.hidden
+      hidden: entity.hidden,
+      struck: showHitFx
     }]"
     :style="style"
     @mouseenter="emit('monster-hover-enter', { kind: entity.kind, entityId: entity.id })"
@@ -14,6 +15,7 @@
   >
     <span class="slot-frame" />
     <span class="glyph">{{ monster?.emoji || '' }}</span>
+    <span v-if="showHitFx" class="damage-float">-1</span>
     <span v-if="entity.kind === 'djinn'" class="djinn-core" :class="`p${djinnStage}`" />
     <span v-if="entity.kind === 'djinn' && entity.sleeping" class="sleep-mark">💤</span>
     <div v-if="entity.kind !== 'joyCandle'" class="hp-bar">
@@ -28,7 +30,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { MONSTERS } from '@/data/content';
 
 const props = defineProps({
@@ -36,14 +38,38 @@ const props = defineProps({
   tileSize: { type: Number, default: 60 }
 });
 const emit = defineEmits(['monster-hover-enter', 'monster-hover-leave', 'monster-inspect']);
+const HIT_FX_MS = 420;
+const showHitFx = ref(false);
+let hitFxTimer = null;
 
 const monster = computed(() => MONSTERS[props.entity.kind]);
 const djinnStage = computed(() => Math.max(0, Math.min(3, props.entity.hitsTaken || 0)));
+const hitSignature = computed(() => {
+  if (props.entity.lastDamagedTurn == null) return '';
+  return `${props.entity.id}:${props.entity.lastDamagedTurn}:${props.entity.hitsTaken || 0}:${props.entity.hitsRequired || 0}`;
+});
 const style = computed(() => ({
   width: `${(props.entity.width || 1) * props.tileSize}px`,
   height: `${(props.entity.height || 1) * props.tileSize}px`,
   transform: `translate3d(${props.entity.col * props.tileSize}px, ${props.entity.row * props.tileSize}px, 0)`
 }));
+
+watch(hitSignature, (signature, previous) => {
+  if (!signature || signature === previous) return;
+  showHitFx.value = false;
+  if (hitFxTimer) clearTimeout(hitFxTimer);
+  requestAnimationFrame(() => {
+    showHitFx.value = true;
+  });
+  hitFxTimer = setTimeout(() => {
+    showHitFx.value = false;
+    hitFxTimer = null;
+  }, HIT_FX_MS);
+});
+
+onBeforeUnmount(() => {
+  if (hitFxTimer) clearTimeout(hitFxTimer);
+});
 </script>
 
 <style scoped>
@@ -95,6 +121,40 @@ const style = computed(() => ({
 .entity:hover .glyph {
   transform: scale(1.1);
   filter: drop-shadow(0 6px 12px rgba(24, 18, 12, 0.5));
+}
+
+.entity.struck {
+  animation:
+    entity-hit-shudder 420ms var(--ease-out-expo),
+    entity-hit-flash 220ms ease-out;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 248, 232, 0.1),
+    0 0 0 2px rgba(255, 234, 176, 0.82),
+    0 0 24px rgba(255, 176, 88, 0.46),
+    inset 0 0 16px rgba(255, 232, 180, 0.18),
+    0 8px 18px rgba(16, 10, 8, 0.3);
+}
+
+.entity.struck .glyph {
+  animation: entity-hit-glyph 420ms var(--ease-out-expo);
+}
+
+.damage-float {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  z-index: 4;
+  transform: translateX(-50%);
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: #ffe7ea;
+  text-shadow:
+    0 1px 0 rgba(92, 18, 18, 0.88),
+    0 0 10px rgba(255, 124, 124, 0.5),
+    0 0 18px rgba(255, 178, 128, 0.26);
+  animation: damage-float-up 420ms cubic-bezier(0.18, 0.84, 0.28, 1) forwards;
 }
 
 .nekkers {
@@ -317,5 +377,33 @@ const style = computed(() => ({
 @keyframes wraith-flicker {
   0%, 100% { transform: scale(0.98); opacity: 0.72; }
   50% { transform: scale(1.04); opacity: 0.96; }
+}
+
+@keyframes entity-hit-shudder {
+  0%   { transform: scale(1); filter: saturate(1); }
+  16%  { transform: translate3d(-5px, 0, 0) scale(1.06); filter: saturate(1.42); }
+  38%  { transform: translate3d(4px, -1px, 0) scale(0.98); }
+  66%  { transform: translate3d(-1px, 1px, 0) scale(1.02); }
+  100% { transform: scale(1); filter: saturate(1); }
+}
+
+@keyframes entity-hit-glyph {
+  0%   { transform: scale(1); filter: brightness(1); }
+  24%  { transform: scale(1.22); filter: brightness(1.32) drop-shadow(0 0 12px rgba(255, 221, 136, 0.64)); }
+  54%  { transform: scale(0.95); filter: brightness(1.08); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+@keyframes damage-float-up {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.7); }
+  18%  { opacity: 1; transform: translateX(-50%) translateY(-1px) scale(1.12); }
+  56%  { opacity: 1; transform: translateX(-50%) translateY(-8px) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-22px) scale(0.96); }
+}
+
+@keyframes entity-hit-flash {
+  0%   { filter: brightness(1); }
+  45%  { filter: brightness(1.18); }
+  100% { filter: brightness(1); }
 }
 </style>
