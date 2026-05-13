@@ -13,6 +13,7 @@
       <span class="pig-sprite" :style="spriteStyle">
         <span class="pig-glyph">{{ pigGlyph }}</span>
       </span>
+      <span v-if="moodGlyph" class="pig-mood">{{ moodGlyph }}</span>
     </button>
   </div>
 </template>
@@ -24,7 +25,8 @@ const props = defineProps({
   displayStage: { type: Number, default: 0 },
   interactive: { type: Boolean, default: true },
   repairing: { type: Boolean, default: false },
-  active: { type: Boolean, default: false }
+  active: { type: Boolean, default: false },
+  mood: { type: String, default: '' }
 })
 
 const emit = defineEmits(['inspect'])
@@ -70,6 +72,7 @@ const maxIndex = computed(() => {
 const pigGlyph = computed(() =>
   state.value === 'walking' ? '🐖' : '🐷'
 )
+const moodGlyph = computed(() => props.mood || '')
 const stateClass = computed(() => `is-${state.value}`)
 const anchorStyle = computed(() => ({
   left: `${position.value.x}%`,
@@ -317,6 +320,17 @@ onBeforeUnmount(() => {
     drop-shadow(0 0 10px rgba(255, 230, 170, 0.2));
 }
 
+.pig-mood {
+  position: absolute;
+  left: 50%;
+  bottom: 30px;
+  font-size: 16px;
+  line-height: 1;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 1px 3px rgba(30, 18, 12, 0.28));
+  animation: pig-mood-bob 1.8s ease-in-out infinite;
+}
+
 .pig-anchor.is-walking .pig-glyph {
   animation: pig-walk 720ms ease-in-out infinite;
 }
@@ -368,6 +382,16 @@ onBeforeUnmount(() => {
   }
   60% {
     transform: translateX(-50%) translateY(-2px) scaleX(var(--pig-facing));
+  }
+}
+
+@keyframes pig-mood-bob {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-2px);
   }
 }
 </style>

@@ -21,7 +21,7 @@
         </template>
         <template v-else>
           <span class="ink-subtle">步数</span>
-          <span class="step-value" :class="{ low: game.stepsLeft <= 5 }">
+          <span class="step-value" :class="{ low: game.stepsLeft <= 5, penalized: penaltyFlash }">
             {{ game.stepsLeft }} / 20
           </span>
         </template>
@@ -31,9 +31,33 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
+import EventBus from '@/core/eventBus'
 import { useGameStore } from '@/stores/gameStore'
 const game = useGameStore()
+const penaltyFlash = ref(false)
+let penaltyTimer = null
+
+function onPigPenalty() {
+  penaltyFlash.value = false
+  if (penaltyTimer) clearTimeout(penaltyTimer)
+  requestAnimationFrame(() => {
+    penaltyFlash.value = true
+    penaltyTimer = setTimeout(() => {
+      penaltyFlash.value = false
+      penaltyTimer = null
+    }, 900)
+  })
+}
+
+onMounted(() => {
+  EventBus.bind('pigPenalty', onPigPenalty)
+})
+
+onBeforeUnmount(() => {
+  EventBus.unbind('pigPenalty', onPigPenalty)
+  if (penaltyTimer) clearTimeout(penaltyTimer)
+})
 </script>
 
 <style scoped>
@@ -136,6 +160,11 @@ const game = useGameStore()
   animation: pulse-low-steps 1.4s infinite var(--ease-in-out-sine);
 }
 
+.step-value.penalized {
+  color: #b01212;
+  animation: pig-penalty-flash 900ms var(--ease-out-expo);
+}
+
 .step-value.ritual {
   color: #9a6a1c;
 }
@@ -151,6 +180,21 @@ const game = useGameStore()
     transform: scale(1.06);
     opacity: 0.85;
     text-shadow: 0 0 8px rgba(176, 72, 46, 0.25);
+  }
+}
+
+@keyframes pig-penalty-flash {
+  0% {
+    transform: scale(1);
+    text-shadow: 0 0 0 rgba(176, 18, 18, 0);
+  }
+  22% {
+    transform: scale(1.16);
+    text-shadow: 0 0 16px rgba(176, 18, 18, 0.45);
+  }
+  100% {
+    transform: scale(1);
+    text-shadow: 0 0 0 rgba(176, 18, 18, 0);
   }
 }
 </style>

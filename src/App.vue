@@ -78,6 +78,13 @@ function onTesterKeydown(event) {
     return;
   }
 
+  if (key === 'm') {
+    event.preventDefault();
+    const total = game.addPigEnergyForTesting(5);
+    showTesterToast(`测试能量：小猪已补充 5 星，当前 ${total} 星`);
+    return;
+  }
+
   if (key === 'e') {
     event.preventDefault();
     game.jumpToEndingForTesting();

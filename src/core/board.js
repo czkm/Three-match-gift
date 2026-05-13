@@ -178,6 +178,48 @@ export class Board {
     EventBus.trigger('draw', ['board.convert', { type: 'global', fromChar, toChar }]);
   }
 
+  /** Collect every tile of `targetChar` as if cleared by an ability. */
+  harvestResource(targetChar) {
+    const removed = [];
+    for (let row = 0; row < this.opts.rows; row++) {
+      for (let col = 0; col < this.opts.columns; col++) {
+        if (this._isBlockedCell(row, col)) continue;
+        const ch = this.getTile(row, col);
+        if (ch === HOLE || this._isMonsterChar(ch)) continue;
+        if (ch !== targetChar) continue;
+        removed.push({ row, col, char: ch });
+      }
+    }
+    if (!removed.length) return false;
+
+    const resourcesGained = {};
+    for (const t of removed) {
+      this.setTile(t.row, t.col, HOLE);
+      if (t.char !== ROT_CHAR) resourcesGained[t.char] = (resourcesGained[t.char] || 0) + 1;
+    }
+
+    const newTiles = this._compactAndRefill();
+    this.lastSwitch = null;
+    this._setGraphicsCallback(() => this.checkMatches());
+
+    EventBus.trigger('draw', ['board.match', {
+      removed: removed.map((t) => ({
+        position: { row: t.row, col: t.col },
+        char: t.char
+      })),
+      added: newTiles,
+      removedMonsterTiles: [],
+      swapSide: 'center'
+    }]);
+    EventBus.trigger('tilesCleared', [resourcesGained, 'center', 1, [removed.length], 1, [{
+      axis: 'global',
+      size: removed.length,
+      char: targetChar,
+      positions: removed.map((item) => ({ row: item.row, col: item.col }))
+    }]]);
+    return true;
+  }
+
   /** Clear an entire row or column (Toussent Sunset). */
   clearLine(axis, index) {
     const removed = [];

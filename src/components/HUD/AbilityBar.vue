@@ -17,6 +17,7 @@
         :key="ab.id"
         class="ab-btn"
         :class="{
+          'milk-tea': ab.id === 'milkTeaBarrage',
           disabled: !game.canUseAbility(ab.id),
           pending: game.pendingAbility === ab.id
         }"
@@ -26,8 +27,38 @@
       >
         <span class="ab-icon">{{ ab.icon }}</span>
         <span class="ab-name">{{ ab.name }}</span>
-        <span class="ab-uses">×{{ game.abilityUses[ab.id] ?? 0 }}</span>
+        <span class="ab-uses">
+          {{ ab.id === 'milkTeaBarrage'
+            ? (game.pigEnergyReady ? '就绪' : `${displayPigEnergy}/${pigEnergyMax}★`)
+            : `×${game.abilityUses[ab.id] ?? 0}` }}
+        </span>
       </button>
+    </div>
+
+    <div class="pig-energy glass">
+      <div class="pig-energy-head">
+        <span class="pig-energy-icon">🐷</span>
+        <div>
+          <p class="pig-energy-title ink-title">小猪能量</p>
+          <p class="pig-energy-text">星级 {{ displayPigEnergy }} / {{ pigEnergyMax }}</p>
+        </div>
+      </div>
+      <div class="pig-energy-stars" :class="{ charged: pigAwards.length > 0 }">
+        <span
+          v-for="n in pigEnergyMax"
+          :key="`pig-slot-${n}`"
+          class="pig-energy-star"
+          :class="{ filled: n <= displayPigEnergy, charging: chargingSlot === n }"
+        >⭐</span>
+      </div>
+      <div v-if="pigAwards.length" class="pig-award-layer">
+        <span
+          v-for="award in pigAwards"
+          :key="award.id"
+          class="pig-award-star"
+          :style="award.style"
+        >{{ award.glyph }}</span>
+      </div>
     </div>
 
     <!-- Resource conversion (lilacSeed) inline modal -->
@@ -72,6 +103,27 @@
       </div>
     </div>
 
+    <div v-if="milkTeaOpen" class="convert-panel glass">
+      <p class="ink-title">奶茶攻击要收哪种资源？</p>
+      <div class="chips">
+        <button
+          v-for="r in harvestableResources"
+          :key="`milk-tea-${r.id}`"
+          class="chip"
+          :class="{ active: milkTeaTarget === r.id }"
+          @click="milkTeaTarget = r.id"
+        >
+          {{ r.emoji }} {{ r.cn }}
+        </button>
+      </div>
+      <div class="actions">
+        <button class="apply" :disabled="!milkTeaTarget" @click="applyMilkTea">
+          开喝
+        </button>
+        <button class="cancel" @click="cancelMilkTea">取消</button>
+      </div>
+    </div>
+
     <!-- Passives (info only) -->
     <div v-if="game.passiveAbilities.length" class="passive-list">
       <p class="ink-subtle title">被动</p>
@@ -89,11 +141,14 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { audioManager } from '@/audio/AudioManager'
+import EventBus from '@/core/eventBus'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { useGameStore } from '@/stores/gameStore'
-import { ABILITIES, RESOURCES, unlockedCharsForDay } from '@/data/content'
+import { ABILITIES, PIG_RATING, RESOURCES, unlockedCharsForDay } from '@/data/content'
+
+const pigEnergyMax = PIG_RATING.energyMax
 
 const props = defineProps({
   /** Reference to GameBoard exposed methods (refresh / convert). */
@@ -106,6 +161,7 @@ const resources = computed(() => {
   const allowed = new Set(unlockedCharsForDay(game.currentDay))
   return RESOURCES.filter(r => allowed.has(r.char))
 })
+const harvestableResources = computed(() => resources.value)
 
 const lilacOpen = ref(false)
 const lilacFrom = ref(null)
@@ -113,7 +169,13 @@ const lilacTo = ref(null)
 const lilacReady = computed(
   () => lilacFrom.value && lilacTo.value && lilacFrom.value !== lilacTo.value
 )
-
+const milkTeaOpen = ref(false)
+const milkTeaTarget = ref(null)
+const pigAwards = ref([])
+const displayPigEnergy = ref(game.pigEnergy || 0)
+const chargingSlot = ref(0)
+let pigAwardTimer = null
+let pigEnergySyncTimer = null
 function onTrigger(ab) {
   if (!game.canUseAbility(ab.id)) return
 
@@ -128,6 +190,10 @@ function onTrigger(ab) {
     lilacOpen.value = true
     lilacFrom.value = null
     lilacTo.value = null
+    game.beginTarget(ab.id)
+  } else if (ab.id === 'milkTeaBarrage') {
+    milkTeaOpen.value = true
+    milkTeaTarget.value = null
     game.beginTarget(ab.id)
   } else if (ab.needsTarget) {
     game.beginTarget(ab.id)
@@ -147,6 +213,86 @@ function cancelLilac() {
   lilacOpen.value = false
   game.cancelTarget()
 }
+
+function applyMilkTea() {
+  if (!milkTeaTarget.value) return
+  const ok = props.boardRef?.abilityHarvestResource?.(milkTeaTarget.value)
+  if (!ok) return
+  game.consumeAbility('milkTeaBarrage')
+  milkTeaOpen.value = false
+}
+
+function cancelMilkTea() {
+  milkTeaOpen.value = false
+  game.cancelTarget()
+}
+
+function onPigRatingAwarded(payload = {}) {
+  const stars = Math.max(0, Number(payload.stars) || 0)
+  if (!stars) return
+  displayPigEnergy.value = Math.max(0, Number(payload.fromEnergy) || 0)
+  const track = document.querySelector('.pig-energy-track')
+  const trackRect = track?.getBoundingClientRect?.()
+  const fresh = []
+  for (let i = 0; i < stars; i++) {
+    const origin = payload.origins?.[i]
+    const destX = trackRect ? trackRect.left + trackRect.width * 0.82 : null
+    const destY = trackRect ? trackRect.top + trackRect.height / 2 : null
+    fresh.push({
+      id: `${Date.now()}-${i}`,
+      glyph: origin?.glyph || (i % 2 === 0 ? '✨' : '🌟'),
+      style: {
+        left: origin?.x ? `${origin.x}px` : `${14 + i * 16}%`,
+        top: origin?.y ? `${origin.y}px` : `${8 + (i % 2) * 8}px`,
+        '--delay': `${(0.08 + i * 0.14).toFixed(2)}s`,
+        '--dx': origin && destX != null ? `${Math.round(destX - origin.x)}px` : '120px',
+        '--dy': origin && destY != null ? `${Math.round(destY - origin.y)}px` : '30px',
+        '--mode': origin ? 'fixed' : 'local'
+      }
+    })
+  }
+  pigAwards.value = fresh
+  if (pigAwardTimer) clearTimeout(pigAwardTimer)
+  if (pigEnergySyncTimer) clearTimeout(pigEnergySyncTimer)
+  const targetEnergy = Math.max(displayPigEnergy.value, Number(payload.toEnergy) || 0)
+  for (let i = 0; i < stars; i++) {
+    setTimeout(() => {
+      chargingSlot.value = Math.min(targetEnergy, displayPigEnergy.value + 1)
+      displayPigEnergy.value = Math.min(targetEnergy, displayPigEnergy.value + 1)
+      setTimeout(() => {
+        chargingSlot.value = 0
+      }, 220)
+    }, 1080 + i * 180)
+  }
+  pigAwardTimer = setTimeout(() => {
+    pigAwards.value = []
+    pigAwardTimer = null
+  }, 2200)
+  pigEnergySyncTimer = setTimeout(() => {
+    displayPigEnergy.value = game.pigEnergy
+    chargingSlot.value = 0
+    pigEnergySyncTimer = null
+  }, 1820 + stars * 180)
+}
+
+watch(
+  () => game.pigEnergy,
+  (value) => {
+    if (pigEnergySyncTimer || pigAwards.value.length) return
+    displayPigEnergy.value = value
+  },
+  { immediate: true }
+)
+
+onMounted(() => {
+  EventBus.bind('pigRatingAwarded', onPigRatingAwarded)
+})
+
+onBeforeUnmount(() => {
+  EventBus.unbind('pigRatingAwarded', onPigRatingAwarded)
+  if (pigAwardTimer) clearTimeout(pigAwardTimer)
+  if (pigEnergySyncTimer) clearTimeout(pigEnergySyncTimer)
+})
 </script>
 
 <style scoped>
@@ -218,6 +364,164 @@ h3 {
   flex-direction: column;
   gap: 6px;
 }
+
+.pig-energy {
+  margin-top: 12px;
+  margin-bottom: 12px;
+  padding: 12px 12px 10px;
+  border-radius: var(--radius-sm);
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 243, 225, 0.48) 0%, rgba(236, 210, 168, 0.18) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(180, 152, 104, 0.22),
+    inset 0 1px 0 rgba(255, 252, 244, 0.2);
+}
+
+.pig-energy-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.pig-energy-icon {
+  font-size: 22px;
+}
+
+.pig-energy-title {
+  margin: 0;
+  font-size: 12px;
+}
+
+.pig-energy-text {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.pig-energy-stars {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-right: 8px;
+}
+
+.pig-energy-stars::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: -2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(circle, rgba(255, 244, 196, 0.88), transparent 70%);
+}
+
+.pig-energy-stars.charged::after {
+  animation: pig-energy-spark 420ms ease-out 1.15s;
+}
+
+.pig-energy-star {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  border-radius: 50%;
+  color: rgba(148, 118, 82, 0.44);
+  background:
+    radial-gradient(circle, rgba(106, 74, 44, 0.16), rgba(88, 60, 34, 0.08));
+  box-shadow:
+    inset 0 0 0 1px rgba(180, 152, 104, 0.16),
+    inset 0 1px 0 rgba(255, 244, 222, 0.08);
+  transition:
+    transform 240ms var(--ease-out-expo),
+    color 240ms var(--ease-out-expo),
+    box-shadow 240ms var(--ease-out-expo),
+    background 240ms var(--ease-out-expo);
+}
+
+.pig-energy-star.filled {
+  color: #fff0a8;
+  background:
+    radial-gradient(circle, rgba(255, 231, 122, 0.9), rgba(225, 152, 44, 0.42));
+  box-shadow:
+    0 0 14px rgba(255, 208, 108, 0.32),
+    inset 0 1px 0 rgba(255, 250, 214, 0.42);
+  transform: scale(1.04);
+}
+
+.pig-energy-star.charging {
+  animation: pig-energy-star-pop 260ms var(--ease-out-expo);
+}
+
+.pig-award-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pig-award-star {
+  position: fixed;
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0;
+  filter: drop-shadow(0 0 10px rgba(255, 222, 150, 0.42));
+  animation: pig-award-flight 1.25s cubic-bezier(0.2, 0.82, 0.26, 1) forwards;
+  animation-delay: var(--delay);
+}
+
+@keyframes pig-award-flight {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  24% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(0.9);
+  }
+}
+
+@keyframes pig-energy-spark {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+@keyframes pig-energy-star-pop {
+  0% {
+    transform: scale(0.74);
+    filter: brightness(1.2);
+  }
+  60% {
+    transform: scale(1.28);
+    filter: brightness(1.34);
+  }
+  100% {
+    transform: scale(1.04);
+    filter: brightness(1);
+  }
+}
+
 .ab-btn {
   display: flex;
   align-items: center;
@@ -277,6 +581,14 @@ h3 {
     inset 0 1px 0 rgba(255, 252, 244, 0.16),
     0 0 14px rgba(176, 148, 201, 0.18);
 }
+.ab-btn[data-ab='milkTeaBarrage'],
+.ab-btn.milk-tea {
+  background: linear-gradient(
+    180deg,
+    rgba(240, 214, 172, 0.42) 0%,
+    rgba(191, 126, 72, 0.2) 100%
+  );
+}
 .ab-btn.disabled {
   opacity: 0.45;
 }
@@ -300,6 +612,8 @@ h3 {
   background: rgba(255, 255, 255, 0.45);
   padding: 1px 6px;
   border-radius: 999px;
+  min-width: 38px;
+  text-align: center;
 }
 
 .passive-list {

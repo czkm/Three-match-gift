@@ -18,6 +18,7 @@
  */
 import { defineStore } from 'pinia';
 import { audioManager } from '@/audio/AudioManager';
+import EventBus from '@/core/eventBus';
 import { useAchievementStore } from '@/stores/achievementStore';
 import {
   DAYS,
@@ -35,6 +36,8 @@ import {
   DJINN_MARK_SETS,
   DJINN_STAGE_TRANSITIONS,
   ROT_CHAR,
+  PIG_RATING,
+  PIG_REACTIONS,
   unlockedCharsForDay
 } from '@/data/content';
 
@@ -84,6 +87,14 @@ export const useGameStore = defineStore('game', {
     dayBuffs: {
       extraResourcePerType: false
     },
+    pigEnergy: 0,
+    pigLastRating: null,
+    pigEnergyBeforeAward: 0,
+    pigMoodVisible: false,
+    pigMoodShownDay: null,
+    pigClickCount: 0,
+    pigAngryThreshold: 6,
+    pigAngryUsedDay: null,
 
     // Day 9 djinn / wish state
     djinnHintVisible: false,
@@ -193,7 +204,6 @@ export const useGameStore = defineStore('game', {
       for (const ch of allowed) {
         const resource = RESOURCE_BY_CHAR[ch];
         if (!resource) continue;
-
         const remaining = remainingById[resource.id] ?? 0;
         if (remaining > 0) {
           const urgency = maxRemaining > 0 ? remaining / maxRemaining : 0;
@@ -389,14 +399,26 @@ export const useGameStore = defineStore('game', {
     },
 
     activeAbilities(state) {
-      return state.unlockedAbilities
+      const active = state.unlockedAbilities
         .map((id) => ABILITIES[id])
         .filter((a) => a.type === 'active');
+      active.push(ABILITIES.milkTeaBarrage);
+      return active;
     },
     passiveAbilities(state) {
       return state.unlockedAbilities
         .map((id) => ABILITIES[id])
         .filter((a) => a.type === 'passive');
+    },
+    pigEnergyPct(state) {
+      return Math.max(0, Math.min(1, state.pigEnergy / PIG_RATING.energyMax));
+    },
+    pigEnergyReady(state) {
+      return state.pigEnergy >= PIG_RATING.energyMax;
+    },
+    pigMood(state) {
+      if (!state.pigMoodVisible) return null;
+      return PIG_RATING.moods[state.pigLastRating ?? 0] || PIG_RATING.moods[0];
     }
   },
 
@@ -412,6 +434,14 @@ export const useGameStore = defineStore('game', {
       this.abilityUses = {};
       this.pendingAbility = null;
       this.matchGroupsThisDay = 0;
+      this.pigEnergy = 0;
+      this.pigEnergyBeforeAward = 0;
+      this.pigLastRating = null;
+      this.pigMoodVisible = false;
+      this.pigMoodShownDay = null;
+      this.pigClickCount = 0;
+      this.pigAngryThreshold = this._rollPigAngryThreshold();
+      this.pigAngryUsedDay = null;
       this.introShown = false;
       this.monologue = '';
       this.completedBanner = '';
@@ -450,6 +480,12 @@ export const useGameStore = defineStore('game', {
       this.progress = {};
       this.pendingAbility = null;
       this.matchGroupsThisDay = 0;
+      this.pigEnergyBeforeAward = this.pigEnergy;
+      this.pigLastRating = null;
+      this.pigMoodVisible = false;
+      this.pigClickCount = 0;
+      this.pigAngryThreshold = this._rollPigAngryThreshold();
+      this.pigAngryUsedDay = null;
       this.introShown = false;
       this.hintMove = null;
       this._resetDaySpecialState();
@@ -606,6 +642,12 @@ export const useGameStore = defineStore('game', {
     finishRepair() {
       const achievements = useAchievementStore();
       const day = DAYS[this.currentDay];
+      const rating = this._calcPigRating();
+      this.pigEnergyBeforeAward = this.pigEnergy;
+      this.pigLastRating = rating;
+      this.pigEnergy = Math.min(PIG_RATING.energyMax, this.pigEnergy + rating);
+      this.pigMoodVisible = false;
+      this.pigMoodShownDay = null;
       if (day.ending && this.djinnRepairCommitted) {
         return this.djinnReleased ? 'completed' : 'djinnPending';
       }
@@ -652,9 +694,12 @@ export const useGameStore = defineStore('game', {
     canUseAbility(id) {
       const ab = ABILITIES[id];
       if (!ab || ab.type !== 'active') return false;
-      if (!this.unlockedAbilities.includes(id)) return false;
+      if (id === 'milkTeaBarrage') {
+        if (!this.pigEnergyReady) return false;
+      } else if (!this.unlockedAbilities.includes(id)) return false;
       if (this.djinnReady) return false;
       if (this.phase !== 'playing' && this.phase !== 'targeting') return false;
+      if (id === 'milkTeaBarrage') return true;
       return (this.abilityUses[id] || 0) > 0;
     },
 
@@ -670,7 +715,11 @@ export const useGameStore = defineStore('game', {
 
     consumeAbility(id) {
       const achievements = useAchievementStore();
-      if (this.abilityUses[id] != null) this.abilityUses[id]--;
+      if (id === 'milkTeaBarrage') {
+        this.pigEnergy = Math.max(0, this.pigEnergy - PIG_RATING.energyMax);
+      } else if (this.abilityUses[id] != null) {
+        this.abilityUses[id]--;
+      }
       this.turnId++;
       this.pendingAbility = null;
       this.phase = 'playing';
@@ -678,6 +727,62 @@ export const useGameStore = defineStore('game', {
         day: this.currentDay + 1,
         id
       });
+    },
+
+    revealPigMoodForToday() {
+      if (this.pigMoodShownDay === this.currentDay) return false;
+      this.pigMoodVisible = true;
+      this.pigMoodShownDay = this.currentDay;
+      return true;
+    },
+
+    hidePigMood() {
+      this.pigMoodVisible = false;
+    },
+
+    inspectPig() {
+      this.pigClickCount += 1;
+      if (this.pigAngryUsedDay === this.currentDay) {
+        return {
+          ...PIG_REACTIONS.annoyed,
+          angry: false,
+          penalized: false
+        };
+      }
+      if (this.pigClickCount <= this.pigAngryThreshold) {
+        const progress = this.pigClickCount / Math.max(1, this.pigAngryThreshold);
+        const pool = progress < 0.34
+          ? PIG_REACTIONS.gentle
+          : progress < 0.68
+            ? PIG_REACTIONS.warm
+            : PIG_REACTIONS.warning;
+        const pick = pool[(this.pigClickCount - 1) % pool.length] || pool[0];
+        return {
+          ...pick,
+          angry: false,
+          penalized: false
+        };
+      }
+      if (this.phase === 'repairing' || this.phase === 'dayEnd') return false;
+      if (this.stepsLeft <= 0 || this.djinnUnlimitedSteps) return false;
+      this.stepsLeft = Math.max(0, this.stepsLeft - 1);
+      this.turnId++;
+      this.pigAngryUsedDay = this.currentDay;
+      audioManager.playSFX('error', { vol: 0.44 });
+      EventBus.trigger('pigPenalty', [{ stepsLost: 1 }]);
+      this.queueBark('小猪不高兴了。它拿走了你 1 步。');
+      return {
+        ...PIG_REACTIONS.angry,
+        angry: true,
+        penalized: true
+      };
+    },
+
+    addPigEnergyForTesting(amount = PIG_RATING.energyMax) {
+      const delta = Math.max(0, Number(amount) || 0);
+      if (!delta) return this.pigEnergy;
+      this.pigEnergy = Math.max(0, this.pigEnergy + delta);
+      return this.pigEnergy;
     },
 
     queueBark(line) {
@@ -1479,6 +1584,17 @@ export const useGameStore = defineStore('game', {
 
       const [monster] = bucket.splice(bestIndex, 1);
       return monster || null;
+    },
+
+    _calcPigRating() {
+      if (this.stepsLeft >= PIG_RATING.thresholds.threeStar) return 3;
+      if (this.stepsLeft >= PIG_RATING.thresholds.twoStar) return 2;
+      if (this.stepsLeft >= 0) return 1;
+      return 0;
+    },
+
+    _rollPigAngryThreshold() {
+      return 5 + Math.floor(Math.random() * 3);
     },
 
     _refreshAbilityUses() {

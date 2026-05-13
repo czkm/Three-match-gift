@@ -131,6 +131,23 @@
           >{{ p.glyph }}</span>
         </div>
 
+        <div v-if="milkTeaFlares.length" class="milk-tea-layer">
+          <span
+            v-for="flare in milkTeaFlares"
+            :key="flare.id"
+            class="milk-tea-flare"
+            :style="flare.style"
+          >{{ flare.glyph }}</span>
+        </div>
+
+        <div v-if="milkTeaSigil" class="milk-tea-burst">
+          <span class="milk-tea-burst-aura" />
+          <span class="milk-tea-burst-ring ring-a" />
+          <span class="milk-tea-burst-ring ring-b" />
+          <span class="milk-tea-burst-core">{{ milkTeaSigil.glyph }}</span>
+          <span class="milk-tea-burst-label">奶茶攻击</span>
+        </div>
+
         <div v-if="showCakeBuild" class="cake-build" :class="`layer-${game.djinnCakeLayer}`">
           <span class="cake-glow" />
           <span class="cake-plate">🍽️</span>
@@ -283,8 +300,16 @@ const transitionShards = ref([]);
 const transitionTraces = ref([]);
 const transitionFlares = ref([]);
 const transitionRings = ref([]);
+const milkTeaFlares = ref([]);
+const milkTeaSigil = ref(null);
+const milkTeaCasting = ref(false);
+let milkTeaFlashTimer = null;
+let milkTeaSweepTimer = null;
+let milkTeaPulseTimer = null;
+let milkTeaResolveTimer = null;
 let djinnTransitionTimer = null;
 let djinnTransitionSettleTimer = null;
+let pigPenaltyShakeTimer = null;
 
 const rowsCount = computed(() => ROWS);
 const colsCount = computed(() => COLS);
@@ -388,7 +413,7 @@ const targeting = computed(() => {
   if (game.phase !== 'targeting') return null;
   const ab = ABILITIES[game.pendingAbility];
   // 'twoResources' is handled inline by AbilityBar — don't double-render.
-  if (ab?.needsTarget === 'twoResources') return null;
+  if (ab?.needsTarget === 'twoResources' || ab?.needsTarget === 'milkTeaHarvest') return null;
   return ab?.needsTarget ?? null;
 });
 
@@ -414,6 +439,7 @@ const { activeTile, pickTile, moveDrag, endDrag, clearActive, previewTile } = us
   canMove: () => {
     if (!board.value) return false;
     if (game.phase !== 'playing') return false;
+    if (milkTeaCasting.value) return false;
     return board.value.canMove();
   },
   onPreview: (a, b) => {
@@ -461,6 +487,7 @@ watch(activeTile, (a) => {
 const tapBuffer = ref([]);   // for twoTiles ability
 
 function onPick(payload, evt) {
+  if (milkTeaCasting.value) return;
   if (!board.value?.canMove?.()) return;
   bumpIdle();
   game.clearMonsterInfo();
@@ -507,6 +534,9 @@ function onPick(payload, evt) {
     game.queueAmbientBark('只差最后一步了。点击迪精，开始仪式。');
     return;
   }
+  if (game.phase === 'targeting' && game.pendingAbility === 'milkTeaBarrage') {
+    return;
+  }
   if (game.phase === 'targeting') {
     handleTargetingPick(payload);
     return;
@@ -547,6 +577,8 @@ function handleTargetingPick(pos) {
       flashAbility();
       game.consumeAbility(ab.id);
     }
+  } else if (ab.needsTarget === 'milkTeaHarvest') {
+    return;
   }
 }
 
@@ -615,6 +647,25 @@ defineExpose({
     board.value.convertResource(fromChar, toChar);
     return true;
   },
+  abilityHarvestResource(resourceId) {
+    if (!board.value) return false;
+    if (!RESOURCE_BY_ID[resourceId]) return false;
+    if (milkTeaCasting.value) return false;
+    const char = RESOURCE_BY_ID[resourceId].char;
+    const hasAny = tiles.value.some((tile) => !tile.hidden && !tile.pooled && tile.type === resourceId);
+    if (!hasAny) return false;
+    bumpIdle();
+    milkTeaCasting.value = true;
+    audioManager.playSFX('decoction', { vol: 0.72 });
+    triggerMilkTeaBarrageFx(resourceId);
+    if (milkTeaResolveTimer) clearTimeout(milkTeaResolveTimer);
+    milkTeaResolveTimer = setTimeout(() => {
+      board.value?.harvestResource?.(char);
+      milkTeaCasting.value = false;
+      milkTeaResolveTimer = null;
+    }, 320);
+    return true;
+  },
   loadDjinnCeremonyBoard() {
     if (!board.value) return;
     reloadDjinnBoard();
@@ -648,6 +699,7 @@ onMounted(() => {
   EventBus.bind('tilesCleared', onTilesCleared);
   EventBus.bind('tilesSwapped', onTilesSwapped);
   EventBus.bind('noMoreMoves', onNoMoreMoves);
+  EventBus.bind('pigPenalty', onPigPenalty);
   board.value.fill();
 });
 
@@ -656,10 +708,16 @@ onBeforeUnmount(() => {
   EventBus.unbind('tilesCleared', onTilesCleared);
   EventBus.unbind('tilesSwapped', onTilesSwapped);
   EventBus.unbind('noMoreMoves', onNoMoreMoves);
+  EventBus.unbind('pigPenalty', onPigPenalty);
   for (const timer of boardSyncTimers) clearTimeout(timer);
   if (comboPraiseTimer) clearTimeout(comboPraiseTimer);
   if (awakeningTimer) clearTimeout(awakeningTimer);
   if (awakeningSettleTimer) clearTimeout(awakeningSettleTimer);
+  if (milkTeaFlashTimer) clearTimeout(milkTeaFlashTimer);
+  if (milkTeaSweepTimer) clearTimeout(milkTeaSweepTimer);
+  if (milkTeaPulseTimer) clearTimeout(milkTeaPulseTimer);
+  if (milkTeaResolveTimer) clearTimeout(milkTeaResolveTimer);
+  if (pigPenaltyShakeTimer) clearTimeout(pigPenaltyShakeTimer);
   if (djinnTransitionTimer) clearTimeout(djinnTransitionTimer);
   if (djinnTransitionSettleTimer) clearTimeout(djinnTransitionSettleTimer);
   if (_idleTimer) clearTimeout(_idleTimer);
@@ -1284,6 +1342,58 @@ function flashAbility() {
   // For the 'ability used' visual glow we just sprinkle a few petals.
   sprinklePetals(8);
   EventBus.trigger('sceneBurst', [{ kind: 'gold', count: 7 }]);
+}
+
+function onPigPenalty() {
+  shaking.value = true
+  if (pigPenaltyShakeTimer) clearTimeout(pigPenaltyShakeTimer)
+  pigPenaltyShakeTimer = setTimeout(() => {
+    shaking.value = false
+    pigPenaltyShakeTimer = null
+  }, 520)
+  EventBus.trigger('sceneBurst', [{ kind: 'gold', count: 8 }])
+}
+
+function triggerMilkTeaBarrageFx(resourceId) {
+  const glyph = RESOURCE_BY_ID[resourceId]?.emoji || '✨'
+  milkTeaSigil.value = { glyph, id: resourceId }
+  const flares = []
+  for (let i = 0; i < 26; i++) {
+    flares.push({
+      id: `${Date.now()}-${i}`,
+      glyph,
+      style: {
+        left: `${6 + (i % 7) * 13}%`,
+        top: `${8 + Math.floor(i / 7) * 15}%`,
+        '--dx': `${((i % 7) - 3) * 62}px`,
+        '--dy': `${(Math.floor(i / 7) - 1.5) * 42}px`,
+        '--delay': `${(i * 0.025).toFixed(2)}s`
+      }
+    })
+  }
+  milkTeaFlares.value = flares
+  sprinklePetals(18)
+  EventBus.trigger('sceneBurst', [{ kind: 'gold', count: 24 }, { kind: 'petal', count: 12 }])
+  if (milkTeaFlashTimer) clearTimeout(milkTeaFlashTimer)
+  if (milkTeaSweepTimer) clearTimeout(milkTeaSweepTimer)
+  if (milkTeaPulseTimer) clearTimeout(milkTeaPulseTimer)
+  const layer = document.querySelector('.tileContainer')
+  if (layer) {
+    layer.classList.remove('milk-tea-pulse')
+    requestAnimationFrame(() => layer.classList.add('milk-tea-pulse'))
+    milkTeaPulseTimer = setTimeout(() => layer.classList.remove('milk-tea-pulse'), 980)
+  }
+  milkTeaFlashTimer = setTimeout(() => {
+    if (!layer) return
+    const sweep = document.createElement('div')
+    sweep.className = 'milk-tea-sweep'
+    layer.appendChild(sweep)
+    milkTeaSweepTimer = setTimeout(() => sweep.remove(), 1100)
+  }, 80)
+  setTimeout(() => {
+    milkTeaFlares.value = []
+    milkTeaSigil.value = null
+  }, 1700)
 }
 
 function triggerSunsetRake() {
@@ -2368,6 +2478,223 @@ function stopDjinnTransitionFx() {
 @keyframes seal-pulse {
   0%, 100% { opacity: 0.46; }
   50% { opacity: 0.82; }
+}
+
+.milk-tea-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.milk-tea-burst {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.milk-tea-burst-aura,
+.milk-tea-burst-ring,
+.milk-tea-burst-core,
+.milk-tea-burst-label {
+  position: absolute;
+}
+
+.milk-tea-burst-aura {
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(255, 240, 190, 0.4), rgba(255, 214, 138, 0.12) 52%, transparent 74%);
+  animation: milk-tea-burst-aura 520ms var(--ease-out-expo) forwards;
+}
+
+.milk-tea-burst-ring {
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 225, 156, 0.62);
+  box-shadow:
+    0 0 22px rgba(255, 214, 138, 0.24),
+    inset 0 0 22px rgba(255, 244, 214, 0.18);
+  opacity: 0;
+}
+
+.milk-tea-burst-ring.ring-a {
+  animation: milk-tea-burst-ring 680ms var(--ease-out-expo) forwards;
+}
+
+.milk-tea-burst-ring.ring-b {
+  width: 150px;
+  height: 150px;
+  animation: milk-tea-burst-ring 680ms var(--ease-out-expo) 80ms forwards;
+}
+
+.milk-tea-burst-core {
+  font-size: 58px;
+  line-height: 1;
+  filter:
+    drop-shadow(0 0 18px rgba(255, 226, 150, 0.42))
+    drop-shadow(0 10px 16px rgba(58, 34, 18, 0.14));
+  animation: milk-tea-burst-core 560ms cubic-bezier(0.18, 0.9, 0.34, 1.3) forwards;
+}
+
+.milk-tea-burst-label {
+  margin-top: 104px;
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #fff6e8;
+  background: linear-gradient(180deg, rgba(228, 118, 92, 0.94), rgba(176, 76, 72, 0.92));
+  box-shadow:
+    0 10px 18px rgba(78, 30, 22, 0.16),
+    inset 0 1px 0 rgba(255, 220, 214, 0.26);
+  animation: milk-tea-burst-label 620ms var(--ease-out-expo) forwards;
+}
+
+.tileContainer.milk-tea-pulse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 239, 178, 0.3), transparent 56%),
+    linear-gradient(135deg, rgba(255, 216, 142, 0.08), rgba(255, 244, 220, 0.22), rgba(255, 216, 142, 0.08));
+  animation: milk-tea-pulse 980ms var(--ease-out-expo) forwards;
+}
+
+.milk-tea-flare {
+  position: absolute;
+  font-size: 26px;
+  opacity: 0;
+  filter:
+    drop-shadow(0 0 12px rgba(255, 220, 136, 0.46))
+    drop-shadow(0 0 24px rgba(255, 245, 208, 0.28));
+  animation: milk-tea-flare 980ms var(--ease-out-expo) forwards;
+  animation-delay: var(--delay);
+}
+
+.milk-tea-sweep {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      110deg,
+      transparent 10%,
+      rgba(255, 214, 154, 0.24) 30%,
+      rgba(255, 246, 214, 0.52) 44%,
+      rgba(255, 214, 154, 0.24) 58%,
+      transparent 82%
+    );
+  box-shadow:
+    inset 0 0 28px rgba(255, 244, 212, 0.12),
+    0 0 34px rgba(255, 220, 144, 0.18);
+  animation: milk-tea-sweep 1100ms var(--ease-out-expo) forwards;
+}
+
+@keyframes milk-tea-flare {
+  0% {
+    opacity: 0;
+    transform: scale(0.4) translate(0, 0);
+  }
+  24% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.36) translate(var(--dx), var(--dy));
+  }
+}
+
+@keyframes milk-tea-sweep {
+  0% {
+    opacity: 0;
+    transform: translateX(-120%);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(120%);
+  }
+}
+
+@keyframes milk-tea-pulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  22% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes milk-tea-burst-aura {
+  0% {
+    opacity: 0;
+    transform: scale(0.56);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes milk-tea-burst-ring {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  26% {
+    opacity: 0.88;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes milk-tea-burst-core {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-10deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08) rotate(4deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes milk-tea-burst-label {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.88);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .cake-build {

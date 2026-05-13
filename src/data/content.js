@@ -136,6 +136,69 @@ export const ABILITIES = {
     quote: '有些人来的时候，连风都会先知道。',
     type: 'passive',
     icon: '🪻'
+  },
+  milkTeaBarrage: {
+    id: 'milkTeaBarrage',
+    name: '奶茶攻击',
+    desc: '消耗小猪累积的 5 星评价，选一种资源并将棋盘上该资源全部收获。',
+    quote: '它今天状态很好，甚至想自己上场。',
+    type: 'active',
+    usesPerDay: 1,
+    icon: '🥤',
+    needsTarget: 'milkTeaHarvest'
+  }
+}
+
+export const PIG_RATING = {
+  thresholds: {
+    threeStar: 10,
+    twoStar: 5
+  },
+  energyMax: 5,
+  moods: {
+    3: {
+      emoji: '😄',
+      label: '兴奋',
+      caption: '小猪快乐地甩着尾巴，像是已经开始期待下一杯奶茶。'
+    },
+    2: {
+      emoji: '😊',
+      label: '满足',
+      caption: '小猪满意地点点头，这一关它觉得干得漂亮。'
+    },
+    1: {
+      emoji: '😟',
+      label: '将就',
+      caption: '小猪勉强哼了一声，算是通关了，但它还没尽兴。'
+    },
+    0: {
+      emoji: '😵',
+      label: '没劲',
+      caption: '小猪看起来有点蔫，像在说今天的发挥不太行。'
+    }
+  }
+}
+
+export const PIG_REACTIONS = {
+  gentle: [
+    { emoji: '😊', caption: '它哼哼了两声，今天心情还不错。' },
+    { emoji: '😌', caption: '小猪满足地晃了晃耳朵，勉强算是给了你点面子。' }
+  ],
+  warm: [
+    { emoji: '😋', caption: '小猪舔了舔鼻子，像在想今天有没有加餐。' },
+    { emoji: '🥺', caption: '它抬头看了你一眼，像是在等一句夸奖。' }
+  ],
+  warning: [
+    { emoji: '🤨', caption: '它歪着脑袋看你，像在判断你是不是又来烦它。' },
+    { emoji: '😤', caption: '它鼻子里重重喷了口气，已经开始有点不耐烦。' }
+  ],
+  angry: {
+    emoji: '😠💢',
+    caption: '小猪真的生气了。今日步数 -1。'
+  },
+  annoyed: {
+    emoji: '😤',
+    caption: '它鼻子里重重喷了口气，今天已经不太想搭理你了。'
   }
 }
 

@@ -105,6 +105,7 @@ const messageText = computed(() => {
       case 'rowOrCol': return '点击一整行或一整列，直接清扫过去。';
       case 'twoTiles': return '依次点两个方块，萝卜会帮你完成任意交换。';
       case 'twoResources': return '在右侧能力栏里选两种资源，进行全局转换。';
+      case 'milkTeaHarvest': return '';
       default: return ab?.desc || '';
     }
   }
@@ -131,6 +132,10 @@ const messageText = computed(() => {
       game.djinnObjectiveSummary?.weakness,
       game.djinnObjectiveSummary?.pressure
     ].filter(Boolean).join('\n');
+  }
+
+  if (game.pigEnergyReady && game.phase === 'playing') {
+    return '小猪已经攒满了 5 星好评。去右侧能力栏发动一次“奶茶攻击”，把棋盘上的某种资源全部收获。';
   }
 
   if (game.djinnHintVisible && game.phase === 'playing') {

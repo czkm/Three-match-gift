@@ -319,6 +319,7 @@
         :interactive="interactive"
         :repairing="repairing"
         :active="activeHotspotId === 'pet-pig'"
+        :mood="pigMoodGlyph"
         @inspect="onPigInspect"
       />
 
@@ -423,6 +424,7 @@ const kitchenStirring = ref(false)
 const curtainFlutter = ref(false)
 const roachTucked = ref(false)
 const bursts = ref([])
+const pigMoodGlyph = ref('')
 
 let captionTimer = null
 let revealTimer = null
@@ -467,6 +469,7 @@ function baseCaption() {
 
 function restoreDefaultCaption() {
   activeHotspotId.value = null
+  pigMoodGlyph.value = ''
   displayCaption.value = baseCaption()
 }
 
@@ -644,7 +647,17 @@ function onHotspot(id) {
 }
 
 function onPigInspect() {
-  onHotspot('pet-pig')
+  const reaction = game.inspectPig?.()
+  if (!reaction) return
+
+  activeHotspotId.value = 'pet-pig'
+  pigMoodGlyph.value = reaction.emoji || ''
+  displayCaption.value = reaction.caption || captionForHotspot('pet-pig')
+  clearCaptionTimer()
+  captionTimer = setTimeout(() => {
+    restoreDefaultCaption()
+  }, 2500)
+  spawnBurst(reaction.angry ? 'gold' : 'petal', reaction.angry ? 4 : 3)
 }
 
 function fogStyle(index) {
@@ -773,6 +786,7 @@ watch(
 )
 
 onMounted(() => {
+  pigMoodGlyph.value = ''
   EventBus.bind('sceneBurst', onSceneBurst)
 })
 
