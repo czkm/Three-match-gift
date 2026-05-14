@@ -1,5 +1,36 @@
 <template>
   <div class="resource-bar glass grain">
+    <section class="trinket-bar">
+      <div class="trinket-head">
+        <p class="trinket-title ink-title">道具栏</p>
+        <span class="trinket-count">{{ game.ownedItems.length }}</span>
+      </div>
+      <div
+        class="trinket-track"
+        :class="{ flash: trinketFlash }"
+        data-trinket-target="true"
+      >
+        <button
+          v-for="item in trinketItems"
+          :key="`${item.id}-${item.day || item.slot}`"
+          class="trinket-chip"
+          :class="[`tone-${item.tone || item.roomType || 'treasure'}`, `quality-${item.quality || 0}`]"
+          type="button"
+          :title="item.name"
+          @mouseenter="game.showRewardItemInfo(item.id, 'hud')"
+          @focus="game.showRewardItemInfo(item.id, 'hud')"
+          @mouseleave="game.clearRewardItemInfo('hud')"
+          @blur="game.clearRewardItemInfo('hud')"
+        >{{ item.emoji }}</button>
+        <span
+          v-for="slot in trinketSlots"
+          :key="`empty-${slot}`"
+          class="trinket-slot"
+          aria-hidden="true"
+        />
+      </div>
+    </section>
+
     <h3 class="ink-title">修复进度</h3>
     <div v-for="r in game.repairView" :key="r.id" class="row">
       <span class="emoji">{{ r.emoji }}</span>
@@ -33,12 +64,24 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import EventBus from '@/core/eventBus';
 import { ABILITIES, DJINN_WISHES } from '@/data/content';
 import { useGameStore } from '@/stores/gameStore';
 const game = useGameStore();
 const messageFresh = ref(false);
+const trinketFlash = ref(false);
 let freshTimer = null;
+let trinketFlashTimer = null;
+
+const trinketItems = computed(() =>
+  [...(game.ownedItems || [])]
+    .filter(item => item?.emoji)
+    .sort((a, b) => (b.quality || 0) - (a.quality || 0) || (a.day || 0) - (b.day || 0))
+);
+const trinketSlots = computed(() =>
+  Array.from({ length: Math.max(0, 6 - trinketItems.value.length) }, (_, index) => index)
+);
 
 const messageKind = computed(() => {
   if (game.currentRewardItemInfo) return 'monster';
@@ -179,8 +222,26 @@ watch(messageKey, (value, oldValue) => {
   });
 }, { immediate: true });
 
+function onRewardHudFlash() {
+  trinketFlash.value = false;
+  if (trinketFlashTimer) clearTimeout(trinketFlashTimer);
+  requestAnimationFrame(() => {
+    trinketFlash.value = true;
+    trinketFlashTimer = setTimeout(() => {
+      trinketFlash.value = false;
+      trinketFlashTimer = null;
+    }, 560);
+  });
+}
+
+onMounted(() => {
+  EventBus.bind('rewardHudFlash', onRewardHudFlash);
+});
+
 onBeforeUnmount(() => {
+  EventBus.unbind('rewardHudFlash', onRewardHudFlash);
   if (freshTimer) clearTimeout(freshTimer);
+  if (trinketFlashTimer) clearTimeout(trinketFlashTimer);
 });
 </script>
 
@@ -193,6 +254,111 @@ onBeforeUnmount(() => {
   isolation: isolate;
   contain: paint;
   background-clip: padding-box;
+}
+
+.trinket-bar {
+  margin-bottom: 16px;
+  padding: 12px 12px 10px;
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(180deg, rgba(255, 248, 233, 0.48), rgba(232, 208, 170, 0.16));
+  box-shadow:
+    inset 0 0 0 1px rgba(180, 152, 104, 0.22),
+    inset 0 1px 0 rgba(255, 252, 244, 0.22);
+}
+
+.trinket-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.trinket-title {
+  margin: 0;
+  font-size: 12px;
+}
+
+.trinket-count {
+  min-width: 22px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--ink-soft);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.trinket-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 34px;
+  padding: 2px;
+  border-radius: 14px;
+  transition: box-shadow 260ms var(--ease-out-expo), background 260ms var(--ease-out-expo);
+}
+
+.trinket-track.flash {
+  background:
+    radial-gradient(circle at 14% 44%, rgba(255, 244, 196, 0.34), transparent 26%),
+    linear-gradient(180deg, rgba(255, 248, 232, 0.42), rgba(255, 236, 196, 0.16));
+  box-shadow:
+    0 0 0 1px rgba(232, 188, 92, 0.24),
+    0 0 18px rgba(255, 210, 118, 0.28);
+}
+
+.trinket-chip {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.52), rgba(248, 232, 202, 0.16));
+  box-shadow:
+    inset 0 0 0 1px rgba(180, 152, 104, 0.22),
+    0 6px 12px rgba(24, 16, 10, 0.08);
+  font-size: 16px;
+  transition:
+    transform 180ms var(--ease-out-expo),
+    box-shadow 180ms var(--ease-out-expo),
+    filter 180ms var(--ease-out-expo);
+}
+
+.trinket-chip:hover,
+.trinket-chip:focus-visible {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow:
+    inset 0 0 0 1px rgba(180, 152, 104, 0.22),
+    0 10px 16px rgba(24, 16, 10, 0.12);
+}
+
+.trinket-chip.quality-3 {
+  filter: drop-shadow(0 0 8px rgba(184, 130, 255, 0.28));
+}
+
+.trinket-chip.quality-4 {
+  filter: drop-shadow(0 0 10px rgba(255, 110, 82, 0.34));
+}
+
+.trinket-chip.tone-devil {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 216, 216, 0.46), rgba(104, 22, 28, 0.26));
+}
+
+.trinket-slot {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.18), rgba(114, 92, 62, 0.08));
+  box-shadow: inset 0 0 0 1px rgba(180, 152, 104, 0.14);
 }
 h3 {
   margin: 0 0 14px;

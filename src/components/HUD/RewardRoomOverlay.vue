@@ -66,7 +66,16 @@
     </div>
 
     <div v-else-if="phase === 'acquired' && acquiredItem" class="acquire-animation">
-      <div class="acquire-glyph">{{ acquiredItem.emoji }}</div>
+      <div class="acquire-glyph" :class="{ launching: launchStarted }">{{ acquiredItem.emoji }}</div>
+      <div
+        v-if="flightFx"
+        class="reward-flight-layer"
+      >
+        <span class="reward-flight-burst" />
+        <span class="reward-flight-trail" :style="flightFx.style" />
+        <span class="reward-flight-glow" :style="flightFx.style" />
+        <span class="reward-flight-token" :style="flightFx.style">{{ acquiredItem.emoji }}</span>
+      </div>
       <p class="acquire-text">获得了 {{ acquiredItem.name }}</p>
       <p v-if="geraltQuote" class="geralt-quote">“{{ geraltQuote }}”</p>
     </div>
@@ -74,7 +83,8 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+import { audioManager } from '@/audio/AudioManager';
 import { useGameStore } from '@/stores/gameStore';
 
 const emit = defineEmits(['choose']);
@@ -86,9 +96,13 @@ const currentRoomType = ref('');
 const enteringRoom = ref('');
 const acquiredItem = ref(null);
 const geraltQuote = ref('');
+const launchStarted = ref(false);
+const flightFx = ref(null);
 
 let enterTimer = null;
 let acquireTimer = null;
+let flightLaunchTimer = null;
+let flightCleanupTimer = null;
 
 const overlayTone = computed(() => {
   if (phase.value === 'room' || phase.value === 'acquired') return currentRoomType.value || 'choose';
@@ -103,8 +117,12 @@ const roomItems = computed(() => {
 function clearTimers() {
   if (enterTimer) clearTimeout(enterTimer);
   if (acquireTimer) clearTimeout(acquireTimer);
+  if (flightLaunchTimer) clearTimeout(flightLaunchTimer);
+  if (flightCleanupTimer) clearTimeout(flightCleanupTimer);
   enterTimer = null;
   acquireTimer = null;
+  flightLaunchTimer = null;
+  flightCleanupTimer = null;
 }
 
 function previewRoom(roomType) {
@@ -130,9 +148,48 @@ function pickItem(item) {
   acquiredItem.value = item;
   geraltQuote.value = item.reaction || '';
   phase.value = 'acquired';
+  launchStarted.value = false;
+  flightFx.value = null;
+  void startRewardFlight(item);
   acquireTimer = setTimeout(() => {
     emit('choose', item.id);
-  }, 2000);
+  }, 1880);
+}
+
+async function startRewardFlight(item) {
+  await nextTick();
+  const target = document.querySelector('[data-trinket-target="true"]');
+  const source = document.querySelector('.acquire-animation');
+  if (!target || !source) return;
+  const sourceRect = source.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const startX = Math.round(sourceRect.left + sourceRect.width / 2);
+  const startY = Math.round(sourceRect.top + Math.min(sourceRect.height * 0.34, 120));
+  const endX = Math.round(targetRect.left + Math.min(targetRect.width * 0.18, 56));
+  const endY = Math.round(targetRect.top + targetRect.height / 2);
+  const dx = endX - startX;
+  const dy = endY - startY;
+  const arc = Math.max(-180, Math.min(-92, -Math.abs(dx) * 0.24 - 80));
+
+  flightFx.value = {
+    itemId: item.id,
+    style: {
+      left: `${startX}px`,
+      top: `${startY}px`,
+      '--dx': `${dx}px`,
+      '--dy': `${dy}px`,
+      '--arc': `${arc}px`
+    }
+  };
+
+  audioManager.playSFX('achievement', { vol: 0.56 });
+  flightLaunchTimer = setTimeout(() => {
+    launchStarted.value = true;
+  }, 120);
+  flightCleanupTimer = setTimeout(() => {
+    flightFx.value = null;
+    flightCleanupTimer = null;
+  }, 1380);
 }
 
 onMounted(() => {
@@ -150,6 +207,13 @@ onBeforeUnmount(() => {
   inset: 0;
   z-index: 300;
   overflow: hidden;
+}
+
+.reward-flight-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 340;
 }
 
 .room-overlay.choose {
@@ -177,6 +241,95 @@ onBeforeUnmount(() => {
   justify-content: center;
 }
 
+.acquire-glyph {
+  font-size: 72px;
+  line-height: 1;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.36));
+}
+
+.acquire-text {
+  margin: 18px 0 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff0cf;
+  letter-spacing: 0.08em;
+}
+
+.geralt-quote {
+  margin: 14px 0 0;
+  max-width: 520px;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.7;
+  color: rgba(255, 240, 220, 0.84);
+}
+
+@keyframes reward-flight-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.28);
+  }
+}
+
+@keyframes reward-flight-token {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.46);
+  }
+  14% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.18);
+  }
+  46% {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--dx) * 0.42), calc(-50% + var(--arc))) scale(0.98);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.54);
+  }
+}
+
+@keyframes reward-flight-trail {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scaleX(0.34);
+  }
+  18% {
+    opacity: 0.92;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx) * 0.76), calc(-50% + (var(--dy) + var(--arc)) * 0.32)) scaleX(1.86);
+  }
+}
+
+@keyframes acquire-glyph-launch {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.18;
+    transform: scale(0.82);
+  }
+}
+
+.reward-flight-token,
+.reward-flight-trail,
+.reward-flight-glow,
+.reward-flight-burst {
+  position: fixed;
+}
+
 .door-selection {
   gap: 22px;
 }
@@ -187,6 +340,56 @@ onBeforeUnmount(() => {
   letter-spacing: 0.18em;
   color: #efe4d2;
   text-shadow: 0 8px 18px rgba(0, 0, 0, 0.38);
+}
+
+.reward-flight-burst {
+  left: 50%;
+  top: 50%;
+  width: 140px;
+  height: 140px;
+  margin-left: -70px;
+  margin-top: -80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 231, 170, 0.42), transparent 70%);
+  animation: reward-flight-burst 620ms ease-out forwards;
+}
+
+.reward-flight-token {
+  z-index: 3;
+  font-size: 58px;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  filter:
+    drop-shadow(0 0 16px rgba(255, 220, 144, 0.46))
+    drop-shadow(0 10px 18px rgba(52, 28, 14, 0.22));
+  animation: reward-flight-token 1.28s cubic-bezier(0.2, 0.88, 0.28, 1) forwards;
+}
+
+.reward-flight-glow {
+  z-index: 2;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 236, 192, 0.72), rgba(255, 190, 112, 0.22) 56%, transparent 72%);
+  filter: blur(1px);
+  animation: reward-flight-token 1.28s cubic-bezier(0.2, 0.88, 0.28, 1) forwards;
+}
+
+.reward-flight-trail {
+  z-index: 1;
+  width: 88px;
+  height: 14px;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(90deg, rgba(255, 245, 214, 0.1), rgba(255, 214, 112, 0.7), rgba(255, 136, 78, 0.18));
+  filter: blur(4px);
+  transform-origin: center center;
+  animation: reward-flight-trail 1.28s cubic-bezier(0.2, 0.88, 0.28, 1) forwards;
+}
+
+.acquire-glyph.launching {
+  animation: acquire-glyph-launch 420ms ease-out forwards;
 }
 
 .doors {
@@ -643,29 +846,6 @@ onBeforeUnmount(() => {
 .acquire-animation {
   background: rgba(8, 6, 6, 0.86);
   gap: 12px;
-}
-
-.acquire-glyph {
-  font-size: 72px;
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.36));
-  animation: acquireFloat 0.6s ease-out both;
-}
-
-.acquire-text,
-.geralt-quote {
-  margin: 0;
-  color: #efe4d2;
-}
-
-.acquire-text {
-  font-size: 22px;
-  letter-spacing: 0.08em;
-}
-
-.geralt-quote {
-  font-size: 15px;
-  font-style: italic;
-  opacity: 0.9;
 }
 
 @keyframes lightPulse {

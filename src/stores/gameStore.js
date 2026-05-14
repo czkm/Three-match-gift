@@ -775,6 +775,8 @@ export const useGameStore = defineStore('game', {
       this.roomHistory.push({ day: offer.day, roomType: item.roomType, itemId: item.id, quality: item.quality });
       this._applyRewardPenalty(item.penalty);
       if (item.reaction) this.queueAmbientBark(item.reaction);
+      EventBus.trigger('rewardHudFlash');
+      audioManager.playSFX('click', { vol: 0.34, rate: 1.16, bypassThrottle: true });
       this.clearRewardItemInfo();
       this.pendingRewardDay = null;
       this.pendingRewardOffer = null;

@@ -2,9 +2,16 @@
   <div class="board-wrap">
     <div
       class="gameBoard grain"
-      :class="{ shaking: shaking, dimmed: targeting, repairing: game.phase === 'repairing' }"
+      :class="{
+        shaking: shaking,
+        dimmed: targeting,
+        repairing: game.phase === 'repairing',
+        idle: boardIdle
+      }"
       :data-theme="boardThemeKey || undefined"
       :style="boardThemeStyle"
+      @mousedown="bumpIdle"
+      @touchstart.passive="bumpIdle"
       @mouseup="onPointerUp"
       @touchend="onPointerUp"
       @mouseleave="onPointerUp"
@@ -65,6 +72,8 @@
             <span class="growth-bloom bloom-c">🪻</span>
           </template>
         </div>
+
+        <div class="board-idle-aura" />
 
         <div
           v-for="entity in game.activeBoardEntities"
@@ -226,9 +235,23 @@
           v-if="comboPraise"
           :key="comboPraise.id"
           class="combo-praise"
-          :class="[comboPraise.tone, comboPraise.theme, { giant: comboPraise.giant }]"
+          :class="[
+            comboPraise.tone,
+            comboPraise.theme,
+            comboPraise.sizeClass,
+            {
+              giant: comboPraise.giant,
+              chained: comboPraise.chainDepth >= 2,
+              blazing: comboPraise.chainDepth >= 3,
+              trailing: comboPraise.trailing
+            }
+          ]"
+          :style="comboPraise.style"
         >
-          <p class="combo-praise-label">{{ comboPraise.label }}</p>
+          <p class="combo-praise-prefix" v-if="comboPraise.prefix">{{ comboPraise.prefix }}</p>
+          <p class="combo-praise-label">
+            {{ comboPraise.label }}<span v-if="comboPraise.fireMark" class="combo-praise-fire"> {{ comboPraise.fireMark }}</span>
+          </p>
           <p v-if="comboPraise.comboText" class="combo-praise-combo">{{ comboPraise.comboText }}</p>
           <p v-if="comboPraise.subline" class="combo-praise-subline">{{ comboPraise.subline }}</p>
         </div>
@@ -288,6 +311,7 @@ const invalidIds = ref(new Set());
 const lastClearedMeta = ref(new Map());
 const lastClearSource = ref('match');
 const pendingComboAudioLevel = ref(0);
+const boardIdle = ref(false);
 const boardSyncTimers = [];
 let comboPraiseTimer = null;
 const spawnedMonsterIds = new Set();
@@ -317,6 +341,7 @@ const boardGrowthProgress = computed(() => Math.max(0, Math.min(1, game.repairPr
 const boardThemeKey = computed(() => game.today?.building?.id || null);
 const boardThemeStyle = computed(() => ({
   '--board-growth-progress': boardGrowthProgress.value.toFixed(3),
+  '--board-idle-particle-rate': boardIdle.value ? '8.6s' : '5.8s',
   '--board-theme-hue': boardThemeKey.value === 'garden' ? 'rgba(182, 140, 204, 0.18)'
     : boardThemeKey.value === 'greenhouse' ? 'rgba(118, 168, 126, 0.16)'
     : boardThemeKey.value === 'gazebo' ? 'rgba(232, 168, 104, 0.16)'
@@ -703,6 +728,7 @@ onMounted(() => {
   EventBus.bind('noMoreMoves', onNoMoreMoves);
   EventBus.bind('pigPenalty', onPigPenalty);
   board.value.fill();
+  bumpIdle();
 });
 
 onBeforeUnmount(() => {
@@ -1150,54 +1176,13 @@ function maybePraiseCombo(chain, groupSizes) {
 
 function showComboPraise(chain, groupSizes, matchGroups = []) {
   const biggest = Math.max(0, ...(groupSizes || []));
-  let label = '';
-  let subline = '';
-  let tone = 'warm';
-  let giant = false;
-  let flash = false;
-  let comboText = '';
-  let theme = pickPraiseTheme(matchGroups);
-
-  if (chain >= 4) {
-    label = '传奇连击';
-    subline = `连锁 ${chain} 次`;
-    tone = 'epic';
-    giant = true;
-    flash = true;
-    comboText = `${chain} COMBO`;
-  } else if (biggest >= 5) {
-    label = '超大匹配';
-    subline = `${biggest} 连达成`;
-    tone = 'epic';
-    giant = true;
-    flash = true;
-  } else if (chain === 3) {
-    label = '华丽连击';
-    subline = '行云流水';
-    tone = 'rare';
-    comboText = '3 COMBO';
-  } else if (biggest === 4) {
-    label = '精彩四连';
-    subline = '漂亮的一步';
-    tone = 'rare';
-    giant = true;
-  } else if (chain === 2) {
-    label = '连击';
-    subline = '继续保持';
-    tone = 'warm';
-    comboText = '2 COMBO';
-  }
-
-  if (!label) return;
+  const theme = pickPraiseTheme(matchGroups);
+  const praise = buildComboPraise(biggest, chain);
+  if (!praise) return;
 
   comboPraise.value = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    label,
-    subline,
-    tone,
-    giant,
-    flash,
-    comboText,
+    ...praise,
     theme
   };
 
@@ -1205,7 +1190,89 @@ function showComboPraise(chain, groupSizes, matchGroups = []) {
   comboPraiseTimer = setTimeout(() => {
     comboPraise.value = null;
     comboPraiseTimer = null;
-  }, 1350);
+  }, praise.durationMs);
+}
+
+function buildComboPraise(biggest, chain) {
+  const chainDepth = Math.max(1, chain || 1);
+  const prefixColor = chainDepth >= 5 ? '#ff7f62'
+    : chainDepth >= 4 ? '#ff9567'
+    : chainDepth >= 3 ? '#ffaf71'
+    : chainDepth >= 2 ? '#b48cff'
+    : '#e8cc84';
+  const cascadeBits = chainDepth >= 2
+    ? {
+        prefix: '连锁！',
+        comboText: `${chainDepth} CHAIN`,
+        subline: chainDepth >= 3 ? `第 ${chainDepth} 段引燃` : `第 ${chainDepth} 段续上`,
+        fireMark: chainDepth >= 3 ? '🔥' : '',
+        style: { '--combo-prefix-color': prefixColor },
+        chainDepth
+      }
+    : {
+        prefix: '',
+        comboText: '',
+        subline: '',
+        fireMark: '',
+        style: { '--combo-prefix-color': prefixColor },
+        chainDepth
+      };
+
+  if (biggest >= 5) {
+    return {
+      ...cascadeBits,
+      label: `${biggest} 连`,
+      tone: chainDepth >= 2 ? 'inferno' : 'epic',
+      giant: true,
+      flash: true,
+      trailing: true,
+      sizeClass: 'size-5',
+      durationMs: chainDepth >= 2 ? 2200 : 1850
+    };
+  }
+
+  if (biggest === 4) {
+    return {
+      ...cascadeBits,
+      label: '4 连',
+      subline: cascadeBits.subline || '金光正好',
+      tone: chainDepth >= 2 ? 'cascade' : 'rare',
+      giant: true,
+      flash: true,
+      trailing: false,
+      sizeClass: 'size-4',
+      durationMs: chainDepth >= 2 ? 1880 : 1560
+    };
+  }
+
+  if (biggest === 3) {
+    return {
+      ...cascadeBits,
+      label: '3 连',
+      subline: cascadeBits.subline || '稳稳命中',
+      tone: chainDepth >= 2 ? 'cascade' : 'warm',
+      giant: false,
+      flash: false,
+      trailing: false,
+      sizeClass: 'size-3',
+      durationMs: chainDepth >= 3 ? 1720 : chainDepth === 2 ? 1460 : 1180
+    };
+  }
+
+  if (chainDepth >= 2) {
+    return {
+      ...cascadeBits,
+      label: '连锁命中',
+      tone: chainDepth >= 3 ? 'inferno' : 'cascade',
+      giant: chainDepth >= 3,
+      flash: chainDepth >= 3,
+      trailing: chainDepth >= 3,
+      sizeClass: chainDepth >= 3 ? 'size-5' : 'size-4',
+      durationMs: chainDepth >= 3 ? 1920 : 1560
+    };
+  }
+
+  return null;
 }
 
 function pickPraiseTheme(matchGroups = []) {
@@ -1253,14 +1320,16 @@ function maybeCommitTurn() {
 
 let _idleTimer = null;
 function bumpIdle() {
+  boardIdle.value = false;
   if (_idleTimer) clearTimeout(_idleTimer);
   hintIds.value = new Set();
   _idleTimer = setTimeout(() => {
     if (game.phase !== 'playing') return;
     if (!board.value || !board.value.canMove()) return;
+    boardIdle.value = true;
     if (hintIds.value.size > 0) return;       // already lit (e.g. lilacReturn)
     refreshHints({ force: true });
-  }, 8000);
+  }, 3000);
 }
 
 function refreshHints(opts = {}) {
@@ -1292,6 +1361,7 @@ watch(() => game.stepsLeft, () => {
 });
 watch(() => game.unlockedAbilities.length, refreshHints);
 watch(() => game.phase, (phase) => {
+  if (phase !== 'playing') boardIdle.value = false;
   if (phase !== 'playing') {
     game.clearMonsterInfo();
   }
@@ -1660,6 +1730,7 @@ function stopDjinnTransitionFx() {
   padding: 10px;
   border-radius: var(--radius-xl);
   transition: transform 280ms var(--ease-out-expo), filter 280ms var(--ease-out-expo);
+  transform-origin: center center;
   background:
     linear-gradient(180deg, rgba(255, 248, 230, 0.16) 0%, transparent 12%),
     linear-gradient(160deg, rgba(93, 66, 40, 0.95) 0%, rgba(36, 22, 12, 0.98) 100%);
@@ -1669,6 +1740,10 @@ function stopDjinnTransitionFx() {
     0 6px 14px rgba(14, 8, 6, 0.18),
     inset 0 0 0 1px rgba(255, 245, 218, 0.10),
     inset 0 0 0 5px rgba(20, 12, 8, 0.28);
+}
+
+.gameBoard.idle {
+  animation: board-idle-breathe 4s ease-in-out infinite;
 }
 
 .gameBoard::before,
@@ -1712,6 +1787,17 @@ function stopDjinnTransitionFx() {
   75%      { transform: translateX(5px); }
 }
 
+@keyframes board-idle-breathe {
+  0%, 100% {
+    transform: scale(1);
+    filter: saturate(1);
+  }
+  50% {
+    transform: scale(1.008);
+    filter: saturate(1.04);
+  }
+}
+
 .tileContainer {
   position: relative;
   width: 100%;
@@ -1732,8 +1818,28 @@ function stopDjinnTransitionFx() {
     inset 0 0 20px rgba(0, 0, 0, 0.12);
 }
 
+.board-idle-aura {
+  position: absolute;
+  inset: 2px;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 223, 160, 0.06), rgba(255, 247, 214, 0.18), rgba(255, 223, 160, 0.06));
+  mix-blend-mode: screen;
+}
+
+.gameBoard.idle .board-idle-aura {
+  animation: board-idle-aura 4s ease-in-out infinite;
+}
+
 .gameBoard .tileContainer {
   --board-theme-tint: var(--board-theme-hue);
+}
+
+.gameBoard.idle .tileContainer::before {
+  animation: board-idle-veil var(--board-idle-particle-rate, 8.6s) ease-in-out infinite;
 }
 
 .gameBoard[data-theme='vineyard'] .tileContainer {
@@ -1802,6 +1908,28 @@ function stopDjinnTransitionFx() {
     radial-gradient(circle at 50% 18%, rgba(224, 202, 238, calc(var(--board-growth-progress) * 0.16)), transparent 34%),
     linear-gradient(160deg, rgba(78, 60, 92, 0.98) 0%, rgba(44, 32, 58, 0.98) 100%);
   background-size: 60px 60px, 60px 60px, auto, auto;
+}
+
+@keyframes board-idle-aura {
+  0%, 100% {
+    opacity: 0.12;
+    filter: brightness(0.96);
+  }
+  50% {
+    opacity: 0.36;
+    filter: brightness(1.08);
+  }
+}
+
+@keyframes board-idle-veil {
+  0%, 100% {
+    opacity: 0.46;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.68;
+    transform: scale(1.02);
+  }
 }
 
 .tileContainer::before {
@@ -1924,6 +2052,7 @@ function stopDjinnTransitionFx() {
   font-size: 18px;
   opacity: max(0, calc((var(--board-growth-progress) - 0.18) * 1.8));
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18));
+  animation: board-mote-drift 5.8s ease-in-out infinite;
 }
 
 .mote-a { left: 24px; top: 30px; }
@@ -1934,7 +2063,20 @@ function stopDjinnTransitionFx() {
   font-size: 22px;
   opacity: max(0, calc((var(--board-growth-progress) - 0.26) * 1.7));
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.18));
+  animation: board-mote-drift 6.2s ease-in-out infinite;
 }
+
+.gameBoard.idle .growth-mote,
+.gameBoard.idle .growth-bloom {
+  animation-duration: var(--board-idle-particle-rate, 8.6s);
+}
+
+.mote-a,
+.bloom-a { animation-delay: 0s; }
+.mote-b,
+.bloom-b { animation-delay: 0.9s; }
+.mote-c,
+.bloom-c { animation-delay: 1.6s; }
 
 .bloom-a { left: 22px; bottom: 30px; }
 .bloom-b { right: 42px; top: 38px; }
@@ -2015,6 +2157,15 @@ function stopDjinnTransitionFx() {
 @keyframes board-growth-breathe {
   0%, 100% { filter: saturate(1) brightness(1); }
   50% { filter: saturate(1.14) brightness(1.08); }
+}
+
+@keyframes board-mote-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(0.98);
+  }
+  50% {
+    transform: translate3d(0, -3px, 0) scale(1.04);
+  }
 }
 
 .entity-slot {
@@ -2098,6 +2249,7 @@ function stopDjinnTransitionFx() {
   box-shadow:
     0 14px 24px rgba(18, 10, 8, 0.28),
     inset 0 1px 0 rgba(255, 244, 220, 0.14);
+  --combo-prefix-color: #c39aff;
 }
 
 .combo-praise.theme-gold {
@@ -2155,6 +2307,22 @@ function stopDjinnTransitionFx() {
     inset 0 1px 0 rgba(255, 247, 226, 0.24);
 }
 
+.combo-praise.cascade {
+  border: 1px solid rgba(182, 132, 255, 0.54);
+  box-shadow:
+    0 14px 24px rgba(18, 10, 8, 0.28),
+    0 0 18px rgba(184, 132, 255, 0.22),
+    inset 0 1px 0 rgba(248, 242, 255, 0.2);
+}
+
+.combo-praise.inferno {
+  border: 1px solid rgba(255, 146, 94, 0.58);
+  box-shadow:
+    0 16px 30px rgba(32, 12, 8, 0.34),
+    0 0 28px rgba(255, 128, 88, 0.26),
+    inset 0 1px 0 rgba(255, 240, 224, 0.22);
+}
+
 .combo-praise.theme-grape.warm,
 .combo-praise.theme-grape.rare,
 .combo-praise.theme-grape.epic {
@@ -2180,10 +2348,38 @@ function stopDjinnTransitionFx() {
   border-radius: 20px;
 }
 
+.combo-praise.size-3 {
+  top: 18px;
+  min-width: 154px;
+  padding: 10px 16px 9px;
+}
+
+.combo-praise.size-4 {
+  top: 22px;
+}
+
+.combo-praise.size-5 {
+  top: 30px;
+  min-width: 244px;
+  padding: 18px 24px 16px;
+}
+
+.combo-praise-prefix,
 .combo-praise-label,
 .combo-praise-combo,
 .combo-praise-subline {
   margin: 0;
+}
+
+.combo-praise-prefix {
+  margin-bottom: 2px;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  color: var(--combo-prefix-color);
+  text-shadow:
+    0 0 10px color-mix(in srgb, var(--combo-prefix-color) 34%, transparent),
+    0 2px 6px rgba(0, 0, 0, 0.28);
 }
 
 .combo-praise-label {
@@ -2195,9 +2391,22 @@ function stopDjinnTransitionFx() {
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
 }
 
+.combo-praise.size-3 .combo-praise-label {
+  font-size: 18px;
+  color: #f6dfae;
+}
+
 .combo-praise.giant .combo-praise-label {
   font-size: 30px;
   letter-spacing: 0.06em;
+}
+
+.combo-praise.size-5 .combo-praise-label {
+  font-size: 38px;
+  color: #fff4d8;
+  text-shadow:
+    0 0 12px rgba(255, 202, 136, 0.26),
+    0 2px 8px rgba(0, 0, 0, 0.34);
 }
 
 .combo-praise-combo {
@@ -2209,12 +2418,34 @@ function stopDjinnTransitionFx() {
   color: rgba(255, 239, 198, 0.92);
 }
 
+.combo-praise.chained .combo-praise-combo {
+  color: rgba(245, 220, 255, 0.92);
+}
+
 .combo-praise-subline {
   margin-top: 4px;
   font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: rgba(255, 234, 186, 0.82);
+}
+
+.combo-praise-fire {
+  display: inline-block;
+  filter: drop-shadow(0 0 8px rgba(255, 144, 92, 0.38));
+}
+
+.combo-praise.trailing::after {
+  content: '';
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: -8px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 196, 112, 0.18) 26%, rgba(255, 108, 88, 0.34) 50%, rgba(255, 196, 112, 0.18) 74%, transparent 100%);
+  filter: blur(4px);
+  animation: combo-tail 1.1s ease-out infinite;
 }
 
 .combo-praise-enter-active,
@@ -2226,6 +2457,20 @@ function stopDjinnTransitionFx() {
 .combo-praise-leave-to {
   opacity: 0;
   transform: translateX(-50%) translateY(-10px) scale(0.92);
+}
+
+@keyframes combo-tail {
+  0% {
+    opacity: 0;
+    transform: scaleX(0.7);
+  }
+  30% {
+    opacity: 0.92;
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(1.08);
+  }
 }
 
 .combo-flash {
