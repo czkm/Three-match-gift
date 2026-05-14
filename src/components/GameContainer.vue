@@ -29,6 +29,8 @@
 
     <!-- Repair sequence: per-day differentiated cutscene -->
     <PerDayCutscene v-if="game.phase === 'repairing'" @advance="onRepairAdvance" />
+
+    <RewardRoomOverlay v-if="game.phase === 'rewardChoice'" @choose="onRewardChoose" />
   </div>
 </template>
 
@@ -42,11 +44,12 @@ import DayEndOverlay from './HUD/DayEndOverlay.vue';
 import EstateStrip from './HUD/EstateStrip.vue';
 import GameBoard from './Board/GameBoard.vue';
 import DjinnCeremonyOverlay from './HUD/DjinnCeremonyOverlay.vue';
+import RewardRoomOverlay from './HUD/RewardRoomOverlay.vue';
 import { useGameStore } from '@/stores/gameStore';
 
 const game = useGameStore();
 const boardEl = ref(null);
-const showEstateStrip = computed(() => ['intro', 'playing', 'targeting', 'dayEnd', 'repairing', 'awakening', 'djinnTransition'].includes(game.phase));
+const showEstateStrip = computed(() => ['intro', 'playing', 'targeting', 'dayEnd', 'repairing', 'rewardChoice', 'awakening', 'djinnTransition'].includes(game.phase));
 
 function onIntroDone() {
   game.startPlay();
@@ -58,6 +61,10 @@ function onDayEndAdvance() {
 
 function onRepairAdvance() {
   game.advanceFromRepair();
+}
+
+function onRewardChoose(itemId) {
+  game.chooseRewardItem(itemId);
 }
 
 </script>

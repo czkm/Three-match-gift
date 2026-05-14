@@ -22,7 +22,7 @@
         <template v-else>
           <span class="ink-subtle">步数</span>
           <span class="step-value" :class="{ low: game.stepsLeft <= 5, penalized: penaltyFlash }">
-            {{ game.stepsLeft }} / 20
+            {{ game.stepsLeft }} / {{ game.effectiveMaxSteps }}
           </span>
         </template>
       </span>

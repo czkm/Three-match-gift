@@ -41,6 +41,7 @@ const messageFresh = ref(false);
 let freshTimer = null;
 
 const messageKind = computed(() => {
+  if (game.currentRewardItemInfo) return 'monster';
   if (game.currentMonsterInfo) return 'monster';
   if (game.phase === 'intro') return 'narration';
   if (game.barkLine) return 'geralt';
@@ -52,6 +53,7 @@ const messageKind = computed(() => {
 });
 
 const messageEyebrow = computed(() => {
+  if (game.currentRewardItemInfo) return '道具情报';
   switch (messageKind.value) {
     case 'monster': return '棋盘情报';
     case 'narration': return '今日场景';
@@ -63,7 +65,7 @@ const messageEyebrow = computed(() => {
 
 const messageIcon = computed(() => {
   switch (messageKind.value) {
-    case 'monster': return game.currentMonsterInfo?.emoji || '👁';
+    case 'monster': return game.currentRewardItemInfo?.emoji || game.currentMonsterInfo?.emoji || '👁';
     case 'narration': return '📖';
     case 'geralt': return '🐺';
     case 'system': return '✨';
@@ -72,6 +74,7 @@ const messageIcon = computed(() => {
 });
 
 const messageTitle = computed(() => {
+  if (game.currentRewardItemInfo) return game.currentRewardItemInfo.label;
   if (game.currentMonsterInfo) return game.currentMonsterInfo.label;
   if (game.phase === 'intro') return game.today?.building?.cn || '';
   if (game.barkLine) return '临场自语';
@@ -87,6 +90,14 @@ const messageTitle = computed(() => {
 });
 
 const messageText = computed(() => {
+  if (game.currentRewardItemInfo) {
+    return [
+      game.currentRewardItemInfo.healthLabel,
+      game.currentRewardItemInfo.weakness,
+      game.currentRewardItemInfo.pressure,
+      game.currentRewardItemInfo.echo
+    ].filter(Boolean).join('\n');
+  }
   if (game.currentMonsterInfo) {
     return [
       game.currentMonsterInfo.healthLabel,

@@ -38,6 +38,7 @@ import {
   ROT_CHAR,
   PIG_RATING,
   PIG_REACTIONS,
+  REWARD_ITEMS,
   unlockedCharsForDay
 } from '@/data/content';
 
@@ -55,6 +56,17 @@ export const useGameStore = defineStore('game', {
     abilityUses: {},                // abilityId → uses left this day
     pendingAbility: null,           // when phase === 'targeting'
     matchGroupsThisDay: 0,          // for agedBarrel passive
+
+    // Isaac-style reward rooms
+    ownedItems: [],
+    claimedRewardDays: [],
+    pendingRewardDay: null,
+    pendingRewardOffer: null,
+    seenRewardItemIds: [],
+    nextDayStepPenalty: 0,
+    maxStepPenalty: 0,
+    itemFlags: {},
+    roomHistory: [],
 
     // Narrative
     introShown: false,
@@ -81,6 +93,7 @@ export const useGameStore = defineStore('game', {
     barkLine: '',
     barkNonce: 0,
     inspectedMonster: null,        // { kind, entityId, source }
+    inspectedRewardItem: null,     // { itemId, source }
 
     // Day-specific modifiers
     needOverrides: {},
@@ -115,6 +128,17 @@ export const useGameStore = defineStore('game', {
   getters: {
     today(state)        { return DAYS[state.currentDay]; },
     dayCount(state)     { return DAYS.length; },
+    effectiveMaxSteps(state) { return Math.max(14, MAX_STEPS - state.maxStepPenalty); },
+    ownedItemIds(state) { return state.ownedItems.map((item) => item.id); },
+    currentRewardOffer(state) {
+      const offer = state.pendingRewardOffer;
+      if (!offer) return null;
+      return {
+        day: offer.day,
+        treasure: (offer.treasure || []).map((id) => REWARD_ITEMS[id]).filter(Boolean),
+        devil: (offer.devil || []).map((id) => REWARD_ITEMS[id]).filter(Boolean)
+      };
+    },
     isLastDay(state)    { return state.currentDay >= DAYS.length - 1; },
     completedBuildingsCount(state) { return state.unlockedAbilities.length; },
     repairProgressPct(state) {
@@ -369,6 +393,24 @@ export const useGameStore = defineStore('game', {
         source: info.source
       };
     },
+    currentRewardItemInfo(state) {
+      const info = state.inspectedRewardItem;
+      if (!info?.itemId) return null;
+
+      const item = REWARD_ITEMS[info.itemId];
+      if (!item) return null;
+
+      return {
+        itemId: item.id,
+        emoji: item.emoji,
+        label: `${item.name}${item.enName ? ` · ${item.enName}` : ''}`,
+        healthLabel: `Quality ${item.quality} · ${item.roomType === 'devil' ? '恶魔道具' : '宝箱道具'}`,
+        weakness: item.description,
+        pressure: item.penaltyText || '拿了就走，没有额外代价。',
+        echo: item.reaction || `${item.name} 会在之后的每一天持续生效。`,
+        source: info.source
+      };
+    },
 
     /** Resource progress as { grape: { have, need, pct }, … } */
     repairView(state) {
@@ -434,6 +476,15 @@ export const useGameStore = defineStore('game', {
       this.abilityUses = {};
       this.pendingAbility = null;
       this.matchGroupsThisDay = 0;
+      this.ownedItems = [];
+      this.claimedRewardDays = [];
+      this.pendingRewardDay = null;
+      this.pendingRewardOffer = null;
+      this.seenRewardItemIds = [];
+      this.nextDayStepPenalty = 0;
+      this.maxStepPenalty = 0;
+      this.itemFlags = {};
+      this.roomHistory = [];
       this.pigEnergy = 0;
       this.pigEnergyBeforeAward = 0;
       this.pigLastRating = null;
@@ -451,6 +502,7 @@ export const useGameStore = defineStore('game', {
       this.giftText = ENDING.defaultGift;
       this.giftAttemptedText = '';
       this.giftWasOverridden = false;
+      this.inspectedRewardItem = null;
       this._resetDaySpecialState();
       this.phase = 'intro';
       achievements.track('runStart');
@@ -476,7 +528,9 @@ export const useGameStore = defineStore('game', {
     nextDay() {
       const achievements = useAchievementStore();
       this.currentDay++;
-      this.stepsLeft = MAX_STEPS;
+      const stepPenalty = this.nextDayStepPenalty;
+      this.nextDayStepPenalty = 0;
+      this.stepsLeft = Math.max(1, this.effectiveMaxSteps - stepPenalty);
       this.progress = {};
       this.pendingAbility = null;
       this.matchGroupsThisDay = 0;
@@ -488,7 +542,11 @@ export const useGameStore = defineStore('game', {
       this.pigAngryUsedDay = null;
       this.introShown = false;
       this.hintMove = null;
+      this.pendingRewardOffer = null;
+      this.inspectedRewardItem = null;
       this._resetDaySpecialState();
+      this._resetDailyItemFlags();
+      this._applyDayStartItemEffects();
       this._refreshAbilityUses();
       if (this.currentDay >= DAYS.length) {
         this.phase = 'final';
@@ -507,9 +565,9 @@ export const useGameStore = defineStore('game', {
       this.turnId++;
     },
 
-    /** Add `n` steps, capped at MAX_STEPS. */
+    /** Add `n` steps, capped at the current effective maximum. */
     recoverSteps(n) {
-      const next = Math.min(MAX_STEPS, this.stepsLeft + n);
+      const next = Math.min(this.effectiveMaxSteps, this.stepsLeft + n);
       const gained = next - this.stepsLeft;
       this.stepsLeft = next;
       if (gained > 0) audioManager.playSFX('steprestore', { vol: 0.6 });
@@ -587,6 +645,9 @@ export const useGameStore = defineStore('game', {
         }
       }
 
+      this._applyOwnedItemGainEffects(summary, resourcesByChar, groupSizes || [], chain || 1);
+      this._applyLowStepRecoveryItems();
+
       // agedBarrel passive: +1 step per 5 cleared groups.
       if (this.unlockedAbilities.includes('agedBarrel')) {
         this.matchGroupsThisDay += groupSizes.length;
@@ -631,6 +692,7 @@ export const useGameStore = defineStore('game', {
       }
       if (this.djinnUnlimitedSteps) return 'continue';
       if (this.stepsLeft <= 0) {
+        if (this._tryZeroStepRecovery()) return 'continue';
         this.dayEndLine = DAY_END_LINES[Math.floor(Math.random() * DAY_END_LINES.length)];
         this.phase = 'dayEnd';
         achievements.track('dayEndReached', { day: this.currentDay + 1 });
@@ -673,12 +735,56 @@ export const useGameStore = defineStore('game', {
         this.beginDjinnWakeCutscene();
         return;
       }
+      const rewardDay = this.currentDay + 1;
+      if (rewardDay <= DAYS.length - 1 && !this.claimedRewardDays.includes(rewardDay)) {
+        this.pendingRewardDay = rewardDay;
+        this.pendingRewardOffer = this._buildRewardOffer(rewardDay);
+        if (!this.pendingRewardOffer) {
+          this.pendingRewardDay = null;
+          this.nextDay();
+          return;
+        }
+        this.phase = 'rewardChoice';
+        return;
+      }
       this.nextDay();
+    },
+
+    chooseRewardItem(itemId) {
+      if (this.phase !== 'rewardChoice') return false;
+      const offer = this.currentRewardOffer;
+      if (!offer) return false;
+      const options = [...offer.treasure, ...offer.devil];
+      const item = options.find((candidate) => candidate.id === itemId);
+      if (!item) return false;
+
+      const acquired = {
+        id: item.id,
+        day: offer.day,
+        roomType: item.roomType,
+        name: item.name,
+        enName: item.enName,
+        quality: item.quality,
+        emoji: item.emoji,
+        slot: item.slot,
+        tone: item.tone,
+        reaction: item.reaction
+      };
+      this.ownedItems = [...this.ownedItems.filter((owned) => owned.id !== item.id), acquired];
+      this.claimedRewardDays = [...new Set([...this.claimedRewardDays, offer.day])];
+      this.roomHistory.push({ day: offer.day, roomType: item.roomType, itemId: item.id, quality: item.quality });
+      this._applyRewardPenalty(item.penalty);
+      if (item.reaction) this.queueAmbientBark(item.reaction);
+      this.clearRewardItemInfo();
+      this.pendingRewardDay = null;
+      this.pendingRewardOffer = null;
+      this.nextDay();
+      return true;
     },
 
     advanceFromDayEnd() {
       audioManager.playSFX('dayend', { vol: 0.6 });
-      this.stepsLeft = MAX_STEPS;
+      this.stepsLeft = this.effectiveMaxSteps;
       this.matchGroupsThisDay = 0;
       this.phase = 'playing';
     },
@@ -687,6 +793,233 @@ export const useGameStore = defineStore('game', {
       if (this.pendingEstateRevealId === buildingId) {
         this.pendingEstateRevealId = null;
       }
+    },
+
+    _ownedRewardItems() {
+      return this.ownedItems.map((owned) => REWARD_ITEMS[owned.id]).filter(Boolean);
+    },
+
+    _rewardPool(roomType) {
+      return Object.values(REWARD_ITEMS)
+        .filter((item) => item.roomType === roomType)
+        .map((item) => item.id);
+    },
+
+    _drawRewardIds(roomType, count, excluded = []) {
+      const excludedSet = new Set(excluded);
+      const pool = this._rewardPool(roomType).filter((id) => !excludedSet.has(id));
+      const drawn = [];
+      while (pool.length && drawn.length < count) {
+        const index = Math.floor(Math.random() * pool.length);
+        drawn.push(pool[index]);
+        pool.splice(index, 1);
+      }
+      return drawn;
+    },
+
+    _buildRewardOffer(day) {
+      if (!day || day <= 0 || day >= DAYS.length) return null;
+      if (day === 1) {
+        this.seenRewardItemIds = [...new Set([...this.seenRewardItemIds, 'styeTreasure', 'styeDevil'])];
+        return {
+          day,
+          treasure: ['styeTreasure'],
+          devil: ['styeDevil']
+        };
+      }
+
+      const treasure = this._drawRewardIds('treasure', 1, this.seenRewardItemIds);
+      const devil = this._drawRewardIds('devil', 2, this.seenRewardItemIds);
+      this.seenRewardItemIds = [...new Set([...this.seenRewardItemIds, ...treasure, ...devil])];
+
+      return {
+        day,
+        treasure,
+        devil
+      };
+    },
+
+    _itemFlagKey(item, suffix = 'used') {
+      return `${item.id}:${this.currentDay + 1}:${suffix}`;
+    },
+
+    _markItemFlag(item, suffix = 'used') {
+      this.itemFlags = { ...this.itemFlags, [this._itemFlagKey(item, suffix)]: true };
+    },
+
+    _hasItemFlag(item, suffix = 'used') {
+      return Boolean(this.itemFlags[this._itemFlagKey(item, suffix)]);
+    },
+
+    _resetDailyItemFlags() {
+      this.itemFlags = {};
+    },
+
+    _applyRewardPenalty(penalty) {
+      if (!penalty) return;
+      if (penalty.type === 'nextDaySteps') {
+        this.nextDayStepPenalty += penalty.value || 0;
+      } else if (penalty.type === 'maxSteps') {
+        this.maxStepPenalty += penalty.value || 0;
+        this.stepsLeft = Math.min(this.stepsLeft, this.effectiveMaxSteps);
+      }
+    },
+
+    _applyDayStartItemEffects() {
+      for (const item of this._ownedRewardItems()) {
+        const effect = item.effect;
+        if (!effect) continue;
+        if (effect.type === 'dayStartStepBonus') {
+          this.recoverSteps(effect.amount || 0);
+        } else if (effect.type === 'dayStartNeedReduction') {
+          this._reduceCurrentNeeds(effect.amount || 0, effect.targets || 1);
+        }
+      }
+    },
+
+    _reduceCurrentNeeds(amount, targetCount) {
+      const day = DAYS[this.currentDay];
+      if (!day || !amount) return;
+      const candidates = Object.entries(day.needs)
+        .map(([id, need]) => ({ id, remaining: Math.max(0, (this.needOverrides[id] ?? need) - (this.progress[id] || 0)) }))
+        .filter((item) => item.remaining > 0)
+        .sort((a, b) => b.remaining - a.remaining)
+        .slice(0, targetCount);
+      for (const candidate of candidates) {
+        const baseNeed = this.needOverrides[candidate.id] ?? day.needs[candidate.id];
+        this.needOverrides[candidate.id] = Math.max(1, baseNeed - amount);
+      }
+    },
+
+    _addRewardResourceBonus(summary, id, amount) {
+      if (!id || !amount) return;
+      this.progress[id] = (this.progress[id] || 0) + amount;
+      summary[id] = (summary[id] || 0) + amount;
+    },
+
+    _addBonusToSummaryResources(summary, amount) {
+      const ids = Object.keys(summary);
+      for (const id of ids) this._addRewardResourceBonus(summary, id, amount);
+    },
+
+    _addHighestNeedBonus(summary, amount) {
+      const day = DAYS[this.currentDay];
+      if (!day || !amount) return;
+      const target = Object.entries(day.needs)
+        .map(([id, need]) => ({ id, remaining: Math.max(0, (this.needOverrides[id] ?? need) - (this.progress[id] || 0)) }))
+        .sort((a, b) => b.remaining - a.remaining)[0];
+      if (target?.id) this._addRewardResourceBonus(summary, target.id, amount);
+    },
+
+    _addAllTargetBonus(summary, amount) {
+      const day = DAYS[this.currentDay];
+      if (!day || !amount) return;
+      for (const id of Object.keys(day.needs)) this._addRewardResourceBonus(summary, id, amount);
+    },
+
+    _applyOwnedItemGainEffects(summary, resourcesByChar, groupSizes = [], chain = 1) {
+      if (!Object.keys(resourcesByChar || {}).length) return;
+      const hasBig = groupSizes.some((size) => size >= 4);
+      const hasFive = groupSizes.some((size) => size >= 5);
+      for (const item of this._ownedRewardItems()) {
+        const effect = item.effect;
+        if (!effect) continue;
+        if (effect.type === 'firstBigMatchBonus' && hasBig && !this._hasItemFlag(item)) {
+          this._addBonusToSummaryResources(summary, effect.amount || 0);
+          this._markItemFlag(item);
+        } else if (effect.type === 'firstFiveMatchBonus' && hasFive && !this._hasItemFlag(item)) {
+          this._addBonusToSummaryResources(summary, effect.amount || 0);
+          this._markItemFlag(item);
+        } else if (effect.type === 'allBigMatchBonus' && hasBig) {
+          this._addBonusToSummaryResources(summary, effect.amount || 0);
+        } else if (effect.type === 'chainBonus' && chain >= (effect.minChain || 2) && !this._hasItemFlag(item)) {
+          this._addBonusToSummaryResources(summary, effect.amount || 0);
+          this._markItemFlag(item);
+        } else if (effect.type === 'firstTargetResourceBonus' && !this._hasItemFlag(item)) {
+          this._addHighestNeedBonus(summary, effect.amount || 0);
+          this._markItemFlag(item);
+        } else if (effect.type === 'lowStepResourceBoost' && this.stepsLeft <= (effect.threshold || 5)) {
+          for (const id of Object.keys(summary)) {
+            const bonus = Math.max(1, Math.ceil(summary[id] * ((effect.multiplier || 1) - 1)));
+            this._addRewardResourceBonus(summary, id, bonus);
+          }
+        } else if (effect.type === 'firstHighestNeedBonus' && hasBig && !this._hasItemFlag(item)) {
+          this._addHighestNeedBonus(summary, effect.amount || 0);
+          this._markItemFlag(item);
+        } else if (effect.type === 'firstFiveAllTargetsBonus' && hasFive && !this._hasItemFlag(item)) {
+          this._addAllTargetBonus(summary, effect.amount || 0);
+          this._markItemFlag(item);
+        } else if (effect.type === 'firstFiveMatchStep' && hasFive && !this._hasItemFlag(item)) {
+          this.recoverSteps(effect.amount || 0);
+          this._markItemFlag(item);
+        } else if (effect.type === 'firstBigMatchPigEnergy' && hasBig && !this._hasItemFlag(item)) {
+          this.pigEnergy = Math.min(PIG_RATING.energyMax, this.pigEnergy + (effect.amount || 0));
+          this._markItemFlag(item);
+        }
+      }
+    },
+
+    _applyLowStepRecoveryItems() {
+      for (const item of this._ownedRewardItems()) {
+        const effect = item.effect;
+        if (effect?.type !== 'lowStepPigEnergyRecover') continue;
+        if (this._hasItemFlag(item)) continue;
+        if (this.stepsLeft > (effect.threshold || 3)) continue;
+        if (this.pigEnergy < (effect.energyCost || 1)) continue;
+        this.pigEnergy -= effect.energyCost || 1;
+        this.recoverSteps(effect.amount || 0);
+        this._markItemFlag(item);
+      }
+    },
+
+    _tryZeroStepRecovery() {
+      for (const item of this._ownedRewardItems()) {
+        const effect = item.effect;
+        if (effect?.type !== 'firstZeroStepRecover') continue;
+        if (this._hasItemFlag(item, 'zero')) continue;
+        this.recoverSteps(effect.amount || 0);
+        this._markItemFlag(item, 'zero');
+        if (item.reaction) this.queueAmbientBark(item.reaction);
+        return this.stepsLeft > 0;
+      }
+      return false;
+    },
+
+    handleInvalidSwapReward({ chars = [] } = {}) {
+      const resourceChars = chars.filter((ch) => RESOURCE_BY_CHAR[ch]);
+      if (!resourceChars.length) return null;
+      const summary = {};
+      for (const item of this._ownedRewardItems()) {
+        const effect = item.effect;
+        if (!effect) continue;
+        if (effect.type === 'firstInvalidSwapForgive' && !this._hasItemFlag(item, 'invalid')) {
+          this.recoverSteps(effect.amount || 0);
+          this._markItemFlag(item, 'invalid');
+        } else if (effect.type === 'invalidSwapBonus' && !this._hasItemFlag(item, 'invalid')) {
+          for (const ch of resourceChars) {
+            const resource = RESOURCE_BY_CHAR[ch];
+            this.progress[resource.id] = (this.progress[resource.id] || 0) + (effect.amount || 0);
+            summary[resource.id] = (summary[resource.id] || 0) + (effect.amount || 0);
+          }
+          this._markItemFlag(item, 'invalid');
+        }
+      }
+      return Object.keys(summary).length ? summary : null;
+    },
+
+    applyDjinnItemProgressBonus(context = {}) {
+      let bonus = 0;
+      for (const item of this._ownedRewardItems()) {
+        const effect = item.effect;
+        if (effect?.type === 'djinnProgressBonus' && !this._hasItemFlag(item, effect.perStage ? `djinn-${this.djinnStage}` : 'djinn')) {
+          bonus += effect.amount || 0;
+          this._markItemFlag(item, effect.perStage ? `djinn-${this.djinnStage}` : 'djinn');
+        } else if (effect?.type === 'djinnBigMatchProgressBonus' && context.hasBig && !this._hasItemFlag(item, `djinn-big-${this.djinnStage}`)) {
+          bonus += effect.amount || 0;
+          this._markItemFlag(item, `djinn-big-${this.djinnStage}`);
+        }
+      }
+      return bonus;
     },
 
     /* ---------- abilities ---------- */
@@ -778,6 +1111,12 @@ export const useGameStore = defineStore('game', {
       };
     },
 
+    inspectOwnedItem(itemId) {
+      if (!itemId || !this.ownedItems.some((item) => item.id === itemId)) return false;
+      this.showRewardItemInfo(itemId, 'pig');
+      return true;
+    },
+
     addPigEnergyForTesting(amount = PIG_RATING.energyMax) {
       const delta = Math.max(0, Number(amount) || 0);
       if (!delta) return this.pigEnergy;
@@ -812,6 +1151,17 @@ export const useGameStore = defineStore('game', {
       if (!this.inspectedMonster) return;
       if (source && this.inspectedMonster.source !== source) return;
       this.inspectedMonster = null;
+    },
+
+    showRewardItemInfo(itemId, source = 'hover') {
+      if (!itemId || !REWARD_ITEMS[itemId]) return;
+      this.inspectedRewardItem = { itemId, source };
+    },
+
+    clearRewardItemInfo(source = null) {
+      if (!this.inspectedRewardItem) return;
+      if (source && this.inspectedRewardItem.source !== source) return;
+      this.inspectedRewardItem = null;
     },
 
     beginDjinnWakeCutscene() {
@@ -1010,8 +1360,11 @@ export const useGameStore = defineStore('game', {
 
       const targetIndex = targetDay - 1;
       this.currentDay = targetIndex;
-      this.stepsLeft = MAX_STEPS;
+      this.stepsLeft = this.effectiveMaxSteps;
       this.progress = {};
+      this.pendingRewardDay = null;
+      this.pendingRewardOffer = null;
+      this.seenRewardItemIds = [];
       this.pendingAbility = null;
       this.matchGroupsThisDay = 0;
       this.introShown = false;
@@ -1049,8 +1402,11 @@ export const useGameStore = defineStore('game', {
 
       const targetIndex = DAYS.length - 1;
       this.currentDay = targetIndex;
-      this.stepsLeft = MAX_STEPS;
+      this.stepsLeft = this.effectiveMaxSteps;
       this.progress = { ...DAYS[targetIndex].needs };
+      this.pendingRewardDay = null;
+      this.pendingRewardOffer = null;
+      this.seenRewardItemIds = [];
       this.pendingAbility = null;
       this.matchGroupsThisDay = 0;
       this.introShown = true;
@@ -1223,6 +1579,10 @@ export const useGameStore = defineStore('game', {
           }
         }
         this.djinnObjective.progress = this.djinnMarks.filter((mark) => mark.cleared).length;
+        this.djinnObjective.progress = Math.min(
+          this.djinnObjective.total || this.djinnObjective.progress,
+          this.djinnObjective.progress + this.applyDjinnItemProgressBonus({ hasBig: (groupSizes || []).some((size) => size >= 4) })
+        );
         this._syncDjinnStageMonsters();
         return;
       }
@@ -1230,7 +1590,8 @@ export const useGameStore = defineStore('game', {
       if (this.djinnObjective.type === 'joyBursts') {
         const qualifies = (groupSizes || []).some((size) => size >= 4) || chain >= 2;
         if (!qualifies) return;
-        this.djinnObjective.progress = Math.min((this.djinnObjective.progress || 0) + 1, this.djinnObjective.total || 0);
+        const bonus = this.applyDjinnItemProgressBonus({ hasBig: (groupSizes || []).some((size) => size >= 4) });
+        this.djinnObjective.progress = Math.min((this.djinnObjective.progress || 0) + 1 + bonus, this.djinnObjective.total || 0);
         return;
       }
 
@@ -1250,7 +1611,10 @@ export const useGameStore = defineStore('game', {
         this.djinnCakeLayer = 3;
       }
 
-      this.djinnObjective.progress = this.djinnCakeLayer;
+      this.djinnObjective.progress = Math.min(
+        this.djinnCakeLayer + this.applyDjinnItemProgressBonus({ hasBig: (groupSizes || []).some((size) => size >= 4) }),
+        this.djinnObjective.total || this.djinnCakeLayer
+      );
     },
 
     loadDjinnCeremonyBoard() {

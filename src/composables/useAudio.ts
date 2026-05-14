@@ -15,6 +15,7 @@ const PHASE_AUDIO_MAP: Record<string, PhaseConfig> = {
   targeting: { bgm: 'dayplay', ambient: null, bgmVolume: 0.24 },
   dayEnd: { bgm: 'dayplay', ambient: null, bgmVolume: 0.3 },
   repairing: { bgm: 'dayplay', ambient: null, bgmVolume: 0.34 },
+  rewardChoice: { bgm: 'dayplay', ambient: null, bgmVolume: 0.32 },
   awakening: { bgm: 'dayplay', ambient: null, bgmVolume: 0.38 },
   djinnTransition: { bgm: 'dayplay', ambient: null, bgmVolume: 0.36 },
   wish: { bgm: 'dayplay', ambient: null, bgmVolume: 0.36 },

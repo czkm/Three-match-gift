@@ -464,6 +464,8 @@ const { activeTile, pickTile, moveDrag, endDrag, clearActive, previewTile } = us
     const willMatch = board.value.wouldMatch(a, b);
     if (!willMatch) {
       flagInvalid(a, b);
+      const chars = [tileAt(a.row, a.col)?.char, tileAt(b.row, b.col)?.char].filter(Boolean);
+      game.handleInvalidSwapReward({ chars, positions: [a, b] });
       audioManager.playSFX('error', { vol: 0.3 });
     }
     game.consumeStep();

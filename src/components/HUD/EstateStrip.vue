@@ -320,7 +320,9 @@
         :repairing="repairing"
         :active="activeHotspotId === 'pet-pig'"
         :mood="pigMoodGlyph"
+        :trinkets="game.ownedItems"
         @inspect="onPigInspect"
+        @inspect-trinket="onPigTrinketInspect"
       />
 
       <div class="scene-burst-layer">
@@ -361,7 +363,7 @@ const displayStage = computed(() =>
   Math.min(stages.length, Math.max(0, completedCount.value))
 )
 const interactive = computed(
-  () => !['targeting', 'repairing'].includes(game.phase)
+  () => !['targeting', 'repairing', 'rewardChoice'].includes(game.phase)
 )
 const repairing = computed(() => game.phase === 'repairing')
 
@@ -658,6 +660,20 @@ function onPigInspect() {
     restoreDefaultCaption()
   }, 2500)
   spawnBurst(reaction.angry ? 'gold' : 'petal', reaction.angry ? 4 : 3)
+}
+
+function onPigTrinketInspect(itemId) {
+  const inspected = game.inspectOwnedItem?.(itemId)
+  if (!inspected) return
+
+  activeHotspotId.value = 'pet-pig'
+  pigMoodGlyph.value = ''
+  displayCaption.value = '小猪晃了晃身上的挂件，像是在提醒你它们都还在生效。'
+  clearCaptionTimer()
+  captionTimer = setTimeout(() => {
+    restoreDefaultCaption()
+  }, 2200)
+  spawnBurst('gold', 3)
 }
 
 function fogStyle(index) {
