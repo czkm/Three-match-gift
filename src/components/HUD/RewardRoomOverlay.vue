@@ -1,28 +1,28 @@
 <template>
   <div class="room-overlay" :class="overlayTone">
     <div v-if="phase === 'choose'" class="door-selection">
-      <p class="intro-text">门开了。</p>
+      <p class="intro-text">{{ REWARD_ROOM_COPY.intro }}</p>
       <div class="doors">
         <button type="button" class="door-wrapper" @mouseenter="previewRoom('treasure')" @click="enterRoom('treasure')">
           <div class="door treasure-door" :class="{ opening: enteringRoom === 'treasure' }">
-            <span class="door-sign">宝箱房</span>
+            <span class="door-sign">{{ REWARD_ROOM_COPY.treasure.sign }}</span>
             <span class="door-preview">🎁</span>
             <span class="door-knob">🗝️</span>
             <span class="light-particles" />
             <span v-if="enteringRoom === 'treasure'" class="light-burst treasure-burst" />
           </div>
-          <p class="door-label">稳妥</p>
+          <p class="door-label">{{ REWARD_ROOM_COPY.treasure.label }}</p>
         </button>
 
         <button type="button" class="door-wrapper" @mouseenter="previewRoom('devil')" @click="enterRoom('devil')">
           <div class="door devil-door" :class="{ opening: enteringRoom === 'devil' }">
-            <span class="door-sign">恶魔房</span>
+            <span class="door-sign">{{ REWARD_ROOM_COPY.devil.sign }}</span>
             <span class="pentagram">✦</span>
             <span class="door-preview">🔥</span>
             <span class="dark-pulse" />
             <span v-if="enteringRoom === 'devil'" class="light-burst devil-burst" />
           </div>
-          <p class="door-label">危险</p>
+          <p class="door-label">{{ REWARD_ROOM_COPY.devil.label }}</p>
         </button>
       </div>
     </div>
@@ -32,12 +32,12 @@
 
       <template v-if="currentRoomType === 'treasure'">
         <div class="treasure-chest" />
-        <p class="room-flavor">温暖的金色光芒充满整个房间。</p>
+        <p class="room-flavor">{{ REWARD_ROOM_COPY.treasure.flavor }}</p>
       </template>
 
       <template v-else>
         <div class="devil-altar" />
-        <p class="room-flavor">黑暗中有红色的光。</p>
+        <p class="room-flavor">{{ REWARD_ROOM_COPY.devil.flavor }}</p>
       </template>
 
       <div class="item-cards" :class="`${currentRoomType}-cards`">
@@ -45,9 +45,15 @@
           v-for="item in roomItems"
           :key="item.id"
           type="button"
-          :class="['item-card', `${currentRoomType}-item-card`, `quality-${item.quality}`]"
+          :class="[
+            'item-card',
+            `${currentRoomType}-item-card`,
+            `quality-${item.quality}`,
+            { exalted: item.quality === 3, legendary: item.quality >= 4 }
+          ]"
           @click="pickItem(item)"
         >
+          <span class="quality-badge">Q{{ item.quality }}</span>
           <span class="emoji">{{ item.emoji }}</span>
           <span class="cn-name">{{ item.titleText || item.name }}</span>
           <span class="original-desc">{{ item.flavorText || `“${item.enName}”` }}</span>
@@ -61,7 +67,7 @@
       </div>
 
       <p v-if="currentRoomType === 'devil'" class="devil-warning">
-        ⚠️ 选择后明天步数将减少
+        ⚠️ {{ REWARD_ROOM_COPY.devilWarning }}
       </p>
     </div>
 
@@ -76,7 +82,7 @@
         <span class="reward-flight-glow" :style="flightFx.style" />
         <span class="reward-flight-token" :style="flightFx.style">{{ acquiredItem.emoji }}</span>
       </div>
-      <p class="acquire-text">获得了 {{ acquiredItem.name }}</p>
+      <p class="acquire-text">{{ REWARD_ROOM_COPY.formatAcquiredText(acquiredItem.name) }}</p>
       <p v-if="geraltQuote" class="geralt-quote">“{{ geraltQuote }}”</p>
     </div>
   </div>
@@ -85,6 +91,7 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import { audioManager } from '@/audio/AudioManager';
+import { REWARD_ROOM_COPY } from '@/data/copy';
 import { useGameStore } from '@/stores/gameStore';
 
 const emit = defineEmits(['choose']);
@@ -320,6 +327,15 @@ onBeforeUnmount(() => {
   100% {
     opacity: 0.18;
     transform: scale(0.82);
+  }
+}
+
+@keyframes reward-legendary-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
   }
 }
 
@@ -721,6 +737,16 @@ onBeforeUnmount(() => {
   position: relative;
   transition: all 0.25s ease;
   cursor: pointer;
+  overflow: hidden;
+}
+
+.item-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease;
 }
 
 .treasure-item-card {
@@ -752,8 +778,92 @@ onBeforeUnmount(() => {
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
 }
 
+.quality-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  padding: 3px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: rgba(255, 248, 236, 0.92);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(255, 244, 222, 0.14);
+}
+
+.item-card.quality-1 .quality-badge {
+  color: #d1c3aa;
+}
+
+.item-card.quality-2 .quality-badge {
+  color: #f2d58f;
+}
+
+.item-card.exalted .quality-badge {
+  color: #d2b2ff;
+  background: rgba(170, 120, 255, 0.14);
+}
+
+.item-card.legendary .quality-badge {
+  color: #ffd7a2;
+  background: rgba(255, 118, 72, 0.18);
+}
+
+.item-card.exalted::before {
+  opacity: 1;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(182, 122, 255, 0.14), transparent 36%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 42%);
+}
+
+.item-card.legendary::before {
+  opacity: 1;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 182, 98, 0.18), transparent 34%),
+    radial-gradient(circle at 18% 82%, rgba(255, 84, 62, 0.12), transparent 24%);
+}
+
+.item-card.exalted .emoji {
+  filter:
+    drop-shadow(0 0 10px rgba(182, 122, 255, 0.28))
+    drop-shadow(0 2px 6px rgba(0, 0, 0, 0.42));
+}
+
+.item-card.legendary .emoji {
+  filter:
+    drop-shadow(0 0 14px rgba(255, 132, 84, 0.34))
+    drop-shadow(0 2px 6px rgba(0, 0, 0, 0.42));
+  animation: reward-legendary-pulse 1.8s ease-in-out infinite;
+}
+
 .devil-item-card .emoji {
   filter: drop-shadow(0 0 6px rgba(180, 30, 30, 0.3));
+}
+
+.treasure-item-card.exalted {
+  border-color: #c49de8;
+  box-shadow: 0 10px 26px rgba(182, 122, 255, 0.14);
+}
+
+.treasure-item-card.legendary {
+  border-color: #f0a16c;
+  box-shadow:
+    0 14px 34px rgba(255, 140, 88, 0.18),
+    0 0 28px rgba(255, 196, 118, 0.12);
+}
+
+.devil-item-card.exalted {
+  border-color: #9b4eb6;
+  box-shadow: 0 10px 28px rgba(122, 64, 160, 0.18);
+}
+
+.devil-item-card.legendary {
+  border-color: #dd6548;
+  box-shadow:
+    0 14px 34px rgba(204, 68, 68, 0.22),
+    0 0 30px rgba(255, 110, 82, 0.16);
 }
 
 .item-card .cn-name {

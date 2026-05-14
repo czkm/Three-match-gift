@@ -34,7 +34,7 @@
         v-if="showMono"
         class="mono"
         :text="today.monologue"
-        hint="点击继续"
+        :hint="COMMON_COPY.continueHint"
         @done="onMonoDone"
       />
 
@@ -47,6 +47,7 @@
 
 <script setup>
 import { onMounted, onBeforeUnmount, ref } from 'vue';
+import { COMMON_COPY } from '@/data/copy';
 import Dialog from './Dialog.vue';
 import { ABILITIES } from '@/data/content';
 import { useGameStore } from '@/stores/gameStore';

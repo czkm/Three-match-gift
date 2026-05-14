@@ -4,18 +4,21 @@
     <div class="card glass grain">
       <p class="moon">🌒</p>
       <p class="line ink-title">{{ game.dayEndLine }}</p>
-      <p class="hint ink-subtle">明天继续。步数 +20，进度保留。</p>
-      <p class="continue-hint ink-subtle">点击任意处继续</p>
+      <p class="hint ink-subtle">{{ restHint }}</p>
+      <p class="continue-hint ink-subtle">{{ HUD_COPY.dayEnd.continueHint }}</p>
     </div>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { audioManager } from '@/audio/AudioManager';
+import { HUD_COPY } from '@/data/copy';
 import { useGameStore } from '@/stores/gameStore';
 
 const game = useGameStore();
 const emit = defineEmits(['advance']);
+const restHint = computed(() => HUD_COPY.dayEnd.formatRestHint(game.effectiveMaxSteps));
 
 function onContinue() {
   audioManager.playSFX('pageflip', { vol: 0.4 });

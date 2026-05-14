@@ -2,7 +2,7 @@
   <div class="resource-bar glass grain">
     <section class="trinket-bar">
       <div class="trinket-head">
-        <p class="trinket-title ink-title">道具栏</p>
+        <p class="trinket-title ink-title">{{ HUD_COPY.trinketTitle }}</p>
         <span class="trinket-count">{{ game.ownedItems.length }}</span>
       </div>
       <div
@@ -31,7 +31,7 @@
       </div>
     </section>
 
-    <h3 class="ink-title">修复进度</h3>
+    <h3 class="ink-title">{{ HUD_COPY.repairProgressTitle }}</h3>
     <div v-for="r in game.repairView" :key="r.id" class="row">
       <span class="emoji">{{ r.emoji }}</span>
       <span class="label">{{ r.label }}</span>
@@ -66,6 +66,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import EventBus from '@/core/eventBus';
+import { GAMEPLAY_COPY, HUD_COPY, TARGETING_COPY } from '@/data/copy';
 import { ABILITIES, DJINN_WISHES } from '@/data/content';
 import { useGameStore } from '@/stores/gameStore';
 const game = useGameStore();
@@ -96,13 +97,13 @@ const messageKind = computed(() => {
 });
 
 const messageEyebrow = computed(() => {
-  if (game.currentRewardItemInfo) return '道具情报';
+  if (game.currentRewardItemInfo) return HUD_COPY.messageEyebrows.rewardItem;
   switch (messageKind.value) {
-    case 'monster': return '棋盘情报';
-    case 'narration': return '今日场景';
-    case 'geralt': return '杰洛特';
-    case 'system': return '系统提示';
-    default: return '旅途提示';
+    case 'monster': return HUD_COPY.messageEyebrows.monster;
+    case 'narration': return HUD_COPY.messageEyebrows.narration;
+    case 'geralt': return HUD_COPY.messageEyebrows.geralt;
+    case 'system': return HUD_COPY.messageEyebrows.system;
+    default: return HUD_COPY.messageEyebrows.hint;
   }
 });
 
@@ -120,16 +121,16 @@ const messageTitle = computed(() => {
   if (game.currentRewardItemInfo) return game.currentRewardItemInfo.label;
   if (game.currentMonsterInfo) return game.currentMonsterInfo.label;
   if (game.phase === 'intro') return game.today?.building?.cn || '';
-  if (game.barkLine) return '临场自语';
-  if (game.phase === 'targeting') return '当前指令';
+  if (game.barkLine) return HUD_COPY.messageTitles.bark;
+  if (game.phase === 'targeting') return HUD_COPY.messageTitles.targeting;
   if (game.phase === 'awakening') return DJINN_WISHES.wakeTitle;
-  if (game.phase === 'djinnTransition') return game.currentDjinnTransition?.title || '封印重组';
+  if (game.phase === 'djinnTransition') return game.currentDjinnTransition?.title || HUD_COPY.messageTitles.djinnTransitionFallback;
   if ((game.djinnSleeping || game.djinnReady || game.djinnCeremonyActive || game.djinnHintVisible) && game.phase === 'playing') {
     return game.djinnSleeping
       ? DJINN_WISHES.sleepTitle
-      : game.djinnObjectiveSummary?.title || '迪精';
+      : game.djinnObjectiveSummary?.title || HUD_COPY.messageTitles.djinnFallback;
   }
-  return '今日建议';
+  return HUD_COPY.messageTitles.hint;
 });
 
 const messageText = computed(() => {
@@ -155,21 +156,21 @@ const messageText = computed(() => {
   if (game.phase === 'targeting') {
     const ab = ABILITIES[game.pendingAbility];
     switch (ab?.needsTarget) {
-      case 'grape': return '点一个 🍇 葡萄方块，丰收会把周围 3×3 都变成葡萄。';
-      case 'rowOrCol': return '点击一整行或一整列，直接清扫过去。';
-      case 'twoTiles': return '依次点两个方块，萝卜会帮你完成任意交换。';
-      case 'twoResources': return '在右侧能力栏里选两种资源，进行全局转换。';
+      case 'grape': return TARGETING_COPY.long.grape;
+      case 'rowOrCol': return TARGETING_COPY.long.rowOrCol;
+      case 'twoTiles': return TARGETING_COPY.long.twoTiles;
+      case 'twoResources': return TARGETING_COPY.long.twoResources;
       case 'milkTeaHarvest': return '';
       default: return ab?.desc || '';
     }
   }
 
   if (game.phase === 'awakening') {
-    return '棋盘上的雷光正在汇向中央。等迪精醒来，最后的仪式就会开始。';
+    return GAMEPLAY_COPY.hints.awakening;
   }
 
   if (game.phase === 'djinnTransition') {
-    return game.currentDjinnTransition?.hint || '封印正在重组，下一愿即将显现。';
+    return game.currentDjinnTransition?.hint || GAMEPLAY_COPY.hints.djinnTransitionFallback;
   }
 
   if (game.djinnSleeping && game.phase === 'playing') {
@@ -189,14 +190,14 @@ const messageText = computed(() => {
   }
 
   if (game.pigEnergyReady && game.phase === 'playing') {
-    return '小猪已经攒满了 5 星好评。去右侧能力栏发动一次“奶茶攻击”，把棋盘上的某种资源全部收获。';
+    return GAMEPLAY_COPY.hints.pigEnergyReady;
   }
 
   if (game.djinnHintVisible && game.phase === 'playing') {
     return DJINN_WISHES.readyLine;
   }
 
-  return '点击棋盘开始整理。优先凑出顺手的三消，让资源稳稳涨起来。';
+  return GAMEPLAY_COPY.hints.initial;
 });
 
 const messageKey = computed(() => [
@@ -340,11 +341,18 @@ onBeforeUnmount(() => {
 }
 
 .trinket-chip.quality-3 {
-  filter: drop-shadow(0 0 8px rgba(184, 130, 255, 0.28));
+  background:
+    radial-gradient(circle at 30% 30%, rgba(244, 232, 255, 0.62), rgba(150, 108, 214, 0.22));
+  filter: drop-shadow(0 0 10px rgba(184, 130, 255, 0.34));
 }
 
 .trinket-chip.quality-4 {
-  filter: drop-shadow(0 0 10px rgba(255, 110, 82, 0.34));
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 238, 214, 0.7), rgba(238, 116, 78, 0.24));
+  filter:
+    drop-shadow(0 0 12px rgba(255, 110, 82, 0.4))
+    drop-shadow(0 0 22px rgba(255, 188, 110, 0.16));
+  animation: trinket-legendary-pulse 1.8s ease-in-out infinite;
 }
 
 .trinket-chip.tone-devil {
@@ -359,6 +367,15 @@ onBeforeUnmount(() => {
   background:
     radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.18), rgba(114, 92, 62, 0.08));
   box-shadow: inset 0 0 0 1px rgba(180, 152, 104, 0.14);
+}
+
+@keyframes trinket-legendary-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
 }
 h3 {
   margin: 0 0 14px;

@@ -405,14 +405,16 @@ onBeforeUnmount(() => {
 .pig-trinket.quality-3 {
   filter:
     drop-shadow(0 1px 2px rgba(30, 18, 12, 0.32))
-    drop-shadow(0 0 8px rgba(184, 130, 255, 0.44));
+    drop-shadow(0 0 10px rgba(184, 130, 255, 0.52));
 }
 
 .pig-trinket.quality-4 {
   font-size: 16px;
   filter:
     drop-shadow(0 1px 2px rgba(30, 18, 12, 0.32))
-    drop-shadow(0 0 12px rgba(255, 98, 70, 0.6));
+    drop-shadow(0 0 14px rgba(255, 98, 70, 0.68))
+    drop-shadow(0 0 24px rgba(255, 190, 112, 0.2));
+  animation: pig-trinket-legendary 1.9s ease-in-out infinite;
 }
 
 .pig-trinket.tone-devil {
@@ -491,6 +493,15 @@ onBeforeUnmount(() => {
   }
   50% {
     transform: translate(var(--tx), calc(var(--ty) - 2px)) rotate(var(--rot));
+  }
+}
+
+@keyframes pig-trinket-legendary {
+  0%, 100% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(1);
+  }
+  50% {
+    transform: translate(var(--tx), calc(var(--ty) - 3px)) rotate(var(--rot)) scale(1.1);
   }
 }
 

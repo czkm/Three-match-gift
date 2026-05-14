@@ -9,10 +9,11 @@
 import { toRef, watch } from 'vue';
 import { audioManager } from '@/audio/AudioManager';
 import { useTypewriter } from '@/composables/useTypewriter';
+import { COMMON_COPY } from '@/data/copy';
 
 const props = defineProps({
   text: { type: String, required: true },
-  hint: { type: String, default: '点击继续' },
+  hint: { type: String, default: COMMON_COPY.continueHint },
   speed: { type: Number, default: 38 }
 });
 const emit = defineEmits(['done', 'skip', 'ready']);

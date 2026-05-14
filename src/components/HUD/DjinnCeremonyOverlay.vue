@@ -10,7 +10,7 @@
         ref="dialogRef"
         class="wish-dialog"
         :text="activeLine"
-        :hint="readyForAdvance ? actionHint : '点击继续'"
+        :hint="readyForAdvance ? actionHint : COMMON_COPY.continueHint"
         @done="onDialogDone"
         @skip="onOverlayClick"
         @ready="onLineReady"
@@ -28,6 +28,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { audioManager } from '@/audio/AudioManager';
+import { COMMON_COPY, GAMEPLAY_COPY } from '@/data/copy';
 import Dialog from './Dialog.vue';
 import { useGameStore } from '@/stores/gameStore';
 
@@ -39,10 +40,12 @@ const card = computed(() => game.currentDjinnCard || { title: '', quote: '', lin
 const activeLine = computed(() => card.value.lines?.[lineIndex.value] || '');
 const readyForAdvance = computed(() => lineReady.value && lineIndex.value >= (card.value.lines?.length || 0));
 const actionLabel = computed(() => (
-  game.djinnCardMode === 'intro' ? '进入仪式棋盘' : (game.djinnStage >= 3 ? '迎向生日夜' : '继续下一愿')
+  game.djinnCardMode === 'intro'
+    ? GAMEPLAY_COPY.djinn.actionLabels.enterBoard
+    : (game.djinnStage >= 3 ? GAMEPLAY_COPY.djinn.actionLabels.towardBirthday : GAMEPLAY_COPY.djinn.actionLabels.nextWish)
 ));
 const actionHint = computed(() => (
-  game.djinnCardMode === 'intro' ? '点击进入仪式棋盘' : '点击继续'
+  game.djinnCardMode === 'intro' ? GAMEPLAY_COPY.djinn.actionHints.enterBoard : COMMON_COPY.continueHint
 ));
 
 watch(() => game.djinnCardNonce, () => {

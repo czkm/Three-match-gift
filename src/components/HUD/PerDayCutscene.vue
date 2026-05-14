@@ -70,7 +70,7 @@
             ref="monoDialogRef"
             class="mono"
             :text="today.monologue"
-            hint="点击继续"
+            :hint="COMMON_COPY.continueHint"
             @done="onAdvance"
             @ready="onMonoReady"
           />
@@ -90,6 +90,7 @@ import {
   ref
 } from 'vue'
 import { audioManager } from '@/audio/AudioManager'
+import { COMMON_COPY } from '@/data/copy'
 import EventBus from '@/core/eventBus'
 import Dialog from './Dialog.vue'
 import { ABILITIES, PIG_RATING } from '@/data/content'

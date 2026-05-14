@@ -1,7 +1,7 @@
 <template>
   <div class="ability-bar glass grain">
     <div class="bar-head">
-      <h3 class="ink-title">能力</h3>
+      <h3 class="ink-title">{{ ABILITY_BAR_COPY.title }}</h3>
       <button class="achievement-entry" @click="achievement.openPanel()">
         <span class="entry-icon">🏆</span>
         <span class="entry-text">
@@ -29,7 +29,7 @@
         <span class="ab-name">{{ ab.name }}</span>
         <span class="ab-uses">
           {{ ab.id === 'milkTeaBarrage'
-            ? (game.pigEnergyReady ? '就绪' : `${displayPigEnergy}/${pigEnergyMax}★`)
+            ? (game.pigEnergyReady ? COMMON_COPY.ready : `${displayPigEnergy}/${pigEnergyMax}★`)
             : `×${game.abilityUses[ab.id] ?? 0}` }}
         </span>
       </button>
@@ -39,8 +39,8 @@
       <div class="pig-energy-head">
         <span class="pig-energy-icon">🐷</span>
         <div>
-          <p class="pig-energy-title ink-title">小猪能量</p>
-          <p class="pig-energy-text">星级 {{ displayPigEnergy }} / {{ pigEnergyMax }}</p>
+          <p class="pig-energy-title ink-title">{{ ABILITY_BAR_COPY.pigEnergyTitle }}</p>
+          <p class="pig-energy-text">{{ ABILITY_BAR_COPY.formatPigEnergy(displayPigEnergy, pigEnergyMax) }}</p>
         </div>
       </div>
       <div class="pig-energy-stars" :class="{ charged: pigAwards.length > 0 }">
@@ -63,10 +63,10 @@
 
     <!-- Resource conversion (lilacSeed) inline modal -->
     <div v-if="lilacOpen" class="convert-panel glass">
-      <p class="ink-title">将哪种资源变成哪种？</p>
+      <p class="ink-title">{{ ABILITY_BAR_COPY.lilacPrompt }}</p>
       <div class="dual">
         <div>
-          <p class="ink-subtle">从</p>
+          <p class="ink-subtle">{{ ABILITY_BAR_COPY.from }}</p>
           <div class="chips">
             <button
               v-for="r in resources"
@@ -80,7 +80,7 @@
           </div>
         </div>
         <div>
-          <p class="ink-subtle">到</p>
+          <p class="ink-subtle">{{ ABILITY_BAR_COPY.to }}</p>
           <div class="chips">
             <button
               v-for="r in resources"
@@ -97,14 +97,14 @@
       </div>
       <div class="actions">
         <button class="apply" :disabled="!lilacReady" @click="applyLilac">
-          变身
+          {{ ABILITY_BAR_COPY.lilacApply }}
         </button>
-        <button class="cancel" @click="cancelLilac">取消</button>
+        <button class="cancel" @click="cancelLilac">{{ COMMON_COPY.cancel }}</button>
       </div>
     </div>
 
     <div v-if="milkTeaOpen" class="convert-panel glass">
-      <p class="ink-title">奶茶攻击要收哪种资源？</p>
+      <p class="ink-title">{{ ABILITY_BAR_COPY.milkTeaPrompt }}</p>
       <div class="chips">
         <button
           v-for="r in harvestableResources"
@@ -118,15 +118,15 @@
       </div>
       <div class="actions">
         <button class="apply" :disabled="!milkTeaTarget" @click="applyMilkTea">
-          开喝
+          {{ ABILITY_BAR_COPY.milkTeaApply }}
         </button>
-        <button class="cancel" @click="cancelMilkTea">取消</button>
+        <button class="cancel" @click="cancelMilkTea">{{ COMMON_COPY.cancel }}</button>
       </div>
     </div>
 
     <!-- Passives (info only) -->
     <div v-if="game.passiveAbilities.length" class="passive-list">
-      <p class="ink-subtle title">被动</p>
+      <p class="ink-subtle title">{{ ABILITY_BAR_COPY.passiveTitle }}</p>
       <div
         v-for="ab in game.passiveAbilities"
         :key="ab.id"
@@ -143,6 +143,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { audioManager } from '@/audio/AudioManager'
+import { ABILITY_BAR_COPY, COMMON_COPY } from '@/data/copy'
 import EventBus from '@/core/eventBus'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { useGameStore } from '@/stores/gameStore'

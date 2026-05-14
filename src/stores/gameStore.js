@@ -18,6 +18,7 @@
  */
 import { defineStore } from 'pinia';
 import { audioManager } from '@/audio/AudioManager';
+import { COMMON_COPY, GAMEPLAY_COPY, formatMaxStepPenalty, formatNextDayStepPenalty } from '@/data/copy';
 import EventBus from '@/core/eventBus';
 import { useAchievementStore } from '@/stores/achievementStore';
 import {
@@ -45,6 +46,16 @@ import {
 const MAX_STEPS = 20;
 const BOARD_ROWS = 8;
 const BOARD_COLS = 8;
+const FIXED_REWARD_OFFERS = {
+  1: { treasure: ['styeTreasure'], devil: ['styeDevil'] },
+  2: { treasure: ['luckyFoot'], devil: ['brimstone', 'momsKnife'] },
+  3: { treasure: ['lunch'], devil: ['thePact', 'deadCat'] },
+  4: { treasure: ['sackOfPennies'], devil: ['pentagram', 'guppysPaw'] },
+  5: { treasure: ['battery'], devil: ['blackCandle', 'whoreOfBabylon'] },
+  6: { treasure: ['holyWater'], devil: ['abaddon', 'mawOfTheVoid'] },
+  7: { treasure: ['compass'], devil: ['eyeOfBelial', 'theMark'] },
+  8: { treasure: ['momsKey'], devil: ['sacrificialDagger', 'littleBrimstone'] }
+};
 
 export const useGameStore = defineStore('game', {
   state: () => ({
@@ -137,6 +148,16 @@ export const useGameStore = defineStore('game', {
         day: offer.day,
         treasure: (offer.treasure || []).map((id) => REWARD_ITEMS[id]).filter(Boolean),
         devil: (offer.devil || []).map((id) => REWARD_ITEMS[id]).filter(Boolean)
+      };
+    },
+    activePenaltySummary(state) {
+      const parts = [];
+      if (state.nextDayStepPenalty > 0) parts.push(formatNextDayStepPenalty(state.nextDayStepPenalty));
+      if (state.maxStepPenalty > 0) parts.push(formatMaxStepPenalty(state.maxStepPenalty));
+      return {
+        nextDaySteps: state.nextDayStepPenalty,
+        maxSteps: state.maxStepPenalty,
+        text: parts.join(' · ')
       };
     },
     isLastDay(state)    { return state.currentDay >= DAYS.length - 1; },
@@ -275,10 +296,10 @@ export const useGameStore = defineStore('game', {
       if (state.djinnState === 'ready') {
         return {
           title: DJINN_WISHES.readyTitle,
-          healthLabel: '仪式已经就绪',
+          healthLabel: GAMEPLAY_COPY.djinn.readyHealthLabel,
           weakness: DJINN_WISHES.readyHint,
           pressure: DJINN_WISHES.readyLine,
-          echo: '点击迪精，开始最后的三愿仪式。'
+          echo: GAMEPLAY_COPY.djinn.readyEcho
         };
       }
 
@@ -291,17 +312,17 @@ export const useGameStore = defineStore('game', {
       let pressure = '';
 
       if (objective.type === 'clearMarks') {
-        healthLabel = `病气印记 ${objective.progress} / ${objective.total}`;
+        healthLabel = GAMEPLAY_COPY.djinn.formatMarkProgress(objective.progress, objective.total);
         weakness = objective.label;
         pressure = stage.wishText;
       } else if (objective.type === 'joyBursts') {
-        healthLabel = `欢欣火花 ${objective.progress} / ${objective.total}`;
+        healthLabel = GAMEPLAY_COPY.djinn.formatJoyProgress(objective.progress, objective.total);
         weakness = objective.label;
         pressure = objective.rulesText || '';
       } else if (objective.type === 'cakeSequence') {
-        healthLabel = `蛋糕进度 ${objective.progress} / ${objective.total}`;
+        healthLabel = GAMEPLAY_COPY.djinn.formatCakeProgress(objective.progress, objective.total);
         weakness = objective.steps?.[objective.progress] || objective.label;
-        pressure = '按照顺序完成蛋糕底座、奶油和蜡烛。';
+        pressure = GAMEPLAY_COPY.djinn.cakePressure;
       }
 
       return {
@@ -330,10 +351,10 @@ export const useGameStore = defineStore('game', {
             entityId: entity.id,
             emoji: monster.emoji,
             label: DJINN_WISHES.sleepTitle,
-            healthLabel: '睡眠中 💤',
+            healthLabel: GAMEPLAY_COPY.djinn.sleepingHealthLabel,
             weakness: DJINN_WISHES.sleepHint,
             pressure: DJINN_WISHES.sleepLine,
-            echo: '先把房间准备好，再把她叫醒。',
+            echo: GAMEPLAY_COPY.djinn.sleepingEcho,
             source: info.source
           };
         }
@@ -344,8 +365,8 @@ export const useGameStore = defineStore('game', {
           entityId: entity.id,
           emoji: monster.emoji,
           label: summary?.title || monster.uiLabel || monster.name,
-          healthLabel: summary?.healthLabel || '先把第九天的房间准备好。',
-          weakness: summary?.weakness || '当资源达标后，迪精会回应最后的仪式。',
+          healthLabel: summary?.healthLabel || GAMEPLAY_COPY.djinn.roomPrepHealthLabel,
+          weakness: summary?.weakness || GAMEPLAY_COPY.djinn.roomPrepWeakness,
           pressure: summary?.pressure || '',
           echo: summary?.echo || '',
           source: info.source
@@ -358,7 +379,9 @@ export const useGameStore = defineStore('game', {
         const hitsRequired = boardEntity.hitsRequired || monster.hp || monster.hits || 0;
         const hitsTaken = boardEntity.hitsTaken || 0;
         const remaining = Math.max(0, hitsRequired - hitsTaken);
-        const statusLabel = monster.statusLabel || (hitsRequired > 0 ? `剩余 ${remaining} / ${hitsRequired}` : '暂不可匹配');
+        const statusLabel = monster.statusLabel || (hitsRequired > 0
+          ? GAMEPLAY_COPY.monster.formatRemaining(remaining, hitsRequired)
+          : GAMEPLAY_COPY.monster.unavailable);
 
         return {
           kind: info.kind,
@@ -386,9 +409,9 @@ export const useGameStore = defineStore('game', {
         entityId: entity.id,
         emoji: monster.emoji,
         label: monster.uiLabel || monster.name,
-        healthLabel: `剩余 ${remaining} / ${hitsRequired}`,
+        healthLabel: GAMEPLAY_COPY.monster.formatRemaining(remaining, hitsRequired),
         weakness: monster.uiWeaknessShort || monster.damageRule?.hint || monster.clearRule?.hint || '',
-        pressure: monster.uiPressureShort || '若放着不管，会继续占住做局空间。',
+        pressure: monster.uiPressureShort || GAMEPLAY_COPY.monster.occupiedPressure,
         echo: monster.echoLabel || '',
         source: info.source
       };
@@ -404,10 +427,10 @@ export const useGameStore = defineStore('game', {
         itemId: item.id,
         emoji: item.emoji,
         label: `${item.name}${item.enName ? ` · ${item.enName}` : ''}`,
-        healthLabel: `Quality ${item.quality} · ${item.roomType === 'devil' ? '恶魔道具' : '宝箱道具'}`,
+        healthLabel: GAMEPLAY_COPY.rewardItem.formatHealthLabel(item),
         weakness: item.description,
-        pressure: item.penaltyText || '拿了就走，没有额外代价。',
-        echo: item.reaction || `${item.name} 会在之后的每一天持续生效。`,
+        pressure: item.penaltyText || GAMEPLAY_COPY.rewardItem.noPenalty,
+        echo: item.reaction || GAMEPLAY_COPY.rewardItem.formatPersistentEffect(item.name),
         source: info.source
       };
     },
@@ -821,17 +844,10 @@ export const useGameStore = defineStore('game', {
 
     _buildRewardOffer(day) {
       if (!day || day <= 0 || day >= DAYS.length) return null;
-      if (day === 1) {
-        this.seenRewardItemIds = [...new Set([...this.seenRewardItemIds, 'styeTreasure', 'styeDevil'])];
-        return {
-          day,
-          treasure: ['styeTreasure'],
-          devil: ['styeDevil']
-        };
-      }
-
-      const treasure = this._drawRewardIds('treasure', 1, this.seenRewardItemIds);
-      const devil = this._drawRewardIds('devil', 2, this.seenRewardItemIds);
+      const fixed = FIXED_REWARD_OFFERS[day];
+      if (!fixed) return null;
+      const treasure = (fixed.treasure || []).filter((id) => REWARD_ITEMS[id]);
+      const devil = (fixed.devil || []).filter((id) => REWARD_ITEMS[id]);
       this.seenRewardItemIds = [...new Set([...this.seenRewardItemIds, ...treasure, ...devil])];
 
       return {
@@ -1105,7 +1121,7 @@ export const useGameStore = defineStore('game', {
       this.pigAngryUsedDay = this.currentDay;
       audioManager.playSFX('error', { vol: 0.44 });
       EventBus.trigger('pigPenalty', [{ stepsLost: 1 }]);
-      this.queueBark('小猪不高兴了。它拿走了你 1 步。');
+      this.queueBark(GAMEPLAY_COPY.pig.angryBark);
       return {
         ...PIG_REACTIONS.angry,
         angry: true,
@@ -1554,11 +1570,11 @@ export const useGameStore = defineStore('game', {
         this.phase = 'wish';
         this.djinnCardNonce++;
         if (this.djinnStage === 1) {
-          this.queueBark('病气退开了。');
+          this.queueBark(GAMEPLAY_COPY.djinn.stageCompleteBarks[1]);
         } else if (this.djinnStage === 2) {
-          this.queueBark('灯火已经亮起来了。');
+          this.queueBark(GAMEPLAY_COPY.djinn.stageCompleteBarks[2]);
         } else {
-          this.queueBark('蛋糕做好了。');
+          this.queueBark(GAMEPLAY_COPY.djinn.stageCompleteBarks[3]);
         }
         return 'djinnResolve';
       }

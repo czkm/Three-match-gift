@@ -1,25 +1,25 @@
 <template>
   <div class="audio-controls glass grain" :class="{ expanded }">
-    <button class="audio-btn primary" :title="muted ? '开启声音' : '静音'" @click="toggleMute">
+    <button class="audio-btn primary" :title="muted ? COMMON_COPY.unmute : COMMON_COPY.mute" @click="toggleMute">
       <span class="icon">{{ muted ? '🔇' : '🔊' }}</span>
-      <span class="label">{{ muted ? '静音中' : '声音' }}</span>
+      <span class="label">{{ muted ? COMMON_COPY.muted : COMMON_COPY.sound }}</span>
     </button>
 
     <div v-if="!muted && expanded" class="panel">
       <label class="slider-row">
-        <span class="row-label">配乐</span>
+        <span class="row-label">{{ AUDIO_COPY.bgm }}</span>
         <input v-model.number="bgmV" type="range" min="0" max="100" />
         <span class="row-value">{{ bgmV }}</span>
       </label>
       <label class="slider-row">
-        <span class="row-label">音效</span>
+        <span class="row-label">{{ AUDIO_COPY.sfx }}</span>
         <input v-model.number="sfxV" type="range" min="0" max="200" />
         <span class="row-value">{{ sfxV }}</span>
       </label>
     </div>
 
-    <button v-if="!muted" class="audio-btn toggle" :title="expanded ? '收起' : '展开'" @click="expanded = !expanded">
-      {{ expanded ? '收起' : '调节' }}
+    <button v-if="!muted" class="audio-btn toggle" :title="expanded ? COMMON_COPY.collapse : COMMON_COPY.expand" @click="expanded = !expanded">
+      {{ expanded ? COMMON_COPY.collapse : COMMON_COPY.adjust }}
     </button>
   </div>
 </template>
@@ -27,6 +27,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { audioManager } from '@/audio/AudioManager';
+import { AUDIO_COPY, COMMON_COPY } from '@/data/copy';
 
 const expanded = ref(false);
 const mutedState = ref(audioManager.isMuted);

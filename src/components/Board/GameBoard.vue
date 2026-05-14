@@ -268,7 +268,7 @@
 
     <div v-if="targeting" class="targeting-hint glass grain">
       <p class="ink-title">{{ targetingHint }}</p>
-      <button class="cancel-btn" @click="cancelTarget">取消</button>
+      <button class="cancel-btn" @click="cancelTarget">{{ COMMON_COPY.cancel }}</button>
     </div>
   </div>
 </template>
@@ -278,6 +278,7 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import BoardTile from './BoardTile.vue';
 import BoardEntity from './BoardEntity.vue';
 import { audioManager } from '@/audio/AudioManager';
+import { COMMON_COPY, TARGETING_COPY } from '@/data/copy';
 import EventBus from '@/core/eventBus';
 import { getBoard, resetBoard, SEP, HOLE } from '@/core/board';
 import { useTileDrag } from '@/composables/useTileDrag';
@@ -444,10 +445,10 @@ const targeting = computed(() => {
 
 const targetingHint = computed(() => {
   switch (targeting.value) {
-    case 'grape':         return '点选一个 🍇 葡萄方块';
-    case 'rowOrCol':      return '点击一整行或一整列消除';
-    case 'twoTiles':      return '依次选择任意两个方块交换';
-    case 'twoResources':  return '已切换到资源转换模式 — 在右侧面板选择';
+    case 'grape':         return TARGETING_COPY.short.grape;
+    case 'rowOrCol':      return TARGETING_COPY.short.rowOrCol;
+    case 'twoTiles':      return TARGETING_COPY.short.twoTiles;
+    case 'twoResources':  return TARGETING_COPY.short.twoResources;
     default: return '';
   }
 });

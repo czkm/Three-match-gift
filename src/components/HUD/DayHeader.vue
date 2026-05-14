@@ -14,6 +14,14 @@
       </span>
     </div>
     <div class="right">
+      <span
+        v-if="game.activePenaltySummary.text"
+        class="devil-cost"
+        :class="{ urgent: game.activePenaltySummary.maxSteps > 0 }"
+      >
+        <span class="cost-label">代价</span>
+        <span class="cost-text">{{ game.activePenaltySummary.text }}</span>
+      </span>
       <span class="steps">
         <template v-if="game.phase === 'awakening' || game.phase === 'djinnTransition' || game.djinnReady || game.djinnCeremonyActive">
           <span class="ink-subtle">仪式中</span>
@@ -78,6 +86,9 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 10px;
 }
+.right {
+  justify-content: flex-end;
+}
 .middle {
   flex: 1;
   justify-content: center;
@@ -119,6 +130,41 @@ onBeforeUnmount(() => {
   gap: 2px;
   padding-left: 12px;
   border-left: 1px solid rgba(180, 152, 104, 0.22);
+}
+
+.devil-cost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  background:
+    linear-gradient(180deg, rgba(74, 20, 22, 0.14), rgba(122, 24, 28, 0.2));
+  border: 1px solid rgba(148, 36, 42, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 228, 228, 0.08),
+    0 6px 12px rgba(44, 18, 20, 0.08);
+}
+
+.devil-cost.urgent {
+  background:
+    linear-gradient(180deg, rgba(74, 16, 22, 0.22), rgba(138, 24, 34, 0.26));
+  border-color: rgba(168, 42, 50, 0.3);
+}
+
+.cost-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #9b4c4c;
+}
+
+.cost-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: #7e1f28;
+  letter-spacing: 0.04em;
 }
 
 .djinn-progress {
