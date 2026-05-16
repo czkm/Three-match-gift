@@ -19,7 +19,7 @@
       @touchmove="onPointerMove"
     >
       <div class="tileContainer" :style="containerStyle">
-        <div v-if="boardThemeKey" class="board-growth" :class="`board-growth-${boardThemeKey}`">
+        <!-- <div v-if="boardThemeKey" class="board-growth" :class="`board-growth-${boardThemeKey}`">
           <span class="growth-veil" />
           <template v-if="boardThemeKey === 'courtyard'">
             <span class="growth-mote mote-a">🍂</span>
@@ -71,7 +71,7 @@
             <span class="growth-bloom bloom-b">🕯️</span>
             <span class="growth-bloom bloom-c">🪻</span>
           </template>
-        </div>
+        </div> -->
 
         <div class="board-idle-aura" />
 
@@ -91,7 +91,9 @@
           :key="cell.id"
           class="seal-cell"
           :class="[cell.variantClass, { cleared: cell.cleared }]"
-          :style="{ transform: `translate3d(${cell.col * TILE_SIZE}px, ${cell.row * TILE_SIZE}px, 0)` }"
+          :style="{
+            transform: `translate3d(${cell.col * TILE_SIZE}px, ${cell.row * TILE_SIZE}px, 0)`
+          }"
         >
           <span class="seal-glyph">{{ cell.glyph }}</span>
         </span>
@@ -100,7 +102,9 @@
           v-for="cell in visibleRotCells"
           :key="`rot-${cell.ownerId}-${cell.row}-${cell.col}`"
           class="rot-mark"
-          :style="{ transform: `translate3d(${cell.col * TILE_SIZE}px, ${cell.row * TILE_SIZE}px, 0)` }"
+          :style="{
+            transform: `translate3d(${cell.col * TILE_SIZE}px, ${cell.row * TILE_SIZE}px, 0)`
+          }"
         />
 
         <BoardTile
@@ -137,7 +141,9 @@
               animationDuration: p.dur + 's',
               '--dx': p.dx + 'px'
             }"
-          >{{ p.glyph }}</span>
+          >
+            {{ p.glyph }}
+          </span>
         </div>
 
         <div v-if="milkTeaFlares.length" class="milk-tea-layer">
@@ -146,7 +152,9 @@
             :key="flare.id"
             class="milk-tea-flare"
             :style="flare.style"
-          >{{ flare.glyph }}</span>
+          >
+            {{ flare.glyph }}
+          </span>
         </div>
 
         <div v-if="milkTeaSigil" class="milk-tea-burst">
@@ -157,12 +165,18 @@
           <span class="milk-tea-burst-label">奶茶攻击</span>
         </div>
 
-        <div v-if="showCakeBuild" class="cake-build" :class="`layer-${game.djinnCakeLayer}`">
+        <div
+          v-if="showCakeBuild"
+          class="cake-build"
+          :class="`layer-${game.djinnCakeLayer}`"
+        >
           <span class="cake-glow" />
           <span class="cake-plate">🍽️</span>
           <span v-if="game.djinnCakeLayer >= 1" class="cake-base">🎂</span>
           <span v-if="game.djinnCakeLayer >= 2" class="cake-lilac">🪻</span>
-          <span v-if="game.djinnCakeLayer >= 3" class="cake-candles">🕯️🕯️🕯️</span>
+          <span v-if="game.djinnCakeLayer >= 3" class="cake-candles">
+            🕯️🕯️🕯️
+          </span>
         </div>
 
         <div v-if="showDjinnAwakening" class="djinn-awakening">
@@ -173,16 +187,24 @@
             :key="bolt.id"
             class="awakening-bolt"
             :style="bolt.style"
-          >⚡️</span>
+          >
+            ⚡️
+          </span>
           <span
             v-for="spark in awakeningSparks"
             :key="spark.id"
             class="awakening-spark"
             :style="spark.style"
-          >✦</span>
+          >
+            ✦
+          </span>
         </div>
 
-        <div v-if="showDjinnTransition" class="djinn-transition" :style="djinnTransitionVars">
+        <div
+          v-if="showDjinnTransition"
+          class="djinn-transition"
+          :style="djinnTransitionVars"
+        >
           <span class="transition-dim" />
           <span class="transition-core" :style="djinnCoreStyle" />
           <span
@@ -196,13 +218,17 @@
             :key="shard.id"
             class="transition-shard"
             :style="shard.style"
-          >{{ shard.glyph }}</span>
+          >
+            {{ shard.glyph }}
+          </span>
           <span
             v-for="flare in transitionFlares"
             :key="flare.id"
             class="transition-flare"
             :style="flare.style"
-          >{{ flare.glyph }}</span>
+          >
+            {{ flare.glyph }}
+          </span>
           <span
             v-for="ring in transitionRings"
             :key="ring.id"
@@ -220,14 +246,18 @@
           class="line-btn line-row"
           :style="{ top: `${(r - 1) * 60 + 4}px` }"
           @click="confirmRowOrCol('row', r - 1)"
-        >第 {{ r }} 行</button>
+        >
+          第 {{ r }} 行
+        </button>
         <button
           v-for="c in colsCount"
           :key="`col-${c}`"
           class="line-btn line-col"
           :style="{ left: `${(c - 1) * 60 + 4}px` }"
           @click="confirmRowOrCol('col', c - 1)"
-        >第 {{ c }} 列</button>
+        >
+          第 {{ c }} 列
+        </button>
       </template>
 
       <transition name="combo-praise">
@@ -248,12 +278,21 @@
           ]"
           :style="comboPraise.style"
         >
-          <p class="combo-praise-prefix" v-if="comboPraise.prefix">{{ comboPraise.prefix }}</p>
-          <p class="combo-praise-label">
-            {{ comboPraise.label }}<span v-if="comboPraise.fireMark" class="combo-praise-fire"> {{ comboPraise.fireMark }}</span>
+          <p class="combo-praise-prefix" v-if="comboPraise.prefix">
+            {{ comboPraise.prefix }}
           </p>
-          <p v-if="comboPraise.comboText" class="combo-praise-combo">{{ comboPraise.comboText }}</p>
-          <p v-if="comboPraise.subline" class="combo-praise-subline">{{ comboPraise.subline }}</p>
+          <p class="combo-praise-label">
+            {{ comboPraise.label }}
+            <span v-if="comboPraise.fireMark" class="combo-praise-fire">
+              {{ comboPraise.fireMark }}
+            </span>
+          </p>
+          <p v-if="comboPraise.comboText" class="combo-praise-combo">
+            {{ comboPraise.comboText }}
+          </p>
+          <p v-if="comboPraise.subline" class="combo-praise-subline">
+            {{ comboPraise.subline }}
+          </p>
         </div>
       </transition>
 
@@ -266,390 +305,463 @@
       </transition>
     </div>
 
-    <div v-if="targeting" class="targeting-hint glass grain">
+    <div v-if="targeting" class="targeting-hint">
       <p class="ink-title">{{ targetingHint }}</p>
-      <button class="cancel-btn" @click="cancelTarget">{{ COMMON_COPY.cancel }}</button>
+      <button class="cancel-btn" @click="cancelTarget">
+        {{ COMMON_COPY.cancel }}
+      </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
-import BoardTile from './BoardTile.vue';
-import BoardEntity from './BoardEntity.vue';
-import { audioManager } from '@/audio/AudioManager';
-import { COMMON_COPY, TARGETING_COPY } from '@/data/copy';
-import EventBus from '@/core/eventBus';
-import { getBoard, resetBoard, SEP, HOLE } from '@/core/board';
-import { useTileDrag } from '@/composables/useTileDrag';
-import { useGameStore } from '@/stores/gameStore';
-import { TIMING } from '@/utils/timing';
-import { makeGuid } from '@/utils/guid';
-import { ABILITIES, DJINN_WISHES, MONSTER_BY_CHAR, MONSTERS, RESOURCE_BY_ID, ROT_CHAR, unlockedCharsForDay } from '@/data/content';
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import BoardTile from './BoardTile.vue'
+import BoardEntity from './BoardEntity.vue'
+import { audioManager } from '@/audio/AudioManager'
+import { COMMON_COPY, TARGETING_COPY } from '@/data/copy'
+import EventBus from '@/core/eventBus'
+import { getBoard, resetBoard, SEP, HOLE } from '@/core/board'
+import { useTileDrag } from '@/composables/useTileDrag'
+import { useGameStore } from '@/stores/gameStore'
+import { TIMING } from '@/utils/timing'
+import { makeGuid } from '@/utils/guid'
+import {
+  ABILITIES,
+  DJINN_WISHES,
+  MONSTER_BY_CHAR,
+  MONSTERS,
+  RESOURCE_BY_ID,
+  ROT_CHAR,
+  unlockedCharsForDay
+} from '@/data/content'
 
-const game = useGameStore();
-const ROWS = 8, COLS = 8;
-const TILE_SIZE = 60;
-const PAD = 4;
-const BIG_MATCH_BREATH_MS = 480;
+const game = useGameStore()
+const ROWS = 8,
+  COLS = 8
+const TILE_SIZE = 60
+const PAD = 4
+const BIG_MATCH_BREATH_MS = 480
 
-const charMap = { g: 'grape', w: 'wood', s: 'stone', c: 'clay', h: 'herb', m: 'magic', [ROT_CHAR]: 'rot' };
-const typeFromChar = (ch) => {
-  const monster = MONSTER_BY_CHAR[ch];
-  if (monster) return `monster-${monster.id}`;
-  return charMap[ch] ?? 'grape';
-};
+const charMap = {
+  g: 'grape',
+  w: 'wood',
+  s: 'stone',
+  c: 'clay',
+  h: 'herb',
+  m: 'magic',
+  [ROT_CHAR]: 'rot'
+}
+const typeFromChar = ch => {
+  const monster = MONSTER_BY_CHAR[ch]
+  if (monster) return `monster-${monster.id}`
+  return charMap[ch] ?? 'grape'
+}
 
-const board = ref(null);
-const tiles = ref([]);
-const tilePool = [];
-const selectedId = ref(null);
-const shaking = ref(false);
-const petals = ref([]);
-const comboPraise = ref(null);
-const hintIds = ref(new Set());
-const invalidIds = ref(new Set());
-const lastClearedMeta = ref(new Map());
-const lastClearSource = ref('match');
-const pendingComboAudioLevel = ref(0);
-const boardIdle = ref(false);
-const boardSyncTimers = [];
-let comboPraiseTimer = null;
-const spawnedMonsterIds = new Set();
-let hintSoundKey = '';
-const awakeningBolts = ref([]);
-const awakeningSparks = ref([]);
-let awakeningTimer = null;
-let awakeningSettleTimer = null;
-const transitionShards = ref([]);
-const transitionTraces = ref([]);
-const transitionFlares = ref([]);
-const transitionRings = ref([]);
-const milkTeaFlares = ref([]);
-const milkTeaSigil = ref(null);
-const milkTeaCasting = ref(false);
-let milkTeaFlashTimer = null;
-let milkTeaSweepTimer = null;
-let milkTeaPulseTimer = null;
-let milkTeaResolveTimer = null;
-let djinnTransitionTimer = null;
-let djinnTransitionSettleTimer = null;
-let pigPenaltyShakeTimer = null;
+const board = ref(null)
+const tiles = ref([])
+const tilePool = []
+const selectedId = ref(null)
+const shaking = ref(false)
+const petals = ref([])
+const comboPraise = ref(null)
+const hintIds = ref(new Set())
+const invalidIds = ref(new Set())
+const lastClearedMeta = ref(new Map())
+const lastClearSource = ref('match')
+const pendingComboAudioLevel = ref(0)
+const boardIdle = ref(false)
+const boardSyncTimers = []
+let comboPraiseTimer = null
+const spawnedMonsterIds = new Set()
+let hintSoundKey = ''
+const awakeningBolts = ref([])
+const awakeningSparks = ref([])
+let awakeningTimer = null
+let awakeningSettleTimer = null
+const transitionShards = ref([])
+const transitionTraces = ref([])
+const transitionFlares = ref([])
+const transitionRings = ref([])
+const milkTeaFlares = ref([])
+const milkTeaSigil = ref(null)
+const milkTeaCasting = ref(false)
+let milkTeaFlashTimer = null
+let milkTeaSweepTimer = null
+let milkTeaPulseTimer = null
+let milkTeaResolveTimer = null
+let djinnTransitionTimer = null
+let djinnTransitionSettleTimer = null
+let pigPenaltyShakeTimer = null
 
-const rowsCount = computed(() => ROWS);
-const colsCount = computed(() => COLS);
-const boardGrowthProgress = computed(() => Math.max(0, Math.min(1, game.repairProgressPct || 0)));
-const boardThemeKey = computed(() => game.today?.building?.id || null);
+const rowsCount = computed(() => ROWS)
+const colsCount = computed(() => COLS)
+const boardGrowthProgress = computed(() =>
+  Math.max(0, Math.min(1, game.repairProgressPct || 0))
+)
+const boardThemeKey = computed(() => game.today?.building?.id || null)
 const boardThemeStyle = computed(() => ({
   '--board-growth-progress': boardGrowthProgress.value.toFixed(3),
   '--board-idle-particle-rate': boardIdle.value ? '8.6s' : '5.8s',
-  '--board-theme-hue': boardThemeKey.value === 'garden' ? 'rgba(182, 140, 204, 0.18)'
-    : boardThemeKey.value === 'greenhouse' ? 'rgba(118, 168, 126, 0.16)'
-    : boardThemeKey.value === 'gazebo' ? 'rgba(232, 168, 104, 0.16)'
-    : boardThemeKey.value === 'kitchen' ? 'rgba(232, 142, 82, 0.16)'
-    : boardThemeKey.value === 'lilacSuite' ? 'rgba(196, 166, 220, 0.2)'
-    : boardThemeKey.value === 'cellar' ? 'rgba(182, 126, 72, 0.14)'
-    : boardThemeKey.value === 'stables' ? 'rgba(198, 172, 102, 0.14)'
-    : boardThemeKey.value === 'vineyard' ? 'rgba(148, 176, 92, 0.16)'
-    : 'rgba(186, 168, 118, 0.12)'
-}));
+  '--board-theme-hue':
+    boardThemeKey.value === 'garden'
+      ? 'rgba(182, 140, 204, 0.18)'
+      : boardThemeKey.value === 'greenhouse'
+        ? 'rgba(118, 168, 126, 0.16)'
+        : boardThemeKey.value === 'gazebo'
+          ? 'rgba(232, 168, 104, 0.16)'
+          : boardThemeKey.value === 'kitchen'
+            ? 'rgba(232, 142, 82, 0.16)'
+            : boardThemeKey.value === 'lilacSuite'
+              ? 'rgba(196, 166, 220, 0.2)'
+              : boardThemeKey.value === 'cellar'
+                ? 'rgba(182, 126, 72, 0.14)'
+                : boardThemeKey.value === 'stables'
+                  ? 'rgba(198, 172, 102, 0.14)'
+                  : boardThemeKey.value === 'vineyard'
+                    ? 'rgba(148, 176, 92, 0.16)'
+                    : 'rgba(186, 168, 118, 0.12)'
+}))
 const selectedTilePos = computed(() => {
-  const tile = tiles.value.find((item) => item.id === selectedId.value && !item.pooled && !item.hidden);
-  return tile ? { row: tile.row, col: tile.col } : null;
-});
-const visibleRotCells = computed(() => game.rotCells || []);
+  const tile = tiles.value.find(
+    item => item.id === selectedId.value && !item.pooled && !item.hidden
+  )
+  return tile ? { row: tile.row, col: tile.col } : null
+})
+const visibleRotCells = computed(() => game.rotCells || [])
 const djinnMarks = computed(() => {
-  if (!game.djinnCeremonyActive) return [];
-  const stage = game.currentDjinnStageConfig;
-  if (stage?.layoutId === 'cake' || stage?.layoutId === 'joy') return [];
-  return (game.djinnMarks || []).map((mark) => ({
+  if (!game.djinnCeremonyActive) return []
+  const stage = game.currentDjinnStageConfig
+  if (stage?.layoutId === 'cake' || stage?.layoutId === 'joy') return []
+  return (game.djinnMarks || []).map(mark => ({
     ...mark,
     variantClass: 'blight-cell',
     glyph: '🦠'
-  }));
-});
-const showCakeBuild = computed(() => game.djinnCeremonyActive && game.djinnLayoutId === 'cake');
-const showDjinnAwakening = computed(() => game.phase === 'awakening');
-const showDjinnTransition = computed(() => game.phase === 'djinnTransition');
+  }))
+})
+const showCakeBuild = computed(
+  () => game.djinnCeremonyActive && game.djinnLayoutId === 'cake'
+)
+const showDjinnAwakening = computed(() => game.phase === 'awakening')
+const showDjinnTransition = computed(() => game.phase === 'djinnTransition')
 const djinnCoreStyle = computed(() => {
-  const entity = game.djinnEntity;
-  if (!entity) return {};
-  const width = (entity.width || 1) * TILE_SIZE;
-  const height = (entity.height || 1) * TILE_SIZE;
-  const left = entity.col * TILE_SIZE + width / 2;
-  const top = entity.row * TILE_SIZE + height / 2;
+  const entity = game.djinnEntity
+  if (!entity) return {}
+  const width = (entity.width || 1) * TILE_SIZE
+  const height = (entity.height || 1) * TILE_SIZE
+  const left = entity.col * TILE_SIZE + width / 2
+  const top = entity.row * TILE_SIZE + height / 2
   return {
     left: `${left}px`,
     top: `${top}px`,
     width: `${width + 36}px`,
     height: `${height + 36}px`
-  };
-});
+  }
+})
 const djinnTransitionVars = computed(() => {
-  const palette = game.currentDjinnTransition?.palette || {};
+  const palette = game.currentDjinnTransition?.palette || {}
   return {
     '--transition-primary': palette.primary || 'rgba(255, 238, 196, 0.92)',
     '--transition-secondary': palette.secondary || 'rgba(176, 148, 201, 0.88)',
     '--transition-glow': palette.glow || 'rgba(255, 220, 136, 0.96)'
-  };
-});
+  }
+})
 
 const containerStyle = computed(() => ({
-  width:  `${COLS * TILE_SIZE}px`,
+  width: `${COLS * TILE_SIZE}px`,
   height: `${ROWS * TILE_SIZE}px`
-}));
+}))
 
 /* ---------- targeting modal ---------- */
 
 function previewState(t) {
-  const p = previewTile.value;
-  if (!p) return null;
-  if (t.row !== p.row || t.col !== p.col) return null;
-  return p.valid ? 'good' : 'bad';
+  const p = previewTile.value
+  if (!p) return null
+  if (t.row !== p.row || t.col !== p.col) return null
+  return p.valid ? 'good' : 'bad'
 }
 
 function isBlockedCell(row, col) {
-  return game.blockedCellKeys.includes(`${row}:${col}`);
+  return game.blockedCellKeys.includes(`${row}:${col}`)
 }
 
 function entityAt(row, col) {
-  return game.activeBoardEntities.find((it) => {
-    const width = it.width || 1;
-    const height = it.height || 1;
-    return row >= it.row && row < it.row + height &&
-      col >= it.col && col < it.col + width;
-  }) ?? null;
+  return (
+    game.activeBoardEntities.find(it => {
+      const width = it.width || 1
+      const height = it.height || 1
+      return (
+        row >= it.row &&
+        row < it.row + height &&
+        col >= it.col &&
+        col < it.col + width
+      )
+    }) ?? null
+  )
 }
 
 function monsterAt(row, col) {
-  return game.monsterAt?.(row, col) || null;
+  return game.monsterAt?.(row, col) || null
 }
 
 function flagInvalid(a, b) {
-  const ta = tileAt(a.row, a.col);
-  const tb = tileAt(b.row, b.col);
-  const ids = new Set();
-  if (ta) ids.add(ta.id);
-  if (tb) ids.add(tb.id);
-  invalidIds.value = ids;
-  setTimeout(() => { invalidIds.value = new Set(); }, 320);
+  const ta = tileAt(a.row, a.col)
+  const tb = tileAt(b.row, b.col)
+  const ids = new Set()
+  if (ta) ids.add(ta.id)
+  if (tb) ids.add(tb.id)
+  invalidIds.value = ids
+  setTimeout(() => {
+    invalidIds.value = new Set()
+  }, 320)
 }
 
 const targeting = computed(() => {
-  if (game.phase !== 'targeting') return null;
-  const ab = ABILITIES[game.pendingAbility];
+  if (game.phase !== 'targeting') return null
+  const ab = ABILITIES[game.pendingAbility]
   // 'twoResources' is handled inline by AbilityBar — don't double-render.
-  if (ab?.needsTarget === 'twoResources' || ab?.needsTarget === 'milkTeaHarvest') return null;
-  return ab?.needsTarget ?? null;
-});
+  if (
+    ab?.needsTarget === 'twoResources' ||
+    ab?.needsTarget === 'milkTeaHarvest'
+  )
+    return null
+  return ab?.needsTarget ?? null
+})
 
 const targetingHint = computed(() => {
   switch (targeting.value) {
-    case 'grape':         return TARGETING_COPY.short.grape;
-    case 'rowOrCol':      return TARGETING_COPY.short.rowOrCol;
-    case 'twoTiles':      return TARGETING_COPY.short.twoTiles;
-    case 'twoResources':  return TARGETING_COPY.short.twoResources;
-    default: return '';
+    case 'grape':
+      return TARGETING_COPY.short.grape
+    case 'rowOrCol':
+      return TARGETING_COPY.short.rowOrCol
+    case 'twoTiles':
+      return TARGETING_COPY.short.twoTiles
+    case 'twoResources':
+      return TARGETING_COPY.short.twoResources
+    default:
+      return ''
   }
-});
+})
 
 /* ---------- drag handler ---------- */
 
 function tileAt(row, col) {
-  return tiles.value.find(
-    (t) => t.row === row && t.col === col && !t.pooled && !t.hidden
-  ) ?? null;
+  return (
+    tiles.value.find(
+      t => t.row === row && t.col === col && !t.pooled && !t.hidden
+    ) ?? null
+  )
 }
 
-const { activeTile, pickTile, moveDrag, endDrag, clearActive, previewTile } = useTileDrag({
-  canMove: () => {
-    if (!board.value) return false;
-    if (game.phase !== 'playing') return false;
-    if (milkTeaCasting.value) return false;
-    return board.value.canMove();
-  },
-  onPreview: (a, b) => {
-    if (!board.value) return false;
-    if (isBlockedCell(a.row, a.col) || isBlockedCell(b.row, b.col)) return false;
-    return board.value.wouldMatch(a, b);
-  },
-  onSwap: (a, b) => {
-    selectedId.value = null;
-    if (!game.djinnUnlimitedSteps && game.stepsLeft <= 0) return;
-    if (
-      isBlockedCell(a.row, a.col) || isBlockedCell(b.row, b.col) ||
-      monsterAt(a.row, a.col) || monsterAt(b.row, b.col)
-    ) {
-      flagInvalid(a, b);
-      audioManager.playSFX('error', { vol: 0.3 });
-      return;
+const { activeTile, pickTile, moveDrag, endDrag, clearActive, previewTile } =
+  useTileDrag({
+    canMove: () => {
+      if (!board.value) return false
+      if (game.phase !== 'playing') return false
+      if (milkTeaCasting.value) return false
+      return board.value.canMove()
+    },
+    onPreview: (a, b) => {
+      if (!board.value) return false
+      if (isBlockedCell(a.row, a.col) || isBlockedCell(b.row, b.col))
+        return false
+      return board.value.wouldMatch(a, b)
+    },
+    onSwap: (a, b) => {
+      selectedId.value = null
+      if (!game.djinnUnlimitedSteps && game.stepsLeft <= 0) return
+      if (
+        isBlockedCell(a.row, a.col) ||
+        isBlockedCell(b.row, b.col) ||
+        monsterAt(a.row, a.col) ||
+        monsterAt(b.row, b.col)
+      ) {
+        flagInvalid(a, b)
+        audioManager.playSFX('error', { vol: 0.3 })
+        return
+      }
+      // If the swap won't match, schedule a gentle "nope" tremble before
+      // the engine reverts; the engine still consumes a step (matches the
+      // gridland-vue feel) but the player gets a soft cue.
+      const willMatch = board.value.wouldMatch(a, b)
+      if (!willMatch) {
+        flagInvalid(a, b)
+        const chars = [
+          board.value.getTile(a.row, a.col),
+          board.value.getTile(b.row, b.col)
+        ].filter(Boolean)
+        game.pendingInvalidSwapReward = { chars, positions: [a, b] }
+        audioManager.playSFX('error', { vol: 0.3 })
+      }
+      game.consumeStep()
+      audioManager.playSFX('swap', { vol: 0.4 })
+      board.value.switchTiles(
+        { row: a.row, col: a.col },
+        { row: b.row, col: b.col }
+      )
     }
-    // If the swap won't match, schedule a gentle "nope" tremble before
-    // the engine reverts; the engine still consumes a step (matches the
-    // gridland-vue feel) but the player gets a soft cue.
-    const willMatch = board.value.wouldMatch(a, b);
-    if (!willMatch) {
-      flagInvalid(a, b);
-      const chars = [tileAt(a.row, a.col)?.char, tileAt(b.row, b.col)?.char].filter(Boolean);
-      game.handleInvalidSwapReward({ chars, positions: [a, b] });
-      audioManager.playSFX('error', { vol: 0.3 });
-    }
-    game.consumeStep();
-    audioManager.playSFX('swap', { vol: 0.4 });
-    board.value.switchTiles(
-      { row: a.row, col: a.col },
-      { row: b.row, col: b.col }
-    );
-  }
-});
+  })
 
-watch(activeTile, (a) => {
-  if (!a) { selectedId.value = null; return; }
-  game.clearMonsterInfo();
-  const t = tileAt(a.row, a.col);
-  selectedId.value = t?.id ?? null;
-});
+watch(activeTile, a => {
+  if (!a) {
+    selectedId.value = null
+    return
+  }
+  game.clearMonsterInfo()
+  const t = tileAt(a.row, a.col)
+  selectedId.value = t?.id ?? null
+})
 
 /* ---------- targeting click handlers ---------- */
 
-const tapBuffer = ref([]);   // for twoTiles ability
+const tapBuffer = ref([]) // for twoTiles ability
 
 function onPick(payload, evt) {
-  if (milkTeaCasting.value) return;
-  if (!board.value?.canMove?.()) return;
-  bumpIdle();
-  game.clearMonsterInfo();
-  const monster = monsterAt(payload.row, payload.col);
+  if (milkTeaCasting.value) return
+  if (!board.value?.canMove?.()) return
+  bumpIdle()
+  game.clearMonsterInfo()
+  const monster = monsterAt(payload.row, payload.col)
   if (monster) {
-    selectedId.value = null;
-    game.showMonsterInfo(monster.kind, monster.id, 'click');
-    const hint = MONSTERS[monster.kind]?.clearRule?.hint;
+    selectedId.value = null
+    game.showMonsterInfo(monster.kind, monster.id, 'click')
+    const hint = MONSTERS[monster.kind]?.clearRule?.hint
     if (!game.barkLine) {
-      game.queueAmbientBark(hint || `${MONSTERS[monster.kind]?.name || '怪物'}挡在这里。`);
+      game.queueAmbientBark(
+        hint || `${MONSTERS[monster.kind]?.name || '怪物'}挡在这里。`
+      )
     }
-    return;
+    return
   }
   if (isBlockedCell(payload.row, payload.col)) {
-      selectedId.value = null;
-      const entity = entityAt(payload.row, payload.col);
-      if (entity?.kind === 'djinn') {
-        game.showMonsterInfo(entity.kind, entity.id, 'click');
+    selectedId.value = null
+    const entity = entityAt(payload.row, payload.col)
+    if (entity?.kind === 'djinn') {
+      game.showMonsterInfo(entity.kind, entity.id, 'click')
       if (game.djinnReady) {
-        game.beginDjinnCeremony();
-        return;
-        }
-        if (!game.barkLine) {
-          game.queueAmbientBark(
-            game.djinnSleeping
-              ? DJINN_WISHES.sleepLine
-              : game.djinnObjectiveSummary?.pressure || '仪式正在进行。'
-          );
-        }
-      } else if (entity) {
-        const monster = MONSTERS[entity.kind];
-        const hint = monster?.clearRule?.hint;
-        const remain = Math.max(0, (entity.hitsRequired || 1) - (entity.hitsTaken || 0));
-        game.showMonsterInfo(entity.kind, entity.id, 'click');
-        if (!game.barkLine) {
-          game.queueAmbientBark(
-            hint || monster?.uiPressureShort || `还需命中 ${remain} 次。`
-          );
-        }
+        game.beginDjinnCeremony()
+        return
       }
-    return;
+      if (!game.barkLine) {
+        game.queueAmbientBark(
+          game.djinnSleeping
+            ? DJINN_WISHES.sleepLine
+            : game.djinnObjectiveSummary?.pressure || '仪式正在进行。'
+        )
+      }
+    } else if (entity) {
+      const monster = MONSTERS[entity.kind]
+      const hint = monster?.clearRule?.hint
+      const remain = Math.max(
+        0,
+        (entity.hitsRequired || 1) - (entity.hitsTaken || 0)
+      )
+      game.showMonsterInfo(entity.kind, entity.id, 'click')
+      if (!game.barkLine) {
+        game.queueAmbientBark(
+          hint || monster?.uiPressureShort || `还需命中 ${remain} 次。`
+        )
+      }
+    }
+    return
   }
   if (game.djinnReady) {
-    game.queueAmbientBark('只差最后一步了。点击迪精，开始仪式。');
-    return;
+    game.queueAmbientBark('只差最后一步了。点击迪精，开始仪式。')
+    return
   }
   if (game.phase === 'targeting' && game.pendingAbility === 'milkTeaBarrage') {
-    return;
+    return
   }
   if (game.phase === 'targeting') {
-    handleTargetingPick(payload);
-    return;
+    handleTargetingPick(payload)
+    return
   }
-  pickTile(payload, evt);
+  pickTile(payload, evt)
 }
 
 function handleTargetingPick(pos) {
-  const ab = ABILITIES[game.pendingAbility];
-  if (!ab) return;
+  const ab = ABILITIES[game.pendingAbility]
+  if (!ab) return
 
   if (ab.needsTarget === 'grape') {
-    const t = tileAt(pos.row, pos.col);
-    if (!t || t.type !== 'grape') return;
-    audioManager.playSFX('ability_harvest', { vol: 0.6 });
-    board.value.convert3x3(pos.row, pos.col, 'g');
-    flashAbility();
-    game.consumeAbility(ab.id);
+    const t = tileAt(pos.row, pos.col)
+    if (!t || t.type !== 'grape') return
+    audioManager.playSFX('ability_harvest', { vol: 0.6 })
+    board.value.convert3x3(pos.row, pos.col, 'g')
+    flashAbility()
+    game.consumeAbility(ab.id)
   } else if (ab.needsTarget === 'twoTiles') {
     if (tapBuffer.value.length === 0) {
-      tapBuffer.value = [pos];
-      const t = tileAt(pos.row, pos.col);
-      selectedId.value = t?.id ?? null;
+      tapBuffer.value = [pos]
+      const t = tileAt(pos.row, pos.col)
+      selectedId.value = t?.id ?? null
     } else {
-      const a = tapBuffer.value[0];
-      tapBuffer.value = [];
-      selectedId.value = null;
-      if (a.row === pos.row && a.col === pos.col) return;
+      const a = tapBuffer.value[0]
+      tapBuffer.value = []
+      selectedId.value = null
+      if (a.row === pos.row && a.col === pos.col) return
       if (
-        isBlockedCell(a.row, a.col) || isBlockedCell(pos.row, pos.col) ||
-        monsterAt(a.row, a.col) || monsterAt(pos.row, pos.col)
+        isBlockedCell(a.row, a.col) ||
+        isBlockedCell(pos.row, pos.col) ||
+        monsterAt(a.row, a.col) ||
+        monsterAt(pos.row, pos.col)
       ) {
-        audioManager.playSFX('error', { vol: 0.3 });
-        return;
+        audioManager.playSFX('error', { vol: 0.3 })
+        return
       }
-      audioManager.playSFX('ability_roach', { vol: 0.6 });
-      board.value.swapAny(a, pos);
-      flashAbility();
-      game.consumeAbility(ab.id);
+      audioManager.playSFX('ability_roach', { vol: 0.6 })
+      board.value.swapAny(a, pos)
+      flashAbility()
+      game.consumeAbility(ab.id)
     }
   } else if (ab.needsTarget === 'milkTeaHarvest') {
-    return;
+    return
   }
 }
 
 function confirmRowOrCol(axis, index) {
-  const ab = ABILITIES[game.pendingAbility];
-  if (!ab) return;
-  bumpIdle();
-  audioManager.playSFX('ability_sunset', { vol: 0.7 });
-  audioManager.playSFX('lineclear', { vol: 0.5 });
-  triggerSunsetRake();
-  board.value.clearLine(axis, index);
-  game.consumeAbility(ab.id);
+  const ab = ABILITIES[game.pendingAbility]
+  if (!ab) return
+  bumpIdle()
+  audioManager.playSFX('ability_sunset', { vol: 0.7 })
+  audioManager.playSFX('lineclear', { vol: 0.5 })
+  triggerSunsetRake()
+  board.value.clearLine(axis, index)
+  game.consumeAbility(ab.id)
 }
 
 function cancelTarget() {
-  if (_idleTimer) clearTimeout(_idleTimer);
-  tapBuffer.value = [];
-  selectedId.value = null;
-  hintIds.value = new Set();
-  game.clearMonsterInfo();
-  game.cancelTarget();
+  if (_idleTimer) clearTimeout(_idleTimer)
+  tapBuffer.value = []
+  selectedId.value = null
+  hintIds.value = new Set()
+  game.clearMonsterInfo()
+  game.cancelTarget()
 }
 
 function onMonsterHoverEnter({ kind, entityId }) {
-  if (!kind) return;
-  game.showMonsterInfo(kind, entityId, 'hover');
+  if (!kind) return
+  game.showMonsterInfo(kind, entityId, 'hover')
 }
 
 function onMonsterHoverLeave({ entityId }) {
-  if (game.inspectedMonster?.source === 'hover' && (!entityId || game.inspectedMonster.entityId === entityId)) {
-    game.clearMonsterInfo('hover');
+  if (
+    game.inspectedMonster?.source === 'hover' &&
+    (!entityId || game.inspectedMonster.entityId === entityId)
+  ) {
+    game.clearMonsterInfo('hover')
   }
 }
 
 function onMonsterInspect({ kind, entityId }) {
-  if (!kind) return;
+  if (!kind) return
   if (kind === 'djinn' && game.djinnReady) {
-    game.beginDjinnCeremony();
-    return;
+    game.beginDjinnCeremony()
+    return
   }
-  game.showMonsterInfo(kind, entityId, 'click');
+  game.showMonsterInfo(kind, entityId, 'click')
   if (kind === 'djinn' && game.djinnSleeping && !game.barkLine) {
-    game.queueAmbientBark(DJINN_WISHES.sleepLine);
+    game.queueAmbientBark(DJINN_WISHES.sleepLine)
   }
 }
 
@@ -657,63 +769,65 @@ function onMonsterInspect({ kind, entityId }) {
 
 defineExpose({
   abilityRefresh() {
-    bumpIdle();
-    audioManager.playSFX('ability_wolf', { vol: 0.6 });
-    flashAbility();
-    game.rerollBoardEntities?.();
-    board.value.refreshBoard('whiteWolfTidy');
+    bumpIdle()
+    audioManager.playSFX('ability_wolf', { vol: 0.6 })
+    flashAbility()
+    game.rerollBoardEntities?.()
+    board.value.refreshBoard('whiteWolfTidy')
   },
   abilityConvertResource(fromId, toId) {
-    if (!board.value) return false;
-    if (!RESOURCE_BY_ID[fromId] || !RESOURCE_BY_ID[toId]) return false;
-    if (fromId === toId) return false;
-    bumpIdle();
-    audioManager.playSFX('lilac', { vol: 0.7 });
-    flashAbility();
-    const fromChar = RESOURCE_BY_ID[fromId].char;
-    const toChar   = RESOURCE_BY_ID[toId].char;
-    board.value.convertResource(fromChar, toChar);
-    return true;
+    if (!board.value) return false
+    if (!RESOURCE_BY_ID[fromId] || !RESOURCE_BY_ID[toId]) return false
+    if (fromId === toId) return false
+    bumpIdle()
+    audioManager.playSFX('lilac', { vol: 0.7 })
+    flashAbility()
+    const fromChar = RESOURCE_BY_ID[fromId].char
+    const toChar = RESOURCE_BY_ID[toId].char
+    board.value.convertResource(fromChar, toChar)
+    return true
   },
   abilityHarvestResource(resourceId) {
-    if (!board.value) return false;
-    if (!RESOURCE_BY_ID[resourceId]) return false;
-    if (milkTeaCasting.value) return false;
-    const char = RESOURCE_BY_ID[resourceId].char;
-    const hasAny = tiles.value.some((tile) => !tile.hidden && !tile.pooled && tile.type === resourceId);
-    if (!hasAny) return false;
-    bumpIdle();
-    milkTeaCasting.value = true;
-    audioManager.playSFX('decoction', { vol: 0.72 });
-    triggerMilkTeaBarrageFx(resourceId);
-    if (milkTeaResolveTimer) clearTimeout(milkTeaResolveTimer);
+    if (!board.value) return false
+    if (!RESOURCE_BY_ID[resourceId]) return false
+    if (milkTeaCasting.value) return false
+    const char = RESOURCE_BY_ID[resourceId].char
+    const hasAny = tiles.value.some(
+      tile => !tile.hidden && !tile.pooled && tile.type === resourceId
+    )
+    if (!hasAny) return false
+    bumpIdle()
+    milkTeaCasting.value = true
+    audioManager.playSFX('decoction', { vol: 0.72 })
+    triggerMilkTeaBarrageFx(resourceId)
+    if (milkTeaResolveTimer) clearTimeout(milkTeaResolveTimer)
     milkTeaResolveTimer = setTimeout(() => {
-      board.value?.harvestResource?.(char);
-      milkTeaCasting.value = false;
-      milkTeaResolveTimer = null;
-    }, 320);
-    return true;
+      board.value?.harvestResource?.(char)
+      milkTeaCasting.value = false
+      milkTeaResolveTimer = null
+    }, 320)
+    return true
   },
   loadDjinnCeremonyBoard() {
-    if (!board.value) return;
-    reloadDjinnBoard();
+    if (!board.value) return
+    reloadDjinnBoard()
   }
-});
+})
 
 /* ---------- pointer & lifecycle plumbing ---------- */
 
 function onPointerMove(evt) {
-  if (game.phase !== 'playing') return;
-  if (activeTile.value) bumpIdle();
-  moveDrag(evt, { rows: ROWS, cols: COLS });
+  if (game.phase !== 'playing') return
+  if (activeTile.value) bumpIdle()
+  moveDrag(evt, { rows: ROWS, cols: COLS })
 }
 function onPointerUp() {
-  endDrag();
-  bumpIdle();
+  endDrag()
+  bumpIdle()
 }
 
 onMounted(() => {
-  resetBoard();
+  resetBoard()
   board.value = getBoard({
     rows: ROWS,
     columns: COLS,
@@ -721,503 +835,589 @@ onMounted(() => {
     tileWeights: () => game.boardTileWeights,
     blockedCells: () => game.blockedCellKeys,
     monsterCharAt: (row, col) => game.monsterAt?.(row, col)?.char || null,
-    resolveMonsterHits: (clearedTiles, chain, source) => game.resolveBoardEntities(clearedTiles, chain, source)?.removedCells || []
-  });
-  EventBus.bind('draw', handleDraw);
-  EventBus.bind('tilesCleared', onTilesCleared);
-  EventBus.bind('tilesSwapped', onTilesSwapped);
-  EventBus.bind('noMoreMoves', onNoMoreMoves);
-  EventBus.bind('pigPenalty', onPigPenalty);
-  board.value.fill();
-  bumpIdle();
-});
+    resolveMonsterHits: (clearedTiles, chain, source) =>
+      game.resolveBoardEntities(clearedTiles, chain, source)?.removedCells || []
+  })
+  EventBus.bind('draw', handleDraw)
+  EventBus.bind('tilesCleared', onTilesCleared)
+  EventBus.bind('tilesSwapped', onTilesSwapped)
+  EventBus.bind('noMoreMoves', onNoMoreMoves)
+  EventBus.bind('pigPenalty', onPigPenalty)
+  board.value.fill()
+  bumpIdle()
+})
 
 onBeforeUnmount(() => {
-  EventBus.unbind('draw', handleDraw);
-  EventBus.unbind('tilesCleared', onTilesCleared);
-  EventBus.unbind('tilesSwapped', onTilesSwapped);
-  EventBus.unbind('noMoreMoves', onNoMoreMoves);
-  EventBus.unbind('pigPenalty', onPigPenalty);
-  for (const timer of boardSyncTimers) clearTimeout(timer);
-  if (comboPraiseTimer) clearTimeout(comboPraiseTimer);
-  if (awakeningTimer) clearTimeout(awakeningTimer);
-  if (awakeningSettleTimer) clearTimeout(awakeningSettleTimer);
-  if (milkTeaFlashTimer) clearTimeout(milkTeaFlashTimer);
-  if (milkTeaSweepTimer) clearTimeout(milkTeaSweepTimer);
-  if (milkTeaPulseTimer) clearTimeout(milkTeaPulseTimer);
-  if (milkTeaResolveTimer) clearTimeout(milkTeaResolveTimer);
-  if (pigPenaltyShakeTimer) clearTimeout(pigPenaltyShakeTimer);
-  if (djinnTransitionTimer) clearTimeout(djinnTransitionTimer);
-  if (djinnTransitionSettleTimer) clearTimeout(djinnTransitionSettleTimer);
-  if (_idleTimer) clearTimeout(_idleTimer);
-  resetBoard();
-});
+  EventBus.unbind('draw', handleDraw)
+  EventBus.unbind('tilesCleared', onTilesCleared)
+  EventBus.unbind('tilesSwapped', onTilesSwapped)
+  EventBus.unbind('noMoreMoves', onNoMoreMoves)
+  EventBus.unbind('pigPenalty', onPigPenalty)
+  for (const timer of boardSyncTimers) clearTimeout(timer)
+  if (comboPraiseTimer) clearTimeout(comboPraiseTimer)
+  if (awakeningTimer) clearTimeout(awakeningTimer)
+  if (awakeningSettleTimer) clearTimeout(awakeningSettleTimer)
+  if (milkTeaFlashTimer) clearTimeout(milkTeaFlashTimer)
+  if (milkTeaSweepTimer) clearTimeout(milkTeaSweepTimer)
+  if (milkTeaPulseTimer) clearTimeout(milkTeaPulseTimer)
+  if (milkTeaResolveTimer) clearTimeout(milkTeaResolveTimer)
+  if (pigPenaltyShakeTimer) clearTimeout(pigPenaltyShakeTimer)
+  if (djinnTransitionTimer) clearTimeout(djinnTransitionTimer)
+  if (djinnTransitionSettleTimer) clearTimeout(djinnTransitionSettleTimer)
+  if (_idleTimer) clearTimeout(_idleTimer)
+  resetBoard()
+})
 
 /* ---------- new-day refresh on resource unlock ---------- */
 
-const _unlockedSnapshot = ref('');
+const _unlockedSnapshot = ref('')
 watch(
   () => game.currentDay,
   () => {
-    if (!board.value) return;
-    const fresh = unlockedCharsForDay(game.currentDay).join('');
+    if (!board.value) return
+    const fresh = unlockedCharsForDay(game.currentDay).join('')
     if (fresh !== _unlockedSnapshot.value) {
-      _unlockedSnapshot.value = fresh;
+      _unlockedSnapshot.value = fresh
       // Wait until the board is idle, then sweep + refill so the new
       // resource lands gently amongst the old ones.
       setTimeout(() => {
         if (board.value && board.value.canMove()) {
-          board.value.refreshBoard('newDay');
+          board.value.refreshBoard('newDay')
         }
-      }, 80);
+      }, 80)
     }
   },
   { immediate: true }
-);
+)
 
 watch(
   () => game.blockedCellKeys.slice().join('|'),
   () => {
-    if (!board.value) return;
-    if (game.phase === 'wish' || game.djinnBoardStage) return;
+    if (!board.value) return
+    if (game.phase === 'wish' || game.djinnBoardStage) return
     setTimeout(() => {
-      if (board.value && board.value.canMove()) board.value.refreshBoard('blockedCells');
-    }, 20);
+      if (board.value && board.value.canMove())
+        board.value.refreshBoard('blockedCells')
+    }, 20)
   }
-);
+)
 
 watch(
   () => game.djinnLayoutId,
-  (layoutId) => {
-    if (!layoutId || !board.value) return;
-    clearActive();
-    selectedId.value = null;
-    tapBuffer.value = [];
-    hintIds.value = new Set();
-    reloadDjinnBoard();
+  layoutId => {
+    if (!layoutId || !board.value) return
+    clearActive()
+    selectedId.value = null
+    tapBuffer.value = []
+    hintIds.value = new Set()
+    reloadDjinnBoard()
   }
-);
+)
 
 /* ---------- pool & rendering helpers ---------- */
 
 function newTile({ type, row, col }) {
-  let t;
+  let t
   if (tilePool.length) {
-    t = tilePool.pop();
-    t.id = makeGuid();
-    t.type = type;
-    t.row = row;
-    t.col = col;
-    t.hidden = false;
-    t.pooled = true;
+    t = tilePool.pop()
+    t.id = makeGuid()
+    t.type = type
+    t.row = row
+    t.col = col
+    t.hidden = false
+    t.pooled = true
   } else {
-    t = reactive({ id: makeGuid(), type, row, col, hidden: false, pooled: true });
-    tiles.value.push(t);
+    t = reactive({
+      id: makeGuid(),
+      type,
+      row,
+      col,
+      hidden: false,
+      pooled: true
+    })
+    tiles.value.push(t)
   }
-  if (!tiles.value.includes(t)) tiles.value.push(t);
-  return t;
+  if (!tiles.value.includes(t)) tiles.value.push(t)
+  return t
 }
 
 function poolTile(tile) {
-  tile.hidden = true;
+  tile.hidden = true
   setTimeout(() => {
-    tile.pooled = true;
-    tile.row = -ROWS;
-    tilePool.push(tile);
-  }, TIMING.TILE_TRANSFORM_MS);
+    tile.pooled = true
+    tile.row = -ROWS
+    tilePool.push(tile)
+  }, TIMING.TILE_TRANSFORM_MS)
 }
 
 /* ---------- draw event handlers ---------- */
 
 function handleDraw(requestString, options) {
-  if (!requestString || requestString.indexOf('.') < 0) return;
-  const head = requestString.substring(0, requestString.indexOf('.'));
-  const tail = requestString.substring(requestString.indexOf('.') + 1);
-  if (head !== 'board') return;
+  if (!requestString || requestString.indexOf('.') < 0) return
+  const head = requestString.substring(0, requestString.indexOf('.'))
+  const tail = requestString.substring(requestString.indexOf('.') + 1)
+  if (head !== 'board') return
 
-  let time = 0;
+  let time = 0
   switch (tail) {
-    case 'clear':   time = drawClear(options);    break;
-    case 'fill':    time = drawFill(options);     break;
-    case 'swap':    time = drawSwap(options);     break;
-    case 'match':   time = drawMatch(options);    break;
-    case 'convert': time = drawConvert(options);  break;
+    case 'clear':
+      time = drawClear(options)
+      break
+    case 'fill':
+      time = drawFill(options)
+      break
+    case 'swap':
+      time = drawSwap(options)
+      break
+    case 'match':
+      time = drawMatch(options)
+      break
+    case 'convert':
+      time = drawConvert(options)
+      break
   }
-  setTimeout(() => EventBus.trigger('graphicsActionComplete'), time);
+  setTimeout(() => EventBus.trigger('graphicsActionComplete'), time)
 }
 
 function drawClear() {
-  for (const t of tiles.value) if (!t.pooled && !t.hidden) poolTile(t);
-  for (const entity of game.boardEntities) entity.hidden = true;
-  return TIMING.CLEAR_RETURN_MS;
+  for (const t of tiles.value) if (!t.pooled && !t.hidden) poolTile(t)
+  for (const entity of game.boardEntities) entity.hidden = true
+  return TIMING.CLEAR_RETURN_MS
 }
 
 function drawFill(tileString) {
-  syncMonsterTilesFromEngine();
-  const chars = tileString.split('');
-  let col = 0, row = 0;
-  const fillTotal = (ROWS + COLS) * TIMING.FILL_DELAY_MS;
-  const startRow = -ROWS;
+  syncMonsterTilesFromEngine()
+  const chars = tileString.split('')
+  let col = 0,
+    row = 0
+  const fillTotal = (ROWS + COLS) * TIMING.FILL_DELAY_MS
+  const startRow = -ROWS
 
   while (chars.length) {
-    const ch = chars.shift();
-    if (ch === SEP) { col++; row = 0; continue; }
-    if (ch === HOLE) { row++; continue; }
-    const targetRow = row;
-    const targetCol = col;
-    const t = newTile({ type: typeFromChar(ch), row: startRow, col });
+    const ch = chars.shift()
+    if (ch === SEP) {
+      col++
+      row = 0
+      continue
+    }
+    if (ch === HOLE) {
+      row++
+      continue
+    }
+    const targetRow = row
+    const targetCol = col
+    const t = newTile({ type: typeFromChar(ch), row: startRow, col })
 
-    const delay = TIMING.SWAP_RETURN_MS + fillTotal -
-      ((targetRow + (COLS - targetCol)) * TIMING.FILL_DELAY_MS);
+    const delay =
+      TIMING.SWAP_RETURN_MS +
+      fillTotal -
+      (targetRow + (COLS - targetCol)) * TIMING.FILL_DELAY_MS
 
     setTimeout(() => {
-      t.pooled = false;
+      t.pooled = false
       requestAnimationFrame(() => {
-        t.row = targetRow;
-        t.col = targetCol;
-      });
-    }, delay);
-    row++;
+        t.row = targetRow
+        t.col = targetCol
+      })
+    }, delay)
+    row++
   }
-  setTimeout(() => {
-    for (const entity of game.boardEntities) {
-      if (!entity.removed) entity.hidden = false;
-    }
-  }, TIMING.SWAP_RETURN_MS + fillTotal - 80);
-  scheduleBoardVisualSync(fillTotal + TIMING.SWAP_RETURN_MS);
-  return fillTotal + TIMING.SWAP_RETURN_MS;
+  setTimeout(
+    () => {
+      for (const entity of game.boardEntities) {
+        if (!entity.removed) entity.hidden = false
+      }
+    },
+    TIMING.SWAP_RETURN_MS + fillTotal - 80
+  )
+  scheduleBoardVisualSync(fillTotal + TIMING.SWAP_RETURN_MS)
+  return fillTotal + TIMING.SWAP_RETURN_MS
 }
 
 function drawSwap(opts) {
-  const a = tileAt(opts.pos1.row, opts.pos1.col);
-  const b = tileAt(opts.pos2.row, opts.pos2.col);
-  if (!a || !b) return TIMING.SWAP_RETURN_MS;
-  const ar = a.row, ac = a.col;
-  a.row = b.row; a.col = b.col;
-  b.row = ar;    b.col = ac;
-  return TIMING.SWAP_RETURN_MS;
+  const a = tileAt(opts.pos1.row, opts.pos1.col)
+  const b = tileAt(opts.pos2.row, opts.pos2.col)
+  if (!a || !b) return TIMING.SWAP_RETURN_MS
+  const ar = a.row,
+    ac = a.col
+  a.row = b.row
+  a.col = b.col
+  b.row = ar
+  b.col = ac
+  return TIMING.SWAP_RETURN_MS
 }
 
 function drawMatch(opts) {
-  lastClearSource.value = opts.lineSweep ? 'lineSweep' : 'match';
-  syncMonsterTilesFromEngine();
-  const matchMeta = new Map();
-  const bigMatchPause = opts.groupSizes && opts.groupSizes.some((n) => n >= 5)
-    ? BIG_MATCH_BREATH_MS
-    : 0;
+  lastClearSource.value = opts.lineSweep ? 'lineSweep' : 'match'
+  syncMonsterTilesFromEngine()
+  const matchMeta = new Map()
+  const bigMatchPause =
+    opts.groupSizes && opts.groupSizes.some(n => n >= 5)
+      ? BIG_MATCH_BREATH_MS
+      : 0
   for (const group of opts.matchGroups || []) {
     for (const pos of group.positions || []) {
-      matchMeta.set(`${pos.row}:${pos.col}`, { groupSize: group.size, axis: group.axis, char: group.char });
+      matchMeta.set(`${pos.row}:${pos.col}`, {
+        groupSize: group.size,
+        axis: group.axis,
+        char: group.char
+      })
     }
   }
-  lastClearedMeta.value = matchMeta;
+  lastClearedMeta.value = matchMeta
   if (opts.removed) {
     for (const r of opts.removed) {
-      const { row, col } = r.position;
-      const t = tileAt(row, col);
-      if (t) poolTile(t);
+      const { row, col } = r.position
+      const t = tileAt(row, col)
+      if (t) poolTile(t)
     }
   }
 
   setTimeout(() => {
-    reconcileTilesToBoardState(opts.added || []);
-  }, TIMING.MATCH_SHIFT_DELAY_MS + bigMatchPause);
-  scheduleBoardVisualSync(TIMING.MATCH_RETURN_MS + bigMatchPause);
+    reconcileTilesToBoardState(opts.added || [])
+  }, TIMING.MATCH_SHIFT_DELAY_MS + bigMatchPause)
+  scheduleBoardVisualSync(TIMING.MATCH_RETURN_MS + bigMatchPause)
 
   // Petals on big matches
-  if (opts.groupSizes && opts.groupSizes.some((n) => n >= 5)) {
-    sprinklePetals(40);
-    EventBus.trigger('sceneBurst', [{ kind: 'petal', count: 14 }]);
-  } else if (opts.groupSizes && opts.groupSizes.some((n) => n >= 4)) {
-    sprinklePetals(14);
-    EventBus.trigger('sceneBurst', [{ kind: 'gold', count: 8 }]);
+  if (opts.groupSizes && opts.groupSizes.some(n => n >= 5)) {
+    sprinklePetals(40)
+    EventBus.trigger('sceneBurst', [{ kind: 'petal', count: 14 }])
+  } else if (opts.groupSizes && opts.groupSizes.some(n => n >= 4)) {
+    sprinklePetals(14)
+    EventBus.trigger('sceneBurst', [{ kind: 'gold', count: 8 }])
   }
 
-  return TIMING.MATCH_RETURN_MS + bigMatchPause;
+  return TIMING.MATCH_RETURN_MS + bigMatchPause
 }
 
 function drawConvert(opts) {
-  syncMonsterTilesFromEngine();
-  reconcileTilesToBoardState();
-  scheduleBoardVisualSync(TIMING.SWAP_RETURN_MS);
-  return TIMING.SWAP_RETURN_MS;
+  syncMonsterTilesFromEngine()
+  reconcileTilesToBoardState()
+  scheduleBoardVisualSync(TIMING.SWAP_RETURN_MS)
+  return TIMING.SWAP_RETURN_MS
 }
 
 function syncTilesFromEngine() {
-  if (!board.value) return;
-  const blocked = new Set(game.blockedCellKeys);
+  if (!board.value) return
+  const blocked = new Set(game.blockedCellKeys)
   for (const t of tiles.value) {
-    if (t.pooled || t.hidden) continue;
-    if (t.row < 0 || t.row >= ROWS || t.col < 0 || t.col >= COLS) continue;
+    if (t.pooled || t.hidden) continue
+    if (t.row < 0 || t.row >= ROWS || t.col < 0 || t.col >= COLS) continue
     if (blocked.has(`${t.row}:${t.col}`)) {
-      poolTile(t);
-      continue;
+      poolTile(t)
+      continue
     }
-    const ch = board.value.getTile(t.row, t.col);
-    if (ch && ch !== HOLE) t.type = typeFromChar(ch);
+    const ch = board.value.getTile(t.row, t.col)
+    if (ch && ch !== HOLE) t.type = typeFromChar(ch)
   }
 }
 
 function reconcileTilesToBoardState(addedTiles = []) {
-  if (!board.value) return;
-  let spawnedCount = 0;
-  let fallingCount = 0;
-  let maxFallDistance = 0;
+  if (!board.value) return
+  let spawnedCount = 0
+  let fallingCount = 0
+  let maxFallDistance = 0
 
-  const targetMap = new Map();
-  const addedLookup = new Map(addedTiles.map((tile) => [`${tile.row}:${tile.col}`, tile]));
+  const targetMap = new Map()
+  const addedLookup = new Map(
+    addedTiles.map(tile => [`${tile.row}:${tile.col}`, tile])
+  )
 
   for (let col = 0; col < COLS; col++) {
-    const targets = [];
+    const targets = []
     for (let row = 0; row < ROWS; row++) {
-      if (isBlockedCell(row, col)) continue;
-      const ch = board.value.getTile(row, col);
-      if (!ch || ch === HOLE) continue;
-      const target = { row, col, char: ch };
-      targets.push(target);
-      targetMap.set(`${row}:${col}`, target);
+      if (isBlockedCell(row, col)) continue
+      const ch = board.value.getTile(row, col)
+      if (!ch || ch === HOLE) continue
+      const target = { row, col, char: ch }
+      targets.push(target)
+      targetMap.set(`${row}:${col}`, target)
     }
 
     const survivors = tiles.value
-      .filter((tile) => tile.col === col && !tile.pooled && !tile.hidden)
-      .sort((a, b) => a.row - b.row);
+      .filter(tile => tile.col === col && !tile.pooled && !tile.hidden)
+      .sort((a, b) => a.row - b.row)
 
-    let survivorIndex = survivors.length - 1;
+    let survivorIndex = survivors.length - 1
 
-    for (let targetIndex = targets.length - 1; targetIndex >= 0; targetIndex--) {
-      const target = targets[targetIndex];
-      const added = addedLookup.get(`${target.row}:${target.col}`);
+    for (
+      let targetIndex = targets.length - 1;
+      targetIndex >= 0;
+      targetIndex--
+    ) {
+      const target = targets[targetIndex]
+      const added = addedLookup.get(`${target.row}:${target.col}`)
       if (added) {
-        spawnedCount++;
-        const fresh = newTile({ type: typeFromChar(target.char), row: added.row - ROWS, col: target.col });
+        spawnedCount++
+        const fresh = newTile({
+          type: typeFromChar(target.char),
+          row: added.row - ROWS,
+          col: target.col
+        })
         requestAnimationFrame(() => {
-          fresh.pooled = false;
+          fresh.pooled = false
           requestAnimationFrame(() => {
-            fresh.row = target.row;
-            fresh.col = target.col;
-          });
-        });
-        continue;
+            fresh.row = target.row
+            fresh.col = target.col
+          })
+        })
+        continue
       }
 
-      const tile = survivors[survivorIndex];
-      survivorIndex--;
-      if (!tile) continue;
+      const tile = survivors[survivorIndex]
+      survivorIndex--
+      if (!tile) continue
       if (target.row > tile.row) {
-        fallingCount++;
-        maxFallDistance = Math.max(maxFallDistance, target.row - tile.row);
+        fallingCount++
+        maxFallDistance = Math.max(maxFallDistance, target.row - tile.row)
       }
-      tile.type = typeFromChar(target.char);
-      tile.col = target.col;
-      tile.row = target.row;
+      tile.type = typeFromChar(target.char)
+      tile.col = target.col
+      tile.row = target.row
     }
 
     for (let i = 0; i <= survivorIndex; i++) {
-      poolTile(survivors[i]);
+      poolTile(survivors[i])
     }
   }
 
   for (const tile of tiles.value) {
-    if (tile.pooled || tile.hidden) continue;
-    const target = targetMap.get(`${tile.row}:${tile.col}`);
+    if (tile.pooled || tile.hidden) continue
+    const target = targetMap.get(`${tile.row}:${tile.col}`)
     if (!target) {
-      poolTile(tile);
-      continue;
+      poolTile(tile)
+      continue
     }
-    tile.type = typeFromChar(target.char);
+    tile.type = typeFromChar(target.char)
   }
 
   if (fallingCount > 0) {
-    audioManager.playBoardDrop(fallingCount + Math.max(0, maxFallDistance - 1));
-    setTimeout(() => {
-      audioManager.playSFX('land', {
-        vol: Math.min(0.22 + Math.max(fallingCount, maxFallDistance) * 0.02, 0.38)
-      });
-    }, Math.max(120, TIMING.TILE_FALL_MS - 30));
+    audioManager.playBoardDrop(fallingCount + Math.max(0, maxFallDistance - 1))
+    setTimeout(
+      () => {
+        audioManager.playSFX('land', {
+          vol: Math.min(
+            0.22 + Math.max(fallingCount, maxFallDistance) * 0.02,
+            0.38
+          )
+        })
+      },
+      Math.max(120, TIMING.TILE_FALL_MS - 30)
+    )
   }
 
   if (spawnedCount > 0) {
-    audioManager.playSFX('spawn', { vol: 0.2 });
+    audioManager.playSFX('spawn', { vol: 0.2 })
   }
 }
 
 function syncMonsterTilesFromEngine() {
-  if (!board.value) return;
-  game.applyMonsterPositionsFromBoard?.(board.value.tileString);
+  if (!board.value) return
+  game.applyMonsterPositionsFromBoard?.(board.value.tileString)
 }
 
 function scheduleBoardVisualSync(delayMs) {
-  const timer = setTimeout(() => {
-    const idx = boardSyncTimers.indexOf(timer);
-    if (idx >= 0) boardSyncTimers.splice(idx, 1);
-    hardSyncTilesFromBoardState();
-  }, Math.max(0, delayMs - 16));
-  boardSyncTimers.push(timer);
+  const timer = setTimeout(
+    () => {
+      const idx = boardSyncTimers.indexOf(timer)
+      if (idx >= 0) boardSyncTimers.splice(idx, 1)
+      hardSyncTilesFromBoardState()
+    },
+    Math.max(0, delayMs - 16)
+  )
+  boardSyncTimers.push(timer)
 }
 
 function hardSyncTilesFromBoardState() {
-  if (!board.value) return;
-  const targets = [];
+  if (!board.value) return
+  const targets = []
   for (let row = 0; row < ROWS; row++) {
     for (let col = 0; col < COLS; col++) {
-      if (isBlockedCell(row, col)) continue;
-      const ch = board.value.getTile(row, col);
-      if (!ch || ch === HOLE) continue;
-      targets.push({ row, col, char: ch });
+      if (isBlockedCell(row, col)) continue
+      const ch = board.value.getTile(row, col)
+      if (!ch || ch === HOLE) continue
+      targets.push({ row, col, char: ch })
     }
   }
 
   const visibleTiles = tiles.value
-    .filter((tile) => !tile.pooled && !tile.hidden)
-    .sort((a, b) => (a.row - b.row) || (a.col - b.col));
+    .filter(tile => !tile.pooled && !tile.hidden)
+    .sort((a, b) => a.row - b.row || a.col - b.col)
 
-  let index = 0;
+  let index = 0
   for (; index < targets.length; index++) {
-    const target = targets[index];
-    const tile = visibleTiles[index] || newTile({ type: typeFromChar(target.char), row: target.row, col: target.col });
-    tile.hidden = false;
-    tile.pooled = false;
-    tile.type = typeFromChar(target.char);
-    tile.row = target.row;
-    tile.col = target.col;
+    const target = targets[index]
+    const tile =
+      visibleTiles[index] ||
+      newTile({
+        type: typeFromChar(target.char),
+        row: target.row,
+        col: target.col
+      })
+    tile.hidden = false
+    tile.pooled = false
+    tile.type = typeFromChar(target.char)
+    tile.row = target.row
+    tile.col = target.col
   }
 
   for (; index < visibleTiles.length; index++) {
-    poolTile(visibleTiles[index]);
+    poolTile(visibleTiles[index])
   }
 }
 
 function reloadDjinnBoard() {
-  if (!board.value) return;
-  const boardString = game.loadDjinnCeremonyBoard?.();
+  if (!board.value) return
+  const boardString = game.loadDjinnCeremonyBoard?.()
   if (!boardString) {
-    board.value.refreshBoard('djinn-layout-missing');
-    return;
+    board.value.refreshBoard('djinn-layout-missing')
+    return
   }
-  board.value.setBoardStringAfterClear(boardString, 'djinn-layout-reload');
+  board.value.setBoardStringAfterClear(boardString, 'djinn-layout-reload')
 }
 
 /* ---------- gameplay event handlers ---------- */
 
-function onTilesCleared(resourcesByChar, _swapSide, groupCount, groupSizes, chain, matchGroups) {
-  const safeGroupSizes = groupSizes || [];
-  const safeChain = chain || 1;
-  const totalCleared = safeGroupSizes.reduce((sum, size) => sum + size, 0);
-  if (totalCleared > 0) audioManager.playMatch(totalCleared);
+function onTilesCleared(
+  resourcesByChar,
+  _swapSide,
+  groupCount,
+  groupSizes,
+  chain,
+  matchGroups
+) {
+  const safeGroupSizes = groupSizes || []
+  const safeChain = chain || 1
+  const totalCleared = safeGroupSizes.reduce((sum, size) => sum + size, 0)
+  if (totalCleared > 0) audioManager.playMatch(totalCleared)
   if (safeChain >= 2) {
-    pendingComboAudioLevel.value = Math.max(pendingComboAudioLevel.value, safeChain);
+    pendingComboAudioLevel.value = Math.max(
+      pendingComboAudioLevel.value,
+      safeChain
+    )
   }
-  game.gainResources(resourcesByChar, groupSizes || [], chain || 1);
+  game.gainResources(resourcesByChar, groupSizes || [], chain || 1)
   game.recordDjinnBoardProgress({
     clearedPositions: collectClearedPositions(),
     groupSizes: groupSizes || [],
     chain: chain || 1,
     matchGroups: matchGroups || []
-  });
-  showComboPraise(chain || 1, groupSizes || [], matchGroups || []);
-  maybePraiseCombo(chain || 1, groupSizes || []);
-  syncMonsterTilesFromEngine();
+  })
+  showComboPraise(chain || 1, groupSizes || [], matchGroups || [])
+  maybePraiseCombo(chain || 1, groupSizes || [])
+  syncMonsterTilesFromEngine()
   // Trigger match continues as the engine queues; we only commit
   // 'after-move' once the engine has settled (no callback pending).
   // To detect settlement, we listen for tilesSwapped via lastSwitch === null
   // after the chain. We piggyback a microtask:
-  setTimeout(() => maybeCommitTurn(), 60);
+  setTimeout(() => maybeCommitTurn(), 60)
 }
 
-let _lastSwapSettled = true;
+let _lastSwapSettled = true
 function onTilesSwapped(matched) {
-  _lastSwapSettled = true;
-  setTimeout(() => maybeCommitTurn(), 30);
+  _lastSwapSettled = true
+  setTimeout(() => maybeCommitTurn(), 30)
 }
 
 function collectClearedPositions() {
-  const positions = [];
+  const positions = []
   for (const t of tiles.value) {
     if (t.hidden && !t.pooled && t.row >= 0 && t.col >= 0) {
-      const meta = lastClearedMeta.value.get(`${t.row}:${t.col}`) || {};
+      const meta = lastClearedMeta.value.get(`${t.row}:${t.col}`) || {}
       positions.push({
         row: t.row,
         col: t.col,
         char: meta.char || null,
         groupSize: meta.groupSize || 0
-      });
+      })
     }
   }
-  return positions;
+  return positions
 }
 
 function onNoMoreMoves() {
   if (game.djinnBoardStage) {
-    const boardString = game.loadDjinnCeremonyBoard?.();
+    const boardString = game.loadDjinnCeremonyBoard?.()
     if (boardString && board.value) {
-      board.value.setBoardStringAfterClear(boardString, 'djinn-no-moves-reload');
-      return;
+      board.value.setBoardStringAfterClear(boardString, 'djinn-no-moves-reload')
+      return
     }
-    if (!boardString && board.value) return;
+    if (!boardString && board.value) return
   }
   // Visual nudge — no step cost.
-  shaking.value = true;
-  setTimeout(() => { shaking.value = false; }, 400);
-  bumpIdle();
+  shaking.value = true
+  setTimeout(() => {
+    shaking.value = false
+  }, 400)
+  bumpIdle()
 }
 
 function maybePraiseCombo(chain, groupSizes) {
   if (chain >= 4) {
-    game.queueAmbientBark('漂亮。连着打下去，整个庭院都跟着醒了。');
-    return;
+    game.queueAmbientBark('漂亮。连着打下去，整个庭院都跟着醒了。')
+    return
   }
   if (chain === 3) {
-    game.queueAmbientBark('很好。就照这个势头继续。');
-    return;
+    game.queueAmbientBark('很好。就照这个势头继续。')
+    return
   }
-  if (chain === 2 && groupSizes.some((size) => size >= 4)) {
-    game.queueAmbientBark('不错。手感找到了。');
+  if (chain === 2 && groupSizes.some(size => size >= 4)) {
+    game.queueAmbientBark('不错。手感找到了。')
   }
 }
 
 function showComboPraise(chain, groupSizes, matchGroups = []) {
-  const biggest = Math.max(0, ...(groupSizes || []));
-  const theme = pickPraiseTheme(matchGroups);
-  const praise = buildComboPraise(biggest, chain);
-  if (!praise) return;
+  const biggest = Math.max(0, ...(groupSizes || []))
+  const theme = pickPraiseTheme(matchGroups)
+  const praise = buildComboPraise(biggest, chain)
+  if (!praise) return
 
   comboPraise.value = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     ...praise,
     theme
-  };
+  }
 
-  if (comboPraiseTimer) clearTimeout(comboPraiseTimer);
+  if (comboPraiseTimer) clearTimeout(comboPraiseTimer)
   comboPraiseTimer = setTimeout(() => {
-    comboPraise.value = null;
-    comboPraiseTimer = null;
-  }, praise.durationMs);
+    comboPraise.value = null
+    comboPraiseTimer = null
+  }, praise.durationMs)
 }
 
 function buildComboPraise(biggest, chain) {
-  const chainDepth = Math.max(1, chain || 1);
-  const prefixColor = chainDepth >= 5 ? '#ff7f62'
-    : chainDepth >= 4 ? '#ff9567'
-    : chainDepth >= 3 ? '#ffaf71'
-    : chainDepth >= 2 ? '#b48cff'
-    : '#e8cc84';
-  const cascadeBits = chainDepth >= 2
-    ? {
-        prefix: '连锁！',
-        comboText: `${chainDepth} CHAIN`,
-        subline: chainDepth >= 3 ? `第 ${chainDepth} 段引燃` : `第 ${chainDepth} 段续上`,
-        fireMark: chainDepth >= 3 ? '🔥' : '',
-        style: { '--combo-prefix-color': prefixColor },
-        chainDepth
-      }
-    : {
-        prefix: '',
-        comboText: '',
-        subline: '',
-        fireMark: '',
-        style: { '--combo-prefix-color': prefixColor },
-        chainDepth
-      };
+  const chainDepth = Math.max(1, chain || 1)
+  const prefixColor =
+    chainDepth >= 5
+      ? '#ff7f62'
+      : chainDepth >= 4
+        ? '#ff9567'
+        : chainDepth >= 3
+          ? '#ffaf71'
+          : chainDepth >= 2
+            ? '#b48cff'
+            : '#e8cc84'
+  const cascadeBits =
+    chainDepth >= 2
+      ? {
+          prefix: '连锁！',
+          comboText: `${chainDepth} CHAIN`,
+          subline:
+            chainDepth >= 3
+              ? `第 ${chainDepth} 段引燃`
+              : `第 ${chainDepth} 段续上`,
+          fireMark: chainDepth >= 3 ? '🔥' : '',
+          style: { '--combo-prefix-color': prefixColor },
+          chainDepth
+        }
+      : {
+          prefix: '',
+          comboText: '',
+          subline: '',
+          fireMark: '',
+          style: { '--combo-prefix-color': prefixColor },
+          chainDepth
+        }
 
   if (biggest >= 5) {
     return {
@@ -1229,7 +1429,7 @@ function buildComboPraise(biggest, chain) {
       trailing: true,
       sizeClass: 'size-5',
       durationMs: chainDepth >= 2 ? 2200 : 1850
-    };
+    }
   }
 
   if (biggest === 4) {
@@ -1243,7 +1443,7 @@ function buildComboPraise(biggest, chain) {
       trailing: false,
       sizeClass: 'size-4',
       durationMs: chainDepth >= 2 ? 1880 : 1560
-    };
+    }
   }
 
   if (biggest === 3) {
@@ -1257,7 +1457,7 @@ function buildComboPraise(biggest, chain) {
       trailing: false,
       sizeClass: 'size-3',
       durationMs: chainDepth >= 3 ? 1720 : chainDepth === 2 ? 1460 : 1180
-    };
+    }
   }
 
   if (chainDepth >= 2) {
@@ -1270,125 +1470,148 @@ function buildComboPraise(biggest, chain) {
       trailing: chainDepth >= 3,
       sizeClass: chainDepth >= 3 ? 'size-5' : 'size-4',
       durationMs: chainDepth >= 3 ? 1920 : 1560
-    };
+    }
   }
 
-  return null;
+  return null
 }
 
 function pickPraiseTheme(matchGroups = []) {
-  if (!matchGroups.length) return 'theme-gold';
-  const primary = [...matchGroups].sort((a, b) => (b.size || 0) - (a.size || 0))[0];
+  if (!matchGroups.length) return 'theme-gold'
+  const primary = [...matchGroups].sort(
+    (a, b) => (b.size || 0) - (a.size || 0)
+  )[0]
   switch (primary?.char) {
-    case 'g': return 'theme-grape';
-    case 'w': return 'theme-wood';
-    case 's': return 'theme-stone';
-    case 'c': return 'theme-clay';
-    case 'h': return 'theme-herb';
-    case 'm': return 'theme-magic';
-    default: return 'theme-gold';
+    case 'g':
+      return 'theme-grape'
+    case 'w':
+      return 'theme-wood'
+    case 's':
+      return 'theme-stone'
+    case 'c':
+      return 'theme-clay'
+    case 'h':
+      return 'theme-herb'
+    case 'm':
+      return 'theme-magic'
+    default:
+      return 'theme-gold'
   }
 }
 
 function maybeCommitTurn() {
   // Wait until the board has nothing pending.
-  if (!board.value) return;
-  if (game.phase === 'djinnTransition' || game.phase === 'awakening' || game.phase === 'wish') return;
-  if (!board.value.canMove()) return;
-  const pressureActions = board.value.applyEndTurnMonsterPressure?.((api) => game.applyMonsterPressure(api)) || [];
+  if (!board.value) return
+  if (
+    game.phase === 'djinnTransition' ||
+    game.phase === 'awakening' ||
+    game.phase === 'wish'
+  )
+    return
+  if (!board.value.canMove()) return
+  const pressureActions =
+    board.value.applyEndTurnMonsterPressure?.(api =>
+      game.applyMonsterPressure(api)
+    ) || []
   if (pressureActions.length) {
-    syncMonsterTilesFromEngine();
-    setTimeout(() => maybeCommitTurn(), 60);
-    return;
+    syncMonsterTilesFromEngine()
+    setTimeout(() => maybeCommitTurn(), 60)
+    return
   }
 
   if (pendingComboAudioLevel.value >= 2) {
-    audioManager.playCombo(pendingComboAudioLevel.value);
-    pendingComboAudioLevel.value = 0;
+    audioManager.playCombo(pendingComboAudioLevel.value)
+    pendingComboAudioLevel.value = 0
   }
 
-  bumpIdle();
-  refreshHints();
-  const action = game.onAfterMove();
+  bumpIdle()
+  refreshHints()
+  const action = game.onAfterMove()
   if (action === 'complete') {
-    EventBus.trigger('repairBegin');
+    EventBus.trigger('repairBegin')
   } else if (action === 'dayEnd') {
-    EventBus.trigger('dayEndBegin');
+    EventBus.trigger('dayEndBegin')
   }
 }
 
 /* ---------- hint highlights (lilacReturn passive) ---------- */
 
-let _idleTimer = null;
+let _idleTimer = null
 function bumpIdle() {
-  boardIdle.value = false;
-  if (_idleTimer) clearTimeout(_idleTimer);
-  hintIds.value = new Set();
+  boardIdle.value = false
+  if (_idleTimer) clearTimeout(_idleTimer)
+  hintIds.value = new Set()
   _idleTimer = setTimeout(() => {
-    if (game.phase !== 'playing') return;
-    if (!board.value || !board.value.canMove()) return;
-    boardIdle.value = true;
-    if (hintIds.value.size > 0) return;       // already lit (e.g. lilacReturn)
-    refreshHints({ force: true });
-  }, 3000);
+    if (game.phase !== 'playing') return
+    if (!board.value || !board.value.canMove()) return
+    boardIdle.value = true
+    if (hintIds.value.size > 0) return // already lit (e.g. lilacReturn)
+    refreshHints({ force: true })
+  }, 3000)
 }
 
 function refreshHints(opts = {}) {
-  hintIds.value = new Set();
-  hintSoundKey = '';
-  if (!opts.force && !game.showHints) return;
-  if (!board.value) return;
-  const hint = board.value.findHint();
-  if (!hint) return;
-  const a = tileAt(hint.a.row, hint.a.col);
-  const b = tileAt(hint.b.row, hint.b.col);
-  const s = new Set();
-  if (a) s.add(a.id);
-  if (b) s.add(b.id);
-  hintIds.value = s;
-  const nextKey = `${hint.a.row}:${hint.a.col}-${hint.b.row}:${hint.b.col}`;
+  hintIds.value = new Set()
+  hintSoundKey = ''
+  if (!opts.force && !game.showHints) return
+  if (!board.value) return
+  const hint = board.value.findHint()
+  if (!hint) return
+  const a = tileAt(hint.a.row, hint.a.col)
+  const b = tileAt(hint.b.row, hint.b.col)
+  const s = new Set()
+  if (a) s.add(a.id)
+  if (b) s.add(b.id)
+  hintIds.value = s
+  const nextKey = `${hint.a.row}:${hint.a.col}-${hint.b.row}:${hint.b.col}`
   if (nextKey !== hintSoundKey) {
-    hintSoundKey = nextKey;
-    audioManager.playSFX('hint', { vol: 0.4 });
+    hintSoundKey = nextKey
+    audioManager.playSFX('hint', { vol: 0.4 })
   }
 }
 
-watch(() => game.stepsLeft, () => {
-  refreshHints();
-  if (game.phase !== 'playing') return;
-  if (game.stepsLeft > 5) return;
-  if (!game.activeMonsterTiles.length) return;
-  game.queueBark('前面还有怪物挡着。');
-});
-watch(() => game.unlockedAbilities.length, refreshHints);
-watch(() => game.phase, (phase) => {
-  if (phase !== 'playing') boardIdle.value = false;
-  if (phase !== 'playing') {
-    game.clearMonsterInfo();
+watch(
+  () => game.stepsLeft,
+  () => {
+    refreshHints()
+    if (game.phase !== 'playing') return
+    if (game.stepsLeft > 5) return
+    if (!game.activeMonsterTiles.length) return
+    game.queueBark('前面还有怪物挡着。')
   }
-  if (phase === 'awakening') {
-    startDjinnAwakeningFx();
-    return;
+)
+watch(() => game.unlockedAbilities.length, refreshHints)
+watch(
+  () => game.phase,
+  phase => {
+    if (phase !== 'playing') boardIdle.value = false
+    if (phase !== 'playing') {
+      game.clearMonsterInfo()
+    }
+    if (phase === 'awakening') {
+      startDjinnAwakeningFx()
+      return
+    }
+    if (phase === 'djinnTransition') {
+      startDjinnTransitionFx()
+      return
+    }
+    stopDjinnAwakeningFx()
+    stopDjinnTransitionFx()
+    if (phase !== 'wish') return
+    clearActive()
+    selectedId.value = null
+    tapBuffer.value = []
+    hintIds.value = new Set()
   }
-  if (phase === 'djinnTransition') {
-    startDjinnTransitionFx();
-    return;
-  }
-  stopDjinnAwakeningFx();
-  stopDjinnTransitionFx();
-  if (phase !== 'wish') return;
-  clearActive();
-  selectedId.value = null;
-  tapBuffer.value = [];
-  hintIds.value = new Set();
-});
+)
 
 /* ---------- petal & sunset effects ---------- */
 
-let _petalCounter = 0;
+let _petalCounter = 0
 function sprinklePetals(count) {
-  const w = COLS * TILE_SIZE + PAD * 2;
-  const fresh = [];
+  const w = COLS * TILE_SIZE + PAD * 2
+  const fresh = []
   for (let i = 0; i < count; i++) {
     fresh.push({
       id: ++_petalCounter,
@@ -1397,24 +1620,24 @@ function sprinklePetals(count) {
       size: 16 + Math.random() * 14,
       dur: 2.6 + Math.random() * 1.8,
       dx: (Math.random() - 0.5) * 80
-    });
+    })
   }
-  petals.value = [...petals.value, ...fresh];
+  petals.value = [...petals.value, ...fresh]
   setTimeout(() => {
-    const ids = new Set(fresh.map((p) => p.id));
-    petals.value = petals.value.filter((p) => !ids.has(p.id));
-  }, 4500);
+    const ids = new Set(fresh.map(p => p.id))
+    petals.value = petals.value.filter(p => !ids.has(p.id))
+  }, 4500)
 }
 
 function pickPetal() {
-  const pool = ['🌸', '🌺', '🪻', '🌿', '🍂', '🪶'];
-  return pool[Math.floor(Math.random() * pool.length)];
+  const pool = ['🌸', '🌺', '🪻', '🌿', '🍂', '🪶']
+  return pool[Math.floor(Math.random() * pool.length)]
 }
 
 function flashAbility() {
   // For the 'ability used' visual glow we just sprinkle a few petals.
-  sprinklePetals(8);
-  EventBus.trigger('sceneBurst', [{ kind: 'gold', count: 7 }]);
+  sprinklePetals(8)
+  EventBus.trigger('sceneBurst', [{ kind: 'gold', count: 7 }])
 }
 
 function onPigPenalty() {
@@ -1446,7 +1669,10 @@ function triggerMilkTeaBarrageFx(resourceId) {
   }
   milkTeaFlares.value = flares
   sprinklePetals(18)
-  EventBus.trigger('sceneBurst', [{ kind: 'gold', count: 24 }, { kind: 'petal', count: 12 }])
+  EventBus.trigger('sceneBurst', [
+    { kind: 'gold', count: 24 },
+    { kind: 'petal', count: 12 }
+  ])
   if (milkTeaFlashTimer) clearTimeout(milkTeaFlashTimer)
   if (milkTeaSweepTimer) clearTimeout(milkTeaSweepTimer)
   if (milkTeaPulseTimer) clearTimeout(milkTeaPulseTimer)
@@ -1454,7 +1680,10 @@ function triggerMilkTeaBarrageFx(resourceId) {
   if (layer) {
     layer.classList.remove('milk-tea-pulse')
     requestAnimationFrame(() => layer.classList.add('milk-tea-pulse'))
-    milkTeaPulseTimer = setTimeout(() => layer.classList.remove('milk-tea-pulse'), 980)
+    milkTeaPulseTimer = setTimeout(
+      () => layer.classList.remove('milk-tea-pulse'),
+      980
+    )
   }
   milkTeaFlashTimer = setTimeout(() => {
     if (!layer) return
@@ -1471,37 +1700,43 @@ function triggerMilkTeaBarrageFx(resourceId) {
 
 function triggerSunsetRake() {
   // CSS class lifetime handled inline.
-  const layer = document.querySelector('.tileContainer');
-  if (!layer) return;
-  const rake = document.createElement('div');
-  rake.className = 'sunset-rake';
-  layer.appendChild(rake);
-  setTimeout(() => rake.remove(), 800);
+  const layer = document.querySelector('.tileContainer')
+  if (!layer) return
+  const rake = document.createElement('div')
+  rake.className = 'sunset-rake'
+  layer.appendChild(rake)
+  setTimeout(() => rake.remove(), 800)
 }
 
-let _awakeningCounter = 0;
+let _awakeningCounter = 0
 function startDjinnAwakeningFx() {
-  clearActive();
-  selectedId.value = null;
-  tapBuffer.value = [];
-  hintIds.value = new Set();
-  invalidIds.value = new Set();
-  stopDjinnAwakeningFx();
-  audioManager.playSFX('djinn_appear', { vol: 0.8 });
+  clearActive()
+  selectedId.value = null
+  tapBuffer.value = []
+  hintIds.value = new Set()
+  invalidIds.value = new Set()
+  stopDjinnAwakeningFx()
+  audioManager.playSFX('djinn_appear', { vol: 0.8 })
 
-  const bolts = [];
-  const sparks = [];
-  const entity = game.djinnEntity;
-  const centerCol = entity ? entity.col + (entity.width || 1) / 2 : COLS / 2;
-  const centerRow = entity ? entity.row + (entity.height || 1) / 2 : ROWS / 2;
+  const bolts = []
+  const sparks = []
+  const entity = game.djinnEntity
+  const centerCol = entity ? entity.col + (entity.width || 1) / 2 : COLS / 2
+  const centerRow = entity ? entity.row + (entity.height || 1) / 2 : ROWS / 2
 
   for (let row = 0; row < ROWS; row++) {
     for (let col = 0; col < COLS; col++) {
-      if (entity && row >= entity.row && row < entity.row + (entity.height || 1) && col >= entity.col && col < entity.col + (entity.width || 1)) {
-        continue;
+      if (
+        entity &&
+        row >= entity.row &&
+        row < entity.row + (entity.height || 1) &&
+        col >= entity.col &&
+        col < entity.col + (entity.width || 1)
+      ) {
+        continue
       }
-      const dx = (centerCol - (col + 0.5)) * TILE_SIZE;
-      const dy = (centerRow - (row + 0.5)) * TILE_SIZE;
+      const dx = (centerCol - (col + 0.5)) * TILE_SIZE
+      const dy = (centerRow - (row + 0.5)) * TILE_SIZE
       bolts.push({
         id: `bolt-${++_awakeningCounter}`,
         style: {
@@ -1513,7 +1748,7 @@ function startDjinnAwakeningFx() {
           '--dur': `${(0.88 + ((row + col) % 4) * 0.08).toFixed(2)}s`,
           '--rot': `${Math.round((Math.random() - 0.5) * 46)}deg`
         }
-      });
+      })
     }
   }
 
@@ -1528,68 +1763,71 @@ function startDjinnAwakeningFx() {
         '--drift-x': `${Math.round((Math.random() - 0.5) * 86)}px`,
         '--drift-y': `${Math.round((Math.random() - 0.5) * 72)}px`
       }
-    });
+    })
   }
 
-  awakeningBolts.value = bolts;
-  awakeningSparks.value = sparks;
-  EventBus.trigger('sceneBurst', [{ kind: 'gold', count: 18 }, { kind: 'petal', count: 8 }]);
+  awakeningBolts.value = bolts
+  awakeningSparks.value = sparks
+  EventBus.trigger('sceneBurst', [
+    { kind: 'gold', count: 18 },
+    { kind: 'petal', count: 8 }
+  ])
   awakeningTimer = setTimeout(() => {
-    game.queueBark(DJINN_WISHES.wakeLine);
-    game.finishDjinnWake();
-  }, 1650);
+    game.queueBark(DJINN_WISHES.wakeLine)
+    game.finishDjinnWake()
+  }, 1650)
   awakeningSettleTimer = setTimeout(() => {
-    awakeningBolts.value = [];
-    awakeningSparks.value = [];
-  }, 1900);
+    awakeningBolts.value = []
+    awakeningSparks.value = []
+  }, 1900)
 }
 
 function stopDjinnAwakeningFx() {
   if (awakeningTimer) {
-    clearTimeout(awakeningTimer);
-    awakeningTimer = null;
+    clearTimeout(awakeningTimer)
+    awakeningTimer = null
   }
   if (awakeningSettleTimer) {
-    clearTimeout(awakeningSettleTimer);
-    awakeningSettleTimer = null;
+    clearTimeout(awakeningSettleTimer)
+    awakeningSettleTimer = null
   }
-  awakeningBolts.value = [];
-  awakeningSparks.value = [];
+  awakeningBolts.value = []
+  awakeningSparks.value = []
 }
 
-let _transitionCounter = 0;
+let _transitionCounter = 0
 function startDjinnTransitionFx() {
-  clearActive();
-  selectedId.value = null;
-  tapBuffer.value = [];
-  hintIds.value = new Set();
-  invalidIds.value = new Set();
-  stopDjinnTransitionFx();
+  clearActive()
+  selectedId.value = null
+  tapBuffer.value = []
+  hintIds.value = new Set()
+  invalidIds.value = new Set()
+  stopDjinnTransitionFx()
 
-  const transition = game.currentDjinnTransition;
-  if (!transition) return;
-  audioManager.playSFX('rune_hit', { vol: 0.6 });
+  const transition = game.currentDjinnTransition
+  if (!transition) return
+  audioManager.playSFX('rune_hit', { vol: 0.6 })
 
-  const sources = transition.sourceCells || [];
-  const targets = transition.targetCells || [];
-  const traces = [];
-  const shards = [];
-  const flares = [];
-  const rings = [];
-  const durationMs = transition.durationMs || 2000;
+  const sources = transition.sourceCells || []
+  const targets = transition.targetCells || []
+  const traces = []
+  const shards = []
+  const flares = []
+  const rings = []
+  const durationMs = transition.durationMs || 2000
 
   sources.forEach((cell, index) => {
-    const target = targets[index % Math.max(1, targets.length)] || targets[0];
-    if (!target) return;
-    const startX = cell.col * TILE_SIZE + TILE_SIZE / 2;
-    const startY = cell.row * TILE_SIZE + TILE_SIZE / 2;
-    const endX = target.col * TILE_SIZE + TILE_SIZE / 2;
-    const endY = target.row * TILE_SIZE + TILE_SIZE / 2;
-    const dx = endX - startX;
-    const dy = endY - startY;
-    const len = Math.sqrt(dx * dx + dy * dy);
-    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-    const delay = (0.18 + index * 0.08).toFixed(3);
+    const target = targets[index % Math.max(1, targets.length)] || targets[0]
+    if (!target) return
+    const startX = cell.col * TILE_SIZE + TILE_SIZE / 2
+    const startY = cell.row * TILE_SIZE + TILE_SIZE / 2
+    const endX = target.col * TILE_SIZE + TILE_SIZE / 2
+    const endY = target.row * TILE_SIZE + TILE_SIZE / 2
+    const dx = endX - startX
+    const dy = endY - startY
+    const len = Math.sqrt(dx * dx + dy * dy)
+    const angle = (Math.atan2(dy, dx) * 180) / Math.PI
+    const delay = (0.18 + index * 0.08).toFixed(3)
 
     traces.push({
       id: `trace-${++_transitionCounter}`,
@@ -1600,7 +1838,7 @@ function startDjinnTransitionFx() {
         '--angle': `${angle}deg`,
         '--delay': `${delay}s`
       }
-    });
+    })
 
     shards.push({
       id: `shard-${++_transitionCounter}`,
@@ -1614,12 +1852,12 @@ function startDjinnTransitionFx() {
         '--dur': `${(1.2 + index * 0.06).toFixed(2)}s`,
         '--curve': `${Math.round((index % 2 === 0 ? 1 : -1) * (28 + index * 4))}px`
       }
-    });
-  });
+    })
+  })
 
   targets.forEach((cell, index) => {
-    const centerX = cell.col * TILE_SIZE + TILE_SIZE / 2;
-    const centerY = cell.row * TILE_SIZE + TILE_SIZE / 2;
+    const centerX = cell.col * TILE_SIZE + TILE_SIZE / 2
+    const centerY = cell.row * TILE_SIZE + TILE_SIZE / 2
     flares.push({
       id: `flare-${++_transitionCounter}`,
       glyph: transition.id === 'blightToJoy' ? '🕯️' : '✦',
@@ -1628,94 +1866,96 @@ function startDjinnTransitionFx() {
         top: `${centerY}px`,
         '--delay': `${(1.12 + index * 0.1).toFixed(3)}s`
       }
-    });
-  });
+    })
+  })
 
   if (transition.id === 'joyToCake') {
-    [96, 136, 176].forEach((size, index) => {
+    ;[96, 136, 176].forEach((size, index) => {
       rings.push({
         id: `ring-${++_transitionCounter}`,
         style: {
-          left: `${(3.5 * TILE_SIZE) + TILE_SIZE / 2}px`,
-          top: `${(3.5 * TILE_SIZE) + TILE_SIZE / 2}px`,
+          left: `${3.5 * TILE_SIZE + TILE_SIZE / 2}px`,
+          top: `${3.5 * TILE_SIZE + TILE_SIZE / 2}px`,
           width: `${size}px`,
           height: `${size}px`,
           '--delay': `${(0.74 + index * 0.16).toFixed(3)}s`
         }
-      });
-    });
+      })
+    })
   }
 
-  transitionTraces.value = traces;
-  transitionShards.value = shards;
-  transitionFlares.value = flares;
-  transitionRings.value = rings;
-  EventBus.trigger('sceneBurst', [{ kind: 'gold', count: 10 }]);
+  transitionTraces.value = traces
+  transitionShards.value = shards
+  transitionFlares.value = flares
+  transitionRings.value = rings
+  EventBus.trigger('sceneBurst', [{ kind: 'gold', count: 10 }])
 
   djinnTransitionTimer = setTimeout(() => {
-    game.finishDjinnTransition();
-  }, durationMs);
+    game.finishDjinnTransition()
+  }, durationMs)
   djinnTransitionSettleTimer = setTimeout(() => {
-    transitionTraces.value = [];
-    transitionShards.value = [];
-    transitionFlares.value = [];
-    transitionRings.value = [];
-  }, durationMs + 80);
+    transitionTraces.value = []
+    transitionShards.value = []
+    transitionFlares.value = []
+    transitionRings.value = []
+  }, durationMs + 80)
 }
 
 function syncMonsterSpawnAudio() {
   for (const monster of game.activeMonsterTiles) {
-    spawnedMonsterIds.add(monster.id);
+    spawnedMonsterIds.add(monster.id)
   }
 
   for (const entity of game.activeBoardEntities) {
-    spawnedMonsterIds.add(entity.id);
+    spawnedMonsterIds.add(entity.id)
   }
 }
 
 watch(
   () => [
-    game.activeMonsterTiles.map((monster) => monster.id).join('|'),
-    game.activeBoardEntities.map((entity) => `${entity.kind}:${entity.id}`).join('|')
+    game.activeMonsterTiles.map(monster => monster.id).join('|'),
+    game.activeBoardEntities
+      .map(entity => `${entity.kind}:${entity.id}`)
+      .join('|')
   ],
   () => {
-    syncMonsterSpawnAudio();
+    syncMonsterSpawnAudio()
   },
   { immediate: true }
-);
+)
 
 watch(
   () => [game.djinnStage, game.djinnState, game.phase],
   ([stage, state, phase], [prevStage, prevState, prevPhase] = []) => {
-    if (phase !== 'wish') return;
-    if (state === prevState && stage === prevStage && phase === prevPhase) return;
+    if (phase !== 'wish') return
+    if (state === prevState && stage === prevStage && phase === prevPhase)
+      return
     if (/Resolve$/.test(state)) {
-      if (stage === 1) audioManager.playSFX('wish1', { vol: 0.8 });
-      else if (stage === 2) audioManager.playSFX('wish2', { vol: 0.8 });
-      else if (stage === 3) audioManager.playSFX('wish3', { vol: 0.9 });
-      return;
+      if (stage === 1) audioManager.playSFX('wish1', { vol: 0.8 })
+      else if (stage === 2) audioManager.playSFX('wish2', { vol: 0.8 })
+      else if (stage === 3) audioManager.playSFX('wish3', { vol: 0.9 })
+      return
     }
     if (/Intro$/.test(state) && stage > 1) {
-      audioManager.playSFX('rune_hit', { vol: 0.6 });
+      audioManager.playSFX('rune_hit', { vol: 0.6 })
     }
   }
-);
+)
 
 function stopDjinnTransitionFx() {
   if (djinnTransitionTimer) {
-    clearTimeout(djinnTransitionTimer);
-    djinnTransitionTimer = null;
+    clearTimeout(djinnTransitionTimer)
+    djinnTransitionTimer = null
   }
   if (djinnTransitionSettleTimer) {
-    clearTimeout(djinnTransitionSettleTimer);
-    djinnTransitionSettleTimer = null;
+    clearTimeout(djinnTransitionSettleTimer)
+    djinnTransitionSettleTimer = null
   }
-  transitionTraces.value = [];
-  transitionShards.value = [];
-  transitionFlares.value = [];
-  transitionRings.value = [];
+  transitionTraces.value = []
+  transitionShards.value = []
+  transitionFlares.value = []
+  transitionRings.value = []
 }
-
 </script>
 
 <style scoped>
@@ -1730,16 +1970,22 @@ function stopDjinnTransitionFx() {
   position: relative;
   padding: 10px;
   border-radius: var(--radius-xl);
-  transition: transform 280ms var(--ease-out-expo), filter 280ms var(--ease-out-expo);
+  transition:
+    transform 280ms var(--ease-out-expo),
+    filter 280ms var(--ease-out-expo);
   transform-origin: center center;
   background:
     linear-gradient(180deg, rgba(255, 248, 230, 0.16) 0%, transparent 12%),
-    linear-gradient(160deg, rgba(93, 66, 40, 0.95) 0%, rgba(36, 22, 12, 0.98) 100%);
+    linear-gradient(
+      160deg,
+      rgba(93, 66, 40, 0.95) 0%,
+      rgba(36, 22, 12, 0.98) 100%
+    );
   border: 1px solid rgba(220, 188, 132, 0.42);
   box-shadow:
     0 24px 48px rgba(14, 8, 6, 0.42),
     0 6px 14px rgba(14, 8, 6, 0.18),
-    inset 0 0 0 1px rgba(255, 245, 218, 0.10),
+    inset 0 0 0 1px rgba(255, 245, 218, 0.1),
     inset 0 0 0 5px rgba(20, 12, 8, 0.28);
 }
 
@@ -1749,7 +1995,7 @@ function stopDjinnTransitionFx() {
 
 .gameBoard::before,
 .gameBoard::after {
-  content: "";
+  content: '';
   position: absolute;
   pointer-events: none;
   border-radius: inherit;
@@ -1772,8 +2018,12 @@ function stopDjinnTransitionFx() {
   box-shadow: inset 0 1px 0 rgba(255, 245, 218, 0.06);
 }
 
-.gameBoard.shaking { animation: gb-shake 100ms 4 alternate var(--ease-out-expo); }
-.gameBoard.dimmed  { filter: brightness(0.82) saturate(0.92); }
+.gameBoard.shaking {
+  animation: gb-shake 100ms 4 alternate var(--ease-out-expo);
+}
+.gameBoard.dimmed {
+  filter: brightness(0.82) saturate(0.92);
+}
 .gameBoard.repairing[data-theme='vineyard'] {
   box-shadow:
     0 24px 44px rgba(14, 8, 6, 0.42),
@@ -1783,13 +2033,21 @@ function stopDjinnTransitionFx() {
 }
 
 @keyframes gb-shake {
-  0%, 100% { transform: translateX(0); }
-  25%      { transform: translateX(-5px); }
-  75%      { transform: translateX(5px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
 }
 
 @keyframes board-idle-breathe {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     filter: saturate(1);
   }
@@ -1808,12 +2066,22 @@ function stopDjinnTransitionFx() {
   background:
     linear-gradient(90deg, var(--board-grid) 0 1px, transparent 1px 100%),
     linear-gradient(180deg, var(--board-grid) 0 1px, transparent 1px 100%),
-    radial-gradient(circle at 30% 18%, rgba(255, 226, 166, 0.12) 0%, transparent 34%),
+    radial-gradient(
+      circle at 30% 18%,
+      rgba(255, 226, 166, 0.12) 0%,
+      transparent 34%
+    ),
     radial-gradient(circle at 78% 82%, rgba(0, 0, 0, 0.12) 0%, transparent 40%),
     linear-gradient(160deg, var(--board-cell-2) 0%, var(--board-cell-1) 100%);
-  background-size: 60px 60px, 60px 60px, auto, auto, auto, auto;
+  background-size:
+    60px 60px,
+    60px 60px,
+    auto,
+    auto,
+    auto,
+    auto;
   box-shadow:
-    inset 0 0 0 1px rgba(245, 225, 178, 0.10),
+    inset 0 0 0 1px rgba(245, 225, 178, 0.1),
     inset 0 16px 24px rgba(255, 232, 190, 0.04),
     inset 0 -16px 22px rgba(0, 0, 0, 0.28),
     inset 0 0 20px rgba(0, 0, 0, 0.12);
@@ -1826,8 +2094,12 @@ function stopDjinnTransitionFx() {
   border-radius: inherit;
   pointer-events: none;
   opacity: 0;
-  background:
-    linear-gradient(90deg, rgba(255, 223, 160, 0.06), rgba(255, 247, 214, 0.18), rgba(255, 223, 160, 0.06));
+  background: linear-gradient(
+    90deg,
+    rgba(255, 223, 160, 0.06),
+    rgba(255, 247, 214, 0.18),
+    rgba(255, 223, 160, 0.06)
+  );
   mix-blend-mode: screen;
 }
 
@@ -1840,79 +2112,229 @@ function stopDjinnTransitionFx() {
 }
 
 .gameBoard.idle .tileContainer::before {
-  animation: board-idle-veil var(--board-idle-particle-rate, 8.6s) ease-in-out infinite;
+  animation: board-idle-veil var(--board-idle-particle-rate, 8.6s) ease-in-out
+    infinite;
 }
 
 .gameBoard[data-theme='vineyard'] .tileContainer {
   background:
-    linear-gradient(90deg, rgba(148, 176, 92, calc(var(--board-growth-progress) * 0.16)) 0 1px, transparent 1px 100%),
-    linear-gradient(180deg, rgba(148, 176, 92, calc(var(--board-growth-progress) * 0.16)) 0 1px, transparent 1px 100%),
-    radial-gradient(circle at 30% 18%, rgba(184, 224, 126, calc(var(--board-growth-progress) * 0.16)) 0%, transparent 34%),
+    linear-gradient(
+      90deg,
+      rgba(148, 176, 92, calc(var(--board-growth-progress) * 0.16)) 0 1px,
+      transparent 1px 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(148, 176, 92, calc(var(--board-growth-progress) * 0.16)) 0 1px,
+      transparent 1px 100%
+    ),
+    radial-gradient(
+      circle at 30% 18%,
+      rgba(184, 224, 126, calc(var(--board-growth-progress) * 0.16)) 0%,
+      transparent 34%
+    ),
     linear-gradient(
       160deg,
       rgba(88, 78, 54, 0.98) 0%,
-      rgba(calc(82 + var(--board-growth-progress) * 20), calc(86 + var(--board-growth-progress) * 40), calc(48 + var(--board-growth-progress) * 14), 0.98) 38%,
-      rgba(calc(62 + var(--board-growth-progress) * 22), calc(72 + var(--board-growth-progress) * 48), calc(40 + var(--board-growth-progress) * 10), 0.98) 100%
+      rgba(
+          calc(82 + var(--board-growth-progress) * 20),
+          calc(86 + var(--board-growth-progress) * 40),
+          calc(48 + var(--board-growth-progress) * 14),
+          0.98
+        )
+        38%,
+      rgba(
+          calc(62 + var(--board-growth-progress) * 22),
+          calc(72 + var(--board-growth-progress) * 48),
+          calc(40 + var(--board-growth-progress) * 10),
+          0.98
+        )
+        100%
     );
-  background-size: 60px 60px, 60px 60px, auto, auto;
+  background-size:
+    60px 60px,
+    60px 60px,
+    auto,
+    auto;
 }
 
 .gameBoard[data-theme='courtyard'] .tileContainer {
   background:
-    linear-gradient(90deg, rgba(164, 176, 126, calc(var(--board-growth-progress) * 0.08)) 0 1px, transparent 1px 100%),
-    linear-gradient(180deg, rgba(164, 176, 126, calc(var(--board-growth-progress) * 0.08)) 0 1px, transparent 1px 100%),
-    radial-gradient(circle at 22% 22%, rgba(154, 168, 122, calc(var(--board-growth-progress) * 0.14)), transparent 32%),
-    linear-gradient(160deg, rgba(72, 66, 58, 0.98) 0%, rgba(46, 38, 30, 0.98) 100%);
-  background-size: 60px 60px, 60px 60px, auto, auto;
+    linear-gradient(
+      90deg,
+      rgba(164, 176, 126, calc(var(--board-growth-progress) * 0.08)) 0 1px,
+      transparent 1px 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(164, 176, 126, calc(var(--board-growth-progress) * 0.08)) 0 1px,
+      transparent 1px 100%
+    ),
+    radial-gradient(
+      circle at 22% 22%,
+      rgba(154, 168, 122, calc(var(--board-growth-progress) * 0.14)),
+      transparent 32%
+    ),
+    linear-gradient(
+      160deg,
+      rgba(72, 66, 58, 0.98) 0%,
+      rgba(46, 38, 30, 0.98) 100%
+    );
+  background-size:
+    60px 60px,
+    60px 60px,
+    auto,
+    auto;
 }
 
 .gameBoard[data-theme='cellar'] .tileContainer {
   background:
-    linear-gradient(90deg, rgba(168, 122, 74, calc(var(--board-growth-progress) * 0.1)) 0 1px, transparent 1px 100%),
-    linear-gradient(180deg, rgba(168, 122, 74, calc(var(--board-growth-progress) * 0.1)) 0 1px, transparent 1px 100%),
-    radial-gradient(circle at 18% 20%, rgba(196, 144, 88, calc(var(--board-growth-progress) * 0.16)), transparent 28%),
-    linear-gradient(160deg, rgba(84, 54, 38, 0.98) 0%, rgba(40, 24, 18, 0.98) 100%);
-  background-size: 60px 60px, 60px 60px, auto, auto;
+    linear-gradient(
+      90deg,
+      rgba(168, 122, 74, calc(var(--board-growth-progress) * 0.1)) 0 1px,
+      transparent 1px 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(168, 122, 74, calc(var(--board-growth-progress) * 0.1)) 0 1px,
+      transparent 1px 100%
+    ),
+    radial-gradient(
+      circle at 18% 20%,
+      rgba(196, 144, 88, calc(var(--board-growth-progress) * 0.16)),
+      transparent 28%
+    ),
+    linear-gradient(
+      160deg,
+      rgba(84, 54, 38, 0.98) 0%,
+      rgba(40, 24, 18, 0.98) 100%
+    );
+  background-size:
+    60px 60px,
+    60px 60px,
+    auto,
+    auto;
 }
 
 .gameBoard[data-theme='garden'] .tileContainer {
   background:
-    linear-gradient(90deg, rgba(176, 132, 198, calc(var(--board-growth-progress) * 0.12)) 0 1px, transparent 1px 100%),
-    linear-gradient(180deg, rgba(176, 132, 198, calc(var(--board-growth-progress) * 0.12)) 0 1px, transparent 1px 100%),
-    radial-gradient(circle at 78% 18%, rgba(214, 180, 232, calc(var(--board-growth-progress) * 0.14)), transparent 32%),
-    linear-gradient(160deg, rgba(76, 54, 80, 0.98) 0%, rgba(42, 28, 50, 0.98) 100%);
-  background-size: 60px 60px, 60px 60px, auto, auto;
+    linear-gradient(
+      90deg,
+      rgba(176, 132, 198, calc(var(--board-growth-progress) * 0.12)) 0 1px,
+      transparent 1px 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(176, 132, 198, calc(var(--board-growth-progress) * 0.12)) 0 1px,
+      transparent 1px 100%
+    ),
+    radial-gradient(
+      circle at 78% 18%,
+      rgba(214, 180, 232, calc(var(--board-growth-progress) * 0.14)),
+      transparent 32%
+    ),
+    linear-gradient(
+      160deg,
+      rgba(76, 54, 80, 0.98) 0%,
+      rgba(42, 28, 50, 0.98) 100%
+    );
+  background-size:
+    60px 60px,
+    60px 60px,
+    auto,
+    auto;
 }
 
 .gameBoard[data-theme='gazebo'] .tileContainer {
   background:
-    linear-gradient(90deg, rgba(228, 162, 102, calc(var(--board-growth-progress) * 0.12)) 0 1px, transparent 1px 100%),
-    linear-gradient(180deg, rgba(228, 162, 102, calc(var(--board-growth-progress) * 0.12)) 0 1px, transparent 1px 100%),
-    radial-gradient(circle at 26% 14%, rgba(255, 208, 144, calc(var(--board-growth-progress) * 0.18)), transparent 30%),
-    linear-gradient(160deg, rgba(94, 62, 42, 0.98) 0%, rgba(52, 34, 28, 0.98) 100%);
-  background-size: 60px 60px, 60px 60px, auto, auto;
+    linear-gradient(
+      90deg,
+      rgba(228, 162, 102, calc(var(--board-growth-progress) * 0.12)) 0 1px,
+      transparent 1px 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(228, 162, 102, calc(var(--board-growth-progress) * 0.12)) 0 1px,
+      transparent 1px 100%
+    ),
+    radial-gradient(
+      circle at 26% 14%,
+      rgba(255, 208, 144, calc(var(--board-growth-progress) * 0.18)),
+      transparent 30%
+    ),
+    linear-gradient(
+      160deg,
+      rgba(94, 62, 42, 0.98) 0%,
+      rgba(52, 34, 28, 0.98) 100%
+    );
+  background-size:
+    60px 60px,
+    60px 60px,
+    auto,
+    auto;
 }
 
 .gameBoard[data-theme='kitchen'] .tileContainer {
   background:
-    linear-gradient(90deg, rgba(220, 128, 72, calc(var(--board-growth-progress) * 0.14)) 0 1px, transparent 1px 100%),
-    linear-gradient(180deg, rgba(220, 128, 72, calc(var(--board-growth-progress) * 0.14)) 0 1px, transparent 1px 100%),
-    radial-gradient(circle at 80% 80%, rgba(255, 172, 96, calc(var(--board-growth-progress) * 0.2)), transparent 32%),
-    linear-gradient(160deg, rgba(88, 52, 34, 0.98) 0%, rgba(44, 24, 16, 0.98) 100%);
-  background-size: 60px 60px, 60px 60px, auto, auto;
+    linear-gradient(
+      90deg,
+      rgba(220, 128, 72, calc(var(--board-growth-progress) * 0.14)) 0 1px,
+      transparent 1px 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(220, 128, 72, calc(var(--board-growth-progress) * 0.14)) 0 1px,
+      transparent 1px 100%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(255, 172, 96, calc(var(--board-growth-progress) * 0.2)),
+      transparent 32%
+    ),
+    linear-gradient(
+      160deg,
+      rgba(88, 52, 34, 0.98) 0%,
+      rgba(44, 24, 16, 0.98) 100%
+    );
+  background-size:
+    60px 60px,
+    60px 60px,
+    auto,
+    auto;
 }
 
 .gameBoard[data-theme='lilacSuite'] .tileContainer {
   background:
-    linear-gradient(90deg, rgba(196, 166, 220, calc(var(--board-growth-progress) * 0.12)) 0 1px, transparent 1px 100%),
-    linear-gradient(180deg, rgba(196, 166, 220, calc(var(--board-growth-progress) * 0.12)) 0 1px, transparent 1px 100%),
-    radial-gradient(circle at 50% 18%, rgba(224, 202, 238, calc(var(--board-growth-progress) * 0.16)), transparent 34%),
-    linear-gradient(160deg, rgba(78, 60, 92, 0.98) 0%, rgba(44, 32, 58, 0.98) 100%);
-  background-size: 60px 60px, 60px 60px, auto, auto;
+    linear-gradient(
+      90deg,
+      rgba(196, 166, 220, calc(var(--board-growth-progress) * 0.12)) 0 1px,
+      transparent 1px 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(196, 166, 220, calc(var(--board-growth-progress) * 0.12)) 0 1px,
+      transparent 1px 100%
+    ),
+    radial-gradient(
+      circle at 50% 18%,
+      rgba(224, 202, 238, calc(var(--board-growth-progress) * 0.16)),
+      transparent 34%
+    ),
+    linear-gradient(
+      160deg,
+      rgba(78, 60, 92, 0.98) 0%,
+      rgba(44, 32, 58, 0.98) 100%
+    );
+  background-size:
+    60px 60px,
+    60px 60px,
+    auto,
+    auto;
 }
 
 @keyframes board-idle-aura {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.12;
     filter: brightness(0.96);
   }
@@ -1923,7 +2345,8 @@ function stopDjinnTransitionFx() {
 }
 
 @keyframes board-idle-veil {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.46;
     transform: scale(1);
   }
@@ -1934,14 +2357,26 @@ function stopDjinnTransitionFx() {
 }
 
 .tileContainer::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 50%, var(--board-theme-hue) 0%, transparent 54%),
-    radial-gradient(circle at 50% 50%, rgba(198, 164, 102, 0.06) 0%, transparent 60%),
-    linear-gradient(180deg, rgba(255, 243, 216, 0.02) 0%, rgba(0, 0, 0, 0.08) 100%);
+    radial-gradient(
+      circle at 50% 50%,
+      var(--board-theme-hue) 0%,
+      transparent 54%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(198, 164, 102, 0.06) 0%,
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 243, 216, 0.02) 0%,
+      rgba(0, 0, 0, 0.08) 100%
+    );
   mix-blend-mode: screen;
 }
 
@@ -1969,14 +2404,22 @@ function stopDjinnTransitionFx() {
   opacity: calc(var(--board-growth-progress) * 0.78);
   background:
     radial-gradient(circle at 16% 88%, var(--board-theme-hue), transparent 26%),
-    radial-gradient(circle at 84% 16%, rgba(255, 236, 184, 0.12), transparent 22%),
+    radial-gradient(
+      circle at 84% 16%,
+      rgba(255, 236, 184, 0.12),
+      transparent 22%
+    ),
     linear-gradient(180deg, rgba(96, 142, 72, 0.04), rgba(76, 132, 54, 0.18));
   transition: opacity 420ms ease;
 }
 
 .growth-vine {
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(88, 130, 64, 0.18), rgba(56, 96, 36, 0.42));
+  background: linear-gradient(
+    180deg,
+    rgba(88, 130, 64, 0.18),
+    rgba(56, 96, 36, 0.42)
+  );
   opacity: max(0, calc((var(--board-growth-progress) - 0.08) * 1.1));
   transform-origin: left center;
 }
@@ -1986,7 +2429,8 @@ function stopDjinnTransitionFx() {
   bottom: 34px;
   width: 176px;
   height: 12px;
-  transform: rotate(-8deg) scaleX(calc(0.34 + var(--board-growth-progress) * 0.66));
+  transform: rotate(-8deg)
+    scaleX(calc(0.34 + var(--board-growth-progress) * 0.66));
 }
 
 .vine-b {
@@ -1994,7 +2438,8 @@ function stopDjinnTransitionFx() {
   top: 46px;
   width: 188px;
   height: 10px;
-  transform: rotate(12deg) scaleX(calc(0.18 + var(--board-growth-progress) * 0.82));
+  transform: rotate(12deg)
+    scaleX(calc(0.18 + var(--board-growth-progress) * 0.82));
   transform-origin: right center;
 }
 
@@ -2003,13 +2448,16 @@ function stopDjinnTransitionFx() {
   bottom: -6px;
   width: 130px;
   height: 8px;
-  transform: rotate(-62deg) scaleX(max(0, calc((var(--board-growth-progress) - 0.44) * 1.75)));
+  transform: rotate(-62deg)
+    scaleX(max(0, calc((var(--board-growth-progress) - 0.44) * 1.75)));
 }
 
 .growth-leaf,
 .growth-grape {
   z-index: 0;
-  transition: opacity 360ms ease, transform 520ms ease;
+  transition:
+    opacity 360ms ease,
+    transform 520ms ease;
 }
 
 .growth-leaf {
@@ -2021,21 +2469,24 @@ function stopDjinnTransitionFx() {
   left: 28px;
   bottom: 38px;
   opacity: max(0, calc((var(--board-growth-progress) - 0.14) * 1.6));
-  transform: scale(calc(0.58 + var(--board-growth-progress) * 0.54)) rotate(-12deg);
+  transform: scale(calc(0.58 + var(--board-growth-progress) * 0.54))
+    rotate(-12deg);
 }
 
 .leaf-b {
   right: 52px;
   top: 44px;
   opacity: max(0, calc((var(--board-growth-progress) - 0.3) * 1.55));
-  transform: scale(calc(0.54 + var(--board-growth-progress) * 0.58)) rotate(10deg);
+  transform: scale(calc(0.54 + var(--board-growth-progress) * 0.58))
+    rotate(10deg);
 }
 
 .leaf-c {
   left: 208px;
   bottom: 84px;
   opacity: max(0, calc((var(--board-growth-progress) - 0.54) * 1.95));
-  transform: scale(calc(0.5 + var(--board-growth-progress) * 0.64)) rotate(16deg);
+  transform: scale(calc(0.5 + var(--board-growth-progress) * 0.64))
+    rotate(16deg);
 }
 
 .growth-grape {
@@ -2046,7 +2497,9 @@ function stopDjinnTransitionFx() {
 .growth-mote,
 .growth-bloom {
   z-index: 0;
-  transition: opacity 360ms ease, transform 520ms ease;
+  transition:
+    opacity 360ms ease,
+    transform 520ms ease;
 }
 
 .growth-mote {
@@ -2056,9 +2509,18 @@ function stopDjinnTransitionFx() {
   animation: board-mote-drift 5.8s ease-in-out infinite;
 }
 
-.mote-a { left: 24px; top: 30px; }
-.mote-b { right: 34px; top: 58px; }
-.mote-c { left: 208px; bottom: 28px; }
+.mote-a {
+  left: 24px;
+  top: 30px;
+}
+.mote-b {
+  right: 34px;
+  top: 58px;
+}
+.mote-c {
+  left: 208px;
+  bottom: 28px;
+}
 
 .growth-bloom {
   font-size: 22px;
@@ -2073,22 +2535,41 @@ function stopDjinnTransitionFx() {
 }
 
 .mote-a,
-.bloom-a { animation-delay: 0s; }
+.bloom-a {
+  animation-delay: 0s;
+}
 .mote-b,
-.bloom-b { animation-delay: 0.9s; }
+.bloom-b {
+  animation-delay: 0.9s;
+}
 .mote-c,
-.bloom-c { animation-delay: 1.6s; }
+.bloom-c {
+  animation-delay: 1.6s;
+}
 
-.bloom-a { left: 22px; bottom: 30px; }
-.bloom-b { right: 42px; top: 38px; }
-.bloom-c { left: 216px; bottom: 84px; }
+.bloom-a {
+  left: 22px;
+  bottom: 30px;
+}
+.bloom-b {
+  right: 42px;
+  top: 38px;
+}
+.bloom-c {
+  left: 216px;
+  bottom: 84px;
+}
 
 .growth-ray {
   z-index: 0;
   width: 180px;
   height: 52px;
   opacity: max(0, calc((var(--board-growth-progress) - 0.2) * 1.5));
-  background: linear-gradient(135deg, rgba(255, 212, 128, 0.18), transparent 68%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 212, 128, 0.18),
+    transparent 68%
+  );
   filter: blur(1px);
 }
 
@@ -2108,7 +2589,11 @@ function stopDjinnTransitionFx() {
   z-index: 0;
   border-radius: 999px;
   opacity: max(0, calc((var(--board-growth-progress) - 0.22) * 1.7));
-  background: radial-gradient(circle, rgba(255, 166, 82, 0.24), transparent 68%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 166, 82, 0.24),
+    transparent 68%
+  );
 }
 
 .ember-a {
@@ -2156,12 +2641,18 @@ function stopDjinnTransitionFx() {
 }
 
 @keyframes board-growth-breathe {
-  0%, 100% { filter: saturate(1) brightness(1); }
-  50% { filter: saturate(1.14) brightness(1.08); }
+  0%,
+  100% {
+    filter: saturate(1) brightness(1);
+  }
+  50% {
+    filter: saturate(1.14) brightness(1.08);
+  }
 }
 
 @keyframes board-mote-drift {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate3d(0, 0, 0) scale(0.98);
   }
   50% {
@@ -2174,7 +2665,11 @@ function stopDjinnTransitionFx() {
   z-index: 1;
   border-radius: 14px;
   background:
-    radial-gradient(circle at 50% 36%, rgba(255, 223, 166, 0.06), transparent 44%),
+    radial-gradient(
+      circle at 50% 36%,
+      rgba(255, 223, 166, 0.06),
+      transparent 44%
+    ),
     radial-gradient(circle at 50% 40%, rgba(18, 12, 10, 0.28), transparent 54%),
     linear-gradient(160deg, rgba(24, 16, 12, 0.3) 0%, rgba(12, 8, 6, 0.58) 100%);
   box-shadow:
@@ -2196,7 +2691,11 @@ function stopDjinnTransitionFx() {
   border-radius: 12px;
   background:
     radial-gradient(circle at 50% 60%, rgba(92, 68, 42, 0.48), transparent 52%),
-    repeating-linear-gradient(135deg, rgba(74, 52, 32, 0.36) 0 6px, rgba(38, 28, 18, 0.28) 6px 12px);
+    repeating-linear-gradient(
+      135deg,
+      rgba(74, 52, 32, 0.36) 0 6px,
+      rgba(38, 28, 18, 0.28) 6px 12px
+    );
   box-shadow: inset 0 0 0 1px rgba(106, 82, 52, 0.32);
 }
 
@@ -2222,9 +2721,15 @@ function stopDjinnTransitionFx() {
 
 .seal-cell.spark-cell {
   border-radius: 18px;
-  box-shadow: inset 0 0 0 2px rgba(255, 230, 148, 0.76), 0 0 16px rgba(255, 201, 84, 0.42);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 230, 148, 0.76),
+    0 0 16px rgba(255, 201, 84, 0.42);
   background:
-    radial-gradient(circle at 50% 58%, rgba(255, 246, 214, 0.38), transparent 32%),
+    radial-gradient(
+      circle at 50% 58%,
+      rgba(255, 246, 214, 0.38),
+      transparent 32%
+    ),
     linear-gradient(180deg, rgba(255, 230, 156, 0.2), rgba(255, 190, 96, 0.06));
 }
 
@@ -2245,8 +2750,11 @@ function stopDjinnTransitionFx() {
   text-align: center;
   pointer-events: none;
   transform: translateX(-50%);
-  background:
-    linear-gradient(180deg, rgba(44, 28, 18, 0.88), rgba(20, 12, 8, 0.84));
+  background: linear-gradient(
+    180deg,
+    rgba(44, 28, 18, 0.88),
+    rgba(20, 12, 8, 0.84)
+  );
   box-shadow:
     0 14px 24px rgba(18, 10, 8, 0.28),
     inset 0 1px 0 rgba(255, 244, 220, 0.14);
@@ -2254,38 +2762,59 @@ function stopDjinnTransitionFx() {
 }
 
 .combo-praise.theme-gold {
-  background:
-    linear-gradient(180deg, rgba(70, 48, 24, 0.92), rgba(28, 18, 10, 0.86));
+  background: linear-gradient(
+    180deg,
+    rgba(70, 48, 24, 0.92),
+    rgba(28, 18, 10, 0.86)
+  );
 }
 
 .combo-praise.theme-grape {
-  background:
-    linear-gradient(180deg, rgba(88, 48, 94, 0.92), rgba(34, 18, 40, 0.88));
+  background: linear-gradient(
+    180deg,
+    rgba(88, 48, 94, 0.92),
+    rgba(34, 18, 40, 0.88)
+  );
 }
 
 .combo-praise.theme-wood {
-  background:
-    linear-gradient(180deg, rgba(102, 64, 36, 0.92), rgba(40, 24, 14, 0.88));
+  background: linear-gradient(
+    180deg,
+    rgba(102, 64, 36, 0.92),
+    rgba(40, 24, 14, 0.88)
+  );
 }
 
 .combo-praise.theme-stone {
-  background:
-    linear-gradient(180deg, rgba(92, 92, 94, 0.92), rgba(34, 34, 38, 0.88));
+  background: linear-gradient(
+    180deg,
+    rgba(92, 92, 94, 0.92),
+    rgba(34, 34, 38, 0.88)
+  );
 }
 
 .combo-praise.theme-clay {
-  background:
-    linear-gradient(180deg, rgba(118, 62, 48, 0.92), rgba(46, 20, 16, 0.88));
+  background: linear-gradient(
+    180deg,
+    rgba(118, 62, 48, 0.92),
+    rgba(46, 20, 16, 0.88)
+  );
 }
 
 .combo-praise.theme-herb {
-  background:
-    linear-gradient(180deg, rgba(62, 94, 58, 0.92), rgba(24, 40, 22, 0.88));
+  background: linear-gradient(
+    180deg,
+    rgba(62, 94, 58, 0.92),
+    rgba(24, 40, 22, 0.88)
+  );
 }
 
 .combo-praise.theme-magic {
-  background:
-    linear-gradient(180deg, rgba(96, 72, 32, 0.94), rgba(42, 26, 12, 0.9));
+  background: linear-gradient(
+    180deg,
+    rgba(96, 72, 32, 0.94),
+    rgba(42, 26, 12, 0.9)
+  );
 }
 
 .combo-praise.warm {
@@ -2444,14 +2973,23 @@ function stopDjinnTransitionFx() {
   bottom: -8px;
   height: 10px;
   border-radius: 999px;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 196, 112, 0.18) 26%, rgba(255, 108, 88, 0.34) 50%, rgba(255, 196, 112, 0.18) 74%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 196, 112, 0.18) 26%,
+    rgba(255, 108, 88, 0.34) 50%,
+    rgba(255, 196, 112, 0.18) 74%,
+    transparent 100%
+  );
   filter: blur(4px);
   animation: combo-tail 1.1s ease-out infinite;
 }
 
 .combo-praise-enter-active,
 .combo-praise-leave-active {
-  transition: opacity 220ms ease, transform 300ms var(--ease-out-back);
+  transition:
+    opacity 220ms ease,
+    transform 300ms var(--ease-out-back);
 }
 
 .combo-praise-enter-from,
@@ -2480,8 +3018,16 @@ function stopDjinnTransitionFx() {
   z-index: 11;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 42%, rgba(255, 240, 194, 0.22), transparent 22%),
-    radial-gradient(circle at 50% 48%, rgba(240, 213, 107, 0.18), transparent 52%);
+    radial-gradient(
+      circle at 50% 42%,
+      rgba(255, 240, 194, 0.22),
+      transparent 22%
+    ),
+    radial-gradient(
+      circle at 50% 48%,
+      rgba(240, 213, 107, 0.18),
+      transparent 52%
+    );
   mix-blend-mode: screen;
 }
 
@@ -2507,8 +3053,16 @@ function stopDjinnTransitionFx() {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 50% 50%, rgba(255, 238, 196, 0.18), transparent 24%),
-    radial-gradient(circle at 50% 50%, rgba(186, 132, 255, 0.16), transparent 54%),
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 238, 196, 0.18),
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(186, 132, 255, 0.16),
+      transparent 54%
+    ),
     linear-gradient(180deg, rgba(255, 246, 214, 0.08), rgba(91, 54, 124, 0.16));
   animation: awakening-flash 1.65s ease-out forwards;
 }
@@ -2518,8 +3072,16 @@ function stopDjinnTransitionFx() {
   transform: translate(-50%, -50%);
   border-radius: 24px;
   background:
-    radial-gradient(circle at 50% 50%, rgba(255, 244, 214, 0.16), transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(190, 154, 232, 0.22), transparent 72%);
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 244, 214, 0.16),
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(190, 154, 232, 0.22),
+      transparent 72%
+    );
   box-shadow:
     0 0 42px rgba(240, 213, 107, 0.28),
     0 0 88px rgba(190, 154, 232, 0.2);
@@ -2537,8 +3099,7 @@ function stopDjinnTransitionFx() {
 .awakening-bolt {
   font-size: 26px;
   line-height: 1;
-  filter:
-    drop-shadow(0 0 8px rgba(255, 220, 126, 0.42))
+  filter: drop-shadow(0 0 8px rgba(255, 220, 126, 0.42))
     drop-shadow(0 0 18px rgba(190, 154, 232, 0.32));
   animation: awakening-bolt var(--dur) ease-out var(--delay) forwards;
 }
@@ -2565,7 +3126,11 @@ function stopDjinnTransitionFx() {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 50% 50%, rgba(255, 248, 230, 0.06), transparent 32%),
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 248, 230, 0.06),
+      transparent 32%
+    ),
     linear-gradient(180deg, rgba(24, 14, 22, 0.08), rgba(24, 14, 22, 0.26));
   animation: djinn-transition-dim 2s ease-out forwards;
 }
@@ -2575,8 +3140,16 @@ function stopDjinnTransitionFx() {
   transform: translate(-50%, -50%);
   border-radius: 24px;
   background:
-    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--transition-glow) 22%, transparent), transparent 58%),
-    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--transition-secondary) 26%, transparent), transparent 74%);
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--transition-glow) 22%, transparent),
+      transparent 58%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--transition-secondary) 26%, transparent),
+      transparent 74%
+    );
   box-shadow:
     0 0 28px color-mix(in srgb, var(--transition-glow) 34%, transparent),
     0 0 72px color-mix(in srgb, var(--transition-secondary) 22%, transparent);
@@ -2594,7 +3167,13 @@ function stopDjinnTransitionFx() {
   height: 2px;
   transform-origin: left center;
   transform: translateY(-50%) rotate(var(--angle));
-  background: linear-gradient(90deg, transparent 0%, var(--transition-secondary) 24%, var(--transition-glow) 68%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--transition-secondary) 24%,
+    var(--transition-glow) 68%,
+    transparent 100%
+  );
   box-shadow:
     0 0 10px color-mix(in srgb, var(--transition-secondary) 30%, transparent),
     0 0 18px color-mix(in srgb, var(--transition-glow) 22%, transparent);
@@ -2632,22 +3211,40 @@ function stopDjinnTransitionFx() {
   border: 1px solid color-mix(in srgb, var(--transition-glow) 48%, transparent);
   box-shadow:
     0 0 18px color-mix(in srgb, var(--transition-glow) 22%, transparent),
-    inset 0 0 18px color-mix(in srgb, var(--transition-secondary) 12%, transparent);
+    inset 0 0 18px
+      color-mix(in srgb, var(--transition-secondary) 12%, transparent);
   opacity: 0;
   animation: djinn-transition-ring 0.9s ease-out var(--delay) forwards;
 }
 
 @keyframes awakening-flash {
-  0% { opacity: 0; }
-  18% { opacity: 1; }
-  72% { opacity: 0.9; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  72% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 @keyframes awakening-core {
-  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.44); }
-  28% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
-  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.28); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.44);
+  }
+  28% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.28);
+  }
 }
 
 @keyframes awakening-bolt {
@@ -2660,7 +3257,8 @@ function stopDjinnTransitionFx() {
   }
   100% {
     opacity: 0;
-    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(calc(var(--rot) * 0.4)) scale(1.22);
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy)))
+      rotate(calc(var(--rot) * 0.4)) scale(1.22);
   }
 }
 
@@ -2674,27 +3272,56 @@ function stopDjinnTransitionFx() {
   }
   100% {
     opacity: 0;
-    transform: translate(calc(-50% + var(--drift-x)), calc(-50% + var(--drift-y))) scale(1.2);
+    transform: translate(
+        calc(-50% + var(--drift-x)),
+        calc(-50% + var(--drift-y))
+      )
+      scale(1.2);
   }
 }
 
 @keyframes djinn-transition-dim {
-  0% { opacity: 0; }
-  10% { opacity: 1; }
-  72% { opacity: 0.92; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  72% {
+    opacity: 0.92;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 @keyframes djinn-transition-core {
-  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.88); }
-  24% { opacity: 1; transform: translate(-50%, -50%) scale(1.02); }
-  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.16); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.88);
+  }
+  24% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.02);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.16);
+  }
 }
 
 @keyframes djinn-transition-trace {
-  0% { opacity: 0; transform: translateY(-50%) rotate(var(--angle)) scaleX(0.12); }
-  25% { opacity: 0.9; }
-  100% { opacity: 0; transform: translateY(-50%) rotate(var(--angle)) scaleX(1); }
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) rotate(var(--angle)) scaleX(0.12);
+  }
+  25% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50%) rotate(var(--angle)) scaleX(1);
+  }
 }
 
 @keyframes djinn-transition-shard {
@@ -2707,25 +3334,51 @@ function stopDjinnTransitionFx() {
   }
   100% {
     opacity: 0;
-    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) + var(--curve))) scale(1.18);
+    transform: translate(
+        calc(-50% + var(--dx)),
+        calc(-50% + var(--dy) + var(--curve))
+      )
+      scale(1.18);
   }
 }
 
 @keyframes djinn-transition-flare {
-  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.72); }
-  45% { opacity: 1; transform: translate(-50%, -50%) scale(1.16); }
-  100% { opacity: 0.18; transform: translate(-50%, -50%) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.72);
+  }
+  45% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.16);
+  }
+  100% {
+    opacity: 0.18;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
 @keyframes djinn-transition-ring {
-  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.74); }
-  30% { opacity: 0.82; }
-  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.06); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.74);
+  }
+  30% {
+    opacity: 0.82;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.06);
+  }
 }
 
 @keyframes seal-pulse {
-  0%, 100% { opacity: 0.46; }
-  50% { opacity: 0.82; }
+  0%,
+  100% {
+    opacity: 0.46;
+  }
+  50% {
+    opacity: 0.82;
+  }
 }
 
 .milk-tea-layer {
@@ -2756,8 +3409,12 @@ function stopDjinnTransitionFx() {
   width: 260px;
   height: 260px;
   border-radius: 50%;
-  background:
-    radial-gradient(circle, rgba(255, 240, 190, 0.4), rgba(255, 214, 138, 0.12) 52%, transparent 74%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 240, 190, 0.4),
+    rgba(255, 214, 138, 0.12) 52%,
+    transparent 74%
+  );
   animation: milk-tea-burst-aura 520ms var(--ease-out-expo) forwards;
 }
 
@@ -2785,10 +3442,10 @@ function stopDjinnTransitionFx() {
 .milk-tea-burst-core {
   font-size: 58px;
   line-height: 1;
-  filter:
-    drop-shadow(0 0 18px rgba(255, 226, 150, 0.42))
+  filter: drop-shadow(0 0 18px rgba(255, 226, 150, 0.42))
     drop-shadow(0 10px 16px rgba(58, 34, 18, 0.14));
-  animation: milk-tea-burst-core 560ms cubic-bezier(0.18, 0.9, 0.34, 1.3) forwards;
+  animation: milk-tea-burst-core 560ms cubic-bezier(0.18, 0.9, 0.34, 1.3)
+    forwards;
 }
 
 .milk-tea-burst-label {
@@ -2799,7 +3456,11 @@ function stopDjinnTransitionFx() {
   font-weight: 700;
   letter-spacing: 0.12em;
   color: #fff6e8;
-  background: linear-gradient(180deg, rgba(228, 118, 92, 0.94), rgba(176, 76, 72, 0.92));
+  background: linear-gradient(
+    180deg,
+    rgba(228, 118, 92, 0.94),
+    rgba(176, 76, 72, 0.92)
+  );
   box-shadow:
     0 10px 18px rgba(78, 30, 22, 0.16),
     inset 0 1px 0 rgba(255, 220, 214, 0.26);
@@ -2813,8 +3474,17 @@ function stopDjinnTransitionFx() {
   z-index: 4;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 50%, rgba(255, 239, 178, 0.3), transparent 56%),
-    linear-gradient(135deg, rgba(255, 216, 142, 0.08), rgba(255, 244, 220, 0.22), rgba(255, 216, 142, 0.08));
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 239, 178, 0.3),
+      transparent 56%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 216, 142, 0.08),
+      rgba(255, 244, 220, 0.22),
+      rgba(255, 216, 142, 0.08)
+    );
   animation: milk-tea-pulse 980ms var(--ease-out-expo) forwards;
 }
 
@@ -2822,8 +3492,7 @@ function stopDjinnTransitionFx() {
   position: absolute;
   font-size: 26px;
   opacity: 0;
-  filter:
-    drop-shadow(0 0 12px rgba(255, 220, 136, 0.46))
+  filter: drop-shadow(0 0 12px rgba(255, 220, 136, 0.46))
     drop-shadow(0 0 24px rgba(255, 245, 208, 0.28));
   animation: milk-tea-flare 980ms var(--ease-out-expo) forwards;
   animation-delay: var(--delay);
@@ -2834,15 +3503,14 @@ function stopDjinnTransitionFx() {
   inset: 0;
   z-index: 5;
   pointer-events: none;
-  background:
-    linear-gradient(
-      110deg,
-      transparent 10%,
-      rgba(255, 214, 154, 0.24) 30%,
-      rgba(255, 246, 214, 0.52) 44%,
-      rgba(255, 214, 154, 0.24) 58%,
-      transparent 82%
-    );
+  background: linear-gradient(
+    110deg,
+    transparent 10%,
+    rgba(255, 214, 154, 0.24) 30%,
+    rgba(255, 246, 214, 0.52) 44%,
+    rgba(255, 214, 154, 0.24) 58%,
+    transparent 82%
+  );
   box-shadow:
     inset 0 0 28px rgba(255, 244, 212, 0.12),
     0 0 34px rgba(255, 220, 144, 0.18);
@@ -2967,7 +3635,11 @@ function stopDjinnTransitionFx() {
   width: 240px;
   height: 180px;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(255, 225, 158, 0.18), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 225, 158, 0.18),
+    transparent 70%
+  );
 }
 
 .cake-plate {
@@ -2997,8 +3669,11 @@ function stopDjinnTransitionFx() {
 
 .line-btn {
   position: absolute;
-  background:
-    linear-gradient(180deg, rgba(240, 216, 164, 0.96) 0%, rgba(185, 137, 72, 0.96) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(240, 216, 164, 0.96) 0%,
+    rgba(185, 137, 72, 0.96) 100%
+  );
   color: #2a1a10;
   border-radius: var(--radius-pill);
   padding: 4px 10px;
@@ -3011,7 +3686,10 @@ function stopDjinnTransitionFx() {
   box-shadow:
     0 8px 18px rgba(18, 10, 8, 0.3),
     inset 0 1px 0 rgba(255, 247, 224, 0.55);
-  transition: transform 160ms var(--ease-out-expo), filter 160ms var(--ease-out-expo), box-shadow 160ms var(--ease-out-expo);
+  transition:
+    transform 160ms var(--ease-out-expo),
+    filter 160ms var(--ease-out-expo),
+    box-shadow 160ms var(--ease-out-expo);
 }
 .line-btn:hover {
   filter: brightness(1.08);
@@ -3044,24 +3722,43 @@ function stopDjinnTransitionFx() {
   right: -272px;
   width: 232px;
   padding: 14px 14px 12px;
-  border-radius: var(--radius-md);
+  border-radius: 16px;
   text-align: center;
   z-index: 9;
-  animation: fade-in 300ms var(--ease-out-expo);
+  background: rgb(247, 243, 223);
+  border: 2px solid #19c8b9;
+  box-shadow: 0 4px 0 0 #11a89b;
+  color: #725d42;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+  animation: fade-in 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.targeting-hint p { margin: 0 0 10px; font-size: 14px; }
+.targeting-hint p {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: #794f27;
+  font-weight: 700;
+}
 .cancel-btn {
-  background: linear-gradient(180deg, #5a4434 0%, #3a2818 100%);
-  color: #f3e6c8;
-  border-radius: var(--radius-pill);
-  padding: 6px 14px;
+  background: #f8f8f0;
+  color: #9f927d;
+  border-radius: 50px;
+  padding: 8px 18px;
   font-size: 12px;
-  font-weight: 600;
-  border: 1px solid rgba(255, 244, 222, 0.16);
-  transition: transform 160ms var(--ease-out-expo), filter 160ms var(--ease-out-expo);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border: 2px solid #d4c9b4;
+  box-shadow: 0 3px 0 0 #d4c9b4;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
 }
 .cancel-btn:hover {
-  filter: brightness(1.1);
   transform: translateY(-1px);
+  box-shadow: 0 4px 0 0 #d4c9b4;
+  color: #725d42;
+  border-color: #a89878;
+}
+.cancel-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #d4c9b4;
 }
 </style>

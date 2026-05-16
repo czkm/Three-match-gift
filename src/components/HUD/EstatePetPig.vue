@@ -31,7 +31,9 @@
         :aria-label="trinket.label"
         type="button"
         @click.stop="handleTrinketInspect(trinket.id)"
-      >{{ trinket.emoji }}</button>
+      >
+        <span class="pig-trinket-emoji">{{ trinket.emoji }}</span>
+      </button>
       <span v-if="moodGlyph" class="pig-mood">{{ moodGlyph }}</span>
     </div>
   </div>
@@ -385,6 +387,14 @@ onBeforeUnmount(() => {
   filter:
     drop-shadow(0 1px 2px rgba(30, 18, 12, 0.32))
     drop-shadow(0 0 8px rgba(255, 224, 160, 0.36));
+}
+
+.pig-trinket-emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
 }
 
 .pig-trinket:focus-visible {

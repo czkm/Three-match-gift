@@ -54,7 +54,11 @@
           @click="pickItem(item)"
         >
           <span class="quality-badge">Q{{ item.quality }}</span>
-          <span class="emoji">{{ item.emoji }}</span>
+          <IsaacCollectibleIcon
+            :reward-item-id="item.id"
+            :size="48"
+            :fallback-emoji="item.emoji"
+          />
           <span class="cn-name">{{ item.titleText || item.name }}</span>
           <span class="original-desc">{{ item.flavorText || `“${item.enName}”` }}</span>
           <div class="divider" aria-hidden="true" />
@@ -72,7 +76,13 @@
     </div>
 
     <div v-else-if="phase === 'acquired' && acquiredItem" class="acquire-animation">
-      <div class="acquire-glyph" :class="{ launching: launchStarted }">{{ acquiredItem.emoji }}</div>
+      <div class="acquire-glyph" :class="{ launching: launchStarted }">
+        <IsaacCollectibleIcon
+          :reward-item-id="acquiredItem.id"
+          :size="52"
+          :fallback-emoji="acquiredItem.emoji"
+        />
+      </div>
       <div
         v-if="flightFx"
         class="reward-flight-layer"
@@ -80,7 +90,13 @@
         <span class="reward-flight-burst" />
         <span class="reward-flight-trail" :style="flightFx.style" />
         <span class="reward-flight-glow" :style="flightFx.style" />
-        <span class="reward-flight-token" :style="flightFx.style">{{ acquiredItem.emoji }}</span>
+        <span class="reward-flight-token" :style="flightFx.style">
+          <IsaacCollectibleIcon
+            :reward-item-id="acquiredItem.id"
+            :size="30"
+            :fallback-emoji="acquiredItem.emoji"
+          />
+        </span>
       </div>
       <p class="acquire-text">{{ REWARD_ROOM_COPY.formatAcquiredText(acquiredItem.name) }}</p>
       <p v-if="geraltQuote" class="geralt-quote">“{{ geraltQuote }}”</p>
@@ -93,6 +109,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import { audioManager } from '@/audio/AudioManager';
 import { REWARD_ROOM_COPY } from '@/data/copy';
 import { useGameStore } from '@/stores/gameStore';
+import IsaacCollectibleIcon from '@/components/common/IsaacCollectibleIcon.vue';
 
 const emit = defineEmits(['choose']);
 const game = useGameStore();
@@ -258,8 +275,9 @@ onBeforeUnmount(() => {
   margin: 18px 0 0;
   font-size: 24px;
   font-weight: 700;
-  color: #fff0cf;
-  letter-spacing: 0.08em;
+  color: #f8f8f0;
+  letter-spacing: 0.06em;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
 }
 
 .geralt-quote {
@@ -268,75 +286,38 @@ onBeforeUnmount(() => {
   text-align: center;
   font-size: 15px;
   line-height: 1.7;
-  color: rgba(255, 240, 220, 0.84);
+  color: rgba(248, 248, 240, 0.8);
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+  font-weight: 500;
 }
 
 @keyframes reward-flight-burst {
-  0% {
-    opacity: 0;
-    transform: scale(0.4);
-  }
-  40% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.28);
-  }
+  0% { opacity: 0; transform: scale(0.4); }
+  40% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.28); }
 }
 
 @keyframes reward-flight-token {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.46);
-  }
-  14% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.18);
-  }
-  46% {
-    opacity: 1;
-    transform: translate(calc(-50% + var(--dx) * 0.42), calc(-50% + var(--arc))) scale(0.98);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.54);
-  }
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.46); }
+  14% { opacity: 1; transform: translate(-50%, -50%) scale(1.18); }
+  46% { opacity: 1; transform: translate(calc(-50% + var(--dx) * 0.42), calc(-50% + var(--arc))) scale(0.98); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.54); }
 }
 
 @keyframes reward-flight-trail {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scaleX(0.34);
-  }
-  18% {
-    opacity: 0.92;
-  }
-  100% {
-    opacity: 0;
-    transform: translate(calc(-50% + var(--dx) * 0.76), calc(-50% + (var(--dy) + var(--arc)) * 0.32)) scaleX(1.86);
-  }
+  0% { opacity: 0; transform: translate(-50%, -50%) scaleX(0.34); }
+  18% { opacity: 0.92; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx) * 0.76), calc(-50% + (var(--dy) + var(--arc)) * 0.32)) scaleX(1.86); }
 }
 
 @keyframes acquire-glyph-launch {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0.18;
-    transform: scale(0.82);
-  }
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0.18; transform: scale(0.82); }
 }
 
 @keyframes reward-legendary-pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.06);
-  }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
 }
 
 .reward-flight-token,
@@ -352,9 +333,11 @@ onBeforeUnmount(() => {
 
 .intro-text {
   margin: 0;
-  font-size: 38px;
-  letter-spacing: 0.18em;
-  color: #efe4d2;
+  font-size: 36px;
+  letter-spacing: 0.12em;
+  color: #f8f8f0;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+  font-weight: 800;
   text-shadow: 0 8px 18px rgba(0, 0, 0, 0.38);
 }
 
@@ -433,12 +416,12 @@ onBeforeUnmount(() => {
   border-radius: 80px 80px 4px 4px;
   position: relative;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .door:hover,
 .door-wrapper:focus-visible .door {
-  transform: scale(1.04);
+  transform: scale(1.04) translateY(-2px);
 }
 
 .door-wrapper:focus-visible {
@@ -449,8 +432,8 @@ onBeforeUnmount(() => {
   background: linear-gradient(180deg, #c9a84c 0%, #a08030 30%, #7a6020 60%, #5a4010 100%);
   border: 3px solid #d4af37;
   box-shadow:
-    0 0 40px rgba(212, 175, 55, 0.3),
-    inset 0 0 20px rgba(255, 215, 0, 0.1);
+    0 6px 0 0 rgba(160, 128, 48, 0.6),
+    0 0 40px rgba(212, 175, 55, 0.3);
 }
 
 .treasure-door::before {
@@ -463,16 +446,16 @@ onBeforeUnmount(() => {
 
 .treasure-door:hover {
   box-shadow:
-    0 0 60px rgba(212, 175, 55, 0.5),
-    inset 0 0 30px rgba(255, 215, 0, 0.15);
+    0 8px 0 0 rgba(160, 128, 48, 0.6),
+    0 0 60px rgba(212, 175, 55, 0.5);
 }
 
 .devil-door {
   background: linear-gradient(180deg, #2a1018 0%, #1a0a10 40%, #0d0508 100%);
   border: 3px solid #5a1a1a;
   box-shadow:
-    0 0 40px rgba(180, 30, 30, 0.2),
-    inset 0 0 20px rgba(255, 0, 0, 0.05);
+    0 6px 0 0 rgba(60, 16, 16, 0.6),
+    0 0 40px rgba(180, 30, 30, 0.2);
 }
 
 .devil-door::before {
@@ -497,8 +480,8 @@ onBeforeUnmount(() => {
 
 .devil-door:hover {
   box-shadow:
-    0 0 60px rgba(220, 50, 50, 0.4),
-    inset 0 0 30px rgba(255, 0, 0, 0.1);
+    0 8px 0 0 rgba(60, 16, 16, 0.6),
+    0 0 60px rgba(220, 50, 50, 0.4);
   border-color: #7a2222;
 }
 
@@ -507,8 +490,9 @@ onBeforeUnmount(() => {
   top: 30px;
   left: 50%;
   transform: translateX(-50%);
-  font-family: "Cinzel", "Times New Roman", serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 14px;
+  font-weight: 700;
   letter-spacing: 2px;
   z-index: 2;
 }
@@ -597,7 +581,9 @@ onBeforeUnmount(() => {
   margin: 0;
   font-size: 15px;
   letter-spacing: 0.12em;
-  color: #d7c8b6;
+  color: #e8dfc8;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+  font-weight: 600;
 }
 
 .timer {
@@ -714,7 +700,9 @@ onBeforeUnmount(() => {
   margin: 0;
   font-size: 15px;
   letter-spacing: 0.08em;
-  color: rgba(232, 221, 208, 0.84);
+  color: rgba(248, 248, 240, 0.84);
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+  font-weight: 600;
 }
 
 .item-cards {
@@ -732,12 +720,13 @@ onBeforeUnmount(() => {
   width: 180px;
   min-height: 280px;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   text-align: center;
   position: relative;
-  transition: all 0.25s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   overflow: hidden;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
 }
 
 .item-card::before {
@@ -752,22 +741,28 @@ onBeforeUnmount(() => {
 .treasure-item-card {
   background: linear-gradient(180deg, #2a2018, #1a1410);
   border: 2px solid #c9a84c;
+  box-shadow: 0 5px 0 0 rgba(160, 128, 48, 0.5);
 }
 
 .treasure-item-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 8px 30px rgba(201, 168, 76, 0.3);
+  transform: translateY(-4px);
+  box-shadow:
+    0 8px 0 0 rgba(160, 128, 48, 0.5),
+    0 8px 30px rgba(201, 168, 76, 0.3);
   border-color: #d4af37;
 }
 
 .devil-item-card {
   background: linear-gradient(180deg, #1a0808, #0d0404);
   border: 2px solid #5a1a1a;
+  box-shadow: 0 5px 0 0 rgba(40, 10, 10, 0.5);
 }
 
 .devil-item-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 8px 30px rgba(180, 30, 30, 0.3);
+  transform: translateY(-4px);
+  box-shadow:
+    0 8px 0 0 rgba(40, 10, 10, 0.5),
+    0 8px 30px rgba(180, 30, 30, 0.3);
   border-color: #7a2222;
 }
 
@@ -783,14 +778,14 @@ onBeforeUnmount(() => {
   top: 10px;
   right: 10px;
   z-index: 2;
-  padding: 3px 7px;
-  border-radius: 999px;
+  padding: 3px 8px;
+  border-radius: 50px;
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.12em;
   color: rgba(255, 248, 236, 0.92);
   background: rgba(255, 255, 255, 0.12);
-  box-shadow: inset 0 0 0 1px rgba(255, 244, 222, 0.14);
+  border: 1.5px solid rgba(255, 244, 222, 0.14);
 }
 
 .item-card.quality-1 .quality-badge {
@@ -803,12 +798,14 @@ onBeforeUnmount(() => {
 
 .item-card.exalted .quality-badge {
   color: #d2b2ff;
-  background: rgba(170, 120, 255, 0.14);
+  background: rgba(170, 120, 255, 0.18);
+  border-color: rgba(170, 120, 255, 0.24);
 }
 
 .item-card.legendary .quality-badge {
   color: #ffd7a2;
   background: rgba(255, 118, 72, 0.18);
+  border-color: rgba(255, 118, 72, 0.24);
 }
 
 .item-card.exalted::before {
@@ -844,33 +841,34 @@ onBeforeUnmount(() => {
 
 .treasure-item-card.exalted {
   border-color: #c49de8;
-  box-shadow: 0 10px 26px rgba(182, 122, 255, 0.14);
+  box-shadow: 0 5px 0 0 rgba(140, 80, 200, 0.4), 0 10px 26px rgba(182, 122, 255, 0.14);
 }
 
 .treasure-item-card.legendary {
   border-color: #f0a16c;
   box-shadow:
-    0 14px 34px rgba(255, 140, 88, 0.18),
-    0 0 28px rgba(255, 196, 118, 0.12);
+    0 5px 0 0 rgba(200, 100, 50, 0.4),
+    0 14px 34px rgba(255, 140, 88, 0.18);
 }
 
 .devil-item-card.exalted {
   border-color: #9b4eb6;
-  box-shadow: 0 10px 28px rgba(122, 64, 160, 0.18);
+  box-shadow: 0 5px 0 0 rgba(100, 40, 140, 0.4), 0 10px 28px rgba(122, 64, 160, 0.18);
 }
 
 .devil-item-card.legendary {
   border-color: #dd6548;
   box-shadow:
-    0 14px 34px rgba(204, 68, 68, 0.22),
-    0 0 30px rgba(255, 110, 82, 0.16);
+    0 5px 0 0 rgba(160, 40, 30, 0.4),
+    0 14px 34px rgba(204, 68, 68, 0.22);
 }
 
 .item-card .cn-name {
   display: block;
-  font-family: "Cinzel", "Times New Roman", serif;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
   font-size: 16px;
-  letter-spacing: 2px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
 .treasure-item-card .cn-name {
@@ -902,13 +900,14 @@ onBeforeUnmount(() => {
   margin: 16px 0 14px;
   background: currentColor;
   opacity: 0.22;
+  border-radius: 1px;
 }
 
 .actual-effect {
   display: block;
   font-size: 12px;
   line-height: 1.8;
-  color: #8a857d;
+  color: rgba(248, 248, 240, 0.6);
 }
 
 .stars {
@@ -919,7 +918,7 @@ onBeforeUnmount(() => {
 }
 
 .star {
-  color: #555;
+  color: rgba(255, 255, 255, 0.2);
   font-size: 14px;
 }
 

@@ -1,42 +1,45 @@
 /**
- * Color tokens — Corvo Bianco palette.
- * 9-day color progression follows the requirement doc §10.2:
- *   D1-2  morning   pale gold + low-saturation green
- *   D3-4  midday    warm yellow + wood/stone
- *   D5-6  afternoon garden green + lilac purple
- *   D7-8  evening   sunset orange + deep purple
- *   D9    sunset    sunset red + grape purple + warm interior
+ * Design tokens — Animal Island style for Corvo Bianco.
+ * Inspired by animal-island-ui (Animal Crossing aesthetic).
  *
- * v3.0 — modernized: lower saturation, glass HUD tokens,
- *        brighter ink-faint, cleaner board frame.
+ * Key changes from v3:
+ *   - Warm parchment → brighter warm white (#f8f8f0)
+ *   - Dark ink → friendly brown (#725d42)
+ *   - Gold accents → mint teal (#19c8b9) + focus yellow (#ffcc00)
+ *   - Glass blur → solid warm surfaces with 3D bottom shadows
+ *   - Serif font tokens → Nunito rounded sans-serif
+ *   - Sharp corners → pill-shaped (50px) interactive elements
+ *
+ * Resource tile colors (grape/wood/stone/clay/herb/magic) are PRESERVED
+ * for game readability.
  */
 
 :root {
-  /* ── Base parchment & ink (desaturated for modern feel) ── */
-  --paper:        #f0e6d0;
-  --paper-2:      #ddd0b4;
-  --paper-3:      #cdbfa2;
-  --ink:          #2a1f16;
-  --ink-soft:     #5c4a3a;
-  --ink-faint:    #97856f;
-  --gold:         #b08a38;
-  --gold-soft:    #d4a85e;
-  --gold-bright:  #f2daa2;
-  --silver:       #c2b8aa;
-  --bronze:       #8a6240;
-  --shadow-deep:  rgba(20, 14, 10, 0.52);
-  --shadow-soft:  rgba(44, 30, 22, 0.20);
-  --shadow-ambient: rgba(28, 20, 14, 0.10);
+  /* ── Base warm white & brown ink ── */
+  --paper:        #f8f8f0;
+  --paper-2:      rgb(247, 243, 223);
+  --paper-3:      #eae4d0;
+  --ink:          #725d42;
+  --ink-soft:     #9f927d;
+  --ink-faint:    #8a7b66;
+  --gold:         #19c8b9;          /* was #b08a38 — now mint teal accent */
+  --gold-soft:    #3dd4c6;          /* was #d4a85e — lighter teal */
+  --gold-bright:  #e6f9f6;          /* was #f2daa2 — light teal bg */
+  --silver:       #d4c9b4;          /* warm taupe */
+  --bronze:       #bdaea0;          /* 3D shadow color */
+  --shadow-deep:  rgba(107, 92, 67, 0.42);
+  --shadow-soft:  rgba(114, 93, 66, 0.15);
+  --shadow-ambient: rgba(114, 93, 66, 0.08);
 
-  /* ── Glass HUD tokens ── */
-  --glass-bg:     rgba(255, 252, 244, 0.52);
-  --glass-bg-hover: rgba(255, 252, 244, 0.68);
-  --glass-border: rgba(180, 152, 104, 0.35);
-  --glass-border-hover: rgba(180, 152, 104, 0.55);
-  --glass-glow:   rgba(255, 245, 218, 0.22);
-  --glass-blur:   16px;
+  /* ── Surface tokens (replaces glass HUD) ── */
+  --glass-bg:     rgb(247, 243, 223);
+  --glass-bg-hover: #f8f8f0;
+  --glass-border: #9f927d;
+  --glass-border-hover: #a89878;
+  --glass-glow:   rgba(25, 200, 185, 0.08);
+  --glass-blur:   0px;              /* no blur — solid surfaces */
 
-  /* ── Resource hues (used by tile gradients) ── */
+  /* ── Resource hues (PRESERVED for game readability) ── */
   --grape-1:      #44203b;
   --grape-2:      #744061;
   --grape-3:      #c597b6;
@@ -56,81 +59,135 @@
   --magic-2:      #6f49a1;
   --magic-3:      #e5cb87;
 
-  /* ── Sunset / lilac accents ── */
-  --lilac:        #9e84b8;
+  /* ── Animal Island accent colors ── */
+  --lilac:        #b77dee;          /* NookPhone purple */
   --lilac-soft:   #d5c6e2;
-  --sunset:       #c36f39;
-  --twilight:     #231636;
-  --ember:        #d78d48;
-  --moss:         #60724d;
+  --sunset:       #e59266;          /* NookPhone orange */
+  --twilight:     #725d42;
+  --ember:        #fc736d;          /* NookPhone red */
+  --moss:         #8ac68a;          /* NookPhone green */
+
+  /* ── New Animal Island tokens ── */
+  --accent:       #19c8b9;          /* mint teal — primary accent */
+  --accent-hover: #3dd4c6;
+  --accent-active:#11a89b;
+  --accent-light: #e6f9f6;
+  --focus-yellow: #ffcc00;          /* input/button focus ring */
+  --focus-yellow-dark: #e0b800;
+  --success:      #6fba2c;          /* green — completion */
+  --warning:      #f5c31c;
+  --error:        #e05a5a;
+  --disabled:     #c4b89e;
+  --placeholder:  #c4b89e;
+  --switch-on:    #86d67a;
+  --sidebar-active: #B7C6E5;
+  --sidebar-hover: #d6dff0;
+
+  /* ── 3D bottom shadows (Nintendo button press) ── */
+  --btn-shadow:       0 5px 0 0 #bdaea0;
+  --btn-shadow-hover: 0 6px 0 0 #bdaea0;
+  --btn-shadow-active:0 1px 0 0 #bdaea0;
+  --input-shadow:     0 3px 0 0 #d4c9b4;
+  --input-shadow-sm:  0 2px 0 0 #d4c9b4;
+  --input-shadow-lg:  0 4px 0 0 #d4c9b4;
+  --card-shadow:      0 4px 10px rgba(107, 92, 67, 0.42);
+  --card-shadow-hover:0 8px 24px rgba(114, 93, 66, 0.15);
 
   /* ── HUD ── */
-  --hud-bg:       rgba(255, 250, 238, 0.50);
-  --hud-border:   rgba(180, 152, 104, 0.35);
-  --hud-shadow:   0 10px 28px rgba(20, 14, 10, 0.22), 0 1px 0 rgba(255, 245, 218, 0.15);
-  --surface-shadow: 0 14px 36px rgba(20, 14, 10, 0.20), 0 1px 0 rgba(255, 245, 218, 0.15);
-  --surface-glow:  0 1px 0 rgba(255, 245, 218, 0.42);
+  --hud-bg:       rgb(247, 243, 223);
+  --hud-border:   #9f927d;
+  --hud-shadow:   0 4px 10px rgba(107, 92, 67, 0.42);
+  --surface-shadow: 0 4px 10px rgba(107, 92, 67, 0.42);
+  --surface-glow:  0 0 0 0 transparent;
 
-  /* ── Board frame (lighter for clarity) ── */
-  --board-frame-1: #7a6048;
-  --board-frame-2: #3a2818;
-  --board-inner-1: #8a7560;
-  --board-inner-2: #483828;
-  --board-cell-1:  #2e2018;
-  --board-cell-2:  #564030;
-  --board-grid:    rgba(250, 235, 205, 0.08);
+  /* ── Board frame (warmer, less dark) ── */
+  --board-frame-1: #9a835a;
+  --board-frame-2: #725d42;
+  --board-inner-1: #a89878;
+  --board-inner-2: #8a7b66;
+  --board-cell-1:  #564636;
+  --board-cell-2:  #7a6b58;
+  --board-grid:    rgba(247, 243, 223, 0.12);
 
   /* ── Animation timings ── */
   --t-tile:       200ms;
-  --t-tile-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --t-tile-easing: cubic-bezier(0.4, 0, 0.2, 1);
   --t-swap:       240ms;
   --t-fall:       260ms;
   --t-bg:         1400ms;
   --t-board-tilt: 600ms;
   --board-pad:    4px;
+  --t-transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* ── Easing curves (semantic names) ── */
-  --ease-out-expo:    cubic-bezier(0.16, 1, 0.3, 1);
+  /* ── Easing curves ── */
+  --ease-out-expo:    cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out-back:    cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-in-out-sine: cubic-bezier(0.37, 0, 0.63, 1);
   --ease-spring:      cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-  /* ── Shape tokens ── */
-  --radius-sm:  8px;
-  --radius-md:  12px;
-  --radius-lg:  16px;
-  --radius-xl:  22px;
-  --radius-pill: 999px;
+  /* ── Shape tokens (larger, rounder) ── */
+  --radius-sm:  12px;
+  --radius-md:  20px;
+  --radius-lg:  20px;
+  --radius-xl:  50px;
+  --radius-pill: 50px;
+  --radius-card-organic: 40px 35px 45px 38px / 38px 45px 35px 40px;
+
+  /* ── Typography tokens ── */
+  --font-body:    'Nunito', 'Noto Sans SC', 'Zen Maru Gothic', -apple-system, 'PingFang SC', sans-serif;
+  --font-weight-body: 500;
+  --font-weight-heading: 600;
+  --font-weight-bold: 700;
+  --font-weight-black: 900;
+  --letter-spacing: 0.01em;
+  --letter-spacing-wide: 0.02em;
 }
 
-/* ── Day-tinted backgrounds applied to <body data-day="N"> ── */
+/* ── Day-tinted backgrounds — warmer, brighter Animal Island palette ── */
 body[data-day='1'], body[data-day='2'] {
-  --bg-grad-1: #d7c08f;
-  --bg-grad-2: #7f6d4e;
-  --bg-grad-3: #2c2219;
+  --bg-grad-1: #e8dfc8;
+  --bg-grad-2: #c9bfa5;
+  --bg-grad-3: #a89e88;
 }
 body[data-day='3'], body[data-day='4'] {
-  --bg-grad-1: #d7ad71;
-  --bg-grad-2: #755738;
-  --bg-grad-3: #241810;
+  --bg-grad-1: #e6d5b0;
+  --bg-grad-2: #c4b48e;
+  --bg-grad-3: #a69878;
 }
 body[data-day='5'], body[data-day='6'] {
-  --bg-grad-1: #9aa883;
-  --bg-grad-2: #6c5d69;
-  --bg-grad-3: #21161b;
+  --bg-grad-1: #c8d4b4;
+  --bg-grad-2: #a8b898;
+  --bg-grad-3: #8ea080;
 }
 body[data-day='7'], body[data-day='8'] {
-  --bg-grad-1: #c27d4f;
-  --bg-grad-2: #594062;
-  --bg-grad-3: #1d1420;
+  --bg-grad-1: #e0c4a0;
+  --bg-grad-2: #c8a888;
+  --bg-grad-3: #b09070;
 }
 body[data-day='9'] {
-  --bg-grad-1: #b8683d;
-  --bg-grad-2: #40294f;
-  --bg-grad-3: #150d1e;
+  --bg-grad-1: #dcb890;
+  --bg-grad-2: #c4a078;
+  --bg-grad-3: #a88860;
 }
 body[data-phase='ending'] {
-  --bg-grad-1: #b8683d;
-  --bg-grad-2: #2f1f43;
-  --bg-grad-3: #120917;
+  --bg-grad-1: #d8b488;
+  --bg-grad-2: #b89870;
+  --bg-grad-3: #9a8060;
+}
+
+/* ── NookPhone card palette (13 colors) ── */
+:root {
+  --card-default:    rgb(247, 243, 223);
+  --card-app-pink:   #f8a6b2;
+  --card-purple:     #b77dee;
+  --card-app-blue:   #889df0;
+  --card-app-yellow: #f7cd67;
+  --card-app-orange: #e59266;
+  --card-app-teal:   #82d5bb;
+  --card-app-green:  #8ac68a;
+  --card-app-red:    #fc736d;
+  --card-lime-green: #d1da49;
+  --card-yellow-green: #ecdf52;
+  --card-brown:      #9a835a;
+  --card-warm-peach: #e18c6f;
 }

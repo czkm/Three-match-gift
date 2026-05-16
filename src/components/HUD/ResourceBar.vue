@@ -1,5 +1,5 @@
 <template>
-  <div class="resource-bar glass grain">
+  <div class="resource-bar">
     <section class="trinket-bar">
       <div class="trinket-head">
         <p class="trinket-title ink-title">{{ HUD_COPY.trinketTitle }}</p>
@@ -14,14 +14,20 @@
           v-for="item in trinketItems"
           :key="`${item.id}-${item.day || item.slot}`"
           class="trinket-chip"
-          :class="[`tone-${item.tone || item.roomType || 'treasure'}`, `quality-${item.quality || 0}`]"
+          :class="[
+            `tone-${item.tone || item.roomType || 'treasure'}`,
+            `quality-${item.quality || 0}`,
+            { triggered: item.id === highlightedItemId }
+          ]"
           type="button"
           :title="item.name"
           @mouseenter="game.showRewardItemInfo(item.id, 'hud')"
           @focus="game.showRewardItemInfo(item.id, 'hud')"
           @mouseleave="game.clearRewardItemInfo('hud')"
           @blur="game.clearRewardItemInfo('hud')"
-        >{{ item.emoji }}</button>
+        >
+          <span class="trinket-emoji">{{ item.emoji }}</span>
+        </button>
         <span
           v-for="slot in trinketSlots"
           :key="`empty-${slot}`"
@@ -32,7 +38,12 @@
     </section>
 
     <h3 class="ink-title">{{ HUD_COPY.repairProgressTitle }}</h3>
-    <div v-for="r in game.repairView" :key="r.id" class="row">
+    <div
+      v-for="r in game.repairView"
+      :key="r.id"
+      class="row"
+      :class="{ highlighted: highlightedResourceIds.has(r.id) }"
+    >
       <span class="emoji">{{ r.emoji }}</span>
       <span class="label">{{ r.label }}</span>
       <div class="track">
@@ -52,7 +63,15 @@
       :class="[`kind-${messageKind}`, { fresh: messageFresh }]"
     >
       <div class="message-head">
-        <span class="message-icon">{{ messageIcon }}</span>
+        <span class="message-icon">
+          <IsaacCollectibleIcon
+            v-if="game.currentRewardItemInfo"
+            :reward-item-id="game.currentRewardItemInfo.itemId"
+            :size="22"
+            :fallback-emoji="game.currentRewardItemInfo.emoji"
+          />
+          <span v-else>{{ messageIcon }}</span>
+        </span>
         <div class="message-meta">
           <p v-if="messageEyebrow" class="message-eyebrow">{{ messageEyebrow }}</p>
           <p v-if="messageTitle" class="message-title ink-title">{{ messageTitle }}</p>
@@ -67,13 +86,20 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import EventBus from '@/core/eventBus';
 import { GAMEPLAY_COPY, HUD_COPY, TARGETING_COPY } from '@/data/copy';
-import { ABILITIES, DJINN_WISHES } from '@/data/content';
+import { ABILITIES, DJINN_WISHES, RESOURCE_BY_ID } from '@/data/content';
 import { useGameStore } from '@/stores/gameStore';
+import IsaacCollectibleIcon from '@/components/common/IsaacCollectibleIcon.vue';
 const game = useGameStore();
 const messageFresh = ref(false);
 const trinketFlash = ref(false);
+const effectNotice = ref(null);
+const highlightedItemId = ref('');
+const highlightedResourceIds = ref(new Set());
 let freshTimer = null;
 let trinketFlashTimer = null;
+let effectNoticeTimer = null;
+let highlightedItemTimer = null;
+let highlightedResourceTimer = null;
 
 const trinketItems = computed(() =>
   [...(game.ownedItems || [])]
@@ -85,6 +111,7 @@ const trinketSlots = computed(() =>
 );
 
 const messageKind = computed(() => {
+  if (effectNotice.value) return effectNotice.value.kind || 'system';
   if (game.currentRewardItemInfo) return 'monster';
   if (game.currentMonsterInfo) return 'monster';
   if (game.phase === 'intro') return 'narration';
@@ -97,6 +124,7 @@ const messageKind = computed(() => {
 });
 
 const messageEyebrow = computed(() => {
+  if (effectNotice.value) return '道具触发';
   if (game.currentRewardItemInfo) return HUD_COPY.messageEyebrows.rewardItem;
   switch (messageKind.value) {
     case 'monster': return HUD_COPY.messageEyebrows.monster;
@@ -108,6 +136,7 @@ const messageEyebrow = computed(() => {
 });
 
 const messageIcon = computed(() => {
+  if (effectNotice.value) return effectNotice.value.itemEmoji || '✨';
   switch (messageKind.value) {
     case 'monster': return game.currentRewardItemInfo?.emoji || game.currentMonsterInfo?.emoji || '👁';
     case 'narration': return '📖';
@@ -118,6 +147,7 @@ const messageIcon = computed(() => {
 });
 
 const messageTitle = computed(() => {
+  if (effectNotice.value) return effectNotice.value.title || '';
   if (game.currentRewardItemInfo) return game.currentRewardItemInfo.label;
   if (game.currentMonsterInfo) return game.currentMonsterInfo.label;
   if (game.phase === 'intro') return game.today?.building?.cn || '';
@@ -134,6 +164,7 @@ const messageTitle = computed(() => {
 });
 
 const messageText = computed(() => {
+  if (effectNotice.value) return effectNotice.value.text || '';
   if (game.currentRewardItemInfo) {
     return [
       game.currentRewardItemInfo.healthLabel,
@@ -235,14 +266,73 @@ function onRewardHudFlash() {
   });
 }
 
+function buildEffectNotice(payload = {}) {
+  const pieces = [];
+  const affectedResourceLabels = (payload.affectedResources || []).map((id) => RESOURCE_BY_ID[id]?.cn || id);
+  if (payload.summaryText) pieces.push(payload.summaryText);
+  if (payload.bonusAmount && payload.affectedResources?.length) {
+    pieces.push(`影响资源：${affectedResourceLabels.join('、')}，每项 +${payload.bonusAmount}`);
+  } else if (payload.bonusAmount) {
+    pieces.push(`数值变化 +${payload.bonusAmount}`);
+  }
+  if (payload.stepsGained) {
+    pieces.push(`步数 +${payload.stepsGained}`);
+  }
+  if (payload.pigEnergyGained) {
+    pieces.push(`小猪能量 +${payload.pigEnergyGained}`);
+  }
+  if (payload.pigEnergySpent) {
+    pieces.push(`消耗小猪能量 ${payload.pigEnergySpent}`);
+  }
+  if (payload.djinnProgressBonus) {
+    pieces.push(`仪式进度 +${payload.djinnProgressBonus}`);
+  }
+  return {
+    kind: payload.itemTone === 'devil' ? 'monster' : 'system',
+    itemEmoji: payload.itemEmoji || '✨',
+    title: payload.itemEnName
+      ? `${payload.itemName} · ${payload.itemEnName}`
+      : payload.itemName || '道具触发',
+    text: pieces.filter(Boolean).join('\n') || `${payload.itemName || '道具'} 已触发`
+  };
+}
+
+function onItemEffectTriggered(payload = {}) {
+  effectNotice.value = buildEffectNotice(payload);
+  highlightedItemId.value = payload.itemId || '';
+  highlightedResourceIds.value = new Set(payload.affectedResources || []);
+
+  if (effectNoticeTimer) clearTimeout(effectNoticeTimer);
+  if (highlightedItemTimer) clearTimeout(highlightedItemTimer);
+  if (highlightedResourceTimer) clearTimeout(highlightedResourceTimer);
+
+  effectNoticeTimer = setTimeout(() => {
+    effectNotice.value = null;
+    effectNoticeTimer = null;
+  }, 2400);
+  highlightedItemTimer = setTimeout(() => {
+    highlightedItemId.value = '';
+    highlightedItemTimer = null;
+  }, 1600);
+  highlightedResourceTimer = setTimeout(() => {
+    highlightedResourceIds.value = new Set();
+    highlightedResourceTimer = null;
+  }, 1600);
+}
+
 onMounted(() => {
   EventBus.bind('rewardHudFlash', onRewardHudFlash);
+  EventBus.bind('itemEffectTriggered', onItemEffectTriggered);
 });
 
 onBeforeUnmount(() => {
   EventBus.unbind('rewardHudFlash', onRewardHudFlash);
+  EventBus.unbind('itemEffectTriggered', onItemEffectTriggered);
   if (freshTimer) clearTimeout(freshTimer);
   if (trinketFlashTimer) clearTimeout(trinketFlashTimer);
+  if (effectNoticeTimer) clearTimeout(effectNoticeTimer);
+  if (highlightedItemTimer) clearTimeout(highlightedItemTimer);
+  if (highlightedResourceTimer) clearTimeout(highlightedResourceTimer);
 });
 </script>
 
@@ -250,22 +340,23 @@ onBeforeUnmount(() => {
 .resource-bar {
   width: 244px;
   padding: 18px 18px 20px;
-  border-radius: var(--radius-md);
+  border-radius: 16px;
+  background: rgb(247, 243, 223);
+  border: 2px solid #d4c9b4;
+  box-shadow: 0 3px 0 0 #d4c9b4;
+  color: #725d42;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
   overflow: hidden;
   isolation: isolate;
   contain: paint;
-  background-clip: padding-box;
 }
 
 .trinket-bar {
   margin-bottom: 16px;
   padding: 12px 12px 10px;
-  border-radius: var(--radius-sm);
-  background:
-    linear-gradient(180deg, rgba(255, 248, 233, 0.48), rgba(232, 208, 170, 0.16));
-  box-shadow:
-    inset 0 0 0 1px rgba(180, 152, 104, 0.22),
-    inset 0 1px 0 rgba(255, 252, 244, 0.22);
+  border-radius: 12px;
+  background: #f8f8f0;
+  border: 2px solid #eae4d0;
 }
 
 .trinket-head {
@@ -279,16 +370,18 @@ onBeforeUnmount(() => {
 .trinket-title {
   margin: 0;
   font-size: 12px;
+  color: #794f27;
+  font-weight: 700;
 }
 
 .trinket-count {
   min-width: 22px;
   padding: 2px 8px;
-  border-radius: 999px;
+  border-radius: 50px;
   font-size: 10px;
   font-weight: 800;
-  color: var(--ink-soft);
-  background: rgba(255, 255, 255, 0.5);
+  color: #9f927d;
+  background: #eae4d0;
 }
 
 .trinket-track {
@@ -298,16 +391,12 @@ onBeforeUnmount(() => {
   min-height: 34px;
   padding: 2px;
   border-radius: 14px;
-  transition: box-shadow 260ms var(--ease-out-expo), background 260ms var(--ease-out-expo);
+  transition: box-shadow 260ms ease, background 260ms ease;
 }
 
 .trinket-track.flash {
-  background:
-    radial-gradient(circle at 14% 44%, rgba(255, 244, 196, 0.34), transparent 26%),
-    linear-gradient(180deg, rgba(255, 248, 232, 0.42), rgba(255, 236, 196, 0.16));
-  box-shadow:
-    0 0 0 1px rgba(232, 188, 92, 0.24),
-    0 0 18px rgba(255, 210, 118, 0.28);
+  background: rgba(25, 200, 185, 0.08);
+  box-shadow: 0 0 0 2px rgba(25, 200, 185, 0.18), 0 0 12px rgba(25, 200, 185, 0.12);
 }
 
 .trinket-chip {
@@ -317,73 +406,78 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: none;
-  border-radius: 999px;
+  border: 2px solid #d4c9b4;
+  border-radius: 50px;
   cursor: pointer;
-  background:
-    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.52), rgba(248, 232, 202, 0.16));
-  box-shadow:
-    inset 0 0 0 1px rgba(180, 152, 104, 0.22),
-    0 6px 12px rgba(24, 16, 10, 0.08);
+  background: #f8f8f0;
+  box-shadow: 0 2px 0 0 #d4c9b4;
   font-size: 16px;
-  transition:
-    transform 180ms var(--ease-out-expo),
-    box-shadow 180ms var(--ease-out-expo),
-    filter 180ms var(--ease-out-expo);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .trinket-chip:hover,
 .trinket-chip:focus-visible {
   transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 0 0 #d4c9b4;
+}
+
+.trinket-chip.triggered {
+  transform: translateY(-2px) scale(1.08);
   box-shadow:
-    inset 0 0 0 1px rgba(180, 152, 104, 0.22),
-    0 10px 16px rgba(24, 16, 10, 0.12);
+    0 4px 0 0 #d4c9b4,
+    0 0 0 3px rgba(25, 200, 185, 0.18),
+    0 0 16px rgba(25, 200, 185, 0.2);
 }
 
 .trinket-chip.quality-3 {
-  background:
-    radial-gradient(circle at 30% 30%, rgba(244, 232, 255, 0.62), rgba(150, 108, 214, 0.22));
-  filter: drop-shadow(0 0 10px rgba(184, 130, 255, 0.34));
+  border-color: rgba(172, 124, 228, 0.5);
+  box-shadow: 0 2px 0 0 rgba(114, 72, 176, 0.4);
+  filter: drop-shadow(0 0 6px rgba(184, 130, 255, 0.24));
 }
 
 .trinket-chip.quality-4 {
-  background:
-    radial-gradient(circle at 30% 30%, rgba(255, 238, 214, 0.7), rgba(238, 116, 78, 0.24));
-  filter:
-    drop-shadow(0 0 12px rgba(255, 110, 82, 0.4))
-    drop-shadow(0 0 22px rgba(255, 188, 110, 0.16));
+  border-color: rgba(255, 140, 88, 0.5);
+  box-shadow: 0 2px 0 0 rgba(200, 100, 50, 0.4);
+  filter: drop-shadow(0 0 8px rgba(255, 132, 84, 0.3));
   animation: trinket-legendary-pulse 1.8s ease-in-out infinite;
 }
 
+.trinket-emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  line-height: 1;
+}
+
 .trinket-chip.tone-devil {
-  background:
-    radial-gradient(circle at 30% 30%, rgba(255, 216, 216, 0.46), rgba(104, 22, 28, 0.26));
+  border-color: rgba(224, 90, 90, 0.35);
+  box-shadow: 0 2px 0 0 rgba(200, 70, 70, 0.3);
 }
 
 .trinket-slot {
   width: 30px;
   height: 30px;
-  border-radius: 999px;
-  background:
-    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.18), rgba(114, 92, 62, 0.08));
-  box-shadow: inset 0 0 0 1px rgba(180, 152, 104, 0.14);
+  border-radius: 50px;
+  background: #f8f8f0;
+  border: 2px dashed #eae4d0;
 }
 
 @keyframes trinket-legendary-pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.08);
-  }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
 }
+
 h3 {
   margin: 0 0 14px;
   font-size: 12px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--ink-soft);
+  color: #9f927d;
+  font-weight: 700;
 }
+
 .row {
   display: flex;
   align-items: center;
@@ -391,60 +485,70 @@ h3 {
   margin-bottom: 11px;
   font-size: 12px;
 }
+
+.row.highlighted {
+  transform: translateX(2px);
+}
+
+.row.highlighted .track {
+  box-shadow:
+    0 0 0 2px rgba(25, 200, 185, 0.16),
+    0 0 16px rgba(25, 200, 185, 0.14);
+}
+
 .emoji { font-size: 18px; width: 22px; text-align: center; }
-.label { width: 32px; color: var(--ink); }
+.label { width: 32px; color: #725d42; font-weight: 600; }
+
 .track {
   flex: 1;
   height: 10px;
-  background:
-    linear-gradient(180deg, rgba(44, 30, 20, 0.30) 0%, rgba(82, 60, 40, 0.22) 100%);
-  border-radius: var(--radius-pill);
+  background: #eae4d0;
+  border-radius: 50px;
   overflow: hidden;
-  box-shadow:
-    inset 0 1px 2px rgba(0, 0, 0, 0.22),
-    inset 0 0 0 1px rgba(255, 244, 222, 0.10);
+  border: 1.5px solid #d4c9b4;
 }
+
 .fill {
   height: 100%;
-  border-radius: var(--radius-pill);
-  transition: width 420ms var(--ease-out-expo);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 248, 230, 0.25),
-    0 0 8px rgba(255, 248, 230, 0.1);
+  border-radius: 50px;
+  transition: width 420ms ease;
   position: relative;
 }
+
 .fill::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, transparent 60%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
   pointer-events: none;
 }
+
 .fill.grape { background: linear-gradient(90deg, var(--grape-2), var(--grape-1)); }
 .fill.wood  { background: linear-gradient(90deg, var(--wood-2),  var(--wood-1)); }
 .fill.stone { background: linear-gradient(90deg, var(--stone-2), var(--stone-1)); }
 .fill.clay  { background: linear-gradient(90deg, var(--clay-2),  var(--clay-1)); }
 .fill.herb  { background: linear-gradient(90deg, var(--herb-2),  var(--herb-1)); }
 .fill.magic { background: linear-gradient(90deg, var(--magic-2), var(--magic-1)); }
+
 .count {
   width: 60px;
   text-align: right;
-  color: var(--ink-faint);
+  color: #9f927d;
   font-variant-numeric: tabular-nums;
+  font-weight: 600;
 }
 
 .message-box {
   position: relative;
   margin-top: 20px;
-  padding: 14px 14px 13px 16px;
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
+  padding: 14px 14px 13px 18px;
+  border-radius: 12px;
+  border: 2px solid #d4c9b4;
   overflow: hidden;
-  transition: transform 280ms var(--ease-out-expo), box-shadow 280ms var(--ease-out-expo), border-color 280ms var(--ease-out-expo), background 280ms var(--ease-out-expo);
-  box-shadow:
-    inset 0 0 0 1px rgba(180, 152, 104, 0.18),
-    inset 0 1px 0 rgba(255, 252, 244, 0.20);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #f8f8f0;
+  box-shadow: 0 3px 0 0 #d4c9b4;
 }
 
 .message-box::before {
@@ -454,16 +558,16 @@ h3 {
   top: 10px;
   bottom: 10px;
   width: 4px;
-  border-radius: 999px;
-  background: rgba(180, 152, 104, 0.24);
+  border-radius: 0 2px 2px 0;
+  background: #19c8b9;
 }
 
 .message-box.fresh {
   transform: translateY(-2px);
   box-shadow:
-    0 12px 26px rgba(58, 42, 31, 0.14),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.28);
-  animation: message-flash 900ms var(--ease-out-expo);
+    0 5px 0 0 #d4c9b4,
+    0 4px 12px rgba(107, 92, 67, 0.12);
+  animation: message-flash 900ms ease;
 }
 
 .message-head {
@@ -480,9 +584,9 @@ h3 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.38);
-  box-shadow: inset 0 0 0 1px rgba(58, 42, 31, 0.1);
+  border-radius: 50px;
+  background: #eae4d0;
+  border: 2px solid #d4c9b4;
   font-size: 14px;
 }
 
@@ -494,59 +598,62 @@ h3 {
   margin: 0 0 2px;
   font-size: 10px;
   letter-spacing: 0.16em;
-  color: var(--ink-faint);
+  color: #9f927d;
+  font-weight: 600;
 }
 
 .message-title {
   margin: 0;
   font-size: 13px;
   letter-spacing: 0.06em;
+  color: #794f27;
+  font-weight: 700;
 }
 
 .message-text {
   margin: 0;
   font-size: 12px;
   line-height: 1.75;
-  color: var(--ink);
+  color: #725d42;
   white-space: pre-wrap;
+  font-weight: 500;
 }
 
 .message-text.quoted {
   padding-left: 10px;
-  border-left: 2px solid rgba(58, 42, 31, 0.16);
+  border-left: 2px solid #19c8b9;
 }
 
 .kind-narration {
-  background:
-    linear-gradient(180deg, rgba(119, 146, 88, 0.10), rgba(255, 250, 240, 0.48));
-  border-color: rgba(120, 144, 88, 0.20);
+  background: linear-gradient(180deg, rgba(25, 200, 185, 0.06), #f8f8f0);
+  border-color: rgba(25, 200, 185, 0.25);
 }
 
 .kind-narration::before {
-  background: linear-gradient(180deg, #6f8b4d, #c2a35d);
+  background: linear-gradient(180deg, #19c8b9, #11a89b);
 }
 
 .kind-narration .message-icon {
-  background: rgba(214, 228, 190, 0.7);
+  background: rgba(230, 249, 246, 0.7);
+  border-color: rgba(25, 200, 185, 0.3);
 }
 
 .kind-geralt {
-  background:
-    linear-gradient(180deg, rgba(90, 72, 52, 0.06), rgba(255, 250, 242, 0.58));
-  border-color: rgba(180, 152, 104, 0.18);
+  background: #f8f8f0;
+  border-color: #d4c9b4;
 }
 
 .kind-geralt::before {
-  background: linear-gradient(180deg, #7a603e, #47372a);
+  background: linear-gradient(180deg, #19c8b9, #11a89b);
 }
 
 .kind-geralt .message-icon {
-  background: rgba(224, 208, 184, 0.64);
+  background: #eae4d0;
 }
 
 .kind-geralt .message-title,
 .kind-geralt .message-eyebrow {
-  color: #6a5240;
+  color: #794f27;
 }
 
 .kind-geralt .message-text {
@@ -554,74 +661,67 @@ h3 {
 }
 
 .kind-system {
-  background:
-    linear-gradient(180deg, rgba(212, 168, 87, 0.12), rgba(176, 148, 201, 0.10));
-  border-color: rgba(180, 152, 104, 0.24);
+  background: linear-gradient(180deg, rgba(255, 204, 0, 0.08), #f8f8f0);
+  border-color: rgba(255, 204, 0, 0.3);
 }
 
 .kind-system::before {
-  background: linear-gradient(180deg, #d4a857, #9a74b8);
+  background: linear-gradient(180deg, #ffcc00, #e0b800);
 }
 
 .kind-system .message-icon {
-  background: rgba(252, 239, 203, 0.82);
+  background: rgba(255, 244, 210, 0.82);
+  border-color: rgba(255, 204, 0, 0.3);
 }
 
 .kind-system .message-title,
 .kind-system .message-eyebrow {
-  color: #9c6e2c;
+  color: #794f27;
 }
 
 .kind-monster {
-  background:
-    linear-gradient(180deg, rgba(96, 78, 58, 0.12), rgba(255, 250, 242, 0.58));
-  border-color: rgba(180, 152, 104, 0.22);
+  background: #f8f8f0;
+  border-color: #d4c9b4;
 }
 
 .kind-monster::before {
-  background: linear-gradient(180deg, #8f6b42, #3f2a1d);
+  background: linear-gradient(180deg, #9f927d, #725d42);
 }
 
 .kind-monster .message-icon {
-  background: rgba(230, 214, 194, 0.72);
+  background: #eae4d0;
 }
 
 .kind-monster .message-title,
 .kind-monster .message-eyebrow {
-  color: #4f3827;
+  color: #725d42;
 }
 
 .kind-hint {
-  background:
-    linear-gradient(180deg, rgba(255, 252, 244, 0.24), rgba(248, 240, 226, 0.38));
-  border-color: rgba(180, 152, 104, 0.16);
+  background: #f8f8f0;
+  border-color: #eae4d0;
 }
 
 .kind-hint::before {
-  background: linear-gradient(180deg, #b8862e, #7d5a32);
+  background: linear-gradient(180deg, #19c8b9, #11a89b);
 }
 
 .kind-hint .message-icon {
-  background: rgba(248, 238, 212, 0.82);
+  background: #eae4d0;
 }
 
 @keyframes message-flash {
   0% {
-    box-shadow:
-      0 0 0 rgba(212, 172, 92, 0),
-      inset 0 0 0 1px rgba(255, 252, 244, 0.10);
+    box-shadow: 0 3px 0 0 #d4c9b4;
   }
   35% {
     box-shadow:
-      0 0 0 5px rgba(212, 172, 92, 0.14),
-      0 10px 24px rgba(44, 30, 22, 0.12),
-      inset 0 0 0 1px rgba(255, 252, 244, 0.32);
+      0 0 0 4px rgba(25, 200, 185, 0.12),
+      0 5px 0 0 #d4c9b4,
+      0 4px 12px rgba(107, 92, 67, 0.12);
   }
   100% {
-    box-shadow:
-      0 0 0 rgba(212, 172, 92, 0),
-      0 10px 22px rgba(44, 30, 22, 0.10),
-      inset 0 0 0 1px rgba(255, 252, 244, 0.24);
+    box-shadow: 0 3px 0 0 #d4c9b4;
   }
 }
 </style>

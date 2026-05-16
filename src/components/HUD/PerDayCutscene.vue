@@ -28,7 +28,7 @@
       </div>
 
       <transition name="banner-fade">
-        <div v-if="phase >= 2" class="banner glass grain">
+        <div v-if="phase >= 2" class="banner">
           <div class="victory-award" :class="`stars-${pigStars}`">
             <div class="victory-rays" />
             <div class="victory-stars">
@@ -377,13 +377,13 @@ function onOverlayClick() {
   position: relative;
   width: 480px;
   max-width: 92vw;
-  padding: 10px 28px 20px;
+  padding: 18px 30px 24px;
   text-align: center;
-  border-radius: var(--radius-md);
-  box-shadow:
-    0 14px 36px rgba(20, 14, 10, 0.2),
-    0 1px 0 rgba(255, 245, 218, 0.12),
-    inset 0 1px 0 rgba(255, 252, 244, 0.28);
+  clip-path: url(#animal-modal-clip);
+  background: rgb(247, 243, 223);
+  box-shadow: 0 4px 10px rgba(107, 92, 67, 0.42);
+  color: #725d42;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
 }
 .banner-fade-enter-active {
   transition:
@@ -539,10 +539,11 @@ function onOverlayClick() {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 5px 11px;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 248, 232, 0.58);
-  box-shadow: inset 0 0 0 1px rgba(180, 152, 104, 0.18);
+  padding: 5px 12px;
+  border-radius: 50px;
+  background: #f8f8f0;
+  border: 2px solid #d4c9b4;
+  box-shadow: 0 2px 0 0 #d4c9b4;
 }
 
 .pig-rating-emoji {
@@ -551,8 +552,9 @@ function onOverlayClick() {
 
 .pig-rating-text {
   font-size: 11px;
-  color: var(--ink-soft);
-  letter-spacing: 0.04em;
+  color: #9f927d;
+  letter-spacing: 0.02em;
+  font-weight: 600;
 }
 
 /* Wax-seal stamp around the building emoji */
@@ -623,6 +625,8 @@ function onOverlayClick() {
   font-size: 22px;
   margin: 0;
   line-height: 1.3;
+  color: #794f27;
+  font-weight: 800;
 }
 .ability-stack {
   display: flex;
@@ -638,15 +642,17 @@ function onOverlayClick() {
 
 .ability-stack-name {
   font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--ink);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #19c8b9;
 }
 
 .ability-quote {
   margin: 0;
-  font-size: 11px;
+  font-size: 12px;
   font-style: italic;
+  color: #9f927d;
+  font-weight: 500;
 }
 
 .mono {

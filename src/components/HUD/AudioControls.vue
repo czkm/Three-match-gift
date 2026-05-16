@@ -1,5 +1,5 @@
 <template>
-  <div class="audio-controls glass grain" :class="{ expanded }">
+  <div class="audio-controls" :class="{ expanded }">
     <button class="audio-btn primary" :title="muted ? COMMON_COPY.unmute : COMMON_COPY.mute" @click="toggleMute">
       <span class="icon">{{ muted ? '🔇' : '🔊' }}</span>
       <span class="label">{{ muted ? COMMON_COPY.muted : COMMON_COPY.sound }}</span>
@@ -82,11 +82,13 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px;
-  border-radius: var(--radius-pill);
-  box-shadow:
-    var(--surface-shadow),
-    0 0 0 1px rgba(255, 242, 214, 0.08);
+  padding: 8px 10px;
+  border-radius: 50px;
+  background: rgb(247, 243, 223);
+  border: 2px solid #d4c9b4;
+  box-shadow: 0 3px 0 0 #d4c9b4;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+  color: #725d42;
 }
 
 .panel {
@@ -94,6 +96,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   gap: 8px;
   min-width: 178px;
+  padding: 4px 8px;
 }
 
 .slider-row {
@@ -102,31 +105,49 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: var(--ink-soft);
+  color: #9f927d;
+  font-weight: 600;
 }
 
 .row-label,
 .row-value {
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
 }
 
 .row-value {
   text-align: right;
-  color: var(--ink);
+  color: #725d42;
+  font-variant-numeric: tabular-nums;
 }
 
 input[type='range'] {
   width: 100%;
-  accent-color: rgba(176, 148, 201, 0.92);
+  accent-color: #19c8b9;
 }
 
 .audio-btn {
-  border-radius: var(--radius-pill);
-  padding: 8px 12px;
+  border-radius: 50px;
+  padding: 0 14px;
+  height: 34px;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
+  background: #f8f8f0;
+  border: 2px solid #d4c9b4;
+  box-shadow: 0 3px 0 0 #d4c9b4;
+  color: #725d42;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.audio-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 0 #d4c9b4;
+  border-color: #a89878;
+}
+
+.audio-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #d4c9b4;
 }
 
 .audio-btn.primary {
@@ -137,7 +158,6 @@ input[type='range'] {
 
 .audio-btn.toggle {
   min-width: 54px;
-  padding-inline: 10px;
 }
 
 .icon {

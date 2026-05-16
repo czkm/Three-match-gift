@@ -1,7 +1,6 @@
 <template>
   <div class="wish-overlay" @click="onOverlayClick">
-    <div class="veil" />
-    <div class="card glass grain">
+    <div class="card">
       <p class="title ink-title">{{ card.title }}</p>
       <p class="quote ink-subtle">{{ card.quote }}</p>
 
@@ -97,43 +96,39 @@ function onOverlayClick() {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(114, 93, 66, 0.45);
+  backdrop-filter: blur(2px);
   animation: fade-in 400ms var(--ease-out-expo);
 }
 
-.veil {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 50% 46%, rgba(214, 182, 110, 0.16), transparent 30%),
-    radial-gradient(circle at 34% 62%, rgba(176, 148, 201, 0.08), transparent 35%),
-    radial-gradient(circle at 50% 50%, rgba(48, 30, 24, 0.4), rgba(20, 10, 8, 0.85));
-}
-
 .card {
+  clip-path: url(#animal-modal-clip);
+  background: rgb(247, 243, 223);
   position: relative;
   z-index: 2;
   width: min(760px, 92vw);
-  padding: 28px 32px;
-  border-radius: var(--radius-md);
+  padding: 40px 36px 32px;
   text-align: center;
-  box-shadow:
-    var(--surface-shadow),
-    0 0 0 1px rgba(255, 242, 214, 0.08),
-    inset 0 1px 0 rgba(255, 248, 230, 0.3);
+  color: #725d42;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+  box-shadow: 0 4px 10px rgba(107, 92, 67, 0.42);
+  animation: card-bounce-in 600ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
-
 
 .title {
   margin: 0 0 8px;
   font-size: 21px;
   letter-spacing: 0.1em;
+  color: #794f27;
+  font-weight: 800;
 }
 
 .quote {
   margin: 0 0 18px;
   font-size: 13px;
   line-height: 1.75;
-  color: var(--ink-soft);
+  color: #9f927d;
+  font-weight: 500;
 }
 
 .wish-dialog {
@@ -146,29 +141,35 @@ function onOverlayClick() {
 }
 
 .advance-btn {
-  padding: 10px 24px;
-  border-radius: var(--radius-pill);
-  background: linear-gradient(180deg, rgba(244, 216, 154, 0.96), rgba(208, 168, 87, 0.98));
-  color: var(--ink);
+  height: 45px;
+  padding: 0 28px;
+  border-radius: 50px;
+  background: #ffcc00;
+  color: #725d42;
   font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  border: 1px solid rgba(108, 72, 34, 0.28);
-  box-shadow:
-    0 10px 24px rgba(42, 24, 18, 0.18),
-    inset 0 1px 0 rgba(255, 248, 230, 0.35);
-  transition: transform 200ms var(--ease-out-expo), filter 200ms var(--ease-out-expo), box-shadow 200ms var(--ease-out-expo);
+  letter-spacing: 0.04em;
+  border: 2px solid #e0b800;
+  box-shadow: 0 5px 0 0 #c9a800;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
 }
 
 .advance-btn:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.05);
-  box-shadow:
-    0 16px 32px rgba(42, 24, 18, 0.22),
-    inset 0 1px 0 rgba(255, 248, 230, 0.4);
+  transform: translateY(-1px);
+  background: #ffd633;
+  box-shadow: 0 6px 0 0 #c9a800;
 }
+
 .advance-btn:active {
-  transform: translateY(0);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #c9a800;
+}
+
+@keyframes card-bounce-in {
+  0%   { opacity: 0; transform: scale(0.88) translateY(18px); }
+  60%  { opacity: 1; transform: scale(1.03) translateY(-4px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 </style>

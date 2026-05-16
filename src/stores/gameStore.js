@@ -78,6 +78,8 @@ export const useGameStore = defineStore('game', {
     maxStepPenalty: 0,
     itemFlags: {},
     roomHistory: [],
+    pendingInvalidSwapReward: null,
+    pigMoodPenalty: 0,
 
     // Narrative
     introShown: false,
@@ -508,6 +510,8 @@ export const useGameStore = defineStore('game', {
       this.maxStepPenalty = 0;
       this.itemFlags = {};
       this.roomHistory = [];
+      this.pendingInvalidSwapReward = null;
+      this.pigMoodPenalty = 0;
       this.pigEnergy = 0;
       this.pigEnergyBeforeAward = 0;
       this.pigLastRating = null;
@@ -567,6 +571,7 @@ export const useGameStore = defineStore('game', {
       this.hintMove = null;
       this.pendingRewardOffer = null;
       this.inspectedRewardItem = null;
+      this.pendingInvalidSwapReward = null;
       this._resetDaySpecialState();
       this._resetDailyItemFlags();
       this._applyDayStartItemEffects();
@@ -586,6 +591,7 @@ export const useGameStore = defineStore('game', {
       if (this.stepsLeft <= 0) return;
       this.stepsLeft--;
       this.turnId++;
+      this._flushPendingInvalidSwapReward();
     },
 
     /** Add `n` steps, capped at the current effective maximum. */
@@ -729,7 +735,7 @@ export const useGameStore = defineStore('game', {
       const day = DAYS[this.currentDay];
       const rating = this._calcPigRating();
       this.pigEnergyBeforeAward = this.pigEnergy;
-      this.pigLastRating = rating;
+      this.pigLastRating = Math.max(0, rating - this.pigMoodPenalty);
       this.pigEnergy = Math.min(PIG_RATING.energyMax, this.pigEnergy + rating);
       this.pigMoodVisible = false;
       this.pigMoodShownDay = null;
@@ -781,18 +787,7 @@ export const useGameStore = defineStore('game', {
       const item = options.find((candidate) => candidate.id === itemId);
       if (!item) return false;
 
-      const acquired = {
-        id: item.id,
-        day: offer.day,
-        roomType: item.roomType,
-        name: item.name,
-        enName: item.enName,
-        quality: item.quality,
-        emoji: item.emoji,
-        slot: item.slot,
-        tone: item.tone,
-        reaction: item.reaction
-      };
+      const acquired = this._buildOwnedRewardItem(item, offer.day);
       this.ownedItems = [...this.ownedItems.filter((owned) => owned.id !== item.id), acquired];
       this.claimedRewardDays = [...new Set([...this.claimedRewardDays, offer.day])];
       this.roomHistory.push({ day: offer.day, roomType: item.roomType, itemId: item.id, quality: item.quality });
@@ -881,6 +876,39 @@ export const useGameStore = defineStore('game', {
         this.maxStepPenalty += penalty.value || 0;
         this.stepsLeft = Math.min(this.stepsLeft, this.effectiveMaxSteps);
       }
+      if (penalty.pigMood) {
+        this.pigMoodPenalty += penalty.pigMood;
+      }
+    },
+
+    _buildOwnedRewardItem(item, day = this.currentDay + 1) {
+      if (!item?.id) return null;
+      return {
+        id: item.id,
+        day,
+        roomType: item.roomType,
+        name: item.name,
+        enName: item.enName,
+        quality: item.quality,
+        emoji: item.emoji,
+        slot: item.slot,
+        tone: item.tone,
+        reaction: item.reaction
+      };
+    },
+
+    _emitItemEffectTriggered(item, payload = {}) {
+      if (!item?.id) return;
+      EventBus.trigger('itemEffectTriggered', [{
+        itemId: item.id,
+        itemName: item.name,
+        itemEnName: item.enName || '',
+        itemEmoji: item.emoji || '✨',
+        itemTone: item.tone || item.roomType || 'treasure',
+        effectType: item.effect?.type || '',
+        day: this.currentDay + 1,
+        ...payload
+      }]);
     },
 
     _applyDayStartItemEffects() {
@@ -888,25 +916,44 @@ export const useGameStore = defineStore('game', {
         const effect = item.effect;
         if (!effect) continue;
         if (effect.type === 'dayStartStepBonus') {
+          const beforeSteps = this.stepsLeft;
           this.recoverSteps(effect.amount || 0);
+          this._emitItemEffectTriggered(item, {
+            trigger: 'dayStart',
+            stepsGained: Math.max(0, this.stepsLeft - beforeSteps)
+          });
         } else if (effect.type === 'dayStartNeedReduction') {
-          this._reduceCurrentNeeds(effect.amount || 0, effect.targets || 1);
+          const reducedTargets = this._reduceCurrentNeeds(effect.amount || 0, effect.targets || 1);
+          this._emitItemEffectTriggered(item, {
+            trigger: 'dayStart',
+            affectedResources: reducedTargets.map(target => target.id),
+            summaryText: reducedTargets.length
+              ? `需求降低：${reducedTargets.map(target => `${RESOURCE_BY_ID[target.id]?.cn || target.id} -${target.reduced}`).join('，')}`
+              : ''
+          });
         }
       }
     },
 
     _reduceCurrentNeeds(amount, targetCount) {
       const day = DAYS[this.currentDay];
-      if (!day || !amount) return;
+      if (!day || !amount) return [];
       const candidates = Object.entries(day.needs)
         .map(([id, need]) => ({ id, remaining: Math.max(0, (this.needOverrides[id] ?? need) - (this.progress[id] || 0)) }))
         .filter((item) => item.remaining > 0)
         .sort((a, b) => b.remaining - a.remaining)
         .slice(0, targetCount);
+      const reduced = [];
       for (const candidate of candidates) {
         const baseNeed = this.needOverrides[candidate.id] ?? day.needs[candidate.id];
-        this.needOverrides[candidate.id] = Math.max(1, baseNeed - amount);
+        const nextNeed = Math.max(1, baseNeed - amount);
+        const delta = Math.max(0, baseNeed - nextNeed);
+        this.needOverrides[candidate.id] = nextNeed;
+        if (delta > 0) {
+          reduced.push({ id: candidate.id, reduced: delta });
+        }
       }
+      return reduced;
     },
 
     _addRewardResourceBonus(summary, id, amount) {
@@ -929,6 +976,20 @@ export const useGameStore = defineStore('game', {
       if (target?.id) this._addRewardResourceBonus(summary, target.id, amount);
     },
 
+    _addRandomNeedBonus(summary, amount) {
+      const day = DAYS[this.currentDay];
+      if (!day || !amount) return;
+      const candidates = Object.entries(day.needs)
+        .map(([id, need]) => ({
+          id,
+          remaining: Math.max(0, (this.needOverrides[id] ?? need) - (this.progress[id] || 0))
+        }))
+        .filter((item) => item.remaining > 0);
+      if (!candidates.length) return;
+      const target = candidates[Math.floor(Math.random() * candidates.length)];
+      if (target?.id) this._addRewardResourceBonus(summary, target.id, amount);
+    },
+
     _addAllTargetBonus(summary, amount) {
       const day = DAYS[this.currentDay];
       if (!day || !amount) return;
@@ -945,34 +1006,95 @@ export const useGameStore = defineStore('game', {
         if (effect.type === 'firstBigMatchBonus' && hasBig && !this._hasItemFlag(item)) {
           this._addBonusToSummaryResources(summary, effect.amount || 0);
           this._markItemFlag(item);
+          this._emitItemEffectTriggered(item, {
+            trigger: 'resourceGain',
+            affectedResources: Object.keys(summary),
+            bonusAmount: effect.amount || 0
+          });
         } else if (effect.type === 'firstFiveMatchBonus' && hasFive && !this._hasItemFlag(item)) {
           this._addBonusToSummaryResources(summary, effect.amount || 0);
           this._markItemFlag(item);
+          this._emitItemEffectTriggered(item, {
+            trigger: 'resourceGain',
+            affectedResources: Object.keys(summary),
+            bonusAmount: effect.amount || 0
+          });
         } else if (effect.type === 'allBigMatchBonus' && hasBig) {
           this._addBonusToSummaryResources(summary, effect.amount || 0);
+          this._emitItemEffectTriggered(item, {
+            trigger: 'resourceGain',
+            affectedResources: Object.keys(summary),
+            bonusAmount: effect.amount || 0
+          });
         } else if (effect.type === 'chainBonus' && chain >= (effect.minChain || 2) && !this._hasItemFlag(item)) {
           this._addBonusToSummaryResources(summary, effect.amount || 0);
           this._markItemFlag(item);
+          this._emitItemEffectTriggered(item, {
+            trigger: 'resourceGain',
+            affectedResources: Object.keys(summary),
+            bonusAmount: effect.amount || 0,
+            summaryText: `连锁达到 ${effect.minChain || 2} 段`
+          });
         } else if (effect.type === 'firstTargetResourceBonus' && !this._hasItemFlag(item)) {
-          this._addHighestNeedBonus(summary, effect.amount || 0);
+          const beforeSummary = { ...summary };
+          if (item.id === 'sackOfPennies') {
+            this._addRandomNeedBonus(summary, effect.amount || 0);
+          } else {
+            this._addHighestNeedBonus(summary, effect.amount || 0);
+          }
           this._markItemFlag(item);
+          const affectedResources = Object.keys(summary).filter(id => (summary[id] || 0) > (beforeSummary[id] || 0));
+          this._emitItemEffectTriggered(item, {
+            trigger: 'resourceGain',
+            affectedResources,
+            bonusAmount: effect.amount || 0
+          });
         } else if (effect.type === 'lowStepResourceBoost' && this.stepsLeft <= (effect.threshold || 5)) {
+          const beforeSummary = { ...summary };
           for (const id of Object.keys(summary)) {
             const bonus = Math.max(1, Math.ceil(summary[id] * ((effect.multiplier || 1) - 1)));
             this._addRewardResourceBonus(summary, id, bonus);
           }
+          const affectedResources = Object.keys(summary).filter(id => (summary[id] || 0) > (beforeSummary[id] || 0));
+          this._emitItemEffectTriggered(item, {
+            trigger: 'resourceGain',
+            affectedResources,
+            summaryText: `低步数收益提升 x${effect.multiplier || 1}`
+          });
         } else if (effect.type === 'firstHighestNeedBonus' && hasBig && !this._hasItemFlag(item)) {
+          const beforeSummary = { ...summary };
           this._addHighestNeedBonus(summary, effect.amount || 0);
           this._markItemFlag(item);
+          const affectedResources = Object.keys(summary).filter(id => (summary[id] || 0) > (beforeSummary[id] || 0));
+          this._emitItemEffectTriggered(item, {
+            trigger: 'resourceGain',
+            affectedResources,
+            bonusAmount: effect.amount || 0
+          });
         } else if (effect.type === 'firstFiveAllTargetsBonus' && hasFive && !this._hasItemFlag(item)) {
           this._addAllTargetBonus(summary, effect.amount || 0);
           this._markItemFlag(item);
+          this._emitItemEffectTriggered(item, {
+            trigger: 'resourceGain',
+            affectedResources: Object.keys(DAYS[this.currentDay]?.needs || {}),
+            bonusAmount: effect.amount || 0
+          });
         } else if (effect.type === 'firstFiveMatchStep' && hasFive && !this._hasItemFlag(item)) {
+          const beforeSteps = this.stepsLeft;
           this.recoverSteps(effect.amount || 0);
           this._markItemFlag(item);
+          this._emitItemEffectTriggered(item, {
+            trigger: 'resourceGain',
+            stepsGained: Math.max(0, this.stepsLeft - beforeSteps)
+          });
         } else if (effect.type === 'firstBigMatchPigEnergy' && hasBig && !this._hasItemFlag(item)) {
+          const beforeEnergy = this.pigEnergy;
           this.pigEnergy = Math.min(PIG_RATING.energyMax, this.pigEnergy + (effect.amount || 0));
           this._markItemFlag(item);
+          this._emitItemEffectTriggered(item, {
+            trigger: 'resourceGain',
+            pigEnergyGained: Math.max(0, this.pigEnergy - beforeEnergy)
+          });
         }
       }
     },
@@ -984,9 +1106,15 @@ export const useGameStore = defineStore('game', {
         if (this._hasItemFlag(item)) continue;
         if (this.stepsLeft > (effect.threshold || 3)) continue;
         if (this.pigEnergy < (effect.energyCost || 1)) continue;
+        const beforeSteps = this.stepsLeft;
         this.pigEnergy -= effect.energyCost || 1;
         this.recoverSteps(effect.amount || 0);
         this._markItemFlag(item);
+        this._emitItemEffectTriggered(item, {
+          trigger: 'lowStepRecovery',
+          stepsGained: Math.max(0, this.stepsLeft - beforeSteps),
+          pigEnergySpent: effect.energyCost || 1
+        });
       }
     },
 
@@ -995,12 +1123,26 @@ export const useGameStore = defineStore('game', {
         const effect = item.effect;
         if (effect?.type !== 'firstZeroStepRecover') continue;
         if (this._hasItemFlag(item, 'zero')) continue;
+        const beforeSteps = this.stepsLeft;
         this.recoverSteps(effect.amount || 0);
         this._markItemFlag(item, 'zero');
+        this._emitItemEffectTriggered(item, {
+          trigger: 'zeroStepRecovery',
+          stepsGained: Math.max(0, this.stepsLeft - beforeSteps),
+          summaryText: '步数归零，自动触发救场'
+        });
+        EventBus.trigger('sceneBurst', [{ kind: 'gold', count: 10 }]);
         if (item.reaction) this.queueAmbientBark(item.reaction);
         return this.stepsLeft > 0;
       }
       return false;
+    },
+
+    _flushPendingInvalidSwapReward() {
+      const pending = this.pendingInvalidSwapReward;
+      if (!pending?.chars?.length) return null;
+      this.pendingInvalidSwapReward = null;
+      return this.handleInvalidSwapReward(pending);
     },
 
     handleInvalidSwapReward({ chars = [] } = {}) {
@@ -1011,8 +1153,13 @@ export const useGameStore = defineStore('game', {
         const effect = item.effect;
         if (!effect) continue;
         if (effect.type === 'firstInvalidSwapForgive' && !this._hasItemFlag(item, 'invalid')) {
+          const beforeSteps = this.stepsLeft;
           this.recoverSteps(effect.amount || 0);
           this._markItemFlag(item, 'invalid');
+          this._emitItemEffectTriggered(item, {
+            trigger: 'invalidSwap',
+            stepsGained: Math.max(0, this.stepsLeft - beforeSteps)
+          });
         } else if (effect.type === 'invalidSwapBonus' && !this._hasItemFlag(item, 'invalid')) {
           for (const ch of resourceChars) {
             const resource = RESOURCE_BY_CHAR[ch];
@@ -1020,6 +1167,11 @@ export const useGameStore = defineStore('game', {
             summary[resource.id] = (summary[resource.id] || 0) + (effect.amount || 0);
           }
           this._markItemFlag(item, 'invalid');
+          this._emitItemEffectTriggered(item, {
+            trigger: 'invalidSwap',
+            affectedResources: Object.keys(summary),
+            bonusAmount: effect.amount || 0
+          });
         }
       }
       return Object.keys(summary).length ? summary : null;
@@ -1032,9 +1184,19 @@ export const useGameStore = defineStore('game', {
         if (effect?.type === 'djinnProgressBonus' && !this._hasItemFlag(item, effect.perStage ? `djinn-${this.djinnStage}` : 'djinn')) {
           bonus += effect.amount || 0;
           this._markItemFlag(item, effect.perStage ? `djinn-${this.djinnStage}` : 'djinn');
+          this._emitItemEffectTriggered(item, {
+            trigger: 'djinn',
+            djinnProgressBonus: effect.amount || 0,
+            summaryText: `迪精仪式阶段进度 +${effect.amount || 0}`
+          });
         } else if (effect?.type === 'djinnBigMatchProgressBonus' && context.hasBig && !this._hasItemFlag(item, `djinn-big-${this.djinnStage}`)) {
           bonus += effect.amount || 0;
           this._markItemFlag(item, `djinn-big-${this.djinnStage}`);
+          this._emitItemEffectTriggered(item, {
+            trigger: 'djinn',
+            djinnProgressBonus: effect.amount || 0,
+            summaryText: `4 连及以上触发仪式进度 +${effect.amount || 0}`
+          });
         }
       }
       return bonus;
@@ -1133,6 +1295,51 @@ export const useGameStore = defineStore('game', {
       if (!itemId || !this.ownedItems.some((item) => item.id === itemId)) return false;
       this.showRewardItemInfo(itemId, 'pig');
       return true;
+    },
+
+    setOwnedItemsForTesting(itemIds = []) {
+      const achievements = useAchievementStore();
+      achievements.disableForCurrentRun('tester-shortcut');
+      const ids = [...new Set((Array.isArray(itemIds) ? itemIds : [itemIds])
+        .filter((itemId) => REWARD_ITEMS[itemId]))];
+      this.ownedItems = ids
+        .map((itemId) => this._buildOwnedRewardItem(REWARD_ITEMS[itemId]))
+        .filter(Boolean);
+      this.inspectedRewardItem = null;
+      this.pendingInvalidSwapReward = null;
+      this._resetDailyItemFlags();
+      if (this.ownedItems.length) EventBus.trigger('rewardHudFlash');
+      return this.ownedItems.map((item) => item.id);
+    },
+
+    resetItemFlagsForTesting() {
+      const achievements = useAchievementStore();
+      achievements.disableForCurrentRun('tester-shortcut');
+      this._resetDailyItemFlags();
+      return true;
+    },
+
+    setStepsForTesting(steps = this.effectiveMaxSteps) {
+      const achievements = useAchievementStore();
+      achievements.disableForCurrentRun('tester-shortcut');
+      const target = Math.max(0, Math.min(this.effectiveMaxSteps, Number(steps) || 0));
+      this.stepsLeft = target;
+      return this.stepsLeft;
+    },
+
+    setPigEnergyForTesting(amount = PIG_RATING.energyMax) {
+      const achievements = useAchievementStore();
+      achievements.disableForCurrentRun('tester-shortcut');
+      const target = Math.max(0, Math.min(PIG_RATING.energyMax, Number(amount) || 0));
+      this.pigEnergy = target;
+      return this.pigEnergy;
+    },
+
+    triggerZeroStepRecoveryForTesting() {
+      const achievements = useAchievementStore();
+      achievements.disableForCurrentRun('tester-shortcut');
+      this.stepsLeft = 0;
+      return this._tryZeroStepRecovery();
     },
 
     addPigEnergyForTesting(amount = PIG_RATING.energyMax) {
@@ -1596,10 +1803,15 @@ export const useGameStore = defineStore('game', {
             mark.cleared = true;
           }
         }
-        this.djinnObjective.progress = this.djinnMarks.filter((mark) => mark.cleared).length;
+        const clearedCount = this.djinnMarks.filter((mark) => mark.cleared).length;
+        const currentProgress = this.djinnObjective.progress || 0;
+        const gainedClears = Math.max(0, clearedCount - currentProgress);
+        const itemBonus = gainedClears > 0
+          ? this.applyDjinnItemProgressBonus({ hasBig: (groupSizes || []).some((size) => size >= 4) })
+          : 0;
         this.djinnObjective.progress = Math.min(
-          this.djinnObjective.total || this.djinnObjective.progress,
-          this.djinnObjective.progress + this.applyDjinnItemProgressBonus({ hasBig: (groupSizes || []).some((size) => size >= 4) })
+          (this.djinnObjective.total || 0),
+          currentProgress + gainedClears + itemBonus
         );
         this._syncDjinnStageMonsters();
         return;

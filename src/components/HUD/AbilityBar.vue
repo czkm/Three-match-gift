@@ -1,5 +1,5 @@
 <template>
-  <div class="ability-bar glass grain">
+  <div class="ability-bar">
     <div class="bar-head">
       <h3 class="ink-title">{{ ABILITY_BAR_COPY.title }}</h3>
       <button class="achievement-entry" @click="achievement.openPanel()">
@@ -35,7 +35,7 @@
       </button>
     </div>
 
-    <div class="pig-energy glass">
+    <div class="pig-energy">
       <div class="pig-energy-head">
         <span class="pig-energy-icon">🐷</span>
         <div>
@@ -62,7 +62,7 @@
     </div>
 
     <!-- Resource conversion (lilacSeed) inline modal -->
-    <div v-if="lilacOpen" class="convert-panel glass">
+    <div v-if="lilacOpen" class="convert-panel">
       <p class="ink-title">{{ ABILITY_BAR_COPY.lilacPrompt }}</p>
       <div class="dual">
         <div>
@@ -103,7 +103,7 @@
       </div>
     </div>
 
-    <div v-if="milkTeaOpen" class="convert-panel glass">
+    <div v-if="milkTeaOpen" class="convert-panel">
       <p class="ink-title">{{ ABILITY_BAR_COPY.milkTeaPrompt }}</p>
       <div class="chips">
         <button
@@ -276,6 +276,20 @@ function onPigRatingAwarded(payload = {}) {
   }, 1820 + stars * 180)
 }
 
+function onItemEffectTriggered(payload = {}) {
+  if (!payload.pigEnergyGained) return
+  const targetEnergy = Math.max(displayPigEnergy.value, game.pigEnergy)
+  for (let i = 0; i < payload.pigEnergyGained; i++) {
+    setTimeout(() => {
+      chargingSlot.value = Math.min(targetEnergy, displayPigEnergy.value + 1)
+      displayPigEnergy.value = Math.min(targetEnergy, displayPigEnergy.value + 1)
+      setTimeout(() => {
+        chargingSlot.value = 0
+      }, 220)
+    }, i * 180)
+  }
+}
+
 watch(
   () => game.pigEnergy,
   (value) => {
@@ -287,10 +301,12 @@ watch(
 
 onMounted(() => {
   EventBus.bind('pigRatingAwarded', onPigRatingAwarded)
+  EventBus.bind('itemEffectTriggered', onItemEffectTriggered)
 })
 
 onBeforeUnmount(() => {
   EventBus.unbind('pigRatingAwarded', onPigRatingAwarded)
+  EventBus.unbind('itemEffectTriggered', onItemEffectTriggered)
   if (pigAwardTimer) clearTimeout(pigAwardTimer)
   if (pigEnergySyncTimer) clearTimeout(pigEnergySyncTimer)
 })
@@ -300,16 +316,23 @@ onBeforeUnmount(() => {
 .ability-bar {
   width: 244px;
   padding: 18px 18px 20px;
-  border-radius: var(--radius-md);
+  border-radius: 16px;
   position: relative;
   overflow: visible;
+  background: rgb(247, 243, 223);
+  border: 2px solid #d4c9b4;
+  box-shadow: 0 3px 0 0 #d4c9b4;
+  color: #725d42;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
 }
+
 h3 {
   margin: 0 0 14px;
   font-size: 12px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--ink-soft);
+  color: #9f927d;
+  font-weight: 700;
 }
 
 .bar-head {
@@ -322,6 +345,7 @@ h3 {
 
 .bar-head h3 {
   margin: 0;
+  color: #794f27;
 }
 
 .achievement-entry {
@@ -329,24 +353,22 @@ h3 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 252, 244, 0.4);
-  border: 1px solid transparent;
-  box-shadow:
-    inset 0 0 0 1px rgba(180, 152, 104, 0.22),
-    inset 0 1px 0 rgba(255, 252, 244, 0.18);
-  transition:
-    transform 200ms var(--ease-out-expo),
-    box-shadow 200ms var(--ease-out-expo),
-    background 200ms var(--ease-out-expo);
+  border-radius: 50px;
+  background: #f8f8f0;
+  border: 2px solid #d4c9b4;
+  box-shadow: 0 3px 0 0 #d4c9b4;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .achievement-entry:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 252, 244, 0.62);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 252, 244, 0.28),
-    0 8px 16px rgba(24, 16, 10, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 0 #d4c9b4;
+  border-color: #a89878;
+}
+
+.achievement-entry:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #d4c9b4;
 }
 
 .entry-icon {
@@ -356,28 +378,26 @@ h3 {
 .entry-text {
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--ink-soft);
+  letter-spacing: 0.04em;
+  color: #9f927d;
 }
 
 .active-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .pig-energy {
   margin-top: 12px;
   margin-bottom: 12px;
   padding: 12px 12px 10px;
-  border-radius: var(--radius-sm);
+  border-radius: 12px;
   position: relative;
   overflow: hidden;
-  background:
-    linear-gradient(180deg, rgba(255, 243, 225, 0.48) 0%, rgba(236, 210, 168, 0.18) 100%);
-  box-shadow:
-    inset 0 0 0 1px rgba(180, 152, 104, 0.22),
-    inset 0 1px 0 rgba(255, 252, 244, 0.2);
+  background: linear-gradient(180deg, rgba(255, 204, 0, 0.08), #f8f8f0);
+  border: 2px solid rgba(255, 204, 0, 0.3);
+  box-shadow: 0 3px 0 0 rgba(228, 186, 92, 0.4);
 }
 
 .pig-energy-head {
@@ -394,12 +414,15 @@ h3 {
 .pig-energy-title {
   margin: 0;
   font-size: 12px;
+  color: #794f27;
+  font-weight: 700;
 }
 
 .pig-energy-text {
   margin: 2px 0 0;
   font-size: 11px;
-  color: var(--ink-soft);
+  color: #9f927d;
+  font-weight: 500;
 }
 
 .pig-energy-stars {
@@ -436,31 +459,22 @@ h3 {
   font-size: 16px;
   line-height: 1;
   border-radius: 50%;
-  color: rgba(148, 118, 82, 0.44);
-  background:
-    radial-gradient(circle, rgba(106, 74, 44, 0.16), rgba(88, 60, 34, 0.08));
-  box-shadow:
-    inset 0 0 0 1px rgba(180, 152, 104, 0.16),
-    inset 0 1px 0 rgba(255, 244, 222, 0.08);
-  transition:
-    transform 240ms var(--ease-out-expo),
-    color 240ms var(--ease-out-expo),
-    box-shadow 240ms var(--ease-out-expo),
-    background 240ms var(--ease-out-expo);
+  color: rgba(159, 146, 125, 0.5);
+  background: #eae4d0;
+  border: 1.5px solid #d4c9b4;
+  transition: all 240ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .pig-energy-star.filled {
-  color: #fff0a8;
-  background:
-    radial-gradient(circle, rgba(255, 231, 122, 0.9), rgba(225, 152, 44, 0.42));
-  box-shadow:
-    0 0 14px rgba(255, 208, 108, 0.32),
-    inset 0 1px 0 rgba(255, 250, 214, 0.42);
+  color: #794f27;
+  background: radial-gradient(circle, #ffe480, #ffcc00);
+  border-color: #e0b800;
+  box-shadow: 0 0 10px rgba(255, 204, 0, 0.4);
   transform: scale(1.04);
 }
 
 .pig-energy-star.charging {
-  animation: pig-energy-star-pop 260ms var(--ease-out-expo);
+  animation: pig-energy-star-pop 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .pig-award-layer {
@@ -480,139 +494,95 @@ h3 {
 }
 
 @keyframes pig-award-flight {
-  0% {
-    opacity: 0;
-    transform: translate(0, 0) scale(0.6);
-  }
-  24% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translate(var(--dx), var(--dy)) scale(0.9);
-  }
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.6); }
+  24%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.9); }
 }
 
 @keyframes pig-energy-spark {
-  0% {
-    opacity: 0;
-    transform: scale(0.5);
-  }
-  40% {
-    opacity: 1;
-    transform: scale(1.2);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.6);
-  }
+  0%   { opacity: 0; transform: scale(0.5); }
+  40%  { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(1.6); }
 }
 
 @keyframes pig-energy-star-pop {
-  0% {
-    transform: scale(0.74);
-    filter: brightness(1.2);
-  }
-  60% {
-    transform: scale(1.28);
-    filter: brightness(1.34);
-  }
-  100% {
-    transform: scale(1.04);
-    filter: brightness(1);
-  }
+  0%   { transform: scale(0.74); }
+  60%  { transform: scale(1.28); }
+  100% { transform: scale(1.04); }
 }
 
+/* ── Ability buttons — 3D pill style ── */
 .ab-btn {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  background: linear-gradient(
-    180deg,
-    rgba(255, 252, 246, 0.28) 0%,
-    rgba(255, 250, 240, 0.08) 100%
-  );
-  border: 1px solid transparent;
-  transition:
-    background 200ms var(--ease-out-expo),
-    border-color 200ms var(--ease-out-expo),
-    transform 200ms var(--ease-out-expo),
-    box-shadow 200ms var(--ease-out-expo);
+  border-radius: 14px;
+  background: #f8f8f0;
+  border: 2px solid #d4c9b4;
+  box-shadow: 0 3px 0 0 #d4c9b4;
   font-size: 13px;
   text-align: left;
-  box-shadow:
-    inset 0 0 0 1px rgba(180, 152, 104, 0.24),
-    inset 0 1px 0 rgba(255, 252, 244, 0.2),
-    0 4px 10px rgba(24, 16, 10, 0.08);
+  color: #725d42;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .ab-btn:hover:not(:disabled) {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 252, 246, 0.42) 0%,
-    rgba(248, 238, 218, 0.24) 100%
-  );
-  border-color: rgba(180, 152, 104, 0.42);
-  transform: translateY(-2px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 252, 244, 0.3),
-    0 12px 20px rgba(24, 16, 10, 0.14);
+  transform: translateY(-1px);
+  background: #fff;
+  border-color: #19c8b9;
+  box-shadow: 0 4px 0 0 #11a89b;
 }
+
 .ab-btn:active:not(:disabled) {
-  background: linear-gradient(
-    180deg,
-    rgba(248, 238, 218, 0.2) 0%,
-    rgba(255, 250, 240, 0.06) 100%
-  );
-  border-color: rgba(180, 152, 104, 0.2);
-  transform: translateY(0);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 252, 244, 0.14),
-    0 2px 6px rgba(24, 16, 10, 0.06);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #11a89b;
 }
+
 .ab-btn.pending {
-  background: linear-gradient(
-    180deg,
-    rgba(176, 148, 201, 0.38) 0%,
-    rgba(116, 86, 140, 0.22) 100%
-  );
-  border-color: rgba(126, 88, 161, 0.72);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 252, 244, 0.16),
-    0 0 14px rgba(176, 148, 201, 0.18);
+  background: linear-gradient(180deg, rgba(25, 200, 185, 0.16), rgba(25, 200, 185, 0.04));
+  border-color: #19c8b9;
+  box-shadow: 0 3px 0 0 #11a89b, 0 0 12px rgba(25, 200, 185, 0.18);
+  color: #11a89b;
 }
-.ab-btn[data-ab='milkTeaBarrage'],
+
 .ab-btn.milk-tea {
-  background: linear-gradient(
-    180deg,
-    rgba(240, 214, 172, 0.42) 0%,
-    rgba(191, 126, 72, 0.2) 100%
-  );
+  background: linear-gradient(180deg, rgba(255, 204, 0, 0.16), rgba(255, 204, 0, 0.04));
+  border-color: rgba(255, 204, 0, 0.5);
+  box-shadow: 0 3px 0 0 rgba(228, 186, 92, 0.5);
 }
+
 .ab-btn.disabled {
   opacity: 0.45;
+  box-shadow: none;
 }
+
 .ab-icon {
   font-size: 19px;
 }
+
 .ab-icon.small {
   font-size: 14px;
 }
+
 .ab-name {
   flex: 1;
-  font-weight: 600;
+  font-weight: 700;
+  color: #725d42;
 }
+
 .ab-name.small {
   font-weight: 500;
   font-size: 12px;
 }
+
 .ab-uses {
   font-size: 11px;
-  color: var(--ink-faint);
-  background: rgba(255, 255, 255, 0.45);
-  padding: 1px 6px;
-  border-radius: 999px;
+  font-weight: 700;
+  color: #9f927d;
+  background: #eae4d0;
+  padding: 2px 8px;
+  border-radius: 50px;
   min-width: 38px;
   text-align: center;
 }
@@ -620,99 +590,158 @@ h3 {
 .passive-list {
   margin-top: 14px;
   padding-top: 12px;
-  border-top: 1px dashed rgba(180, 152, 104, 0.22);
+  border-top: 2px dashed #eae4d0;
 }
+
 .passive-list .title {
   margin: 0 0 6px;
   font-size: 11px;
   letter-spacing: 0.1em;
+  color: #9f927d;
+  font-weight: 600;
 }
+
 .passive {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin: 10px 0;
-  padding: 5px 7px;
+  margin: 8px 0;
+  padding: 6px 10px;
   font-size: 12px;
-  color: var(--ink-soft);
+  color: #9f927d;
   border-radius: 10px;
-  background: rgba(255, 252, 244, 0.14);
+  background: #f8f8f0;
+  border: 1.5px solid #eae4d0;
 }
 
+/* ── Convert panel — blob modal floating below ── */
 .convert-panel {
   position: absolute;
   top: 100%;
   right: 0;
   margin-top: 12px;
   width: 300px;
-  padding: 16px 16px;
-  border-radius: var(--radius-sm);
+  padding: 18px 18px;
+  border-radius: 16px;
   z-index: 12;
-  animation: fade-in 260ms var(--ease-out-expo);
+  background: rgb(247, 243, 223);
+  border: 2px solid #d4c9b4;
+  box-shadow: 0 4px 0 0 #d4c9b4, 0 8px 20px rgba(107, 92, 67, 0.18);
+  animation: convert-in 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
+@keyframes convert-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .convert-panel p {
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   font-size: 13px;
+  color: #794f27;
+  font-weight: 700;
 }
+
 .dual {
   display: flex;
   gap: 10px;
 }
+
 .dual > div {
   flex: 1;
 }
+
 .chips {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
 }
+
 .chip {
-  background: rgba(180, 152, 104, 0.08);
-  padding: 4px 8px;
-  border-radius: 999px;
+  background: #f8f8f0;
+  padding: 4px 10px;
+  border-radius: 50px;
   font-size: 11px;
-  border: 1px solid rgba(180, 152, 104, 0.18);
+  border: 2px solid #d4c9b4;
+  box-shadow: 0 2px 0 0 #d4c9b4;
+  color: #9f927d;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.chip:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0 0 #d4c9b4;
+}
+
 .chip.active {
-  background: var(--lilac);
-  color: var(--paper);
-  border-color: var(--magic-1);
+  background: #19c8b9;
+  color: #fff;
+  border-color: #11a89b;
+  box-shadow: 0 2px 0 0 #11a89b;
 }
+
 .chip:disabled {
   opacity: 0.4;
+  box-shadow: none;
 }
+
 .actions {
   display: flex;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 12px;
 }
+
 .apply,
 .cancel {
-  padding: 6px 14px;
-  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  border-radius: 50px;
   font-size: 12px;
-  font-weight: 600;
-  transition:
-    transform 160ms var(--ease-out-expo),
-    filter 160ms var(--ease-out-expo),
-    box-shadow 160ms var(--ease-out-expo);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid;
 }
-.apply:hover:not(:disabled),
+
+.apply {
+  background: #ffcc00;
+  color: #725d42;
+  border-color: #e0b800;
+  box-shadow: 0 4px 0 0 #c9a800;
+}
+
+.apply:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: #ffd633;
+  box-shadow: 0 5px 0 0 #c9a800;
+}
+
+.apply:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #c9a800;
+}
+
+.apply:disabled {
+  background: #eae4d0;
+  border-color: #d4c9b4;
+  color: #9f927d;
+  box-shadow: none;
+}
+
+.cancel {
+  background: #f8f8f0;
+  color: #9f927d;
+  border-color: #d4c9b4;
+  box-shadow: 0 4px 0 0 #d4c9b4;
+}
+
 .cancel:hover {
   transform: translateY(-1px);
-  filter: brightness(1.08);
+  box-shadow: 0 5px 0 0 #d4c9b4;
 }
-.apply {
-  background: linear-gradient(180deg, var(--gold-soft) 0%, var(--gold) 100%);
-  color: var(--ink);
-  border: 1px solid rgba(84, 54, 22, 0.34);
-}
-.apply:disabled {
-  background: rgba(208, 168, 87, 0.4);
-}
-.cancel {
-  background: linear-gradient(180deg, #5a4434 0%, #3a2818 100%);
-  color: var(--paper);
-  border: 1px solid rgba(255, 244, 222, 0.14);
+
+.cancel:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #d4c9b4;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="dialog-box glass grain" @click.stop="onSkip">
+  <div class="dialog-box" @click.stop="onSkip">
     <p class="text">{{ display }}<span v-if="!done" class="cursor">▍</span></p>
     <span v-if="done && hint" class="hint">{{ hint }}</span>
   </div>
@@ -46,30 +46,32 @@ defineExpose({
 .dialog-box {
   position: relative;
   padding: 18px 22px;
-  border-radius: var(--radius-sm);
+  border-radius: 16px;
   cursor: pointer;
   user-select: none;
   font-size: 15px;
   line-height: 1.75;
-  color: var(--ink);
+  color: #725d42;
   white-space: pre-wrap;
   max-width: 720px;
   margin: 0 auto;
-  transition: transform 200ms var(--ease-out-expo), box-shadow 200ms var(--ease-out-expo);
+  background: #f8f8f0;
+  border: 2px solid #d4c9b4;
+  box-shadow: 0 3px 0 0 #d4c9b4;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dialog-box:hover {
   transform: translateY(-1px);
-  box-shadow:
-    var(--surface-glow),
-    var(--hud-shadow),
-    0 8px 20px rgba(28, 18, 12, 0.1),
-    inset 0 0 0 1px rgba(255, 244, 214, 0.28);
+  border-color: #19c8b9;
+  box-shadow: 0 4px 0 0 #11a89b;
 }
 .text { margin: 0; }
 .cursor {
   display: inline-block;
   margin-left: 2px;
-  color: var(--gold-soft);
+  color: #19c8b9;
   animation: blink 760ms steps(1) infinite;
 }
 .hint {
@@ -77,8 +79,9 @@ defineExpose({
   right: 14px;
   bottom: 8px;
   font-size: 11px;
-  color: var(--ink-faint);
-  letter-spacing: 0.12em;
+  color: #9f927d;
+  letter-spacing: 0.04em;
+  font-weight: 600;
   opacity: 0.85;
   transition: opacity 200ms ease;
 }

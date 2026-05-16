@@ -1,5 +1,5 @@
 <template>
-  <section class="estate-strip glass grain" :class="{ locked: !interactive }">
+  <section class="estate-strip" :class="{ locked: !interactive }">
     <header class="strip-head">
       <div class="title-group">
         <p class="eyebrow">
@@ -822,7 +822,12 @@ onBeforeUnmount(() => {
   min-height: 242px;
   padding: 16px 18px 16px;
   overflow: hidden;
-  box-shadow: var(--surface-shadow);
+  background: rgb(247, 243, 223);
+  border: 2px solid #d4c9b4;
+  border-radius: 16px;
+  box-shadow: 0 3px 0 0 #d4c9b4;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+  color: #725d42;
 }
 
 .estate-strip.locked {
@@ -849,16 +854,18 @@ onBeforeUnmount(() => {
   margin: 0;
   font-size: 11px;
   letter-spacing: 0.16em;
-  color: var(--ink-soft);
+  color: #9f927d;
   text-transform: uppercase;
+  font-weight: 700;
 }
 
 .caption {
   margin: 0;
   min-height: 20px;
   font-size: 13px;
-  color: var(--ink);
+  color: #725d42;
   line-height: 1.5;
+  font-weight: 500;
 }
 
 .head-tags {

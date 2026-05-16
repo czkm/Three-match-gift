@@ -25,7 +25,7 @@
     </div>
 
     <!-- Banner & monologue -->
-    <div v-if="bannerVisible" class="banner glass grain">
+    <div v-if="bannerVisible" class="banner">
       <p class="banner-emoji">{{ today.building.emoji }}</p>
       <p class="banner-line ink-title">{{ today.completedBanner }}</p>
       <p class="banner-sub ink-subtle">解锁能力 · {{ ABILITIES[today.ability].name }}</p>
@@ -115,58 +115,59 @@ function onAdvance() {
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(circle at 50% 40%, rgba(255, 220, 160, 0.45), transparent 45%),
-    radial-gradient(circle at 30% 70%, rgba(176, 148, 201, 0.08), transparent 35%),
-    rgba(40, 28, 18, 0.68);
+    radial-gradient(circle at 50% 40%, rgba(255, 220, 160, 0.55), transparent 45%),
+    radial-gradient(circle at 30% 70%, rgba(25, 200, 185, 0.12), transparent 35%),
+    rgba(114, 93, 66, 0.55);
+  backdrop-filter: blur(2px);
 }
 
 .banner {
   position: relative;
   width: min(500px, 92vw);
-  padding: 26px 30px;
+  padding: 36px 36px 28px;
   text-align: center;
-  border-radius: var(--radius-md);
-  animation: banner-in 800ms var(--ease-out-expo) forwards;
+  clip-path: url(#animal-modal-clip);
+  background: rgb(247, 243, 223);
+  animation: banner-in 800ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   z-index: 5;
-  box-shadow:
-    var(--surface-shadow),
-    0 0 0 1px rgba(255, 242, 214, 0.08),
-    inset 0 1px 0 rgba(255, 248, 230, 0.3);
+  color: #725d42;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+  box-shadow: 0 4px 10px rgba(107, 92, 67, 0.42);
 }
-.banner-emoji  { font-size: 56px; margin: 0; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)); }
-.banner-line   { font-size: 22px; margin: 6px 0 8px; }
-.banner-sub    { font-size: 13px; margin-bottom: 16px; letter-spacing: 0.06em; }
+.banner-emoji  { font-size: 56px; margin: 0; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.16)); }
+.banner-line   { font-size: 22px; margin: 6px 0 8px; color: #794f27; font-weight: 800; }
+.banner-sub    { font-size: 13px; margin-bottom: 16px; letter-spacing: 0.04em; color: #9f927d; font-weight: 600; }
 
 .advance-btn {
   margin-top: 16px;
-  padding: 10px 24px;
-  background: linear-gradient(180deg, var(--gold-soft) 0%, var(--gold) 100%);
-  color: var(--ink);
-  border-radius: var(--radius-pill);
+  padding: 0 28px;
+  height: 45px;
+  background: #ffcc00;
+  color: #725d42;
+  border-radius: 50px;
   font-weight: 700;
   font-size: 14px;
-  letter-spacing: 0.06em;
-  border: 1px solid rgba(86, 54, 24, 0.34);
-  box-shadow:
-    0 8px 18px rgba(28, 18, 10, 0.2),
-    inset 0 1px 0 rgba(255, 248, 230, 0.3);
-  transition: transform 200ms var(--ease-out-expo), filter 200ms var(--ease-out-expo), box-shadow 200ms var(--ease-out-expo);
+  letter-spacing: 0.04em;
+  border: 2px solid #e0b800;
+  box-shadow: 0 5px 0 0 #c9a800;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
 }
 .advance-btn:hover {
-  filter: brightness(1.06);
-  transform: translateY(-2px);
-  box-shadow:
-    0 14px 28px rgba(28, 18, 10, 0.26),
-    inset 0 1px 0 rgba(255, 248, 230, 0.35);
+  background: #ffd633;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 0 0 #c9a800;
 }
 .advance-btn:active {
-  transform: translateY(0);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #c9a800;
 }
 
 .mono { margin-top: 10px; }
 
 @keyframes banner-in {
-  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  from { opacity: 0; transform: translateY(16px) scale(0.92); }
+  60%  { opacity: 1; transform: translateY(-4px) scale(1.02); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 </style>

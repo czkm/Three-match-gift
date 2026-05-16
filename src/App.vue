@@ -1,29 +1,117 @@
 <template>
-  <Title v-if="game.phase === 'title'" @start="onStart" />
-  <GameContainer
-    v-else-if="['intro', 'playing', 'targeting', 'dayEnd', 'repairing', 'rewardChoice', 'awakening', 'djinnTransition', 'wish'].includes(game.phase)"
-  />
-  <Ending
-    v-else-if="['ending', 'final'].includes(game.phase)"
-    @restart="onRestart"
-  />
+  <!-- Animal Island blob clip-path (shared by all blob modals) -->
+  <svg style="position:absolute;width:0;height:0" aria-hidden>
+    <defs>
+      <clipPath id="animal-modal-clip" clipPathUnits="objectBoundingBox">
+        <path d="M0.501,0.005 L0.501,0.005 L0.523,0.005 L0.549,0.006
+          C0.704,0.01,0.796,0.017,0.825,0.027 L0.827,0.028
+          C0.872,0.045,0.939,0.044,0.978,0.17
+          C1,0.254,1,0.365,0.99,0.505 L0.988,0.513
+          C0.979,0.558,0.971,0.598,0.965,0.633
+          C0.956,0.689,0.979,0.77,0.964,0.865
+          C0.953,0.928,0.921,0.966,0.869,0.979
+          C0.821,0.986,0.773,0.992,0.726,0.995
+          L0.712,0.996 L0.694,0.997
+          C0.648,1,0.586,1,0.507,1 L0.501,1 L0.464,1
+          C0.385,1,0.325,0.998,0.283,0.995
+          C0.234,0.992,0.184,0.987,0.133,0.979
+          C0.081,0.966,0.05,0.928,0.039,0.865
+          C0.023,0.77,0.047,0.689,0.037,0.633
+          C0.031,0.595,0.023,0.552,0.013,0.505
+          C-0.006,0.365,-0.002,0.254,0.024,0.17
+          C0.064,0.045,0.13,0.045,0.174,0.028 L0.175,0.028
+          C0.204,0.017,0.303,0.009,0.474,0.005 L0.501,0.005"/>
+      </clipPath>
+    </defs>
+  </svg>
+
+  <!-- Loading screen -->
+  <LoadingScreen v-if="loading" :progress="loadProgress" />
+
+  <!-- Main app (after loading) -->
+  <template v-else>
+    <Title v-if="game.phase === 'title'" @start="onStart" />
+    <GameContainer
+      v-else-if="['intro', 'playing', 'targeting', 'dayEnd', 'repairing', 'rewardChoice', 'awakening', 'djinnTransition', 'wish'].includes(game.phase)"
+    />
+    <Ending
+      v-else-if="['ending', 'final'].includes(game.phase)"
+      @restart="onRestart"
+    />
+  </template>
   <transition name="tester-toast">
     <p v-if="testerToast" class="tester-toast parchment grain">{{ testerToast }}</p>
   </transition>
+  <section
+    v-if="showTesterPanel"
+    class="tester-panel parchment grain"
+    aria-label="道具测试面板"
+  >
+    <div class="tester-panel-head">
+      <div>
+        <p class="tester-eyebrow">Tester</p>
+        <h3 class="tester-title">小猪道具搭配</h3>
+      </div>
+      <button type="button" class="tester-close" @click="showTesterPanel = false">收起</button>
+    </div>
+    <p class="tester-hint">`Ctrl/Cmd + I` 打开。先勾选道具，再用下面动作快速触发。</p>
+    <div class="tester-shortcuts">
+      <button type="button" class="tester-action" @click="applySelectedItems">应用当前组合</button>
+      <button type="button" class="tester-action subtle" @click="clearSelectedItems">清空道具</button>
+      <button type="button" class="tester-action subtle" @click="resetItemFlags">重置当日触发</button>
+      <button type="button" class="tester-action subtle" @click="fillPigEnergy">充满小猪能量</button>
+      <button type="button" class="tester-action subtle" @click="setLowSteps">步数设为 3</button>
+      <button type="button" class="tester-action danger" @click="triggerZeroStepRecovery">测试归零救场</button>
+    </div>
+    <div class="tester-columns">
+      <div class="tester-group">
+        <p class="tester-group-title">宝箱房</p>
+        <label
+          v-for="item in treasureItems"
+          :key="item.id"
+          class="tester-item"
+        >
+          <input v-model="selectedItemIds" type="checkbox" :value="item.id">
+          <span class="tester-item-emoji">{{ item.emoji }}</span>
+          <span class="tester-item-copy">
+            <span class="tester-item-name">{{ item.name }}</span>
+            <span class="tester-item-effect">{{ item.description }}</span>
+          </span>
+        </label>
+      </div>
+      <div class="tester-group">
+        <p class="tester-group-title">恶魔房</p>
+        <label
+          v-for="item in devilItems"
+          :key="item.id"
+          class="tester-item"
+        >
+          <input v-model="selectedItemIds" type="checkbox" :value="item.id">
+          <span class="tester-item-emoji">{{ item.emoji }}</span>
+          <span class="tester-item-copy">
+            <span class="tester-item-name">{{ item.name }}</span>
+            <span class="tester-item-effect">{{ item.description }}</span>
+          </span>
+        </label>
+      </div>
+    </div>
+  </section>
   <AchievementToastStack />
   <AchievementPanel />
   <AudioControls />
 </template>
 
 <script setup>
-import { onMounted, onBeforeUnmount, ref, watchEffect } from 'vue';
+import { computed, onMounted, onBeforeUnmount, ref, watchEffect } from 'vue';
 import AudioControls from './components/HUD/AudioControls.vue';
 import AchievementPanel from './components/HUD/AchievementPanel.vue';
 import AchievementToastStack from './components/HUD/AchievementToastStack.vue';
+import LoadingScreen from './components/LoadingScreen.vue';
 import Title from './components/Title.vue';
 import GameContainer from './components/GameContainer.vue';
 import Ending from './components/Ending.vue';
 import { useAudio } from '@/composables/useAudio';
+import { REWARD_ITEMS } from '@/data/content';
 import { useAchievementStore } from '@/stores/achievementStore';
 import { useGameStore } from '@/stores/gameStore';
 
@@ -31,6 +119,15 @@ const achievement = useAchievementStore();
 const game = useGameStore();
 useAudio();
 const testerToast = ref('');
+const showTesterPanel = ref(false);
+const selectedItemIds = ref([]);
+const allRewardItems = Object.values(REWARD_ITEMS);
+const treasureItems = computed(() => allRewardItems.filter((item) => item.roomType === 'treasure'));
+const devilItems = computed(() => allRewardItems.filter((item) => item.roomType === 'devil'));
+
+// Loading state
+const loading = ref(true);
+const loadProgress = ref(0);
 let toastTimer = null;
 let jumpChordTimer = null;
 const jumpChordActive = ref(false);
@@ -46,6 +143,14 @@ function onRestart() {
 function onTesterKeydown(event) {
   if (!(event.metaKey || event.ctrlKey)) return;
   const key = event.key.toLowerCase();
+
+  if (key === 'i') {
+    event.preventDefault();
+    showTesterPanel.value = !showTesterPanel.value;
+    if (showTesterPanel.value) syncTesterSelection();
+    showTesterToast(showTesterPanel.value ? '测试面板：已打开' : '测试面板：已收起');
+    return;
+  }
 
   if (jumpChordActive.value && /^[1-9]$/.test(key)) {
     event.preventDefault();
@@ -97,6 +202,45 @@ function onTesterKeydown(event) {
   armJumpChord();
 }
 
+function syncTesterSelection() {
+  selectedItemIds.value = [...game.ownedItemIds];
+}
+
+function applySelectedItems() {
+  const ids = game.setOwnedItemsForTesting(selectedItemIds.value);
+  showTesterToast(ids.length
+    ? `测试道具：已应用 ${ids.length} 个道具组合`
+    : '测试道具：当前组合已清空');
+}
+
+function clearSelectedItems() {
+  selectedItemIds.value = [];
+  game.setOwnedItemsForTesting([]);
+  showTesterToast('测试道具：已清空');
+}
+
+function resetItemFlags() {
+  game.resetItemFlagsForTesting();
+  showTesterToast('测试道具：已重置当天触发次数');
+}
+
+function fillPigEnergy() {
+  const total = game.setPigEnergyForTesting(5);
+  showTesterToast(`测试能量：当前 ${total} 星`);
+}
+
+function setLowSteps() {
+  const total = game.setStepsForTesting(3);
+  showTesterToast(`测试步数：已设为 ${total}`);
+}
+
+function triggerZeroStepRecovery() {
+  const ok = game.triggerZeroStepRecoveryForTesting();
+  showTesterToast(ok
+    ? `测试救场：已触发归零恢复，当前 ${game.stepsLeft} 步`
+    : '测试救场：当前组合没有归零恢复类道具');
+}
+
 function armJumpChord() {
   jumpChordActive.value = true;
   if (jumpChordTimer) clearTimeout(jumpChordTimer);
@@ -130,12 +274,23 @@ watchEffect(() => {
   document.body.dataset.phase = game.phase;
 });
 
-onMounted(() => {
+onMounted(async () => {
   if (typeof document === 'undefined') return;
   achievement.init();
   document.body.dataset.day = '1';
   document.body.dataset.phase = 'title';
   window.addEventListener('keydown', onTesterKeydown);
+
+  // Loading sequence
+  loadProgress.value = 20;
+  await document.fonts?.ready;
+  loadProgress.value = 60;
+  await new Promise(r => setTimeout(r, 400));
+  loadProgress.value = 90;
+  await new Promise(r => setTimeout(r, 300));
+  loadProgress.value = 100;
+  await new Promise(r => setTimeout(r, 300));
+  loading.value = false;
 });
 
 onBeforeUnmount(() => {
@@ -173,5 +328,173 @@ onBeforeUnmount(() => {
 .tester-toast-leave-to {
   opacity: 0;
   transform: translateY(-10px);
+}
+
+.tester-panel {
+  position: fixed;
+  top: 60px;
+  right: 18px;
+  z-index: 119;
+  width: min(420px, calc(100vw - 36px));
+  max-height: calc(100vh - 110px);
+  overflow: auto;
+  padding: 14px;
+  border-radius: 18px;
+  color: var(--ink);
+  box-shadow:
+    0 18px 40px rgba(35, 24, 14, 0.24),
+    0 0 0 1px rgba(255, 242, 214, 0.12);
+}
+
+.tester-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.tester-eyebrow,
+.tester-title,
+.tester-hint,
+.tester-group-title,
+.tester-item-name,
+.tester-item-effect {
+  margin: 0;
+}
+
+.tester-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #9f927d;
+}
+
+.tester-title {
+  font-size: 18px;
+  color: #794f27;
+}
+
+.tester-close,
+.tester-action {
+  border: 2px solid #d4c9b4;
+  background: #f8f8f0;
+  color: #725d42;
+  border-radius: 999px;
+  box-shadow: 0 3px 0 0 #d4c9b4;
+  font: inherit;
+  cursor: pointer;
+}
+
+.tester-close {
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tester-hint {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #8a7558;
+}
+
+.tester-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.tester-action {
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tester-action.subtle {
+  background: #f3efe2;
+}
+
+.tester-action.danger {
+  border-color: rgba(200, 70, 70, 0.35);
+  box-shadow: 0 3px 0 0 rgba(200, 70, 70, 0.25);
+  color: #b94a4a;
+}
+
+.tester-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.tester-group {
+  min-width: 0;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(248, 248, 240, 0.78);
+  border: 1px solid rgba(212, 201, 180, 0.9);
+}
+
+.tester-group-title {
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #794f27;
+}
+
+.tester-item {
+  display: grid;
+  grid-template-columns: 16px 24px minmax(0, 1fr);
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.tester-item + .tester-item {
+  border-top: 1px dashed rgba(212, 201, 180, 0.7);
+}
+
+.tester-item input {
+  margin: 3px 0 0;
+}
+
+.tester-item-emoji {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.tester-item-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.tester-item-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #725d42;
+}
+
+.tester-item-effect {
+  font-size: 11px;
+  line-height: 1.45;
+  color: #8a7558;
+}
+
+@media (max-width: 900px) {
+  .tester-panel {
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
+
+  .tester-columns {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
