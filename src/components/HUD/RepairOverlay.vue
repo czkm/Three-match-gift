@@ -142,25 +142,25 @@ function onAdvance() {
   margin-top: 16px;
   padding: 0 28px;
   height: 45px;
-  background: #ffcc00;
+  background: #f5c31c;
   color: #725d42;
   border-radius: 50px;
   font-weight: 700;
   font-size: 14px;
   letter-spacing: 0.04em;
-  border: 2px solid #e0b800;
-  box-shadow: 0 5px 0 0 #c9a800;
+  border: 2px solid #dba90e;
+  box-shadow: 0 5px 0 0 #dba90e;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
 }
 .advance-btn:hover {
-  background: #ffd633;
+  background: #f7d04a;
   transform: translateY(-1px);
-  box-shadow: 0 6px 0 0 #c9a800;
+  box-shadow: 0 6px 0 0 #dba90e;
 }
 .advance-btn:active {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 0 #c9a800;
+  box-shadow: 0 1px 0 0 #dba90e;
 }
 
 .mono { margin-top: 10px; }

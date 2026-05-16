@@ -377,8 +377,8 @@ h2.sub {
 
 .gift-input:focus {
   outline: none;
-  border-color: #ffcc00;
-  box-shadow: 0 3px 0 0 #e0b800, 0 0 0 3px rgba(255, 204, 0, 0.15);
+  border-color: #f5c31c;
+  box-shadow: 0 3px 0 0 #dba90e, 0 0 0 3px rgba(245, 195, 28, 0.15);
   background: #fff;
 }
 
@@ -460,13 +460,13 @@ h2.sub {
 .preset:hover:not(:disabled) {
   background: #19c8b9;
   color: #fff;
-  border-color: #11a89b;
-  box-shadow: 0 4px 0 0 #11a89b;
+  border-color: #50B9AB;
+  box-shadow: 0 4px 0 0 #50B9AB;
   transform: translateY(-1px);
 }
 
 .preset:active:not(:disabled) {
-  box-shadow: 0 1px 0 0 #11a89b;
+  box-shadow: 0 1px 0 0 #50B9AB;
   transform: translateY(2px);
 }
 
@@ -565,20 +565,20 @@ h2.sub {
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  border: 2px solid #11a89b;
-  box-shadow: 0 5px 0 0 #11a89b;
+  border: 2px solid #50B9AB;
+  box-shadow: 0 5px 0 0 #50B9AB;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .start:hover:not(:disabled) {
   background: #3dd4c6;
   transform: translateY(-1px);
-  box-shadow: 0 6px 0 0 #11a89b;
+  box-shadow: 0 6px 0 0 #50B9AB;
 }
 
 .start:active:not(:disabled) {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 0 #11a89b;
+  box-shadow: 0 1px 0 0 #50B9AB;
 }
 
 .start:disabled {

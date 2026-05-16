@@ -115,13 +115,13 @@ watch(
   top: 0;
   bottom: 0;
   width: 4px;
-  background: linear-gradient(180deg, #19c8b9, #11a89b);
+  background: linear-gradient(180deg, #19c8b9, #50B9AB);
 }
 
 .toast:hover {
   transform: translateY(-2px);
   border-color: #19c8b9;
-  box-shadow: 0 5px 0 0 #11a89b, 0 10px 24px rgba(25, 200, 185, 0.18);
+  box-shadow: 0 5px 0 0 #50B9AB, 0 10px 24px rgba(25, 200, 185, 0.18);
 }
 
 .toast.rarity-rare {
@@ -162,7 +162,7 @@ watch(
 
 .toast.rarity-gold:hover {
   border-color: rgba(228, 186, 92, 1);
-  box-shadow: 0 5px 0 0 rgba(205, 142, 38, 0.5), 0 10px 24px rgba(255, 204, 0, 0.22);
+  box-shadow: 0 5px 0 0 rgba(205, 142, 38, 0.5), 0 10px 24px rgba(245, 195, 28, 0.22);
 }
 
 .toast-medal {
@@ -206,7 +206,7 @@ watch(
 
 .toast.rarity-gold .toast-icon {
   background: radial-gradient(circle, #fff5c8, #ffd97a);
-  border-color: #e0b800;
+  border-color: #dba90e;
 }
 
 .toast-copy {

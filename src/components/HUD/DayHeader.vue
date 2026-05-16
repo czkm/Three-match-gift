@@ -218,9 +218,9 @@ onBeforeUnmount(() => {
   border: 2px solid #d4c9b4;
 }
 .dot.lit {
-  background: radial-gradient(circle, #ffcc00, #e0b800);
-  border-color: #c9a800;
-  box-shadow: 0 0 8px rgba(255, 204, 0, 0.5);
+  background: radial-gradient(circle, #f5c31c, #dba90e);
+  border-color: #dba90e;
+  box-shadow: 0 0 8px rgba(245, 195, 28, 0.5);
 }
 .step-value {
   font-size: 20px;
@@ -241,7 +241,7 @@ onBeforeUnmount(() => {
 }
 
 .step-value.boosted {
-  color: #11a89b;
+  color: #50B9AB;
   animation: step-boost-flash 900ms ease-out;
 }
 

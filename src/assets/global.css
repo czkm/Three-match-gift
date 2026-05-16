@@ -59,93 +59,133 @@ body {
   overflow: hidden;
 }
 
-/* ── Buttons — warm 3D Nintendo press ── */
+/* ── Buttons — Animal Island Button.tsx defaults ─────────────────
+ * Default = warm-white pill, primary accent on hover/focus.
+ * Active = compressed 3D press (translateY(2px), shadow shrinks).
+ * Matches upstream `.animal-btn-default` + `.animal-btn-middle`.
+ * ───────────────────────────────────────────────────────────── */
 button {
   font: inherit;
   font-weight: var(--font-weight-heading);
   letter-spacing: var(--letter-spacing-wide);
-  color: var(--ink);
+  color: var(--animal-text-color);
   cursor: pointer;
-  background: var(--paper-2);
-  border: 2px solid var(--silver);
+  background: var(--animal-bg-color);
+  border: var(--animal-border-width, 2px) solid var(--animal-border-color);
   border-radius: var(--radius-pill);
   padding: 0 20px;
   height: 45px;
-  /* box-shadow: var(--btn-shadow); */
-  transition: all var(--t-transition);
-  touch-action: manipulation;
+  font-size: var(--font-size-base);
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--animal-spacing-sm);
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+  box-shadow: var(--animal-shadow-sm);
+  transition: all var(--animal-motion-duration-base) var(--animal-motion-ease);
   position: relative;
   transform: translateY(0);
 }
 
 button:hover:not(:disabled) {
-  box-shadow: var(--btn-shadow-hover);
+  color: var(--animal-primary-color);
+  border-color: var(--animal-primary-color);
+  box-shadow: var(--animal-shadow-base);
   transform: translateY(-1px);
-  border-color: var(--glass-border-hover);
 }
 
 button:active:not(:disabled) {
-  box-shadow: var(--btn-shadow-active);
-  transform: translateY(2px);
+  color: var(--animal-primary-color-active);
+  border-color: var(--animal-primary-color-active);
+  box-shadow: var(--animal-shadow-sm);
+  transform: translateY(0);
 }
 
 button:disabled {
   cursor: not-allowed;
-  opacity: 0.55;
+  opacity: 0.5;
   box-shadow: none;
 }
 
 button:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--animal-primary-color);
   outline-offset: 2px;
 }
 
-/* ── Input focus — warm yellow (NOT blue) ── */
+/* ── Input focus — Animal Island warm yellow ring ── */
+input,
+textarea,
+select {
+  font: inherit;
+  font-size: var(--font-size-base);
+  color: var(--animal-text-color);
+  background: var(--animal-bg-color);
+  border: 2px solid var(--animal-border-color);
+  border-radius: var(--radius-pill);
+  padding: 0 16px;
+  height: 45px;
+  transition: all var(--animal-motion-duration-base) var(--animal-motion-ease);
+}
+
+input:hover:not(:focus):not(:disabled),
+textarea:hover:not(:focus):not(:disabled) {
+  border-color: var(--animal-border-color-hover);
+}
+
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  border-color: var(--focus-yellow);
-  box-shadow: var(--input-shadow), 0 0 0 3px rgba(255, 204, 0, 0.15);
+  border-color: var(--animal-warning-color);
+  box-shadow: 0 0 0 3px rgba(245, 195, 28, 0.18);
   outline: none;
 }
 
-/* ── Panel surface — warm solid (replaces glass) ── */
+input::placeholder,
+textarea::placeholder {
+  color: var(--animal-text-color-disabled);
+}
+
+/* ── Panel surface — warm solid card (replaces glass) ── */
 .glass {
-  background: var(--paper-2);
-  border: 2px solid var(--silver);
+  background: var(--animal-card-bg);
+  border: 2px solid var(--animal-border-color-light);
   border-radius: var(--radius-md);
-  box-shadow: var(--card-shadow);
+  box-shadow: var(--animal-shadow-base);
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  color: var(--ink-body, #725d42);
 }
 
-/* ── Parchment surface — slightly warmer ── */
+/* ── Parchment surface — slightly warmer base ── */
 .parchment {
-  background:
-    linear-gradient(180deg, rgba(248, 248, 240, 0.6) 0%, transparent 18%),
-    linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 72%, var(--paper-3) 100%);
-  border: 2px solid var(--silver);
+  background: var(--animal-card-bg);
+  border: 2px solid var(--animal-border-color-light);
   border-radius: var(--radius-md);
-  box-shadow: var(--card-shadow);
+  box-shadow: var(--animal-shadow-base);
   position: relative;
+  color: var(--ink-body, #725d42);
 }
 
 /* ── Typography utilities ── */
 .ink-title {
   font-weight: var(--font-weight-bold);
   letter-spacing: var(--letter-spacing-wide);
-  color: #794f27;
+  color: var(--animal-text-color);
 }
 
 .ink-subtle {
-  color: var(--ink-faint);
-  font-size: 13px;
+  color: var(--animal-text-color-secondary);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-body);
 }
 
 .ink-glow {
-  color: var(--accent);
+  color: var(--animal-primary-color);
   text-shadow:
     0 0 8px rgba(25, 200, 185, 0.20),
     0 1px 0 rgba(248, 248, 240, 0.32);
@@ -153,15 +193,15 @@ select:focus-visible {
 
 .label-caps {
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #a0936e;
+  color: var(--animal-text-color-secondary);
 }
 
 /* ── Animation utilities ── */
-.fadeIn  { animation: fade-in 600ms var(--ease-out-expo) forwards; }
-.fadeOut { animation: fade-out 600ms var(--ease-out-expo) forwards; }
+.fadeIn  { animation: fade-in 600ms var(--animal-motion-ease) forwards; }
+.fadeOut { animation: fade-out 600ms var(--animal-motion-ease) forwards; }
 .float-gentle { animation: float-gentle 4s var(--ease-in-out-sine) infinite; }
 .pulse-soft   { animation: pulse-soft 2.4s var(--ease-in-out-sine) infinite; }
 .shimmer-gold { animation: shimmer-gold 2.8s linear infinite; background-size: 200% 100%; }
@@ -191,7 +231,7 @@ select:focus-visible {
   100% { background-position: -200% 0; }
 }
 
-/* ── Grain texture — minimal for Animal Island ── */
+/* ── Grain texture — minimal teal/amber radial wash ── */
 .grain::before {
   content: "";
   position: absolute;
@@ -200,7 +240,7 @@ select:focus-visible {
   border-radius: inherit;
   background:
     radial-gradient(circle at 18% 24%, rgba(25, 200, 185, 0.03) 0, transparent 38%),
-    radial-gradient(circle at 76% 78%, rgba(247, 205, 103, 0.03) 0, transparent 44%);
+    radial-gradient(circle at 76% 78%, rgba(245, 195, 28, 0.03) 0, transparent 44%);
   mix-blend-mode: normal;
 }
 
@@ -212,50 +252,123 @@ select:focus-visible {
   mix-blend-mode: normal;
 }
 
-/* ── 3D pill button variant classes ── */
+/* ── Variant pill buttons — `0 5px #bdaea0` 3D shadow signature ── */
 .btn-primary {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent-active);
-  box-shadow: 0 5px 0 0 #11a89b;
+  color: var(--animal-text-color);
+  background: var(--animal-bg-color);
+  border-color: var(--animal-bg-color);
+  box-shadow: var(--animal-btn-shadow);
 }
 .btn-primary:hover:not(:disabled) {
-  background: var(--accent-hover);
-  box-shadow: 0 6px 0 0 #11a89b;
+  color: var(--animal-text-color);
+  background: var(--animal-bg-color);
+  border-color: var(--animal-bg-color);
+  box-shadow: var(--animal-btn-shadow-hover);
+  transform: translateY(-1px);
 }
 .btn-primary:active:not(:disabled) {
-  box-shadow: 0 1px 0 0 #11a89b;
+  color: var(--animal-text-color);
+  background: var(--animal-bg-color);
+  border-color: var(--animal-bg-color);
+  box-shadow: var(--animal-btn-shadow-active);
+  transform: translateY(2px);
+}
+
+.btn-accent {
+  color: #fff;
+  background: var(--animal-primary-color);
+  border-color: var(--animal-primary-color);
+  box-shadow: 0 5px var(--animal-primary-color-active);
+}
+.btn-accent:hover:not(:disabled) {
+  color: #fff;
+  background: var(--animal-primary-color-hover);
+  border-color: var(--animal-primary-color-hover);
+  box-shadow: 0 6px var(--animal-primary-color-active);
+  transform: translateY(-1px);
+}
+.btn-accent:active:not(:disabled) {
+  color: #fff;
+  background: var(--animal-primary-color-active);
+  border-color: var(--animal-primary-color-active);
+  box-shadow: 0 1px var(--animal-primary-color-active);
+  transform: translateY(2px);
 }
 
 .btn-warning {
-  background: var(--focus-yellow);
-  color: #725d42;
-  border-color: var(--focus-yellow-dark);
-  box-shadow: 0 5px 0 0 #c9a800;
+  color: #fff;
+  background: var(--animal-warning-color);
+  border-color: var(--animal-warning-color);
+  box-shadow: 0 5px var(--animal-warning-color-active);
 }
 .btn-warning:hover:not(:disabled) {
-  background: #ffd633;
-  box-shadow: 0 6px 0 0 #c9a800;
+  background: var(--animal-warning-color-hover);
+  border-color: var(--animal-warning-color-hover);
+  box-shadow: 0 6px var(--animal-warning-color-active);
+  transform: translateY(-1px);
 }
 .btn-warning:active:not(:disabled) {
-  box-shadow: 0 1px 0 0 #c9a800;
+  background: var(--animal-warning-color-active);
+  border-color: var(--animal-warning-color-active);
+  box-shadow: 0 1px var(--animal-warning-color-active);
+  transform: translateY(2px);
+}
+
+.btn-success {
+  color: #fff;
+  background: var(--animal-success-color);
+  border-color: var(--animal-success-color);
+  box-shadow: 0 5px var(--animal-success-color-active);
+}
+.btn-success:hover:not(:disabled) {
+  background: var(--animal-success-color-hover);
+  border-color: var(--animal-success-color-hover);
+  box-shadow: 0 6px var(--animal-success-color-active);
+  transform: translateY(-1px);
+}
+.btn-success:active:not(:disabled) {
+  background: var(--animal-success-color-active);
+  border-color: var(--animal-success-color-active);
+  box-shadow: 0 1px var(--animal-success-color-active);
+  transform: translateY(2px);
 }
 
 .btn-danger {
-  background: var(--error);
   color: #fff;
-  border-color: #c94444;
-  box-shadow: 0 5px 0 0 #c94444;
+  background: var(--animal-error-color);
+  border-color: var(--animal-error-color);
+  box-shadow: 0 5px var(--animal-error-color-active);
 }
 .btn-danger:hover:not(:disabled) {
-  background: #e66;
-  box-shadow: 0 6px 0 0 #c94444;
+  background: var(--animal-error-color-hover);
+  border-color: var(--animal-error-color-hover);
+  box-shadow: 0 6px var(--animal-error-color-active);
+  transform: translateY(-1px);
 }
 .btn-danger:active:not(:disabled) {
-  box-shadow: 0 1px 0 0 #c94444;
+  background: var(--animal-error-color-active);
+  border-color: var(--animal-error-color-active);
+  box-shadow: 0 1px var(--animal-error-color-active);
+  transform: translateY(2px);
 }
 
-/* ── Loading stripe animation ── */
+.btn-ghost {
+  background: transparent;
+  color: var(--animal-primary-color);
+  border-color: var(--animal-primary-color);
+  box-shadow: none;
+}
+.btn-ghost:hover:not(:disabled) {
+  color: var(--animal-primary-color-hover);
+  border-color: var(--animal-primary-color-hover);
+  background: rgba(25, 200, 185, 0.08);
+}
+
+/* ── Size variants ── */
+.btn-sm { height: 32px; padding: 0 16px; font-size: 12px; }
+.btn-lg { height: 48px; padding: 0 32px; font-size: 16px; }
+
+/* ── Loading stripe — animal-btn-loading ── */
 @keyframes animal-btn-loading {
   0%   { background-position: 0 0; }
   100% { background-position: -28.28px 0; }
@@ -269,6 +382,24 @@ select:focus-visible {
   );
   background-size: 28.28px 28.28px;
   animation: animal-btn-loading 1s linear infinite;
-  color: transparent;
+  color: transparent !important;
   pointer-events: none;
+}
+
+/* ── Card title pill — signature asymmetric organic radius ── */
+.card-title-pill {
+  background: var(--animal-card-title-bg);
+  border-radius: var(--radius-organic);
+  padding: 12px 32px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+/* ── Divider — upstream zigzag triangles SVG ── */
+.divider-zig {
+  width: 100%;
+  height: 12px;
+  background:
+    url("data:image/svg+xml,%3csvg%20width='297'%20height='14'%20viewBox='0%200%20297%2014'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M20%2010.42L33%2011%2028.002%200zM10%206.97L0%203l.858%209zM43%201l.613%2011L53%205.585zm89%2013l11-5.867L133.507%201zm67-3.58l13%20.58-4.998-11zm-10-3.45L179%203l.858%209zM90.634%201L88%2013l12-4.39zM155%2013l12-2.4-8.47-9.6zM110%203l2.057%209L118%206.292zm-47%208.215L76%2014%2071.048%201zM222%201l.613%2011L232%205.585zm47.634%200L267%2013l12-4.39zM289%203l2.057%209L297%206.292zm-48%208.215L254%2014l-4.952-13z'%20fill='%23D8D0C3'%20fill-rule='evenodd'/%3e%3c/svg%3e")
+    center / contain no-repeat;
 }

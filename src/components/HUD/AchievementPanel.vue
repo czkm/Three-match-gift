@@ -189,11 +189,11 @@ onBeforeUnmount(() => {
 
 .achievement-card.unlocked {
   border-color: #19c8b9;
-  box-shadow: 0 3px 0 0 #11a89b;
+  box-shadow: 0 3px 0 0 #50B9AB;
 }
 
 .achievement-card.unlocked:hover {
-  box-shadow: 0 5px 0 0 #11a89b;
+  box-shadow: 0 5px 0 0 #50B9AB;
 }
 
 .achievement-card.unlocked::before {
@@ -203,7 +203,7 @@ onBeforeUnmount(() => {
   top: 0;
   bottom: 0;
   width: 4px;
-  background: linear-gradient(180deg, #19c8b9, #11a89b);
+  background: linear-gradient(180deg, #19c8b9, #50B9AB);
 }
 
 .achievement-card.rarity-rare.unlocked {
@@ -257,7 +257,7 @@ onBeforeUnmount(() => {
   border-color: #19c8b9;
   box-shadow:
     0 0 0 2px rgba(25, 200, 185, 0.18),
-    0 5px 0 0 #11a89b;
+    0 5px 0 0 #50B9AB;
 }
 
 .card-top {

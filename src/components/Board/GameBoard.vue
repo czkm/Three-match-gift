@@ -3727,7 +3727,7 @@ function stopDjinnTransitionFx() {
   z-index: 9;
   background: rgb(247, 243, 223);
   border: 2px solid #19c8b9;
-  box-shadow: 0 4px 0 0 #11a89b;
+  box-shadow: 0 4px 0 0 #50B9AB;
   color: #725d42;
   font-family: 'Nunito', 'Noto Sans SC', sans-serif;
   animation: fade-in 300ms cubic-bezier(0.34, 1.56, 0.64, 1);

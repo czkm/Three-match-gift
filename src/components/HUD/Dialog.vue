@@ -65,7 +65,7 @@ defineExpose({
 .dialog-box:hover {
   transform: translateY(-1px);
   border-color: #19c8b9;
-  box-shadow: 0 4px 0 0 #11a89b;
+  box-shadow: 0 4px 0 0 #50B9AB;
 }
 .text { margin: 0; }
 .cursor {

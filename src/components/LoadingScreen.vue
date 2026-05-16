@@ -222,7 +222,7 @@ onBeforeUnmount(() => {
   background-image: repeating-linear-gradient(
     -45deg,
     #19c8b9, #19c8b9 10px,
-    #11a89b 10px, #11a89b 20px
+    #50B9AB 10px, #50B9AB 20px
   );
   background-size: 28.28px 28.28px;
   animation: stripe-move 1s linear infinite;

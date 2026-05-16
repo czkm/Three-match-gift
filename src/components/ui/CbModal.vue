@@ -178,21 +178,21 @@ function onMaskClick() {
 }
 
 .cb-modal-btn-ok {
-  background: #ffcc00;
+  background: #f5c31c;
   color: #725d42;
-  border-color: #e0b800;
-  box-shadow: 0 5px 0 0 #c9a800;
+  border-color: #dba90e;
+  box-shadow: 0 5px 0 0 #dba90e;
 }
 
 .cb-modal-btn-ok:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 0 0 #c9a800;
-  background: #ffd633;
+  box-shadow: 0 6px 0 0 #dba90e;
+  background: #f7d04a;
 }
 
 .cb-modal-btn-ok:active {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 0 #c9a800;
+  box-shadow: 0 1px 0 0 #dba90e;
 }
 
 /* Transition */

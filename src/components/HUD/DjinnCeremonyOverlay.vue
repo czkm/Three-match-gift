@@ -144,26 +144,26 @@ function onOverlayClick() {
   height: 45px;
   padding: 0 28px;
   border-radius: 50px;
-  background: #ffcc00;
+  background: #f5c31c;
   color: #725d42;
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  border: 2px solid #e0b800;
-  box-shadow: 0 5px 0 0 #c9a800;
+  border: 2px solid #dba90e;
+  box-shadow: 0 5px 0 0 #dba90e;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
 }
 
 .advance-btn:hover {
   transform: translateY(-1px);
-  background: #ffd633;
-  box-shadow: 0 6px 0 0 #c9a800;
+  background: #f7d04a;
+  box-shadow: 0 6px 0 0 #dba90e;
 }
 
 .advance-btn:active {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 0 #c9a800;
+  box-shadow: 0 1px 0 0 #dba90e;
 }
 
 @keyframes card-bounce-in {

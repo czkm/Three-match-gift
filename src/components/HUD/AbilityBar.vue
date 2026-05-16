@@ -395,8 +395,8 @@ h3 {
   border-radius: 12px;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(180deg, rgba(255, 204, 0, 0.08), #f8f8f0);
-  border: 2px solid rgba(255, 204, 0, 0.3);
+  background: linear-gradient(180deg, rgba(245, 195, 28, 0.08), #f8f8f0);
+  border: 2px solid rgba(245, 195, 28, 0.3);
   box-shadow: 0 3px 0 0 rgba(228, 186, 92, 0.4);
 }
 
@@ -467,9 +467,9 @@ h3 {
 
 .pig-energy-star.filled {
   color: #794f27;
-  background: radial-gradient(circle, #ffe480, #ffcc00);
-  border-color: #e0b800;
-  box-shadow: 0 0 10px rgba(255, 204, 0, 0.4);
+  background: radial-gradient(circle, #ffe480, #f5c31c);
+  border-color: #dba90e;
+  box-shadow: 0 0 10px rgba(245, 195, 28, 0.4);
   transform: scale(1.04);
 }
 
@@ -531,24 +531,24 @@ h3 {
   transform: translateY(-1px);
   background: #fff;
   border-color: #19c8b9;
-  box-shadow: 0 4px 0 0 #11a89b;
+  box-shadow: 0 4px 0 0 #50B9AB;
 }
 
 .ab-btn:active:not(:disabled) {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 0 #11a89b;
+  box-shadow: 0 1px 0 0 #50B9AB;
 }
 
 .ab-btn.pending {
   background: linear-gradient(180deg, rgba(25, 200, 185, 0.16), rgba(25, 200, 185, 0.04));
   border-color: #19c8b9;
-  box-shadow: 0 3px 0 0 #11a89b, 0 0 12px rgba(25, 200, 185, 0.18);
-  color: #11a89b;
+  box-shadow: 0 3px 0 0 #50B9AB, 0 0 12px rgba(25, 200, 185, 0.18);
+  color: #50B9AB;
 }
 
 .ab-btn.milk-tea {
-  background: linear-gradient(180deg, rgba(255, 204, 0, 0.16), rgba(255, 204, 0, 0.04));
-  border-color: rgba(255, 204, 0, 0.5);
+  background: linear-gradient(180deg, rgba(245, 195, 28, 0.16), rgba(245, 195, 28, 0.04));
+  border-color: rgba(245, 195, 28, 0.5);
   box-shadow: 0 3px 0 0 rgba(228, 186, 92, 0.5);
 }
 
@@ -677,8 +677,8 @@ h3 {
 .chip.active {
   background: #19c8b9;
   color: #fff;
-  border-color: #11a89b;
-  box-shadow: 0 2px 0 0 #11a89b;
+  border-color: #50B9AB;
+  box-shadow: 0 2px 0 0 #50B9AB;
 }
 
 .chip:disabled {
@@ -704,21 +704,21 @@ h3 {
 }
 
 .apply {
-  background: #ffcc00;
+  background: #f5c31c;
   color: #725d42;
-  border-color: #e0b800;
-  box-shadow: 0 4px 0 0 #c9a800;
+  border-color: #dba90e;
+  box-shadow: 0 4px 0 0 #dba90e;
 }
 
 .apply:hover:not(:disabled) {
   transform: translateY(-1px);
-  background: #ffd633;
-  box-shadow: 0 5px 0 0 #c9a800;
+  background: #f7d04a;
+  box-shadow: 0 5px 0 0 #dba90e;
 }
 
 .apply:active:not(:disabled) {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 0 #c9a800;
+  box-shadow: 0 1px 0 0 #dba90e;
 }
 
 .apply:disabled {

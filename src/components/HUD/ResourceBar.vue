@@ -630,7 +630,7 @@ h3 {
 }
 
 .kind-narration::before {
-  background: linear-gradient(180deg, #19c8b9, #11a89b);
+  background: linear-gradient(180deg, #19c8b9, #50B9AB);
 }
 
 .kind-narration .message-icon {
@@ -644,7 +644,7 @@ h3 {
 }
 
 .kind-geralt::before {
-  background: linear-gradient(180deg, #19c8b9, #11a89b);
+  background: linear-gradient(180deg, #19c8b9, #50B9AB);
 }
 
 .kind-geralt .message-icon {
@@ -661,17 +661,17 @@ h3 {
 }
 
 .kind-system {
-  background: linear-gradient(180deg, rgba(255, 204, 0, 0.08), #f8f8f0);
-  border-color: rgba(255, 204, 0, 0.3);
+  background: linear-gradient(180deg, rgba(245, 195, 28, 0.08), #f8f8f0);
+  border-color: rgba(245, 195, 28, 0.3);
 }
 
 .kind-system::before {
-  background: linear-gradient(180deg, #ffcc00, #e0b800);
+  background: linear-gradient(180deg, #f5c31c, #dba90e);
 }
 
 .kind-system .message-icon {
   background: rgba(255, 244, 210, 0.82);
-  border-color: rgba(255, 204, 0, 0.3);
+  border-color: rgba(245, 195, 28, 0.3);
 }
 
 .kind-system .message-title,
@@ -703,7 +703,7 @@ h3 {
 }
 
 .kind-hint::before {
-  background: linear-gradient(180deg, #19c8b9, #11a89b);
+  background: linear-gradient(180deg, #19c8b9, #50B9AB);
 }
 
 .kind-hint .message-icon {
