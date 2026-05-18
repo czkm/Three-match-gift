@@ -246,7 +246,7 @@ function onAdvance() {
   bottom: -30px;
   opacity: 0;
   animation: p-rise var(--ease-in-out-sine) infinite;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+  filter: drop-shadow(0 2px 4px rgba(114, 93, 66, 0.12));
 }
 
 @keyframes p-rise {
@@ -300,7 +300,7 @@ function onAdvance() {
   margin: 0 0 28px;
   font-weight: 700;
   letter-spacing: 0.12em;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 12px rgba(114, 93, 66, 0.28);
   animation: title-enter 700ms var(--ease-out-expo) forwards;
 }
 
@@ -412,7 +412,7 @@ function onAdvance() {
   background: linear-gradient(180deg, rgba(200, 180, 220, 0.30), rgba(160, 140, 200, 0.20));
   color: rgba(220, 210, 236, 0.9);
   border: 1px solid rgba(180, 160, 210, 0.30);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 16px rgba(114, 93, 66, 0.12);
 }
 .continue-btn:hover { transform: translateY(-2px); filter: brightness(1.15); }
 

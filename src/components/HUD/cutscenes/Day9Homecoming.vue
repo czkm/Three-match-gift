@@ -195,7 +195,7 @@ const petals = computed(() => {
   position: absolute;
   bottom: 18px;
   font-size: 36px;
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 2px 3px rgba(114, 93, 66, 0.24));
 }
 .bush-a { left: 18%; }
 .bush-b { left: 46%; bottom: 22px; font-size: 42px; }
@@ -272,7 +272,7 @@ const petals = computed(() => {
   font-size: 24px;
   opacity: 0.96;
   z-index: 3;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 4px 10px rgba(114, 93, 66, 0.32));
   transform: rotate(8deg) scale(0.92);
 }
 </style>

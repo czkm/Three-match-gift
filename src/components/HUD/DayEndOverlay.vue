@@ -54,7 +54,7 @@ function onContinue() {
 .moon {
   font-size: 48px;
   margin: 0;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.14));
+  filter: drop-shadow(0 2px 6px rgba(114, 93, 66, 0.14));
   animation: moon-float 3.5s ease-in-out infinite;
 }
 

@@ -113,13 +113,13 @@ onBeforeUnmount(() => {
 <style scoped>
 .glyph {
   pointer-events: none;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.28));
+  filter: drop-shadow(0 1px 2px rgba(114, 93, 66, 0.22));
   transition: transform 180ms var(--ease-out-expo), filter 180ms var(--ease-out-expo);
 }
 
 .tile:hover .glyph {
   transform: scale(1.08);
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(0 2px 4px rgba(114, 93, 66, 0.28));
 }
 
 .tile.struck {

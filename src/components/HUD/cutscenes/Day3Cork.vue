@@ -43,7 +43,7 @@ defineProps({ phase: { type: Number, default: 0 } });
   bottom: 18%;
   font-size: 28px;
   opacity: 0;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(0 4px 6px rgba(114, 93, 66, 0.28));
 }
 .barrel-l { left: 22%; }
 .barrel-r { right: 22%; }

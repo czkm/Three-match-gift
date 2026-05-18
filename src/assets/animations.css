@@ -1,9 +1,8 @@
 /**
- * Petal/feather/restoration animations.
- * All pure CSS so the build never depends on image assets.
- *
- * v2.0 — added starfield, dust-motes, richer easing,
- *        and more atmospheric ambient effects.
+ * Ambient animations — Animal Island aesthetic for Corvo Bianco.
+ * v3.0 — mint-teal glow replaces gold accents,
+ *        warm-white particles, soft brown shadows.
+ *        Devil/purple abilities & magic shimmer preserved.
  */
 
 /* ── Petal rain ── */
@@ -21,7 +20,7 @@
   font-size: 18px;
   opacity: 0;
   animation: petal-fall var(--dur, 3.6s) linear forwards;
-  filter: drop-shadow(0 2px 3px rgba(24, 16, 10, 0.2));
+  filter: drop-shadow(0 2px 3px rgba(114, 93, 66, 0.14));
 }
 
 @keyframes petal-fall {
@@ -47,16 +46,16 @@
   width: 3px;
   height: 3px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 234, 180, 0.85), transparent 70%);
-  box-shadow: 0 0 6px 1px rgba(255, 220, 150, 0.35);
+  background: radial-gradient(circle, rgba(255, 248, 235, 0.75), transparent 70%);
+  box-shadow: 0 0 6px 1px rgba(255, 244, 225, 0.30);
   animation: mote-drift var(--dur, 6s) var(--ease-in-out-sine) infinite;
   opacity: 0;
 }
 
 @keyframes mote-drift {
   0%   { opacity: 0; transform: translate3d(0, 0, 0) scale(0.5); }
-  20%  { opacity: 0.8; }
-  80%  { opacity: 0.6; }
+  20%  { opacity: 0.7; }
+  80%  { opacity: 0.5; }
   100% { opacity: 0; transform: translate3d(var(--dx, 40px), var(--dy, -80px), 0) scale(1.2); }
 }
 
@@ -73,8 +72,8 @@
   width: 2px;
   height: 2px;
   border-radius: 50%;
-  background: rgba(255, 244, 220, 0.9);
-  box-shadow: 0 0 4px 1px rgba(255, 240, 200, 0.4);
+  background: rgba(255, 248, 235, 0.85);
+  box-shadow: 0 0 4px 1px rgba(255, 244, 220, 0.35);
   animation: star-twinkle var(--dur, 3s) var(--ease-in-out-sine) infinite;
 }
 
@@ -95,7 +94,7 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 50% 60%, rgba(255, 240, 200, 0.5) 0%, transparent 60%);
+    radial-gradient(ellipse at 50% 60%, rgba(255, 248, 235, 0.45) 0%, transparent 60%);
   opacity: 0;
   animation: breeze-sweep 800ms var(--ease-out-expo) forwards;
 }
@@ -110,7 +109,7 @@
 .repair-glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(212, 168, 87, 0.34) 0%, transparent 65%);
+  background: radial-gradient(circle at 50% 50%, rgba(25, 200, 185, 0.22) 0%, transparent 65%);
   opacity: 0;
   animation: glow-in 1500ms var(--ease-out-expo) forwards;
 }
@@ -130,7 +129,7 @@
   font-size: 44px;
   opacity: 0;
   animation: raven-fly 1500ms var(--ease-out-expo) forwards;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 3px 6px rgba(114, 93, 66, 0.18));
 }
 
 @keyframes raven-fly {
@@ -146,7 +145,7 @@
   width: 0; height: 0;
   border-radius: 50%;
   background: radial-gradient(circle, var(--lilac) 0%, var(--magic-1) 60%, transparent 100%);
-  box-shadow: 0 0 60px rgba(176, 148, 201, 0.7);
+  box-shadow: 0 0 60px rgba(183, 125, 238, 0.55);
   transform: translate(-50%, -50%);
   animation: portal-open 2400ms var(--ease-out-expo) forwards;
 }
@@ -166,27 +165,27 @@
   opacity: 0;
 }
 
-/* 默认（横向行扫）— 现有 Toussent Sunset 金色 */
+/* 默认（横向行扫）— mint-teal (Animal Island accent) */
 .sunset-rake--axis-row {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 200, 120, 0.0) 10%,
-    rgba(255, 180, 90, 0.58) 50%,
-    rgba(255, 200, 120, 0.0) 90%,
+    rgba(25, 200, 185, 0.0) 10%,
+    rgba(25, 200, 185, 0.48) 50%,
+    rgba(25, 200, 185, 0.0) 90%,
     transparent 100%
   );
   animation: rake-sweep-row 1500ms var(--ease-out-expo) forwards;
 }
 
-/* 纵向列扫 — 用于妈妈的刀 / 虚空之喉 */
+/* 纵向列扫 — mint-teal */
 .sunset-rake--axis-col {
   background: linear-gradient(
     0deg,
     transparent 0%,
-    rgba(255, 200, 120, 0.0) 10%,
-    rgba(255, 180, 90, 0.58) 50%,
-    rgba(255, 200, 120, 0.0) 90%,
+    rgba(25, 200, 185, 0.0) 10%,
+    rgba(25, 200, 185, 0.48) 50%,
+    rgba(25, 200, 185, 0.0) 90%,
     transparent 100%
   );
   animation: rake-sweep-col 1500ms var(--ease-out-expo) forwards;
@@ -285,7 +284,7 @@
 .ability-flash {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle, rgba(208, 168, 87, 0.45) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(25, 200, 185, 0.30) 0%, transparent 70%);
   pointer-events: none;
   animation: ability-pulse 480ms var(--ease-out-expo) forwards;
 }
@@ -302,8 +301,8 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: radial-gradient(circle, #fff4cc, transparent 70%);
-  box-shadow: 0 0 6px 2px rgba(255, 220, 140, 0.5);
+  background: radial-gradient(circle, #e6f9f6, transparent 70%);
+  box-shadow: 0 0 6px 2px rgba(25, 200, 185, 0.40);
   pointer-events: none;
   animation: sparkle-burst 600ms var(--ease-out-expo) forwards;
 }
@@ -331,7 +330,7 @@
   font-weight: 700;
   font-size: 14px;
   letter-spacing: 0.06em;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 3px rgba(114, 93, 66, 0.25);
   animation: float-up-fade 1200ms var(--ease-out-expo) forwards;
   z-index: 40;
 }

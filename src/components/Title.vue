@@ -285,7 +285,7 @@ onBeforeUnmount(() => {
 .emblem {
   font-size: 48px;
   margin: 0 0 10px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  filter: drop-shadow(0 2px 4px rgba(114, 93, 66, 0.08));
   animation: emblem-float 3s ease-in-out infinite;
 }
 

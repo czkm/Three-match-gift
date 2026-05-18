@@ -119,7 +119,7 @@ defineProps({ phase: { type: Number, default: 0 } });
   font-size: 22px;
   opacity: 0;
   transform: scale(0.4) translateY(6px);
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 2px 3px rgba(114, 93, 66, 0.24));
 }
 .p1 .grape {
   animation: grape-pop 600ms cubic-bezier(0.18, 0.9, 0.34, 1.6) forwards;

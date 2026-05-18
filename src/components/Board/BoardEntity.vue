@@ -110,7 +110,7 @@ onBeforeUnmount(() => {
   border: 1px solid rgba(255, 243, 218, 0.14);
   box-shadow:
     inset 0 1px 0 rgba(255, 247, 236, 0.2),
-    inset 0 -8px 12px rgba(0, 0, 0, 0.18);
+    inset 0 -8px 12px rgba(114, 93, 66, 0.14);
   z-index: 0;
 }
 
@@ -313,7 +313,7 @@ onBeforeUnmount(() => {
   box-shadow:
     inset 0 1px 0 rgba(255, 247, 236, 0.08),
     inset 0 0 12px rgba(214, 184, 112, 0.06),
-    inset 0 -10px 14px rgba(0, 0, 0, 0.22);
+    inset 0 -10px 14px rgba(114, 93, 66, 0.16);
 }
 
 .barrenGrave .hp-bar {
@@ -343,7 +343,7 @@ onBeforeUnmount(() => {
 
 .hp-dot.spent {
   background: rgba(90, 72, 52, 0.5);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 1px 2px rgba(80, 50, 30, 0.25);
 }
 
 .entity:hover .hp-bar {

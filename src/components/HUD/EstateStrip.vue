@@ -936,7 +936,7 @@ onBeforeUnmount(() => {
     filter 360ms var(--ease-out-expo);
   box-shadow:
     inset 0 1px 0 rgba(255, 248, 230, 0.12),
-    inset 0 -8px 16px rgba(0, 0, 0, 0.12);
+    inset 0 -8px 16px rgba(114, 93, 66, 0.09);
 }
 
 .strip-scene.time-morning {

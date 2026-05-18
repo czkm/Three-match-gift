@@ -125,7 +125,7 @@ defineProps({ phase: { type: Number, default: 0 } });
   bottom: 18%;
   font-size: 56px;
   opacity: 0;
-  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(0 6px 8px rgba(114, 93, 66, 0.28));
 }
 .p1 .roach { animation: roach-trot 1700ms cubic-bezier(0.22, 0.9, 0.34, 1) 600ms forwards; }
 @keyframes roach-trot {

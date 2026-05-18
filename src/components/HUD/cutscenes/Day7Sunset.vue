@@ -180,7 +180,7 @@ defineProps({ phase: { type: Number, default: 0 } });
   top: 30%;
   font-size: 28px;
   opacity: 0;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(0 2px 4px rgba(114, 93, 66, 0.28));
 }
 .p1 .terrace-raven { animation: terrace-raven-settle 800ms cubic-bezier(0.22, 0.9, 0.34, 1) 2100ms forwards; }
 @keyframes terrace-raven-settle {

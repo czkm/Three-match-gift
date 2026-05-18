@@ -81,7 +81,7 @@ defineProps({ phase: { type: Number, default: 0 } });
   font-size: 40px;
   transform: translateX(-50%) scale(0);
   opacity: 0;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.25));
+  filter: drop-shadow(0 4px 6px rgba(114, 93, 66, 0.20));
 }
 .p1 .seed   { animation: stage-show 360ms cubic-bezier(0.18, 0.9, 0.34, 1.4) 200ms forwards, stage-hide 200ms ease 600ms forwards; }
 .p1 .sprout { animation: stage-show 360ms cubic-bezier(0.18, 0.9, 0.34, 1.4) 700ms forwards, stage-hide 200ms ease 1100ms forwards; }
@@ -112,7 +112,7 @@ defineProps({ phase: { type: Number, default: 0 } });
   font-size: 22px;
   opacity: 0;
   transform: scale(0);
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25));
+  filter: drop-shadow(0 2px 3px rgba(114, 93, 66, 0.20));
 }
 .p1 .companion {
   animation: companion-bloom 520ms cubic-bezier(0.18, 0.9, 0.34, 1.6) forwards;

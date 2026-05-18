@@ -158,7 +158,7 @@ onBeforeUnmount(() => {
 }
 .building .emoji {
   font-size: 22px;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.12));
+  filter: drop-shadow(0 1px 2px rgba(114, 93, 66, 0.10));
 }
 .steps {
   display: flex;

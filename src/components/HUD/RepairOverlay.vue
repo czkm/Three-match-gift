@@ -134,7 +134,7 @@ function onAdvance() {
   font-family: 'Nunito', 'Noto Sans SC', sans-serif;
   box-shadow: 0 4px 10px rgba(107, 92, 67, 0.42);
 }
-.banner-emoji  { font-size: 56px; margin: 0; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.16)); }
+.banner-emoji  { font-size: 56px; margin: 0; filter: drop-shadow(0 2px 4px rgba(114, 93, 66, 0.13)); }
 .banner-line   { font-size: 22px; margin: 6px 0 8px; color: #794f27; font-weight: 800; }
 .banner-sub    { font-size: 13px; margin-bottom: 16px; letter-spacing: 0.04em; color: #9f927d; font-weight: 600; }
 

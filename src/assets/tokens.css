@@ -155,14 +155,14 @@
   --surface-shadow: var(--animal-shadow-base);
   --surface-glow:  0 0 0 0 transparent;
 
-  /* ── Board frame (kept warmer than parchment so tiles read against it) ── */
-  --board-frame-1: #9a835a;
-  --board-frame-2: #725d42;
-  --board-inner-1: #a89878;
-  --board-inner-2: #8a7b66;
-  --board-cell-1:  #564636;
-  --board-cell-2:  #7a6b58;
-  --board-grid:    rgba(247, 243, 223, 0.12);
+  /* ── Board frame — lightened for Animal Island warmth, tiles still read against it ── */
+  --board-frame-1: #c4b89e;
+  --board-frame-2: #a89878;
+  --board-inner-1: #b8a888;
+  --board-inner-2: #9a8b6b;
+  --board-cell-1:  #8a7b66;
+  --board-cell-2:  #a89880;
+  --board-grid:    rgba(114, 93, 66, 0.08);
 
   /* ── Animation timings ── */
   --t-tile:       200ms;
@@ -179,6 +179,16 @@
   --ease-out-back:    cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-in-out-sine: cubic-bezier(0.37, 0, 0.63, 1);
   --ease-spring:      cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  /* ── Decorative divider colors — match upstream Animal Island ── */
+  --divider-zig-gray:   #D8D0C3;
+  --divider-zig-teal:   #008077;
+  --divider-zig-yellow: #F1E26F;
+  --wave-yellow:        #f1e26f;
+  --wave-teal:          #19c8b9;
+
+  /* ── Custom cursor — ACNH-style leaf (resized 33×32 for compact layout) ── */
+  --cursor-default: url("data:image/png;base64,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") 3 0, auto;
 
   /* ── Shape tokens — match upstream radius scale ── */
   --radius-sm:   16px;
