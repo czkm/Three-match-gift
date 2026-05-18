@@ -8,6 +8,9 @@
       hidden: entity.hidden,
       struck: showHitFx
     }]"
+    :data-entity-id="entity.id"
+    :data-entity-kind="entity.kind"
+    :data-tear-target="!entity.removed && entity.kind !== 'joyCandle' && entity.kind !== 'blightMark' ? 'true' : undefined"
     :style="style"
     @mouseenter="emit('monster-hover-enter', { kind: entity.kind, entityId: entity.id })"
     @mouseleave="emit('monster-hover-leave', { kind: entity.kind, entityId: entity.id })"

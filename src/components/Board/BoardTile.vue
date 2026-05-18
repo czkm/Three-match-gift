@@ -11,6 +11,11 @@
       'preview-bad':  preview === 'bad',
       'invalid':      invalid
     }]"
+    :data-entity-id="monster ? monster.id : undefined"
+    :data-entity-kind="monster ? monster.kind : undefined"
+    :data-tear-target="isTearTargetable ? 'true' : undefined"
+    :data-tile-pos="`${tile.row},${tile.col}`"
+    :data-tile-type="tile.type"
     :style="style"
     @mousedown.prevent="onPick"
     @touchstart.prevent="onPick"
@@ -73,6 +78,14 @@ const hitSignature = computed(() => {
   const monster = props.monster;
   if (!monster || monster.lastDamagedTurn == null) return '';
   return `${monster.id || monster.kind}:${monster.lastDamagedTurn}:${monster.hitsTaken || 0}:${monster.hitsRequired || 0}`;
+});
+
+const NON_TEAR_TARGETS = new Set(['barrenGrave', 'blightMark', 'joyCandle', 'djinn']);
+const isTearTargetable = computed(() => {
+  const m = props.monster;
+  if (!m || m.removed) return false;
+  if (NON_TEAR_TARGETS.has(m.kind)) return false;
+  return true;
 });
 
 function onPick(evt) {

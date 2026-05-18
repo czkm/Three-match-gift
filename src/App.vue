@@ -1,9 +1,10 @@
 <template>
   <!-- Animal Island blob clip-path (shared by all blob modals) -->
-  <svg style="position:absolute;width:0;height:0" aria-hidden>
+  <svg style="position: absolute; width: 0; height: 0" aria-hidden>
     <defs>
       <clipPath id="animal-modal-clip" clipPathUnits="objectBoundingBox">
-        <path d="M0.501,0.005 L0.501,0.005 L0.523,0.005 L0.549,0.006
+        <path
+          d="M0.501,0.005 L0.501,0.005 L0.523,0.005 L0.549,0.006
           C0.704,0.01,0.796,0.017,0.825,0.027 L0.827,0.028
           C0.872,0.045,0.939,0.044,0.978,0.17
           C1,0.254,1,0.365,0.99,0.505 L0.988,0.513
@@ -20,7 +21,8 @@
           C0.031,0.595,0.023,0.552,0.013,0.505
           C-0.006,0.365,-0.002,0.254,0.024,0.17
           C0.064,0.045,0.13,0.045,0.174,0.028 L0.175,0.028
-          C0.204,0.017,0.303,0.009,0.474,0.005 L0.501,0.005"/>
+          C0.204,0.017,0.303,0.009,0.474,0.005 L0.501,0.005"
+        />
       </clipPath>
     </defs>
   </svg>
@@ -32,7 +34,19 @@
   <template v-else>
     <Title v-if="game.phase === 'title'" @start="onStart" />
     <GameContainer
-      v-else-if="['intro', 'playing', 'targeting', 'dayEnd', 'repairing', 'rewardChoice', 'awakening', 'djinnTransition', 'wish'].includes(game.phase)"
+      v-else-if="
+        [
+          'intro',
+          'playing',
+          'targeting',
+          'dayEnd',
+          'repairing',
+          'rewardChoice',
+          'awakening',
+          'djinnTransition',
+          'wish'
+        ].includes(game.phase)
+      "
     />
     <Ending
       v-else-if="['ending', 'final'].includes(game.phase)"
@@ -40,7 +54,9 @@
     />
   </template>
   <transition name="tester-toast">
-    <p v-if="testerToast" class="tester-toast parchment grain">{{ testerToast }}</p>
+    <p v-if="testerToast" class="tester-toast parchment grain">
+      {{ testerToast }}
+    </p>
   </transition>
   <section
     v-if="showTesterPanel"
@@ -52,44 +68,85 @@
         <p class="tester-eyebrow">Tester</p>
         <h3 class="tester-title">小猪道具搭配</h3>
       </div>
-      <button type="button" class="tester-close" @click="showTesterPanel = false">收起</button>
+      <button
+        type="button"
+        class="tester-close"
+        @click="showTesterPanel = false"
+      >
+        收起
+      </button>
     </div>
-    <p class="tester-hint">`Ctrl/Cmd + I` 打开。先勾选道具，再用下面动作快速触发。</p>
+    <p class="tester-hint">
+      `Ctrl/Cmd + I` 打开。先勾选道具点"应用当前组合"，再用下面动作快速触发。
+    </p>
     <div class="tester-shortcuts">
-      <button type="button" class="tester-action" @click="applySelectedItems">应用当前组合</button>
-      <button type="button" class="tester-action subtle" @click="clearSelectedItems">清空道具</button>
-      <button type="button" class="tester-action subtle" @click="resetItemFlags">重置当日触发</button>
-      <button type="button" class="tester-action subtle" @click="fillPigEnergy">充满小猪能量</button>
-      <button type="button" class="tester-action subtle" @click="setLowSteps">步数设为 3</button>
-      <button type="button" class="tester-action danger" @click="triggerZeroStepRecovery">测试归零救场</button>
+      <button type="button" class="tester-action" @click="applySelectedItems">
+        应用当前组合
+      </button>
+      <button
+        type="button"
+        class="tester-action subtle"
+        @click="clearSelectedItems"
+      >
+        清空道具
+      </button>
+      <button
+        type="button"
+        class="tester-action subtle"
+        @click="selectAllItems"
+      >
+        全选道具
+      </button>
+      <button
+        type="button"
+        class="tester-action subtle"
+        @click="resetItemFlags"
+      >
+        重置当日触发
+      </button>
+      <button type="button" class="tester-action subtle" @click="fillPigEnergy">
+        充满小猪能量
+      </button>
+      <button type="button" class="tester-action subtle" @click="setLowSteps">
+        步数设为 3
+      </button>
+      <button
+        type="button"
+        class="tester-action danger"
+        @click="triggerZeroStepRecovery"
+      >
+        测试归零救场
+      </button>
     </div>
     <div class="tester-columns">
       <div class="tester-group">
-        <p class="tester-group-title">宝箱房</p>
-        <label
-          v-for="item in treasureItems"
-          :key="item.id"
-          class="tester-item"
-        >
-          <input v-model="selectedItemIds" type="checkbox" :value="item.id">
+        <p class="tester-group-title">
+          宝箱房
+          <span class="tester-group-count">({{ treasureItems.length }})</span>
+        </p>
+        <label v-for="item in treasureItems" :key="item.id" class="tester-item">
+          <input v-model="selectedItemIds" type="checkbox" :value="item.id" />
           <span class="tester-item-emoji">{{ item.emoji }}</span>
           <span class="tester-item-copy">
-            <span class="tester-item-name">{{ item.name }}</span>
+            <span class="tester-item-name">
+              {{ item.name }}
+            </span>
             <span class="tester-item-effect">{{ item.description }}</span>
           </span>
         </label>
       </div>
       <div class="tester-group">
-        <p class="tester-group-title">恶魔房</p>
-        <label
-          v-for="item in devilItems"
-          :key="item.id"
-          class="tester-item"
-        >
-          <input v-model="selectedItemIds" type="checkbox" :value="item.id">
+        <p class="tester-group-title">
+          恶魔房
+          <span class="tester-group-count">({{ devilItems.length }})</span>
+        </p>
+        <label v-for="item in devilItems" :key="item.id" class="tester-item">
+          <input v-model="selectedItemIds" type="checkbox" :value="item.id" />
           <span class="tester-item-emoji">{{ item.emoji }}</span>
           <span class="tester-item-copy">
-            <span class="tester-item-name">{{ item.name }}</span>
+            <span class="tester-item-name">
+              {{ item.name }}
+            </span>
             <span class="tester-item-effect">{{ item.description }}</span>
           </span>
         </label>
@@ -102,203 +159,224 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onBeforeUnmount, ref, watchEffect } from 'vue';
-import AudioControls from './components/HUD/AudioControls.vue';
-import AchievementPanel from './components/HUD/AchievementPanel.vue';
-import AchievementToastStack from './components/HUD/AchievementToastStack.vue';
-import LoadingScreen from './components/LoadingScreen.vue';
-import Title from './components/Title.vue';
-import GameContainer from './components/GameContainer.vue';
-import Ending from './components/Ending.vue';
-import { useAudio } from '@/composables/useAudio';
-import { REWARD_ITEMS } from '@/data/content';
-import { useAchievementStore } from '@/stores/achievementStore';
-import { useGameStore } from '@/stores/gameStore';
+import { computed, onMounted, onBeforeUnmount, ref, watchEffect } from 'vue'
+import AudioControls from './components/HUD/AudioControls.vue'
+import AchievementPanel from './components/HUD/AchievementPanel.vue'
+import AchievementToastStack from './components/HUD/AchievementToastStack.vue'
+import LoadingScreen from './components/LoadingScreen.vue'
+import Title from './components/Title.vue'
+import GameContainer from './components/GameContainer.vue'
+import Ending from './components/Ending.vue'
+import { useAudio } from '@/composables/useAudio'
+import { REWARD_ITEMS } from '@/data/content'
+import { useAchievementStore } from '@/stores/achievementStore'
+import { useGameStore } from '@/stores/gameStore'
 
-const achievement = useAchievementStore();
-const game = useGameStore();
-useAudio();
-const testerToast = ref('');
-const showTesterPanel = ref(false);
-const selectedItemIds = ref([]);
-const allRewardItems = Object.values(REWARD_ITEMS);
-const treasureItems = computed(() => allRewardItems.filter((item) => item.roomType === 'treasure'));
-const devilItems = computed(() => allRewardItems.filter((item) => item.roomType === 'devil'));
+const achievement = useAchievementStore()
+const game = useGameStore()
+useAudio()
+const testerToast = ref('')
+const showTesterPanel = ref(false)
+const selectedItemIds = ref([])
+const allRewardItems = Object.values(REWARD_ITEMS)
+const treasureItems = computed(() =>
+  allRewardItems.filter(item => item.roomType === 'treasure')
+)
+const devilItems = computed(() =>
+  allRewardItems.filter(item => item.roomType === 'devil')
+)
 
 // Loading state
-const loading = ref(true);
-const loadProgress = ref(0);
-let toastTimer = null;
-let jumpChordTimer = null;
-const jumpChordActive = ref(false);
+const loading = ref(true)
+const loadProgress = ref(0)
+let toastTimer = null
+let jumpChordTimer = null
+const jumpChordActive = ref(false)
 
 function onStart() {
   // Title has already called game.start() — fire-and-forget.
 }
 
 function onRestart() {
-  game.phase = 'title';
+  game.phase = 'title'
 }
 
 function onTesterKeydown(event) {
-  if (!(event.metaKey || event.ctrlKey)) return;
-  const key = event.key.toLowerCase();
+  if (!(event.metaKey || event.ctrlKey)) return
+  const key = event.key.toLowerCase()
 
   if (key === 'i') {
-    event.preventDefault();
-    showTesterPanel.value = !showTesterPanel.value;
-    if (showTesterPanel.value) syncTesterSelection();
-    showTesterToast(showTesterPanel.value ? '测试面板：已打开' : '测试面板：已收起');
-    return;
+    event.preventDefault()
+    showTesterPanel.value = !showTesterPanel.value
+    if (showTesterPanel.value) syncTesterSelection()
+    showTesterToast(
+      showTesterPanel.value ? '测试面板：已打开' : '测试面板：已收起'
+    )
+    return
   }
 
   if (jumpChordActive.value && /^[1-9]$/.test(key)) {
-    event.preventDefault();
-    clearJumpChord();
-    const result = game.jumpToDayForTesting(Number(key));
-    if (!result) return;
-    game.startPlay();
-    showTesterToast(`测试跳转：已到第 ${result.day} 天“${result.building}”并直接开始`);
-    return;
+    event.preventDefault()
+    clearJumpChord()
+    const result = game.jumpToDayForTesting(Number(key))
+    if (!result) return
+    game.startPlay()
+    showTesterToast(
+      `测试跳转：已到第 ${result.day} 天“${result.building}”并直接开始`
+    )
+    return
   }
 
   if (key === 'j') {
-    event.preventDefault();
-    const nextLocked = achievement.achievementList.find((item) => !achievement.unlockedSet.has(item.id))
-      || achievement.achievementList[0];
-    const ok = achievement.unlockForTesting(nextLocked?.id);
+    event.preventDefault()
+    const nextLocked =
+      achievement.achievementList.find(
+        item => !achievement.unlockedSet.has(item.id)
+      ) || achievement.achievementList[0]
+    const ok = achievement.unlockForTesting(nextLocked?.id)
     if (!ok) {
-      showTesterToast('测试成就：没有可解锁的新成就了');
-      return;
+      showTesterToast('测试成就：没有可解锁的新成就了')
+      return
     }
-    showTesterToast(`测试成就：已解锁“${nextLocked.title}”`);
-    return;
+    showTesterToast(`测试成就：已解锁“${nextLocked.title}”`)
+    return
   }
 
   if (key === 'l') {
-    event.preventDefault();
-    const result = game.jumpToDjinnReadyForTesting();
-    if (!result) return;
-    showTesterToast(`测试跳转：已进入第 ${result.day} 天 djinnReady`);
-    return;
+    event.preventDefault()
+    const result = game.jumpToDjinnReadyForTesting()
+    if (!result) return
+    showTesterToast(`测试跳转：已进入第 ${result.day} 天 djinnReady`)
+    return
   }
 
   if (key === 'm') {
-    event.preventDefault();
-    const total = game.addPigEnergyForTesting(5);
-    showTesterToast(`测试能量：小猪已补充 5 星，当前 ${total} 星`);
-    return;
+    event.preventDefault()
+    const total = game.addPigEnergyForTesting(5)
+    showTesterToast(`测试能量：小猪已补充 5 星，当前 ${total} 星`)
+    return
   }
 
   if (key === 'e') {
-    event.preventDefault();
-    game.jumpToEndingForTesting();
-    showTesterToast('测试跳转：已进入结局画面');
-    return;
+    event.preventDefault()
+    game.jumpToEndingForTesting()
+    showTesterToast('测试跳转：已进入结局画面')
+    return
   }
 
-  if (key !== 'k') return;
-  event.preventDefault();
-  armJumpChord();
+  if (key !== 'k') return
+  event.preventDefault()
+  armJumpChord()
 }
 
 function syncTesterSelection() {
-  selectedItemIds.value = [...game.ownedItemIds];
+  selectedItemIds.value = [...game.ownedItemIds]
 }
 
 function applySelectedItems() {
-  const ids = game.setOwnedItemsForTesting(selectedItemIds.value);
-  showTesterToast(ids.length
-    ? `测试道具：已应用 ${ids.length} 个道具组合`
-    : '测试道具：当前组合已清空');
+  const ids = game.setOwnedItemsForTesting(selectedItemIds.value)
+  showTesterToast(
+    ids.length
+      ? `测试道具：已应用 ${ids.length} 个道具组合`
+      : '测试道具：当前组合已清空'
+  )
 }
 
 function clearSelectedItems() {
-  selectedItemIds.value = [];
-  game.setOwnedItemsForTesting([]);
-  showTesterToast('测试道具：已清空');
+  selectedItemIds.value = []
+  game.setOwnedItemsForTesting([])
+  showTesterToast('测试道具：已清空')
 }
 
 function resetItemFlags() {
-  game.resetItemFlagsForTesting();
-  showTesterToast('测试道具：已重置当天触发次数');
+  game.resetItemFlagsForTesting()
+  showTesterToast('测试道具：已重置当天触发次数')
 }
 
 function fillPigEnergy() {
-  const total = game.setPigEnergyForTesting(5);
-  showTesterToast(`测试能量：当前 ${total} 星`);
+  const total = game.setPigEnergyForTesting(5)
+  showTesterToast(`测试能量：当前 ${total} 星`)
 }
 
 function setLowSteps() {
-  const total = game.setStepsForTesting(3);
-  showTesterToast(`测试步数：已设为 ${total}`);
+  const total = game.setStepsForTesting(3)
+  showTesterToast(`测试步数：已设为 ${total}`)
 }
 
 function triggerZeroStepRecovery() {
-  const ok = game.triggerZeroStepRecoveryForTesting();
-  showTesterToast(ok
-    ? `测试救场：已触发归零恢复，当前 ${game.stepsLeft} 步`
-    : '测试救场：当前组合没有归零恢复类道具');
+  const ok = game.triggerZeroStepRecoveryForTesting()
+  showTesterToast(
+    ok
+      ? `测试救场：已触发归零恢复，当前 ${game.stepsLeft} 步`
+      : '测试救场：当前组合没有归零恢复类道具'
+  )
+}
+
+function selectAllItems() {
+  selectedItemIds.value = allRewardItems.map(item => item.id)
+  showTesterToast(
+    `测试道具：已勾选全部 ${allRewardItems.length} 件道具（点"应用当前组合"生效）`
+  )
 }
 
 function armJumpChord() {
-  jumpChordActive.value = true;
-  if (jumpChordTimer) clearTimeout(jumpChordTimer);
+  jumpChordActive.value = true
+  if (jumpChordTimer) clearTimeout(jumpChordTimer)
   jumpChordTimer = setTimeout(() => {
-    clearJumpChord();
-  }, 1800);
-  showTesterToast('测试跳转：继续按 1–9 跳到指定天');
+    clearJumpChord()
+  }, 1800)
+  showTesterToast('测试跳转：继续按 1–9 跳到指定天')
 }
 
 function clearJumpChord() {
-  jumpChordActive.value = false;
+  jumpChordActive.value = false
   if (jumpChordTimer) {
-    clearTimeout(jumpChordTimer);
-    jumpChordTimer = null;
+    clearTimeout(jumpChordTimer)
+    jumpChordTimer = null
   }
 }
 
 function showTesterToast(text) {
-  testerToast.value = text;
-  if (toastTimer) clearTimeout(toastTimer);
+  testerToast.value = text
+  if (toastTimer) clearTimeout(toastTimer)
   toastTimer = setTimeout(() => {
-    testerToast.value = '';
-    toastTimer = null;
-  }, 1800);
+    testerToast.value = ''
+    toastTimer = null
+  }, 1800)
 }
 
 // Day-tinted body backdrop (CSS hooks live in tokens.css).
 watchEffect(() => {
-  if (typeof document === 'undefined') return;
-  document.body.dataset.day = String(game.currentDay + 1);
-  document.body.dataset.phase = game.phase;
-});
+  if (typeof document === 'undefined') return
+  document.body.dataset.day = String(game.currentDay + 1)
+  document.body.dataset.phase = game.phase
+})
 
 onMounted(async () => {
-  if (typeof document === 'undefined') return;
-  achievement.init();
-  document.body.dataset.day = '1';
-  document.body.dataset.phase = 'title';
-  window.addEventListener('keydown', onTesterKeydown);
+  if (typeof document === 'undefined') return
+  achievement.init()
+  document.body.dataset.day = '1'
+  document.body.dataset.phase = 'title'
+  window.addEventListener('keydown', onTesterKeydown)
 
   // Loading sequence
-  loadProgress.value = 20;
-  await document.fonts?.ready;
-  loadProgress.value = 60;
-  await new Promise(r => setTimeout(r, 400));
-  loadProgress.value = 90;
-  await new Promise(r => setTimeout(r, 300));
-  loadProgress.value = 100;
-  await new Promise(r => setTimeout(r, 300));
-  loading.value = false;
-});
+  loadProgress.value = 20
+  await document.fonts?.ready
+  loadProgress.value = 60
+  await new Promise(r => setTimeout(r, 400))
+  loadProgress.value = 90
+  await new Promise(r => setTimeout(r, 300))
+  loadProgress.value = 100
+  await new Promise(r => setTimeout(r, 300))
+  loading.value = false
+})
 
 onBeforeUnmount(() => {
-  if (typeof document === 'undefined') return;
-  window.removeEventListener('keydown', onTesterKeydown);
-  if (toastTimer) clearTimeout(toastTimer);
-  clearJumpChord();
-});
+  if (typeof document === 'undefined') return
+  window.removeEventListener('keydown', onTesterKeydown)
+  if (toastTimer) clearTimeout(toastTimer)
+  clearJumpChord()
+})
 </script>
 
 <style scoped>
@@ -321,7 +399,9 @@ onBeforeUnmount(() => {
 
 .tester-toast-enter-active,
 .tester-toast-leave-active {
-  transition: opacity 240ms var(--ease-out-expo), transform 240ms var(--ease-out-expo);
+  transition:
+    opacity 240ms var(--ease-out-expo),
+    transform 240ms var(--ease-out-expo);
 }
 
 .tester-toast-enter-from,
@@ -420,6 +500,54 @@ onBeforeUnmount(() => {
   border-color: rgba(200, 70, 70, 0.35);
   box-shadow: 0 3px 0 0 rgba(200, 70, 70, 0.25);
   color: #b94a4a;
+}
+
+.tester-shortcuts.tear-row {
+  display: flex;
+  display: none; /* deprecated: pig tear system removed */
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(25, 200, 185, 0.08), #f8f8f0);
+  border: 1.5px dashed rgba(25, 200, 185, 0.4);
+}
+
+.tear-row-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #11827a;
+  letter-spacing: 0.04em;
+}
+
+.tear-row-stat {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  color: #5a8a86;
+  font-variant-numeric: tabular-nums;
+}
+
+.tester-group-count {
+  font-size: 10px;
+  font-weight: 700;
+  color: #9f927d;
+  margin-left: 4px;
+}
+
+.tester-tear-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 50px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #11827a;
+  background: rgba(25, 200, 185, 0.16);
+  border: 1px solid rgba(25, 200, 185, 0.32);
 }
 
 .tester-columns {

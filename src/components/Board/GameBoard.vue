@@ -328,10 +328,12 @@ import { TIMING } from '@/utils/timing'
 import { makeGuid } from '@/utils/guid'
 import {
   ABILITIES,
+  DAYS,
   DJINN_WISHES,
   MONSTER_BY_CHAR,
   MONSTERS,
   RESOURCE_BY_ID,
+  RESOURCE_BY_CHAR,
   ROT_CHAR,
   unlockedCharsForDay
 } from '@/data/content'
@@ -725,7 +727,7 @@ function confirmRowOrCol(axis, index) {
   bumpIdle()
   audioManager.playSFX('ability_sunset', { vol: 0.7 })
   audioManager.playSFX('lineclear', { vol: 0.5 })
-  triggerSunsetRake()
+  triggerSunsetRake('gold', axis, index)
   board.value.clearLine(axis, index)
   game.consumeAbility(ab.id)
 }
@@ -843,6 +845,8 @@ onMounted(() => {
   EventBus.bind('tilesSwapped', onTilesSwapped)
   EventBus.bind('noMoreMoves', onNoMoreMoves)
   EventBus.bind('pigPenalty', onPigPenalty)
+  EventBus.bind('itemLineSweep', onItemLineSweep)
+  EventBus.bind('itemCellsPop', onItemCellsPop)
   board.value.fill()
   bumpIdle()
 })
@@ -853,6 +857,8 @@ onBeforeUnmount(() => {
   EventBus.unbind('tilesSwapped', onTilesSwapped)
   EventBus.unbind('noMoreMoves', onNoMoreMoves)
   EventBus.unbind('pigPenalty', onPigPenalty)
+  EventBus.unbind('itemLineSweep', onItemLineSweep)
+  EventBus.unbind('itemCellsPop', onItemCellsPop)
   for (const timer of boardSyncTimers) clearTimeout(timer)
   if (comboPraiseTimer) clearTimeout(comboPraiseTimer)
   if (awakeningTimer) clearTimeout(awakeningTimer)
@@ -1296,7 +1302,7 @@ function onTilesCleared(
       safeChain
     )
   }
-  game.gainResources(resourcesByChar, groupSizes || [], chain || 1)
+  game.gainResources(resourcesByChar, groupSizes || [], chain || 1, matchGroups || [])
   game.recordDjinnBoardProgress({
     clearedPositions: collectClearedPositions(),
     groupSizes: groupSizes || [],
@@ -1650,6 +1656,88 @@ function onPigPenalty() {
   EventBus.trigger('sceneBurst', [{ kind: 'gold', count: 8 }])
 }
 
+/**
+ * itemCellsPop — 道具触发非整行/列的区域/散点操作。
+ * payload: { cells?[], count?, pickRandom?, convertToNeed?, variant?, itemId? }
+ *  - 有 cells → 直接用
+ *  - 有 count + pickRandom → 从棋盘随机抽取非怪物非洞格
+ *  - convertToNeed → 每个格子翻成一项随机当前需求资源
+ *  - 否则 collapseAt 炸开
+ */
+function onItemCellsPop(payload = {}) {
+  if (!board.value) return
+  let cells = (Array.isArray(payload.cells) ? payload.cells.filter(
+    (c) => typeof c?.row === 'number' && typeof c?.col === 'number'
+  ) : [])
+  if (!cells.length && payload.pickRandom && (payload.count || 0) > 0) {
+    cells = randomValidTileCells(payload.count)
+  }
+  if (!cells.length) return
+  const variant = payload.variant || 'treasure-spark'
+  flashCellGroup(cells, variant)
+  if (payload.convertToNeed) {
+    const needs = Object.keys(DAYS[game.currentDay]?.needs || {})
+    if (needs.length) {
+      for (const c of cells) {
+        const ch = needs[Math.floor(Math.random() * needs.length)]
+        const resource = RESOURCE_BY_ID[ch]
+        if (resource) board.value.setTile(c.row, c.col, resource.char)
+      }
+    }
+  } else {
+    setTimeout(() => {
+      if (!board.value) return
+      audioManager.playSFX('seal_break', { vol: 0.5 })
+      board.value.collapseAt(cells)
+    }, 220)
+  }
+}
+
+/**
+ * 随机抽取 count 个有效格子（非怪物 char、非洞、非 blocked）。
+ */
+function randomValidTileCells(count) {
+  if (!board.value) return []
+  const candidates = []
+  const blocked = new Set(game.blockedCellKeys || [])
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (blocked.has(`${r}:${c}`)) continue
+      const ch = board.value.getTile(r, c)
+      if (!ch || ch === HOLE) continue
+      // 排除怪物 char 与 rot
+      if (ROT_CHAR_RE.test(ch)) continue
+      if (MONSTER_CHAR_RE.test(ch)) continue
+      candidates.push({ row: r, col: c })
+    }
+  }
+  // Fisher–Yates shuffle then pick first count
+  for (let i = candidates.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [candidates[i], candidates[j]] = [candidates[j], candidates[i]]
+  }
+  return candidates.slice(0, count)
+}
+
+const MONSTER_CHAR_RE = /^[A-HJ-NP-Z]$/
+const ROT_CHAR_RE = /^r$/ // rot char from content
+
+/**
+ * 给一组格子快速闪烁（DOM 临时注入 class-removed-125ms-later）。
+ */
+function flashCellGroup(cells, variant) {
+  const layer = document.querySelector('.tileContainer')
+  if (!layer) return
+  for (const c of cells) {
+    const el = layer.querySelector(`[data-tile-pos="${c.row},${c.col}"]`)
+    if (!el) continue
+    el.classList.add(`cell-flash`, `cell-flash--${variant}`)
+    setTimeout(() => {
+      el.classList.remove(`cell-flash`, `cell-flash--${variant}`)
+    }, 440)
+  }
+}
+
 function triggerMilkTeaBarrageFx(resourceId) {
   const glyph = RESOURCE_BY_ID[resourceId]?.emoji || '✨'
   milkTeaSigil.value = { glyph, id: resourceId }
@@ -1698,14 +1786,51 @@ function triggerMilkTeaBarrageFx(resourceId) {
   }, 1700)
 }
 
-function triggerSunsetRake() {
+function triggerSunsetRake(variant = 'gold', axis = 'row', index = null) {
   // CSS class lifetime handled inline.
   const layer = document.querySelector('.tileContainer')
   if (!layer) return
   const rake = document.createElement('div')
-  rake.className = 'sunset-rake'
+  rake.className = `sunset-rake sunset-rake--axis-${axis} sunset-rake--${variant}`
+  // 当传入具体 row/col 时把光束约束到那一行/列；否则保留全板（向后兼容）
+  if (Number.isInteger(index)) {
+    if (axis === 'row') {
+      rake.style.top = `${index * TILE_SIZE}px`
+      rake.style.left = '0'
+      rake.style.right = '0'
+      rake.style.height = `${TILE_SIZE}px`
+      rake.style.bottom = 'auto'
+    } else {
+      rake.style.left = `${index * TILE_SIZE}px`
+      rake.style.top = '0'
+      rake.style.bottom = '0'
+      rake.style.width = `${TILE_SIZE}px`
+      rake.style.right = 'auto'
+    }
+  }
   layer.appendChild(rake)
-  setTimeout(() => rake.remove(), 800)
+  setTimeout(() => rake.remove(), 1600)
+}
+
+/**
+ * 道具触发的整行/整列穿透 — 由 gameStore emit 'itemLineSweep' 进入。
+ * 先放出穿透光束动画，等光束抵达中心（约 700ms）再清格——玩家能看见火焰"扫过"，
+ * 然后整行/整列被吃掉，节奏比同帧触发更明显。
+ */
+const ITEM_SWEEP_ARRIVAL_MS = 720
+function onItemLineSweep(payload = {}) {
+  if (!board.value) return
+  const axis = payload.axis === 'col' ? 'col' : 'row'
+  const index = Number.isInteger(payload.index) ? payload.index : null
+  if (index == null) return
+  const variant = payload.variant || 'devil-red'
+  audioManager.playSFX('ability_sunset', { vol: 0.7 })
+  triggerSunsetRake(variant, axis, index)
+  setTimeout(() => {
+    if (!board.value) return
+    audioManager.playSFX('lineclear', { vol: 0.55 })
+    board.value.clearLine(axis, index)
+  }, ITEM_SWEEP_ARRIVAL_MS)
 }
 
 let _awakeningCounter = 0

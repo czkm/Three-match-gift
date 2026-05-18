@@ -157,11 +157,17 @@
   100% { width: 220px; height: 320px; opacity: 1; }
 }
 
-/* ── Sunset rake (gazebo ability flash) ── */
+/* ── Sunset rake — line-sweep ability/道具视觉，按 axis + variant 派生 ── */
 .sunset-rake {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  filter: blur(3px);
+  opacity: 0;
+}
+
+/* 默认（横向行扫）— 现有 Toussent Sunset 金色 */
+.sunset-rake--axis-row {
   background: linear-gradient(
     90deg,
     transparent 0%,
@@ -170,11 +176,93 @@
     rgba(255, 200, 120, 0.0) 90%,
     transparent 100%
   );
-  filter: blur(3px);
-  opacity: 0;
-  animation: rake-sweep 700ms var(--ease-out-expo) forwards;
+  animation: rake-sweep-row 1500ms var(--ease-out-expo) forwards;
 }
 
+/* 纵向列扫 — 用于妈妈的刀 / 虚空之喉 */
+.sunset-rake--axis-col {
+  background: linear-gradient(
+    0deg,
+    transparent 0%,
+    rgba(255, 200, 120, 0.0) 10%,
+    rgba(255, 180, 90, 0.58) 50%,
+    rgba(255, 200, 120, 0.0) 90%,
+    transparent 100%
+  );
+  animation: rake-sweep-col 1500ms var(--ease-out-expo) forwards;
+}
+
+/* 颜色变体 ── 硫磺火 / 妈妈的刀（红橙火光） */
+.sunset-rake--devil-red.sunset-rake--axis-row {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 80, 40, 0.0) 8%,
+    rgba(255, 110, 40, 0.78) 45%,
+    rgba(255, 220, 120, 0.95) 50%,
+    rgba(255, 110, 40, 0.78) 55%,
+    rgba(255, 80, 40, 0.0) 92%,
+    transparent 100%
+  );
+  filter: blur(2px) drop-shadow(0 0 18px rgba(255, 110, 40, 0.85));
+}
+
+.sunset-rake--devil-red.sunset-rake--axis-col {
+  background: linear-gradient(
+    0deg,
+    transparent 0%,
+    rgba(255, 80, 40, 0.0) 8%,
+    rgba(255, 110, 40, 0.78) 45%,
+    rgba(255, 220, 120, 0.95) 50%,
+    rgba(255, 110, 40, 0.78) 55%,
+    rgba(255, 80, 40, 0.0) 92%,
+    transparent 100%
+  );
+  filter: blur(2px) drop-shadow(0 0 18px rgba(255, 110, 40, 0.85));
+}
+
+/* 颜色变体 ── 虚空之喉（深紫黑光） */
+.sunset-rake--devil-purple.sunset-rake--axis-row {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(60, 0, 80, 0.0) 8%,
+    rgba(130, 40, 200, 0.72) 45%,
+    rgba(220, 180, 255, 0.88) 50%,
+    rgba(130, 40, 200, 0.72) 55%,
+    rgba(60, 0, 80, 0.0) 92%,
+    transparent 100%
+  );
+  filter: blur(2px) drop-shadow(0 0 18px rgba(130, 40, 200, 0.85));
+}
+
+.sunset-rake--devil-purple.sunset-rake--axis-col {
+  background: linear-gradient(
+    0deg,
+    transparent 0%,
+    rgba(60, 0, 80, 0.0) 8%,
+    rgba(130, 40, 200, 0.72) 45%,
+    rgba(220, 180, 255, 0.88) 50%,
+    rgba(130, 40, 200, 0.72) 55%,
+    rgba(60, 0, 80, 0.0) 92%,
+    transparent 100%
+  );
+  filter: blur(2px) drop-shadow(0 0 18px rgba(130, 40, 200, 0.85));
+}
+
+@keyframes rake-sweep-row {
+  0%   { transform: translateX(-100%); opacity: 0; }
+  50%  { opacity: 1; }
+  100% { transform: translateX(100%);  opacity: 0; }
+}
+
+@keyframes rake-sweep-col {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  50%  { opacity: 1; }
+  100% { transform: translateY(100%);  opacity: 0; }
+}
+
+/* 保留旧 keyframes 别名以防外部引用 */
 @keyframes rake-sweep {
   0%   { transform: translateX(-100%); opacity: 0; }
   50%  { opacity: 1; }
@@ -252,4 +340,38 @@
   0%   { opacity: 1; transform: translateY(0); }
   70%  { opacity: 0.8; }
   100% { opacity: 0; transform: translateY(-32px); }
+}
+
+/* ── itemCellsPop 单格闪烁：不同 variant ── */
+.cell-flash {
+  position: relative;
+  z-index: 2;
+}
+.cell-flash::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 6px;
+  pointer-events: none;
+  animation: cell-flash-pop 440ms ease-out forwards;
+}
+.cell-flash--treasure-spark::after {
+  background: rgba(216, 244, 242, 0.55);
+  box-shadow: 0 0 16px rgba(127, 220, 212, 0.7), inset 0 0 6px rgba(25, 200, 185, 0.4);
+}
+.cell-flash--devil-spark::after {
+  background: rgba(255, 110, 40, 0.4);
+  box-shadow: 0 0 18px rgba(255, 110, 40, 0.85), inset 0 0 6px rgba(245, 195, 28, 0.5);
+}
+.cell-flash--devil-area::after {
+  background: rgba(130, 40, 200, 0.35);
+  box-shadow: 0 0 22px rgba(130, 40, 200, 0.78), inset 0 0 8px rgba(60, 0, 80, 0.45);
+  animation-duration: 600ms;
+}
+
+@keyframes cell-flash-pop {
+  0%   { opacity: 0; transform: scale(0.5); }
+  40%  { opacity: 1; transform: scale(1.3); }
+  80%  { opacity: 0.5; transform: scale(1.0); }
+  100% { opacity: 0; transform: scale(0.9); }
 }

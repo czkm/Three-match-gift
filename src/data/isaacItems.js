@@ -12,20 +12,25 @@ const sprite = (x, y) => ({
 });
 
 export const ISAAC_ITEM_SPRITES = {
-  stye: sprite(0, -1152),
-  momsKey: sprite(-544, -288)
+  stye: sprite(0, -1152)
 };
 
+/**
+ * 适配后的道具池：7 件宝箱房 + 7 件恶魔房。
+ * 每件道具对应 REWARD_ITEMS 中的一个条目（rewardItemIds 长度恒为 1）。
+ * 机制：在 match-3 + 步数管理语境下重新设计，summary 描述的是本作的实际效果。
+ */
 export const ISAAC_ITEMS = {
+  /* ───── 宝箱房 ───── */
   stye: {
     key: 'stye',
     collectibleId: 731,
     cnName: '麦粒肿',
     enName: 'Stye',
     wikiUrl: 'https://isaac.huijiwiki.com/wiki/C731',
-    summary: '强化右眼泪弹，提升伤害和射程，并略微降低弹速。',
+    summary: '每日首次 4 连：match 中心 + 1 个随机相邻格炸开。',
     sprite: ISAAC_ITEM_SPRITES.stye,
-    rewardItemIds: ['styeTreasure', 'styeDevil']
+    rewardItemIds: ['stye']
   },
   luckyFoot: {
     key: 'luckyFoot',
@@ -33,7 +38,7 @@ export const ISAAC_ITEMS = {
     cnName: '幸运脚',
     enName: 'Lucky Foot',
     wikiUrl: 'https://isaac.huijiwiki.com/wiki/C46',
-    summary: '提供幸运加成，并改善部分随机事件收益。',
+    summary: '每日首次 2 段连锁：3 个随机格翻成需求资源。',
     sprite: null,
     rewardItemIds: ['luckyFoot']
   },
@@ -43,7 +48,7 @@ export const ISAAC_ITEMS = {
     cnName: '午餐',
     enName: 'Lunch',
     wikiUrl: 'https://isaac.huijiwiki.com/wiki/C22',
-    summary: '增加 1 个红心容器。',
+    summary: '次日开始时 +2 步。',
     sprite: null,
     rewardItemIds: ['lunch']
   },
@@ -53,7 +58,7 @@ export const ISAAC_ITEMS = {
     cnName: '硬币袋',
     enName: 'Sack of Pennies',
     wikiUrl: 'https://isaac.huijiwiki.com/wiki/C94',
-    summary: '会周期性掉落硬币的跟随物。',
+    summary: '每日首次结算时，随机一项目标资源 +4。',
     sprite: null,
     rewardItemIds: ['sackOfPennies']
   },
@@ -63,7 +68,7 @@ export const ISAAC_ITEMS = {
     cnName: '小电池',
     enName: 'The Battery',
     wikiUrl: 'https://isaac.huijiwiki.com/wiki/C63',
-    summary: '允许主动道具额外储存 1 次充能。',
+    summary: '每日首次 5 连，立即恢复 2 步。',
     sprite: null,
     rewardItemIds: ['battery']
   },
@@ -73,7 +78,7 @@ export const ISAAC_ITEMS = {
     cnName: '圣水',
     enName: 'Holy Water',
     wikiUrl: 'https://isaac.huijiwiki.com/wiki/C178',
-    summary: '命中后会留下圣水水潭的跟随物。',
+    summary: '每日首次无效交换：返还 1 步 + 周围 2 格翻成需求资源。',
     sprite: null,
     rewardItemIds: ['holyWater']
   },
@@ -83,27 +88,19 @@ export const ISAAC_ITEMS = {
     cnName: '指南针',
     enName: 'The Compass',
     wikiUrl: 'https://isaac.huijiwiki.com/wiki/C21',
-    summary: '揭示楼层内全部特殊房间位置。',
+    summary: '每日首次 4 连，恢复 1 点小猪能量。',
     sprite: null,
     rewardItemIds: ['compass']
   },
-  momsKey: {
-    key: 'momsKey',
-    collectibleId: 199,
-    cnName: '妈妈的钥匙',
-    enName: "Mom's Key",
-    wikiUrl: 'https://isaac.huijiwiki.com/wiki/C199',
-    summary: '获得 2 把钥匙，并提升箱子掉落。',
-    sprite: ISAAC_ITEM_SPRITES.momsKey,
-    rewardItemIds: ['momsKey']
-  },
+
+  /* ───── 恶魔房 ───── */
   brimstone: {
     key: 'brimstone',
     collectibleId: 118,
     cnName: '硫磺火',
     enName: 'Brimstone',
     wikiUrl: 'https://isaac.huijiwiki.com/wiki/C118',
-    summary: '把泪弹替换为可蓄力的穿透血激光。',
+    summary: '每日首次 3 连：match 所在列被硫磺火扫穿清空。',
     sprite: null,
     rewardItemIds: ['brimstone']
   },
@@ -113,7 +110,7 @@ export const ISAAC_ITEMS = {
     cnName: '妈妈的刀',
     enName: "Mom's Knife",
     wikiUrl: 'https://isaac.huijiwiki.com/wiki/C114',
-    summary: '把泪弹替换为可蓄力投掷的刀刃。',
+    summary: '每日首次无效交换：所在列被刀刃划穿清空。',
     sprite: null,
     rewardItemIds: ['momsKnife']
   },
@@ -123,7 +120,7 @@ export const ISAAC_ITEMS = {
     cnName: '契约',
     enName: 'The Pact',
     wikiUrl: 'https://isaac.huijiwiki.com/wiki/C80',
-    summary: '提供黑心、伤害和射速加成。',
+    summary: '每日首次 4 连：match 所在行被诅咒火焰扫穿清空。',
     sprite: null,
     rewardItemIds: ['thePact']
   },
@@ -133,7 +130,7 @@ export const ISAAC_ITEMS = {
     cnName: '死猫',
     enName: 'Dead Cat',
     wikiUrl: 'https://isaac.huijiwiki.com/wiki/C81',
-    summary: '提供 9 条命，并把红心容器压到 1 格。',
+    summary: '步数归零时自动恢复 4 步。',
     sprite: null,
     rewardItemIds: ['deadCat']
   },
@@ -143,49 +140,9 @@ export const ISAAC_ITEMS = {
     cnName: '五芒星',
     enName: 'Pentagram',
     wikiUrl: 'https://isaac.huijiwiki.com/wiki/C51',
-    summary: '提供伤害加成，并提高恶魔房概率。',
+    summary: '每日首次 5 连：5 个随机格被打上五芒星烙印后炸开。',
     sprite: null,
     rewardItemIds: ['pentagram']
-  },
-  guppysPaw: {
-    key: 'guppysPaw',
-    collectibleId: 133,
-    cnName: '嗝屁猫的爪子',
-    enName: "Guppy's Paw",
-    wikiUrl: 'https://isaac.huijiwiki.com/wiki/C133',
-    summary: '把红心容器转换为魂心的主动道具。',
-    sprite: null,
-    rewardItemIds: ['guppysPaw']
-  },
-  blackCandle: {
-    key: 'blackCandle',
-    collectibleId: 260,
-    cnName: '黑蜡烛',
-    enName: 'Black Candle',
-    wikiUrl: 'https://isaac.huijiwiki.com/wiki/C260',
-    summary: '免疫楼层诅咒，并提供黑心。',
-    sprite: null,
-    rewardItemIds: ['blackCandle']
-  },
-  whoreOfBabylon: {
-    key: 'whoreOfBabylon',
-    collectibleId: 122,
-    cnName: '巴比伦大淫妇',
-    enName: 'Whore of Babylon',
-    wikiUrl: 'https://isaac.huijiwiki.com/wiki/C122',
-    summary: '低血量时提供伤害和速度加成。',
-    sprite: null,
-    rewardItemIds: ['whoreOfBabylon']
-  },
-  abaddon: {
-    key: 'abaddon',
-    collectibleId: 230,
-    cnName: '亚巴顿',
-    enName: 'Abaddon',
-    wikiUrl: 'https://isaac.huijiwiki.com/wiki/C230',
-    summary: '提升伤害并把红心容器转成黑心。',
-    sprite: null,
-    rewardItemIds: ['abaddon']
   },
   mawOfTheVoid: {
     key: 'mawOfTheVoid',
@@ -193,49 +150,19 @@ export const ISAAC_ITEMS = {
     cnName: '虚空之喉',
     enName: 'Maw of the Void',
     wikiUrl: 'https://isaac.huijiwiki.com/wiki/C399',
-    summary: '持续射击后可释放黑色硫磺火环。',
+    summary: '每日首次 3 段连锁：以 match 中心为中心的 3×3 区域被吞没。',
     sprite: null,
     rewardItemIds: ['mawOfTheVoid']
   },
-  eyeOfBelial: {
-    key: 'eyeOfBelial',
-    collectibleId: 462,
-    cnName: '恶魔之眼',
-    enName: 'Eye of Belial',
-    wikiUrl: 'https://isaac.huijiwiki.com/wiki/C462',
-    summary: '提供穿透泪弹，并强化穿透后的子弹。',
+  blackCandle: {
+    key: 'blackCandle',
+    collectibleId: 260,
+    cnName: '黑蜡烛',
+    enName: 'Black Candle',
+    wikiUrl: 'https://isaac.huijiwiki.com/wiki/C260',
+    summary: '每日开始时清零「明日步数惩罚」。',
     sprite: null,
-    rewardItemIds: ['eyeOfBelial']
-  },
-  theMark: {
-    key: 'theMark',
-    collectibleId: 79,
-    cnName: '印记',
-    enName: 'The Mark',
-    wikiUrl: 'https://isaac.huijiwiki.com/wiki/C79',
-    summary: '提供黑心、伤害和速度加成。',
-    sprite: null,
-    rewardItemIds: ['theMark']
-  },
-  sacrificialDagger: {
-    key: 'sacrificialDagger',
-    collectibleId: 172,
-    cnName: '献祭匕首',
-    enName: 'Sacrificial Dagger',
-    wikiUrl: 'https://isaac.huijiwiki.com/wiki/C172',
-    summary: '获得一个高伤害的环绕匕首轨道物。',
-    sprite: null,
-    rewardItemIds: ['sacrificialDagger']
-  },
-  littleBrimstone: {
-    key: 'littleBrimstone',
-    collectibleId: 275,
-    cnName: '小硫磺火',
-    enName: 'Little Brimstone',
-    wikiUrl: 'https://isaac.huijiwiki.com/wiki/C275',
-    summary: '会随射击蓄力并发射细版硫磺火的跟随物。',
-    sprite: null,
-    rewardItemIds: ['littleBrimstone']
+    rewardItemIds: ['blackCandle']
   }
 };
 
