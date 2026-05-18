@@ -28,9 +28,13 @@
         <span class="ab-icon">{{ ab.icon }}</span>
         <span class="ab-name">{{ ab.name }}</span>
         <span class="ab-uses">
-          {{ ab.id === 'milkTeaBarrage'
-            ? (game.pigEnergyReady ? COMMON_COPY.ready : `${displayPigEnergy}/${pigEnergyMax}★`)
-            : `×${game.abilityUses[ab.id] ?? 0}` }}
+          {{
+            ab.id === 'milkTeaBarrage'
+              ? game.pigEnergyReady
+                ? COMMON_COPY.ready
+                : `${displayPigEnergy}/${pigEnergyMax}★`
+              : `×${game.abilityUses[ab.id] ?? 0}`
+          }}
         </span>
       </button>
     </div>
@@ -39,8 +43,14 @@
       <div class="pig-energy-head">
         <span class="pig-energy-icon">🐷</span>
         <div>
-          <p class="pig-energy-title ink-title">{{ ABILITY_BAR_COPY.pigEnergyTitle }}</p>
-          <p class="pig-energy-text">{{ ABILITY_BAR_COPY.formatPigEnergy(displayPigEnergy, pigEnergyMax) }}</p>
+          <p class="pig-energy-title ink-title">
+            {{ ABILITY_BAR_COPY.pigEnergyTitle }}
+          </p>
+          <p class="pig-energy-text">
+            {{
+              ABILITY_BAR_COPY.formatPigEnergy(displayPigEnergy, pigEnergyMax)
+            }}
+          </p>
         </div>
       </div>
       <div class="pig-energy-stars" :class="{ charged: pigAwards.length > 0 }">
@@ -48,8 +58,13 @@
           v-for="n in pigEnergyMax"
           :key="`pig-slot-${n}`"
           class="pig-energy-star"
-          :class="{ filled: n <= displayPigEnergy, charging: chargingSlot === n }"
-        >⭐</span>
+          :class="{
+            filled: n <= displayPigEnergy,
+            charging: chargingSlot === n
+          }"
+        >
+          ⭐
+        </span>
       </div>
       <div v-if="pigAwards.length" class="pig-award-layer">
         <span
@@ -57,7 +72,9 @@
           :key="award.id"
           class="pig-award-star"
           :style="award.style"
-        >{{ award.glyph }}</span>
+        >
+          {{ award.glyph }}
+        </span>
       </div>
     </div>
 
@@ -99,7 +116,9 @@
         <button class="apply" :disabled="!lilacReady" @click="applyLilac">
           {{ ABILITY_BAR_COPY.lilacApply }}
         </button>
-        <button class="cancel" @click="cancelLilac">{{ COMMON_COPY.cancel }}</button>
+        <button class="cancel" @click="cancelLilac">
+          {{ COMMON_COPY.cancel }}
+        </button>
       </div>
     </div>
 
@@ -120,7 +139,9 @@
         <button class="apply" :disabled="!milkTeaTarget" @click="applyMilkTea">
           {{ ABILITY_BAR_COPY.milkTeaApply }}
         </button>
-        <button class="cancel" @click="cancelMilkTea">{{ COMMON_COPY.cancel }}</button>
+        <button class="cancel" @click="cancelMilkTea">
+          {{ COMMON_COPY.cancel }}
+        </button>
       </div>
     </div>
 
@@ -147,7 +168,12 @@ import { ABILITY_BAR_COPY, COMMON_COPY } from '@/data/copy'
 import EventBus from '@/core/eventBus'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { useGameStore } from '@/stores/gameStore'
-import { ABILITIES, PIG_RATING, RESOURCES, unlockedCharsForDay } from '@/data/content'
+import {
+  ABILITIES,
+  PIG_RATING,
+  RESOURCES,
+  unlockedCharsForDay
+} from '@/data/content'
 
 const pigEnergyMax = PIG_RATING.energyMax
 
@@ -246,8 +272,14 @@ function onPigRatingAwarded(payload = {}) {
         left: origin?.x ? `${origin.x}px` : `${14 + i * 16}%`,
         top: origin?.y ? `${origin.y}px` : `${8 + (i % 2) * 8}px`,
         '--delay': `${(0.08 + i * 0.14).toFixed(2)}s`,
-        '--dx': origin && destX != null ? `${Math.round(destX - origin.x)}px` : '120px',
-        '--dy': origin && destY != null ? `${Math.round(destY - origin.y)}px` : '30px',
+        '--dx':
+          origin && destX != null
+            ? `${Math.round(destX - origin.x)}px`
+            : '120px',
+        '--dy':
+          origin && destY != null
+            ? `${Math.round(destY - origin.y)}px`
+            : '30px',
         '--mode': origin ? 'fixed' : 'local'
       }
     })
@@ -255,25 +287,37 @@ function onPigRatingAwarded(payload = {}) {
   pigAwards.value = fresh
   if (pigAwardTimer) clearTimeout(pigAwardTimer)
   if (pigEnergySyncTimer) clearTimeout(pigEnergySyncTimer)
-  const targetEnergy = Math.max(displayPigEnergy.value, Number(payload.toEnergy) || 0)
+  const targetEnergy = Math.max(
+    displayPigEnergy.value,
+    Number(payload.toEnergy) || 0
+  )
   for (let i = 0; i < stars; i++) {
-    setTimeout(() => {
-      chargingSlot.value = Math.min(targetEnergy, displayPigEnergy.value + 1)
-      displayPigEnergy.value = Math.min(targetEnergy, displayPigEnergy.value + 1)
-      setTimeout(() => {
-        chargingSlot.value = 0
-      }, 220)
-    }, 1080 + i * 180)
+    setTimeout(
+      () => {
+        chargingSlot.value = Math.min(targetEnergy, displayPigEnergy.value + 1)
+        displayPigEnergy.value = Math.min(
+          targetEnergy,
+          displayPigEnergy.value + 1
+        )
+        setTimeout(() => {
+          chargingSlot.value = 0
+        }, 220)
+      },
+      1080 + i * 180
+    )
   }
   pigAwardTimer = setTimeout(() => {
     pigAwards.value = []
     pigAwardTimer = null
   }, 2200)
-  pigEnergySyncTimer = setTimeout(() => {
-    displayPigEnergy.value = game.pigEnergy
-    chargingSlot.value = 0
-    pigEnergySyncTimer = null
-  }, 1820 + stars * 180)
+  pigEnergySyncTimer = setTimeout(
+    () => {
+      displayPigEnergy.value = game.pigEnergy
+      chargingSlot.value = 0
+      pigEnergySyncTimer = null
+    },
+    1820 + stars * 180
+  )
 }
 
 function onItemEffectTriggered(payload = {}) {
@@ -282,7 +326,10 @@ function onItemEffectTriggered(payload = {}) {
   for (let i = 0; i < payload.pigEnergyGained; i++) {
     setTimeout(() => {
       chargingSlot.value = Math.min(targetEnergy, displayPigEnergy.value + 1)
-      displayPigEnergy.value = Math.min(targetEnergy, displayPigEnergy.value + 1)
+      displayPigEnergy.value = Math.min(
+        targetEnergy,
+        displayPigEnergy.value + 1
+      )
       setTimeout(() => {
         chargingSlot.value = 0
       }, 220)
@@ -292,7 +339,7 @@ function onItemEffectTriggered(payload = {}) {
 
 watch(
   () => game.pigEnergy,
-  (value) => {
+  value => {
     if (pigEnergySyncTimer || pigAwards.value.length) return
     displayPigEnergy.value = value
   },
@@ -443,7 +490,11 @@ h3 {
   height: 18px;
   border-radius: 50%;
   opacity: 0;
-  background: radial-gradient(circle, rgba(255, 244, 196, 0.88), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 244, 196, 0.88),
+    transparent 70%
+  );
 }
 
 .pig-energy-stars.charged::after {
@@ -494,21 +545,44 @@ h3 {
 }
 
 @keyframes pig-award-flight {
-  0%   { opacity: 0; transform: translate(0, 0) scale(0.6); }
-  24%  { opacity: 1; }
-  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.9); }
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  24% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(0.9);
+  }
 }
 
 @keyframes pig-energy-spark {
-  0%   { opacity: 0; transform: scale(0.5); }
-  40%  { opacity: 1; transform: scale(1.2); }
-  100% { opacity: 0; transform: scale(1.6); }
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
 }
 
 @keyframes pig-energy-star-pop {
-  0%   { transform: scale(0.74); }
-  60%  { transform: scale(1.28); }
-  100% { transform: scale(1.04); }
+  0% {
+    transform: scale(0.74);
+  }
+  60% {
+    transform: scale(1.28);
+  }
+  100% {
+    transform: scale(1.04);
+  }
 }
 
 /* ── Ability buttons — 3D pill style ── */
@@ -531,23 +605,33 @@ h3 {
   transform: translateY(-1px);
   background: #fff;
   border-color: #19c8b9;
-  box-shadow: 0 4px 0 0 #50B9AB;
+  box-shadow: 0 4px 0 0 #50b9ab;
 }
 
 .ab-btn:active:not(:disabled) {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 0 #50B9AB;
+  box-shadow: 0 1px 0 0 #50b9ab;
 }
 
 .ab-btn.pending {
-  background: linear-gradient(180deg, rgba(25, 200, 185, 0.16), rgba(25, 200, 185, 0.04));
+  background: linear-gradient(
+    180deg,
+    rgba(25, 200, 185, 0.16),
+    rgba(25, 200, 185, 0.04)
+  );
   border-color: #19c8b9;
-  box-shadow: 0 3px 0 0 #50B9AB, 0 0 12px rgba(25, 200, 185, 0.18);
-  color: #50B9AB;
+  box-shadow:
+    0 3px 0 0 #50b9ab,
+    0 0 12px rgba(25, 200, 185, 0.18);
+  color: #50b9ab;
 }
 
 .ab-btn.milk-tea {
-  background: linear-gradient(180deg, rgba(245, 195, 28, 0.16), rgba(245, 195, 28, 0.04));
+  background: linear-gradient(
+    180deg,
+    rgba(245, 195, 28, 0.16),
+    rgba(245, 195, 28, 0.04)
+  );
   border-color: rgba(245, 195, 28, 0.5);
   box-shadow: 0 3px 0 0 rgba(228, 186, 92, 0.5);
 }
@@ -617,22 +701,30 @@ h3 {
 /* ── Convert panel — blob modal floating below ── */
 .convert-panel {
   position: absolute;
-  top: 100%;
-  right: 0;
+  top: 50%;
+  left: -120px;
   margin-top: 12px;
-  width: 300px;
+  width: 450px;
   padding: 18px 18px;
   border-radius: 16px;
   z-index: 12;
   background: rgb(247, 243, 223);
   border: 2px solid #d4c9b4;
-  box-shadow: 0 4px 0 0 #d4c9b4, 0 8px 20px rgba(107, 92, 67, 0.18);
+  box-shadow:
+    0 4px 0 0 #d4c9b4,
+    0 8px 20px rgba(107, 92, 67, 0.18);
   animation: convert-in 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes convert-in {
-  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .convert-panel p {
@@ -677,8 +769,8 @@ h3 {
 .chip.active {
   background: #19c8b9;
   color: #fff;
-  border-color: #50B9AB;
-  box-shadow: 0 2px 0 0 #50B9AB;
+  border-color: #50b9ab;
+  box-shadow: 0 2px 0 0 #50b9ab;
 }
 
 .chip:disabled {

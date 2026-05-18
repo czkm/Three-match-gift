@@ -120,7 +120,7 @@ export const ISAAC_ITEMS = {
     cnName: '契约',
     enName: 'The Pact',
     wikiUrl: 'https://isaac.huijiwiki.com/wiki/C80',
-    summary: '每日首次 4 连：match 所在行被诅咒火焰扫穿清空。',
+    summary: '每日首次 4 连：棋盘上最少的资源格翻成最多的那种。',
     sprite: null,
     rewardItemIds: ['thePact']
   },

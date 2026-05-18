@@ -749,14 +749,6 @@ export const useGameStore = defineStore('game', {
 
       const totalScale = bonusMult * perGroupGreenhouseScale * perGroupBigScale
 
-      for (const ch in charBuckets) {
-        const r = RESOURCE_BY_CHAR[ch]
-        if (!r) continue
-        let amount = charBuckets[ch] * totalScale
-        // Spread the flat extra across resource types proportionally.
-        // (Simpler than tracking which group of which resource.)
-      }
-
       // Compute totals per resource:
       const totalRaw =
         Object.values(charBuckets).reduce((s, n) => s + n, 0) || 1
@@ -784,7 +776,6 @@ export const useGameStore = defineStore('game', {
         chain || 1,
         matchGroups || []
       )
-      this._applyLowStepRecoveryItems()
 
       // agedBarrel passive: +1 step per 5 cleared groups.
       if (this.unlockedAbilities.includes('agedBarrel')) {
@@ -1357,22 +1348,17 @@ export const useGameStore = defineStore('game', {
             })
           }
         } else if (
-          effect.type === 'firstBigRowSweep' &&
+          effect.type === 'firstBigMatchResourceBalance' &&
           hasBig &&
           !this._hasItemFlag(item)
         ) {
-          // 契约：首次 4 连 → match 所在行被诅咒火焰扫穿
-          const row = this._pickSweepIndex(matchGroups, 4, 'row')
-          if (row != null) {
-            this._markItemFlag(item)
-            EventBus.trigger('itemLineSweep', [
-              { axis: 'row', index: row, variant: 'devil-red', itemId: item.id }
-            ])
-            this._emitItemEffectTriggered(item, {
-              trigger: 'resourceGain',
-              summaryText: `第 ${row + 1} 行被诅咒火焰扫穿`
-            })
-          }
+          // 契约：首次 4 连 → 棋盘上最少资源格翻成最多的那种
+          this._markItemFlag(item)
+          EventBus.trigger('itemResourceBalance', [{ itemId: item.id }])
+          this._emitItemEffectTriggered(item, {
+            trigger: 'resourceGain',
+            summaryText: '契约生效：最少的那种资源被翻成了最多的那种'
+          })
         } else if (
           effect.type === 'firstThreeAreaSweep' &&
           chain >= 3 &&

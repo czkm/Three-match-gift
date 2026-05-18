@@ -786,7 +786,42 @@ defineExpose({
     flashAbility()
     const fromChar = RESOURCE_BY_ID[fromId].char
     const toChar = RESOURCE_BY_ID[toId].char
-    board.value.convertResource(fromChar, toChar)
+
+    // 扫描将被转换的格子，加卡牌翻转动画
+    const cells = []
+    const blocked = new Set(game.blockedCellKeys || [])
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (blocked.has(`${r}:${c}`)) continue
+        const ch = board.value.getTile(r, c)
+        if (ch === fromChar) cells.push({ row: r, col: c })
+      }
+    }
+
+    if (cells.length) {
+      const layer = document.querySelector('.tileContainer')
+      const FLIP_MS = 520
+      const MID_MS = 260 // 翻转中点：glyph 此时不可见，切换资源
+      for (let i = 0; i < cells.length; i++) {
+        setTimeout(() => {
+          const el = layer?.querySelector(`[data-tile-pos="${cells[i].row},${cells[i].col}"]`)
+          if (el) el.classList.add('tile-flip')
+        }, i * 22)
+      }
+      // 延迟到翻转中点执行引擎转换，确保 glyph 在收窄期切换
+      setTimeout(() => {
+        board.value.convertResource(fromChar, toChar)
+      }, MID_MS)
+      const totalMs = (cells.length - 1) * 22 + FLIP_MS + 60
+      setTimeout(() => {
+        for (const c of cells) {
+          const el = layer?.querySelector(`[data-tile-pos="${c.row},${c.col}"]`)
+          if (el) el.classList.remove('tile-flip')
+        }
+      }, totalMs)
+    } else {
+      board.value.convertResource(fromChar, toChar)
+    }
     return true
   },
   abilityHarvestResource(resourceId) {
@@ -802,6 +837,28 @@ defineExpose({
     milkTeaCasting.value = true
     audioManager.playSFX('decoction', { vol: 0.72 })
     triggerMilkTeaBarrageFx(resourceId)
+
+    // 扫描将被收获的格子，加卡牌翻转动画
+    const cells = []
+    const blocked = new Set(game.blockedCellKeys || [])
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (blocked.has(`${r}:${c}`)) continue
+        const ch = board.value.getTile(r, c)
+        if (ch === char) cells.push({ row: r, col: c })
+      }
+    }
+
+    // 翻转类先行添加
+    const layer = document.querySelector('.tileContainer')
+    for (let i = 0; i < cells.length; i++) {
+      setTimeout(() => {
+        const el = layer?.querySelector(`[data-tile-pos="${cells[i].row},${cells[i].col}"]`)
+        if (el) el.classList.add('tile-flip')
+      }, i * 20)
+    }
+
+    // 保留原版 320ms 延迟执行收获
     if (milkTeaResolveTimer) clearTimeout(milkTeaResolveTimer)
     milkTeaResolveTimer = setTimeout(() => {
       board.value?.harvestResource?.(char)
@@ -847,6 +904,7 @@ onMounted(() => {
   EventBus.bind('pigPenalty', onPigPenalty)
   EventBus.bind('itemLineSweep', onItemLineSweep)
   EventBus.bind('itemCellsPop', onItemCellsPop)
+  EventBus.bind('itemResourceBalance', onItemResourceBalance)
   board.value.fill()
   bumpIdle()
 })
@@ -859,6 +917,7 @@ onBeforeUnmount(() => {
   EventBus.unbind('pigPenalty', onPigPenalty)
   EventBus.unbind('itemLineSweep', onItemLineSweep)
   EventBus.unbind('itemCellsPop', onItemCellsPop)
+  EventBus.unbind('itemResourceBalance', onItemResourceBalance)
   for (const timer of boardSyncTimers) clearTimeout(timer)
   if (comboPraiseTimer) clearTimeout(comboPraiseTimer)
   if (awakeningTimer) clearTimeout(awakeningTimer)
@@ -1302,7 +1361,12 @@ function onTilesCleared(
       safeChain
     )
   }
-  game.gainResources(resourcesByChar, groupSizes || [], chain || 1, matchGroups || [])
+  game.gainResources(
+    resourcesByChar,
+    groupSizes || [],
+    chain || 1,
+    matchGroups || []
+  )
   game.recordDjinnBoardProgress({
     clearedPositions: collectClearedPositions(),
     groupSizes: groupSizes || [],
@@ -1666,25 +1730,31 @@ function onPigPenalty() {
  */
 function onItemCellsPop(payload = {}) {
   if (!board.value) return
-  let cells = (Array.isArray(payload.cells) ? payload.cells.filter(
-    (c) => typeof c?.row === 'number' && typeof c?.col === 'number'
-  ) : [])
+  let cells = Array.isArray(payload.cells)
+    ? payload.cells.filter(
+        c => typeof c?.row === 'number' && typeof c?.col === 'number'
+      )
+    : []
   if (!cells.length && payload.pickRandom && (payload.count || 0) > 0) {
     cells = randomValidTileCells(payload.count)
   }
   if (!cells.length) return
-  const variant = payload.variant || 'treasure-spark'
-  flashCellGroup(cells, variant)
   if (payload.convertToNeed) {
     const needs = Object.keys(DAYS[game.currentDay]?.needs || {})
     if (needs.length) {
-      for (const c of cells) {
-        const ch = needs[Math.floor(Math.random() * needs.length)]
-        const resource = RESOURCE_BY_ID[ch]
-        if (resource) board.value.setTile(c.row, c.col, resource.char)
-      }
+      animateTileFlip(
+        cells,
+        () => {
+          const ch = needs[Math.floor(Math.random() * needs.length)]
+          const resource = RESOURCE_BY_ID[ch]
+          return resource ? resource.char : null
+        },
+        40
+      )
     }
   } else {
+    const variant = payload.variant || 'treasure-spark'
+    flashCellGroup(cells, variant)
     setTimeout(() => {
       if (!board.value) return
       audioManager.playSFX('seal_break', { vol: 0.5 })
@@ -1713,8 +1783,8 @@ function randomValidTileCells(count) {
   }
   // Fisher–Yates shuffle then pick first count
   for (let i = candidates.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [candidates[i], candidates[j]] = [candidates[j], candidates[i]]
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[candidates[i], candidates[j]] = [candidates[j], candidates[i]]
   }
   return candidates.slice(0, count)
 }
@@ -1736,6 +1806,99 @@ function flashCellGroup(cells, variant) {
       el.classList.remove(`cell-flash`, `cell-flash--${variant}`)
     }, 440)
   }
+}
+
+/**
+ * 通用资源翻转动画（卡牌翻面）。
+ * 对所有 cell 的 DOM 元素添加 tile-flip 类，在动画中点（约 230ms）切换引擎
+ * 与视觉层的 tile 类型，动画完成后移除类。
+ *
+ * @param {Array<{row:number,col:number}>} cells
+ * @param {string|function} target  — 资源 char 字符串（如 'g'），或函数 (row,col) => char
+ * @param {number} [staggerMs=30]   — 每个 cell 之间的错开延迟（ms）
+ */
+function animateTileFlip(cells, target, staggerMs = 30) {
+  if (!board.value || !cells.length) return
+  const layer = document.querySelector('.tileContainer')
+  if (!layer) return
+  const FLIP_MS = 520
+  const MIDPOINT_MS = 230
+
+  const entries = []
+  for (const c of cells) {
+    const el = layer.querySelector(`[data-tile-pos="${c.row},${c.col}"]`)
+    if (!el) continue
+    entries.push({ el, c })
+  }
+  if (!entries.length) return
+
+  // Phase 1：逐格错开添加 flip 类
+  for (let i = 0; i < entries.length; i++) {
+    setTimeout(() => {
+      entries[i].el.classList.add('tile-flip')
+    }, i * staggerMs)
+  }
+
+  // Phase 2：中点切资源 + 同步视觉
+  for (let i = 0; i < entries.length; i++) {
+    const delay = i * staggerMs + MIDPOINT_MS
+    setTimeout(() => {
+      const { c } = entries[i]
+      const ch = typeof target === 'function' ? target(c.row, c.col) : target
+      if (ch) board.value.setTile(c.row, c.col, ch)
+    }, delay)
+  }
+
+  // Phase 3：全部翻转完成后一次性 reconcile 然后移除类
+  const totalMs = (entries.length - 1) * staggerMs + FLIP_MS + 50
+  setTimeout(() => {
+    if (!board.value) return
+    reconcileTilesToBoardState()
+    for (const { el } of entries) el.classList.remove('tile-flip')
+  }, totalMs)
+
+  audioManager.playSFX('pageflip', { vol: 0.35, rate: 1.3 })
+}
+
+/**
+ * itemResourceBalance — 契约：统计棋盘上所有资源格的数量，
+ * 把最少的那个种类全部翻成最多的那个种类。
+ */
+function onItemResourceBalance(_payload = {}) {
+  if (!board.value) return
+  const counts = {}
+  const cellsByType = {}
+  const blocked = new Set(game.blockedCellKeys || [])
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (blocked.has(`${r}:${c}`)) continue
+      const ch = board.value.getTile(r, c)
+      if (
+        !ch ||
+        ch === HOLE ||
+        MONSTER_CHAR_RE.test(ch) ||
+        ROT_CHAR_RE.test(ch)
+      )
+        continue
+      const type = typeFromChar(ch)
+      counts[type] = (counts[type] || 0) + 1
+      if (!cellsByType[type]) cellsByType[type] = []
+      cellsByType[type].push({ row: r, col: c })
+    }
+  }
+  const entries = Object.entries(counts).filter(([, n]) => n > 0)
+  if (entries.length < 2) return
+  entries.sort((a, b) => a[1] - b[1])
+  const leastType = entries[0][0]
+  const mostType = entries[entries.length - 1][0]
+  if (leastType === mostType) return
+  const cells = cellsByType[leastType]
+  if (!cells || !cells.length) return
+
+  const targetResource = RESOURCE_BY_ID[mostType]
+  if (!targetResource) return
+
+  animateTileFlip(cells, targetResource.char, 25)
 }
 
 function triggerMilkTeaBarrageFx(resourceId) {
@@ -2094,7 +2257,7 @@ function stopDjinnTransitionFx() {
 .gameBoard {
   position: relative;
   padding: 10px;
-  border-radius: var(--radius-xl);
+  /* border-radius: var(--radius-xl); */
   transition:
     transform 280ms var(--ease-out-expo),
     filter 280ms var(--ease-out-expo);
@@ -3852,7 +4015,7 @@ function stopDjinnTransitionFx() {
   z-index: 9;
   background: rgb(247, 243, 223);
   border: 2px solid #19c8b9;
-  box-shadow: 0 4px 0 0 #50B9AB;
+  box-shadow: 0 4px 0 0 #50b9ab;
   color: #725d42;
   font-family: 'Nunito', 'Noto Sans SC', sans-serif;
   animation: fade-in 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
