@@ -185,7 +185,7 @@ export const PIG_REACTIONS = {
     { emoji: '😌', caption: '小猪满足地晃了晃耳朵，勉强算是给了你点面子。' }
   ],
   warm: [
-    { emoji: '😋', caption: '小猪舔了舔鼻子，像在想今天有没有加餐。' },
+    { emoji: '🐽', caption: '小猪舔了舔鼻子，像在想今天有没有加餐。' },
     { emoji: '🥺', caption: '它抬头看了你一眼，像是在等一句夸奖。' }
   ],
   warning: [
@@ -204,22 +204,241 @@ export const PIG_REACTIONS = {
 
 export const REWARD_ITEMS = {
   /* ───── 宝箱房 7 件（纯正面，无 pigTear） ───── */
-  stye: { id: 'stye', roomType: 'treasure', name: '麦粒肿', enName: 'Stye', titleText: '麦粒肿', flavorText: '“那只肿起来的眼睛，能多看一格。”', quality: 2, emoji: '👁️', slot: 'head', tone: 'treasure', description: '每天首次 4 连：match 中心 + 1 个随机相邻格子炸开。', effect: { type: 'firstBigMatchAdjacentPop' }, reaction: '小猪用力眨了下右眼，旁边的一个格子应声炸开💥。' },
-  luckyFoot: { id: 'luckyFoot', roomType: 'treasure', name: '幸运脚', enName: 'Lucky Foot', titleText: '幸运脚', flavorText: '“总有一步踩在好运上。”', quality: 2, emoji: '🍀', slot: 'feet', tone: 'treasure', description: '每天首次 2 段连锁：3 个随机非怪物格翻成当前需求资源。', effect: { type: 'firstChainScatterConvert', minChain: 2, count: 3 }, reaction: '小猪踩到一片幸运草，脚边的方块自己变了颜色。' },
-  lunch: { id: 'lunch', roomType: 'treasure', name: '午餐', enName: 'Lunch', titleText: '午餐', flavorText: '“吃饱了，能多跑几趟。”', quality: 1, emoji: '🥪', slot: 'side', tone: 'treasure', description: '每日步数上限永久 +5。', effect: { type: 'maxStepsBonus', amount: 5 }, reaction: '小猪把它塞进背包，拍了拍——今天能多走几步了。' },
-  sackOfPennies: { id: 'sackOfPennies', roomType: 'treasure', name: '硬币袋', enName: 'Sack of Pennies', titleText: '硬币袋', flavorText: '“叮当响，至少听起来富了。”', quality: 2, emoji: '💰', slot: 'side', tone: 'treasure', description: '每天首次资源结算时，随机一项当前目标资源 +4。', effect: { type: 'firstTargetResourceBonus', amount: 4 }, reaction: '袋子里硬币在响，看着哪一项目标自动涨了一点。' },
-  battery: { id: 'battery', roomType: 'treasure', name: '小电池', enName: 'The Battery', titleText: '小电池', flavorText: '“再撑一小会儿。”', quality: 2, emoji: '🔋', slot: 'back', tone: 'treasure', description: '每天首次 4 连及以上，恢复 1 步。', effect: { type: 'firstBigMatchStep', amount: 1 }, reaction: '小猪背着它走了两步，脚步轻了一点。' },
-  holyWater: { id: 'holyWater', roomType: 'treasure', name: '圣水', enName: 'Holy Water', titleText: '圣水', flavorText: '“出错也会留点余地。”', quality: 2, emoji: '💧', slot: 'float', tone: 'treasure', description: '每天首次无效交换返还 1 步，且交换位置周围 2 个随机格翻成需求资源。', effect: { type: 'firstInvalidSwapScatterConvert', count: 2 }, reaction: '水滴落在一个方块上，四周泛起淡淡的光。' },
-  dogTooth: { id: 'dogTooth', roomType: 'treasure', name: '狗牙', enName: "Dog's Tooth", titleText: '狗牙', flavorText: '“狗牙啃过的地，连鬼都不愿待。”', quality: 2, emoji: '🦷', slot: 'float', tone: 'treasure', description: '进入当天地图时，清除全部墓碑。', effect: { type: 'clearTombstonesOnStart' }, reaction: '一声狼嚎从远处传来，棋盘上的墓碑碎成了粉末。' },
+  stye: {
+    id: 'stye',
+    roomType: 'treasure',
+    name: '麦粒肿',
+    enName: 'Stye',
+    titleText: '麦粒肿',
+    flavorText: '“那只肿起来的眼睛，能多看一格。”',
+    quality: 2,
+    emoji: '👁️',
+    slot: 'head',
+    tone: 'treasure',
+    description: '每天首次 4 连：match 中心 + 1 个随机相邻格子炸开。',
+    effect: { type: 'firstBigMatchAdjacentPop' },
+    reaction: '小猪用力眨了下右眼，旁边的一个格子应声炸开💥。'
+  },
+  luckyFoot: {
+    id: 'luckyFoot',
+    roomType: 'treasure',
+    name: '幸运脚',
+    enName: 'Lucky Foot',
+    titleText: '幸运脚',
+    flavorText: '“总有一步踩在好运上。”',
+    quality: 2,
+    emoji: '🍀',
+    slot: 'feet',
+    tone: 'treasure',
+    description: '每天首次 2 段连锁：3 个随机非怪物格翻成当前需求资源。',
+    effect: { type: 'firstChainScatterConvert', minChain: 2, count: 3 },
+    reaction: '小猪踩到一片幸运草，脚边的方块自己变了颜色。'
+  },
+  lunch: {
+    id: 'lunch',
+    roomType: 'treasure',
+    name: '午餐',
+    enName: 'Lunch',
+    titleText: '午餐',
+    flavorText: '“吃饱了，能多跑几趟。”',
+    quality: 1,
+    emoji: '🥪',
+    slot: 'side',
+    tone: 'treasure',
+    description: '每日步数上限永久 +5。',
+    effect: { type: 'maxStepsBonus', amount: 5 },
+    reaction: '小猪把它塞进背包，拍了拍——今天能多走几步了。'
+  },
+  sackOfPennies: {
+    id: 'sackOfPennies',
+    roomType: 'treasure',
+    name: '硬币袋',
+    enName: 'Sack of Pennies',
+    titleText: '硬币袋',
+    flavorText: '“叮当响，至少听起来富了。”',
+    quality: 2,
+    emoji: '💰',
+    slot: 'side',
+    tone: 'treasure',
+    description: '每天首次资源结算时，随机一项当前目标资源 +4。',
+    effect: { type: 'firstTargetResourceBonus', amount: 4 },
+    reaction: '袋子里硬币在响，看着哪一项目标自动涨了一点。'
+  },
+  battery: {
+    id: 'battery',
+    roomType: 'treasure',
+    name: '小电池',
+    enName: 'The Battery',
+    titleText: '小电池',
+    flavorText: '“再撑一小会儿。”',
+    quality: 2,
+    emoji: '🔋',
+    slot: 'back',
+    tone: 'treasure',
+    description: '每天首次 4 连及以上，恢复 1 步。',
+    effect: { type: 'firstBigMatchStep', amount: 1 },
+    reaction: '小猪背着它走了两步，脚步轻了一点。'
+  },
+  holyWater: {
+    id: 'holyWater',
+    roomType: 'treasure',
+    name: '圣水',
+    enName: 'Holy Water',
+    titleText: '圣水',
+    flavorText: '“出错也会留点余地。”',
+    quality: 2,
+    emoji: '💧',
+    slot: 'float',
+    tone: 'treasure',
+    description:
+      '每天首次无效交换返还 1 步，且交换位置周围 2 个随机格翻成需求资源。',
+    effect: { type: 'firstInvalidSwapScatterConvert', count: 2 },
+    reaction: '水滴落在一个方块上，四周泛起淡淡的光。'
+  },
+  dogTooth: {
+    id: 'dogTooth',
+    roomType: 'treasure',
+    name: '狗牙',
+    enName: "Dog's Tooth",
+    titleText: '狗牙',
+    flavorText: '“狗牙啃过的地，连鬼都不愿待。”',
+    quality: 2,
+    emoji: '🦷',
+    slot: 'float',
+    tone: 'treasure',
+    description: '进入当天地图时，清除全部墓碑。',
+    effect: { type: 'clearTombstonesOnStart' },
+    reaction: '一声狼嚎从远处传来，棋盘上的墓碑碎成了粉末。'
+  },
 
   /* ───── 恶魔房 7 件（正面 + 步数代价） ───── */
-  brimstone: { id: 'brimstone', roomType: 'devil', name: '硫磺火', enName: 'Brimstone', titleText: '硫磺火', flavorText: '“烧光一整列，眼睛都不眨。”', quality: 4, emoji: '🔥', slot: 'back', tone: 'devil', description: '每天首次 3 连：match 所在列被硫磺火扫穿清空。', effect: { type: 'firstThreeColSweep' }, penalty: { type: 'nextDaySteps', value: 4 }, penaltyText: '明天初始步数 -4。', reaction: '小猪嘴角喷出一道火光，自己也被烤得往后一跳。' },
-  momsKnife: { id: 'momsKnife', roomType: 'devil', name: '妈妈的刀', enName: "Mom's Knife", titleText: '妈妈的刀', flavorText: '“失手，也要见血。”', quality: 4, emoji: '🔪', slot: 'side', tone: 'devil', description: '每天首次无效交换：所在列被刀刃划穿清空。', effect: { type: 'invalidSwapLineSweep' }, penalty: { type: 'nextDaySteps', value: 3 }, penaltyText: '明天初始步数 -3。', reaction: '刀刃贴着棋盘划过，小猪一动不动。' },
-  thePact: { id: 'thePact', roomType: 'devil', name: '契约', enName: 'The Pact', titleText: '契约', flavorText: '“按下手印，砝码就会倾斜。”', quality: 3, emoji: '📜', slot: 'side', tone: 'devil', description: '每天首次 4 连：棋盘上当前最少的那种资源格全部翻成当前最多的那种。', effect: { type: 'firstBigMatchResourceBalance' }, penalty: { type: 'maxSteps', value: 1 }, penaltyText: '永久步数上限 -1。', reaction: '羊皮纸上的字迹扭动起来，小猪瞪着棋盘上的方块自动变色。' },
-  darkBeggar: { id: 'darkBeggar', roomType: 'devil', name: '黑暗乞丐', enName: 'Dark Beggar', titleText: '黑暗乞丐', flavorText: '“他伸手要的不是钱，是你今天的运气。”', quality: 3, emoji: '🧟', slot: 'back', tone: 'devil', description: '每次行动随机扣除修复进度（-3~8），累计 3~8 次后随机补充小猪能量 3~5 格。', effect: { type: 'chaoticSabotage', minTriggers: 3, maxTriggers: 8, energyMin: 3, energyMax: 5 }, penalty: { type: 'maxSteps', value: 2 }, penaltyText: '永久步数上限 -2。', reaction: '黑暗乞丐在棋盘边晃了一圈，少了几块砖，小猪却精神了一点。' },
-  pentagram: { id: 'pentagram', roomType: 'devil', name: '五芒星', enName: 'Pentagram', titleText: '五芒星', flavorText: '“贪心一点，把棋盘点着就好。”', quality: 3, emoji: '🔻', slot: 'float', tone: 'devil', description: '每天首次 5 连：棋盘上 5 个随机格被五芒星点亮后炸开。', effect: { type: 'firstFiveScatterPop', count: 5 }, penalty: { type: 'nextDaySteps', value: 3 }, penaltyText: '明天初始步数 -3。', reaction: '五芒星亮了，五个方块应声炸开。小猪假装自己没参与。' },
-  mawOfTheVoid: { id: 'mawOfTheVoid', roomType: 'devil', name: '虚空之喉', enName: 'Maw of the Void', titleText: '虚空之喉', flavorText: '“连够两段，它就张嘴。”', quality: 4, emoji: '⚫', slot: 'float', tone: 'devil', description: '每次连锁 2 段及以上：以 match 中心为中心的 3×3 区域被吞没。', effect: { type: 'sweepAreaOnChain', minChain: 2, areaRows: 3, areaCols: 3 }, penalty: { type: 'nextDaySteps', value: 5 }, penaltyText: '明天初始步数 -5。', reaction: '黑色裂口张开，小猪自觉地往后退了一步。' },
-  blackCandle: { id: 'blackCandle', roomType: 'devil', name: '黑蜡烛', enName: 'Black Candle', titleText: '黑蜡烛', flavorText: '“火焰是黑的，代价也吞得下。”', quality: 4, emoji: '🕯️', slot: 'back', tone: 'devil', description: '每天开始时，清零所有「明日步数惩罚」。', effect: { type: 'negateNextDayPenalty' }, penalty: { type: 'maxSteps', value: 1 }, penaltyText: '永久步数上限 -1（黑蜡烛抵不了永久代价）。', reaction: '黑蜡烛没有风也在晃，小猪向它鞠了一个非常小的躬。' }
+  brimstone: {
+    id: 'brimstone',
+    roomType: 'devil',
+    name: '硫磺火',
+    enName: 'Brimstone',
+    titleText: '硫磺火',
+    flavorText: '“烧光一整列，眼睛都不眨。”',
+    quality: 4,
+    emoji: '🔥',
+    slot: 'back',
+    tone: 'devil',
+    description: '每天首次 3 连：match 所在列被硫磺火扫穿清空。',
+    effect: { type: 'firstThreeColSweep' },
+    penalty: { type: 'maxSteps', value: 2 },
+    penaltyText: '明天初始步数 -4。',
+    reaction: '小猪嘴角喷出一道火光，自己也被烤得往后一跳。'
+  },
+  momsKnife: {
+    id: 'momsKnife',
+    roomType: 'devil',
+    name: '妈妈的刀',
+    enName: "Mom's Knife",
+    titleText: '妈妈的刀',
+    flavorText: '“失手，也要见血。”',
+    quality: 4,
+    emoji: '🔪',
+    slot: 'side',
+    tone: 'devil',
+    description: '每天首次无效交换：所在列被刀刃划穿清空。',
+    effect: { type: 'invalidSwapLineSweep' },
+    penalty: { type: 'maxSteps', value: 2 },
+    penaltyText: '明天初始步数 -4。',
+    reaction: '刀刃贴着棋盘划过，小猪一动不动。'
+  },
+  thePact: {
+    id: 'thePact',
+    roomType: 'devil',
+    name: '契约',
+    enName: 'The Pact',
+    titleText: '契约',
+    flavorText: '“按下手印，砝码就会倾斜。”',
+    quality: 3,
+    emoji: '📜',
+    slot: 'side',
+    tone: 'devil',
+    description:
+      '每天首次 4 连：棋盘上当前最少的那种资源格全部翻成当前最多的那种。',
+    effect: { type: 'firstBigMatchResourceBalance' },
+    penalty: { type: 'maxSteps', value: 2 },
+    penaltyText: '永久步数上限 -1。',
+    reaction: '羊皮纸上的字迹扭动起来，小猪瞪着棋盘上的方块自动变色。'
+  },
+  darkBeggar: {
+    id: 'darkBeggar',
+    roomType: 'devil',
+    name: '黑暗乞丐',
+    enName: 'Dark Beggar',
+    titleText: '黑暗乞丐',
+    flavorText: '“他伸手要的不是钱，是你今天的运气。”',
+    quality: 3,
+    emoji: '🧟',
+    slot: 'back',
+    tone: 'devil',
+    description:
+      '每次行动随机扣除修复进度（-3~8），累计 3~8 次后随机补充小猪能量 3~5 格。',
+    effect: {
+      type: 'chaoticSabotage',
+      minTriggers: 3,
+      maxTriggers: 8,
+      energyMin: 3,
+      energyMax: 5
+    },
+    penalty: { type: 'maxSteps', value: 2 },
+    penaltyText: '永久步数上限 -2。',
+    reaction: '黑暗乞丐在棋盘边晃了一圈，少了几块砖，小猪却精神了一点。'
+  },
+  pentagram: {
+    id: 'pentagram',
+    roomType: 'devil',
+    name: '五芒星',
+    enName: 'Pentagram',
+    titleText: '五芒星',
+    flavorText: '“贪心一点，把棋盘点着就好。”',
+    quality: 3,
+    emoji: '🔻',
+    slot: 'float',
+    tone: 'devil',
+    description: '每天首次 5 连：棋盘上 5 个随机格被五芒星点亮后炸开。',
+    effect: { type: 'firstFiveScatterPop', count: 5 },
+    penalty: { type: 'nextDaySteps', value: 3 },
+    penaltyText: '明天初始步数 -3。',
+    reaction: '五芒星亮了，五个方块应声炸开。小猪假装自己没参与。'
+  },
+  mawOfTheVoid: {
+    id: 'mawOfTheVoid',
+    roomType: 'devil',
+    name: '虚空之喉',
+    enName: 'Maw of the Void',
+    titleText: '虚空之喉',
+    flavorText: '“连够两段，它就张嘴。”',
+    quality: 4,
+    emoji: '⚫',
+    slot: 'float',
+    tone: 'devil',
+    description: '每次连锁 2 段及以上：以 match 中心为中心的 3×3 区域被吞没。',
+    effect: { type: 'sweepAreaOnChain', minChain: 2, areaRows: 3, areaCols: 3 },
+    penalty: { type: 'nextDaySteps', value: 5 },
+    penaltyText: '明天初始步数 -5。',
+    reaction: '黑色裂口张开，小猪自觉地往后退了一步。'
+  },
+  blackCandle: {
+    id: 'blackCandle',
+    roomType: 'devil',
+    name: '黑蜡烛',
+    enName: 'Black Candle',
+    titleText: '黑蜡烛',
+    flavorText: '“火焰是黑的，代价也吞得下。”',
+    quality: 4,
+    emoji: '🕯️',
+    slot: 'back',
+    tone: 'devil',
+    description: '每天开始时，清零所有「明日步数惩罚」。',
+    effect: { type: 'negateNextDayPenalty' },
+    penalty: { type: 'maxSteps', value: 1 },
+    penaltyText: '永久步数上限 -1（黑蜡烛抵不了永久代价）。',
+    reaction: '黑蜡烛没有风也在晃，小猪向它鞠了一个非常小的躬。'
+  }
 }
 
 /* -------- 9-day data -------- */
@@ -818,7 +1037,8 @@ export const DJINN_WISHES = {
         '最后一个愿望本来想让你许，但是我私心帮你许了。',
         '愿小云平安幸福，永远和小坤生活在一起。'
       ],
-      wishText: '最后一个愿望本来想让你许，但是我私心帮你许了。愿小云平安幸福，永远和小坤生活在一起。',
+      wishText:
+        '最后一个愿望本来想让你许，但是我私心帮你许了。愿小云平安幸福，永远和小坤生活在一起。',
       layoutId: 'cake',
       objective: {
         type: 'cakeSequence',
@@ -898,8 +1118,14 @@ export const DJINN_STAGE_TRANSITIONS = {
     durationMs: 2000,
     title: '封印重组',
     hint: '病气正在散去，四角的烛火即将亮起。',
-    sourceCells: DJINN_MARK_SETS.health.map((cell) => ({ row: cell.row, col: cell.col })),
-    targetCells: DJINN_MARK_SETS.joy.map((cell) => ({ row: cell.row, col: cell.col })),
+    sourceCells: DJINN_MARK_SETS.health.map(cell => ({
+      row: cell.row,
+      col: cell.col
+    })),
+    targetCells: DJINN_MARK_SETS.joy.map(cell => ({
+      row: cell.row,
+      col: cell.col
+    })),
     palette: {
       primary: 'rgba(168, 214, 156, 0.92)',
       secondary: 'rgba(176, 148, 201, 0.9)',
@@ -913,7 +1139,10 @@ export const DJINN_STAGE_TRANSITIONS = {
     durationMs: 2000,
     title: '祝福成形',
     hint: '角落的光正在向中央汇拢，最后的愿望即将成形。',
-    sourceCells: DJINN_MARK_SETS.joy.map((cell) => ({ row: cell.row, col: cell.col })),
+    sourceCells: DJINN_MARK_SETS.joy.map(cell => ({
+      row: cell.row,
+      col: cell.col
+    })),
     targetCells: [
       { row: 3, col: 3 },
       { row: 3, col: 4 },
@@ -1183,15 +1412,16 @@ export const ENDING = {
     gotGiftLine: '在 {{location}}，获得了这份礼物——',
     giftPlaceholder: '🎁',
     giftHint: '（礼物图片）',
-    divider: '─────────────────',
-    legacyLine: '我把一路的祝福',
-    legacyLine2: '都留给我的猫咪 Guppy 🐱',
-    itemsLabel: '一路收集的好东西！',
+    // Card 3: Pig companion
+    pigCompanionLine1: '我不是一个人。',
+    pigCompanionLine2: '我的小猪一直陪着我。',
+    pigCompanionLine3: '它帮我赶走了不少怪物。',
+    // Card 4: Treasures
+    itemsLabel: '我的宝贝！',
+    itemsArrow: '一路收集的好东西',
     estateLine: '白鸦葡萄园，全部修复完成',
     farewellLine: '谢谢你，Corvo Bianco',
     goodbyeLine: 'X O X O',
-    screenshotLabel: '生成截图',
-    backLabel: '返回'
   },
   interceptLine: '哦，我想起来了。你不是小云吗？还在选什么，我帮你填下去就行。',
   giftPresets: [
@@ -1256,7 +1486,8 @@ export const ACHIEVEMENTS = [
   {
     id: 'day6_keep_the_lamp_warm',
     title: '灯别熄',
-    description: '第 6 天完成温室修复，且当天至少打出过一次 2 连锁或 4 连以上。',
+    description:
+      '第 6 天完成温室修复，且当天至少打出过一次 2 连锁或 4 连以上。',
     icon: '🌱',
     rarity: 'rare',
     hidden: false,
@@ -1343,4 +1574,4 @@ export const ACHIEVEMENTS = [
     flavor: '这座葡萄园的尽头，是一封终于送达的心意。',
     trigger: { type: 'ending' }
   }
-];
+]

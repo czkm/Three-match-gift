@@ -101,6 +101,9 @@ export const useGameStore = defineStore('game', {
     // Hints
     hintMove: null, // { a: {row,col}, b: {row,col} }
 
+    // Ending statistics (for will screen)
+    monsterHitCounts: {},   // { kind: totalHits }
+
     // Ending personalisation
     giftText: ENDING.defaultGift,
     giftAttemptedText: '',
@@ -242,6 +245,15 @@ export const useGameStore = defineStore('game', {
     },
     djinnCeremonyActive(state) {
       return /^stage\d+/.test(state.djinnState)
+    },
+    mostTroublesomeMonster(state) {
+      const counts = state.monsterHitCounts || {}
+      let bestKind = null
+      let bestHits = 0
+      for (const [kind, hits] of Object.entries(counts)) {
+        if (hits > bestHits) { bestKind = kind; bestHits = hits }
+      }
+      return bestKind ? { kind: bestKind, hits: bestHits } : null
     },
     djinnBoardStage(state) {
       return /^stage\d+Board$/.test(state.djinnState)
@@ -621,6 +633,7 @@ export const useGameStore = defineStore('game', {
       this.giftText = ENDING.defaultGift
       this.giftAttemptedText = ''
       this.giftWasOverridden = false
+      this.monsterHitCounts = {}
       this.inspectedRewardItem = null
       this._resetDaySpecialState()
       this.phase = 'intro'
@@ -2059,6 +2072,7 @@ export const useGameStore = defineStore('game', {
           if (!hit) continue
           monster.lastDamagedTurn = this.turnId
           monster.hitsTaken = (monster.hitsTaken || 0) + 1
+          this.monsterHitCounts[monster.kind] = (this.monsterHitCounts[monster.kind] || 0) + 1
           if (monster.hitsTaken >= monster.hitsRequired) {
             monster.removed = true
             removed.push(monster)
@@ -2077,6 +2091,7 @@ export const useGameStore = defineStore('game', {
           if (!hit) continue
           entity.lastDamagedTurn = this.turnId
           entity.hitsTaken = (entity.hitsTaken || 0) + 1
+          this.monsterHitCounts[entity.kind] = (this.monsterHitCounts[entity.kind] || 0) + 1
           if (entity.hitsTaken >= entity.hitsRequired) {
             entity.removed = true
             audioManager.playSFX('seal_break', { vol: 0.7 })
@@ -2268,6 +2283,7 @@ export const useGameStore = defineStore('game', {
       this.giftText = ENDING.defaultGift
       this.giftAttemptedText = ''
       this.giftWasOverridden = false
+      this.monsterHitCounts = {}
       this.phase = 'ending'
     },
 

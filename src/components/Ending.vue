@@ -30,19 +30,17 @@
     <!-- Center content -->
     <div class="stage">
       <div class="stage-card" :class="`card-act-${currentAct}`">
-        <!-- Act decoration (acts 0-1) -->
-        <div class="act-decoration">
-          <span v-if="currentAct === 0" class="deco-icon">🪻</span>
-          <span v-if="currentAct === 1" class="deco-icon">🎂</span>
-        </div>
 
         <div class="act-content">
-          <!-- Acts 0-2: title + lines -->
+          <!-- ═══ Acts 0-2: title + lines (unchanged) ═══ -->
           <template v-if="currentAct < 3">
+            <div class="act-decoration">
+              <span v-if="currentAct === 0" class="deco-icon">🪻</span>
+              <span v-if="currentAct === 1" class="deco-icon">🎂</span>
+            </div>
             <h1 class="act-title" :class="`title-${currentAct}`">
               {{ activeBeat?.title }}
             </h1>
-
             <div class="lines">
               <p
                 v-for="(line, idx) in shownLines"
@@ -51,8 +49,6 @@
                 :class="[`line-${currentAct}`, { 'line-wish': currentAct === 2 }]"
               >{{ line }}</p>
             </div>
-
-            <!-- Candle ceremony (act 2) -->
             <div v-if="currentAct === 2" class="candle-ceremony">
               <div class="candle-row">
                 <div
@@ -62,107 +58,113 @@
                   :class="{ lit: n <= linesRevealed }"
                 >
                   <span class="candle-flame">{{ n <= linesRevealed ? '🔥' : '🕯️' }}</span>
-                  <span class="candle-label">
-                    {{ ['健康','快乐','平安'][n-1] }}
-                  </span>
+                  <span class="candle-label">{{ ['健康','快乐','平安'][n-1] }}</span>
                 </div>
               </div>
             </div>
-
-            <!-- Candle lines (act 2) -->
             <div v-if="currentAct === 2 && allLinesShown" class="candle-lines">
-              <p
-                v-for="(line, idx) in ENDING.candleLines"
-                :key="`candle-${idx}`"
-                class="candle-line"
-              ><span class="candle-marker">{{ ['🕯️','🕯️','🕯️'][idx] }}</span>{{ line }}</p>
+              <p v-for="(line, idx) in ENDING.candleLines" :key="`candle-${idx}`" class="candle-line">
+                <span class="candle-marker">{{ ['🕯️','🕯️','🕯️'][idx] }}</span>{{ line }}
+              </p>
             </div>
+            <button
+              v-if="allLinesShown"
+              class="continue-btn"
+              :class="`btn-act-${currentAct}`"
+              @click.stop="onAdvance"
+            >{{ advanceLabel }}</button>
           </template>
 
-          <!-- ═══ Act 3: Isaac-style Birthday Will Screen ═══ -->
+          <!-- ═══ Act 3: Animal Island Birthday Poster ═══ -->
           <template v-if="currentAct === 3">
-            <div ref="willScreenEl" class="will-screen">
-              <div class="will-torn will-torn-top" />
+            <div class="will-poster">
 
-              <div class="will-body">
-                <!-- Header doodle line -->
-                <div class="will-header">
-                  <span class="will-doodle will-doodle-left">○</span>
-                  <span class="will-header-text">{{ willScreen.headerLine }}</span>
-                  <span class="will-doodle will-doodle-right">🎂 生日</span>
+              <!-- Header -->
+              <div class="will-section will-header">
+                <span class="will-sparkle will-sparkle-l">✦</span>
+                <span class="will-sparkle will-sparkle-r">✧</span>
+                <p class="will-header-text">{{ willScreen.headerLine }}</p>
+                <p class="will-title-text">{{ willScreen.titleLine }}</p>
+                <div class="will-deco-row">
+                  <span class="will-deco-emoji">🎂</span>
+                  <span class="will-deco-emoji">🎉</span>
+                  <span class="will-deco-emoji">🎈</span>
                 </div>
+                <p class="will-sub-text">{{ willScreen.clearedLine }}</p>
+                <p class="will-sub-text will-sub-loc">{{ willLocationText }}</p>
+              </div>
 
-                <!-- Birthday declaration -->
-                <p class="will-title">{{ willScreen.titleLine }}</p>
+              <!-- Divider -->
+              <div class="will-divider" />
 
-                <!-- Cleared + location -->
-                <p class="will-subtitle">{{ willScreen.clearedLine }}</p>
-                <p class="will-location">{{ willLocationText }}</p>
-
-                <!-- Gift image -->
-                <div class="will-gift-stage">
-                  <div class="will-gift-box">
-                    <span class="will-gift-icon">{{ willScreen.giftPlaceholder }}</span>
-                    <span class="will-gift-hint">{{ willScreen.giftHint }}</span>
-                  </div>
-                  <p class="will-gift-label">↑ 生日礼物 ↑</p>
+              <!-- Gift Box -->
+              <div class="will-section will-gift-section">
+                <div class="will-gift-box">
+                  <div class="will-gift-glow" />
+                  <span class="will-gift-icon">{{ willScreen.giftPlaceholder }}</span>
+                  <span class="will-gift-hint">{{ willScreen.giftHint }}</span>
                 </div>
+                <p class="will-gift-label">↑ 生日礼物 ↑</p>
+              </div>
 
-                <!-- Divider -->
-                <p class="will-divider">{{ willScreen.divider }}</p>
+              <!-- Divider -->
+              <div class="will-divider" />
 
-                <!-- Legacy -->
-                <p class="will-legacy">{{ willScreen.legacyLine }}</p>
-                <p class="will-legacy will-legacy-cat">{{ willScreen.legacyLine2 }}</p>
+              <!-- Pig Companion -->
+              <div class="will-section will-pig-section">
+                <span class="will-pig-icon">🐷</span>
+                <p class="will-pig-line will-pig-main">{{ willScreen.pigCompanionLine2 }}</p>
+                <p class="will-pig-line will-pig-sub-1">{{ willScreen.pigCompanionLine1 }}</p>
+                <p class="will-pig-line will-pig-sub-2">{{ willScreen.pigCompanionLine3 }}</p>
+              </div>
 
-                <!-- Items row -->
-                <div class="will-items-section">
-                  <p class="will-items-arrow">← {{ willScreen.itemsLabel }}</p>
-                  <div class="will-items-row">
-                    <span
-                      v-for="(item, idx) in ownedWillItems"
-                      :key="idx"
-                      class="will-item-icon"
-                      :title="item.name"
-                    >{{ item.emoji }}</span>
-                  </div>
+              <!-- Divider -->
+              <div class="will-divider" />
+
+              <!-- Items -->
+              <div class="will-section will-items-section">
+                <p class="will-items-label">{{ willScreen.itemsArrow }}</p>
+                <div class="will-items-grid">
+                  <span
+                    v-for="(item, idx) in ownedWillItems"
+                    :key="idx"
+                    class="will-item-chip"
+                    :style="{ animationDelay: (idx * 55) + 'ms' }"
+                    :title="item.name"
+                  >{{ item.emoji }}</span>
                 </div>
+                <p class="will-items-tag">{{ willScreen.itemsLabel }}</p>
+              </div>
 
-                <!-- Estate line -->
+              <!-- Divider -->
+              <div class="will-divider" />
+
+              <!-- Closing -->
+              <div class="will-section will-closing">
                 <p class="will-estate">🪻 {{ willScreen.estateLine }}</p>
-
-                <!-- Farewell -->
                 <p class="will-farewell">{{ willScreen.farewellLine }}</p>
                 <p class="will-xoxo">{{ willScreen.goodbyeLine }}</p>
-
-                <!-- Bottom doodles -->
-                <div class="will-footer-doodles">
-                  <span class="will-doodle will-doodle-bl">○</span>
-                  <span class="will-doodle will-doodle-br">🎂</span>
+                <div class="will-closing-icons">
+                  <span>🗝️</span>
+                  <span>💗</span>
+                  <span>🏠</span>
                 </div>
               </div>
 
-              <div class="will-torn will-torn-bottom" />
+              <!-- Bottom sparkle -->
+              <span class="will-sparkle will-sparkle-bl">○</span>
             </div>
 
-            <!-- Action buttons (act 3 only) -->
+            <!-- Action buttons -->
             <div class="will-actions">
-              <button class="will-btn will-btn-screenshot" @click.stop="onScreenshotWill">
-                生成海报
+              <button class="will-btn will-btn-poster" @click.stop="onScreenshotWill">
+                <span class="will-btn-icon">📸</span> 生成海报
               </button>
               <button class="will-btn will-btn-restart" @click.stop="onRestart">
-                重新开始
+                <span class="will-btn-icon">🔄</span> 重新开始
               </button>
             </div>
           </template>
-
-          <!-- Continue button (acts 0-2) -->
-          <button
-            v-if="allLinesShown && currentAct < 3"
-            class="continue-btn"
-            :class="`btn-act-${currentAct}`"
-            @click.stop="onAdvance"
-          >{{ advanceLabel }}</button>
         </div>
       </div>
     </div>
@@ -189,20 +191,20 @@ const particlesReady = ref(false);
 const timers = [];
 
 const activeBeat = computed(() => ENDING.beats[currentAct.value] || null);
-const willScreen = computed(() => ENDING.willScreen)
+const willScreen = computed(() => ENDING.willScreen);
 const willLocationText = computed(() => {
-  const location = game.today?.building?.cn || 'Corvo Bianco'
-  return willScreen.value.gotGiftLine.replace('{{location}}', location)
-})
+  const location = game.today?.building?.cn || 'Corvo Bianco';
+  return willScreen.value.gotGiftLine.replace('{{location}}', location);
+});
 const ownedWillItems = computed(() =>
-  (game.ownedItems || []).filter(item => item?.emoji).slice(0, 7)
-)
+  (game.ownedItems || []).filter(item => item?.emoji).slice(0, 12)
+);
 const totalLines = computed(() => activeBeat.value?.lines?.length || 0);
 const shownLines = computed(() => activeBeat.value?.lines?.slice(0, linesRevealed.value) || []);
 
 const advanceLabel = computed(() => {
-  const labels = ['走进生日夜', '点亮蜡烛', '留下祝福']
-  return labels[currentAct.value] || '继续'
+  const labels = ['走进生日夜', '点亮蜡烛', '留下祝福'];
+  return labels[currentAct.value] || '继续';
 });
 
 // Stars
@@ -250,21 +252,18 @@ onBeforeUnmount(() => {
 });
 
 function onStageClick() {
-  if (currentAct.value === 3) return; // act 3 handles its own clicks
+  if (currentAct.value === 3) return;
   if (allLinesShown.value) return;
   revealNextLine();
 }
 
 function revealNextLine() {
   if (linesRevealed.value >= totalLines.value) return;
-
   linesRevealed.value++;
-
   if (currentAct.value === 2) {
     burstActive.value = true;
     timers.push(setTimeout(() => { burstActive.value = false; }, 800));
   }
-
   if (linesRevealed.value >= totalLines.value) {
     allLinesShown.value = true;
   }
@@ -273,38 +272,111 @@ function revealNextLine() {
 function onAdvance() {
   if (!allLinesShown.value) return;
   audioManager.playSFX('pageflip', { vol: 0.4 });
-
   currentAct.value++;
   linesRevealed.value = 0;
   allLinesShown.value = false;
   burstActive.value = false;
-
   if (currentAct.value === 3) {
-    // Act 3: immediately show the will screen
     allLinesShown.value = true;
     achievement.track('endingSeen', { day: 9 });
   }
 }
 
-const willScreenEl = ref(null)
+// ── Screenshot: custom HTML poster ──
+
+function buildPosterHTML() {
+  const ws = willScreen.value;
+  const items = ownedWillItems.value;
+  const location = willLocationText.value;
+  const itemIcons = items.map(i => `<span class="pi">${i.emoji}</span>`).join('');
+
+  return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#e8dfd2;font-family:Nunito,'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif}
+.poster{width:700px;min-height:900px;background:linear-gradient(175deg,#fefaf3 0%,#f7f3df 18%,#faf6ec 50%,#f5efde 82%,#fefaf3 100%);border-radius:22px;box-shadow:0 8px 32px rgba(61,52,40,.14),0 3px 10px rgba(61,52,40,.08),inset 0 1px 0 rgba(255,252,245,.5);padding:48px 44px 40px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;overflow:hidden}
+.poster::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.03;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(160,140,110,.25) 3px,rgba(160,140,110,.25) 4px);border-radius:22px}
+.corner{position:absolute;font-size:22px;opacity:.3;color:#8b7355}.c-tl{top:18px;left:22px}.c-tr{top:18px;right:22px}.c-bl{bottom:18px;left:22px}.c-br{bottom:18px;right:22px}
+.ornament{width:65%;height:2px;background:linear-gradient(90deg,transparent,rgba(180,150,110,.35) 20%,rgba(180,150,110,.35) 80%,transparent);margin-bottom:22px}
+/* header */
+.header{font-size:17px;color:#8a7260;font-weight:700;letter-spacing:.12em;margin-bottom:4px}
+.title{font-size:38px;color:#4a2e18;font-weight:900;letter-spacing:.1em;margin-bottom:10px;text-shadow:0 1px 2px rgba(150,115,60,.08)}
+.deco-row{display:flex;gap:14px;justify-content:center;margin-bottom:12px;font-size:26px}
+.sub{font-size:15px;color:#7a5a3a;font-weight:600;letter-spacing:.06em;line-height:1.9}
+/* divider - Animal Island wave */
+.svg-divider{width:100%;height:14px;margin:18px 0;background:url("data:image/svg+xml,%3Csvg width='297' height='14' viewBox='0 0 297 14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 10.42L33 11 28.002 0zM10 6.97L0 3l.858 9zM43 1l.613 11L53 5.585zm89 13l11-5.867L133.507 1zm67-3.58l13 .58-4.998-11zm-10-3.45L179 3l.858 9zM90.634 1L88 13l12-4.39zM155 13l12-2.4-8.47-9.6zM110 3l2.057 9L118 6.292zm-47 8.215L76 14 71.048 1zM222 1l.613 11L232 5.585zm47.634 0L267 13l12-4.39zM289 3l2.057 9L297 6.292zm-48 8.215L254 14l-4.952-13z' fill='%23D8D0C3' fill-rule='evenodd'/%3E%3C/svg%3E") center/contain no-repeat}
+/* gift */
+.gift-stage{display:flex;flex-direction:column;align-items:center;margin:6px 0;gap:8px}
+.gift-box{width:210px;height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2.5px solid rgba(180,155,120,.3);border-radius:20px;background:radial-gradient(ellipse at 50% 35%,rgba(255,248,235,.75),rgba(232,218,192,.35));box-shadow:inset 0 0 26px rgba(200,170,130,.22),0 3px 12px rgba(107,92,67,.1);position:relative}
+.gift-glow{position:absolute;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(220,185,130,.15),transparent 70%);pointer-events:none}
+.gift-icon{font-size:76px;line-height:1;filter:drop-shadow(0 2px 4px rgba(130,105,65,.18));position:relative;z-index:1}
+.gift-hint{font-size:12px;color:#a09078;font-weight:600;letter-spacing:.06em;margin-top:5px;position:relative;z-index:1}
+.gift-label{font-size:14px;color:#8a6b44;font-weight:700;letter-spacing:.08em}
+/* pig */
+.pig-stage{display:flex;flex-direction:column;align-items:center;gap:4px;margin:4px 0}
+.pig-icon{font-size:42px;line-height:1;margin-bottom:4px}
+.pig-line{font-size:15px;color:#5a3e22;font-weight:500;letter-spacing:.04em}.pig-line-em{font-weight:700;font-size:17px;color:#3a2210}.pig-line-sub{font-size:14px;color:#8a7260;font-style:italic}
+/* items */
+.items-section{display:flex;flex-direction:column;align-items:center;gap:8px;margin:4px 0}
+.items-label{font-size:14px;color:#7a5a3a;font-weight:700;letter-spacing:.08em}
+.items-grid{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:440px}
+.pi{display:flex;align-items:center;justify-content:center;width:44px;height:44px;font-size:24px;border:1.5px solid rgba(180,155,120,.3);border-radius:12px;background:rgba(245,235,215,.5);box-shadow:inset 0 0 6px rgba(180,155,120,.12)}
+.items-tag{font-size:13px;color:#8b6a4a;font-weight:600;letter-spacing:.06em}
+/* closing */
+.estate{font-size:14px;color:#8a7260;font-weight:600;letter-spacing:.06em;font-style:italic;margin-bottom:8px}
+.farewell{font-size:28px;color:#3a2210;font-weight:800;letter-spacing:.08em;margin-bottom:6px}
+.xoxo{font-size:17px;letter-spacing:.28em;font-weight:800;color:#5a3e1a;margin-bottom:6px}
+.closing-icons{display:flex;gap:12px;justify-content:center;font-size:24px;filter:drop-shadow(0 1px 2px rgba(100,80,55,.08))}
+.ornament-bottom{margin-top:20px}
+</style></head><body><div class="poster">
+<span class="corner c-tl">✦</span><span class="corner c-tr">✧</span><span class="corner c-bl">○</span><span class="corner c-br">🎂</span>
+<div class="ornament"></div>
+<p class="header">${ws.headerLine}</p>
+<p class="title">${ws.titleLine}</p>
+<div class="deco-row"><span>🎂</span><span>🎉</span><span>🎈</span></div>
+<p class="sub">${ws.clearedLine}<br>${location}</p>
+<div class="svg-divider"></div>
+<div class="gift-stage"><div class="gift-box"><div class="gift-glow"></div><span class="gift-icon">${ws.giftPlaceholder}</span><span class="gift-hint">${ws.giftHint}</span></div><p class="gift-label">↑ 生日礼物 ↑</p></div>
+<div class="svg-divider"></div>
+<div class="pig-stage"><span class="pig-icon">🐷</span><p class="pig-line pig-line-em">${ws.pigCompanionLine2}</p><p class="pig-line">${ws.pigCompanionLine1}</p><p class="pig-line pig-line-sub">${ws.pigCompanionLine3}</p></div>
+<div class="svg-divider"></div>
+<div class="items-section"><p class="items-label">${ws.itemsArrow}</p><div class="items-grid">${itemIcons}</div><p class="items-tag">${ws.itemsLabel}</p></div>
+<div class="svg-divider"></div>
+<p class="estate">🪻 ${ws.estateLine}</p>
+<p class="farewell">${ws.farewellLine}</p>
+<p class="xoxo">${ws.goodbyeLine}</p>
+<div class="closing-icons"><span>🗝️</span><span>💗</span><span>🏠</span></div>
+<div class="ornament ornament-bottom"></div>
+</div></body></html>`;
+}
 
 async function onScreenshotWill() {
-  if (!willScreenEl.value) return
-
   try {
-    const canvas = await html2canvas(willScreenEl.value, {
-      backgroundColor: '#f5efe0',
+    const html = buildPosterHTML();
+    const container = document.createElement('div');
+    container.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;';
+    container.innerHTML = html;
+    document.body.appendChild(container);
+
+    await new Promise(r => setTimeout(r, 300));
+
+    const posterDiv = container.querySelector('.poster');
+    if (!posterDiv) throw new Error('Poster element not found');
+
+    const canvas = await html2canvas(posterDiv, {
+      backgroundColor: '#e8dfd2',
       scale: 2,
       useCORS: true,
       logging: false
-    })
+    });
 
-    const link = document.createElement('a')
-    link.download = 'Corvo-Bianco-生日海报.png'
-    link.href = canvas.toDataURL('image/png')
-    link.click()
+    document.body.removeChild(container);
+
+    const link = document.createElement('a');
+    link.download = 'Corvo-Bianco-生日海报.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
   } catch (e) {
-    console.warn('Screenshot failed:', e)
+    console.warn('Screenshot failed:', e);
   }
 }
 
@@ -354,9 +426,10 @@ function onRestart() {
 }
 .act-3 .bg-base {
   background:
-    radial-gradient(ellipse at 50% 50%, rgba(60, 40, 25, 0.22), transparent 55%),
-    radial-gradient(ellipse at 70% 60%, rgba(50, 30, 18, 0.16), transparent 60%),
-    linear-gradient(180deg, #3a2e24 0%, #2e241c 40%, #261e16 100%);
+    radial-gradient(ellipse at 30% 50%, rgba(180, 150, 120, 0.10), transparent 55%),
+    radial-gradient(ellipse at 70% 40%, rgba(200, 170, 130, 0.08), transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(190, 160, 140, 0.06), transparent 50%),
+    linear-gradient(180deg, #f8f5ee 0%, #f2ece0 40%, #e8dfd2 100%);
 }
 
 .bg-glow {
@@ -383,8 +456,8 @@ function onRestart() {
 }
 .glow-3 {
   background:
-    radial-gradient(ellipse at 50% 35%, rgba(200, 150, 90, 0.14), transparent 50%),
-    radial-gradient(circle at 55% 55%, rgba(180, 130, 70, 0.08), transparent 60%);
+    radial-gradient(ellipse at 50% 35%, rgba(180, 155, 110, 0.08), transparent 50%),
+    radial-gradient(ellipse at 40% 65%, rgba(190, 160, 120, 0.05), transparent 55%);
 }
 
 /* ── Starfield ── */
@@ -424,7 +497,7 @@ function onRestart() {
 .particles-0 .particle { filter: drop-shadow(0 1px 3px rgba(140, 120, 170, 0.22)); }
 .particles-1 .particle { filter: drop-shadow(0 1px 3px rgba(180, 130, 80, 0.25)); }
 .particles-2 .particle { filter: drop-shadow(0 1px 3px rgba(200, 160, 90, 0.30)); }
-.particles-3 .particle { filter: drop-shadow(0 2px 4px rgba(200, 160, 90, 0.30)); }
+.particles-3 .particle { filter: drop-shadow(0 2px 4px rgba(180, 150, 110, 0.22)); }
 
 /* ── Burst ring ── */
 .burst-ring {
@@ -453,10 +526,8 @@ function onRestart() {
 
 .stage-card {
   clip-path: url(#animal-modal-clip);
-  background: rgba(248, 243, 230, 0.94);
-  box-shadow:
-    0 4px 16px rgba(107, 92, 67, 0.32),
-    inset 0 1px 0 rgba(255, 252, 245, 0.40);
+  background: var(--glass-bg);
+  box-shadow: var(--card-shadow);
   padding: 44px 36px 40px;
   display: flex;
   flex-direction: column;
@@ -471,13 +542,22 @@ function onRestart() {
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* Act 3 card: scrollable, full content */
 .card-act-3 {
-  background: rgba(30, 24, 18, 0.92);
-  box-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.55),
-    0 0 40px 8px rgba(180, 130, 70, 0.06),
-    inset 0 1px 0 rgba(255, 252, 245, 0.04);
+  background: var(--animal-card-bg);
+  box-shadow: var(--animal-shadow-lg), inset 0 1px 0 rgba(255,252,245,0.45);
+  max-height: 75vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 28px 24px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(160,140,110,0.22) transparent;
 }
+
+.card-act-3::-webkit-scrollbar { width: 5px; }
+.card-act-3::-webkit-scrollbar-track { background: transparent; border-radius: 3px; }
+.card-act-3::-webkit-scrollbar-thumb { background: rgba(160,140,110,0.22); border-radius: 3px; }
+.card-act-3::-webkit-scrollbar-thumb:hover { background: rgba(150,125,90,0.35); }
 
 .act-content {
   display: flex;
@@ -545,10 +625,7 @@ function onRestart() {
 }
 
 /* ── Candle ceremony ── */
-.candle-ceremony {
-  width: 100%;
-  margin: 12px 0 6px;
-}
+.candle-ceremony { width: 100%; margin: 12px 0 6px; }
 
 .candle-row {
   display: flex;
@@ -588,14 +665,13 @@ function onRestart() {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.10em;
-  color: #9f927d;
+  color: var(--ink-soft);
   font-family: 'Nunito', 'Noto Sans SC', sans-serif;
   transition: color 0.5s var(--ease-out-expo);
 }
 
 .candle-unit.lit .candle-label { color: #8b6914; }
 
-/* ── Candle lines ── */
 .candle-lines {
   margin-top: 20px;
   padding-top: 16px;
@@ -620,11 +696,6 @@ function onRestart() {
   filter: drop-shadow(0 0 4px rgba(240, 180, 80, 0.3));
 }
 
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
 /* ── Continue button ── */
 .continue-btn {
   margin-top: 32px;
@@ -642,14 +713,8 @@ function onRestart() {
   box-shadow: 0 5px #bdaea0;
   transform: translateY(0);
 }
-.continue-btn:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.04);
-}
-.continue-btn:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px #bdaea0;
-}
+.continue-btn:hover { transform: translateY(-2px); filter: brightness(1.04); }
+.continue-btn:active { transform: translateY(1px); box-shadow: 0 2px #bdaea0; }
 
 .btn-act-0 {
   background: linear-gradient(180deg, #f0e8f6 0%, #ddd0ea 100%);
@@ -672,176 +737,123 @@ function onRestart() {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ═══════════════════════════════════════════════════════ *
- *  Act 3: Isaac-style Birthday Will Screen
+ *  Act 3: Animal Island Birthday Poster
  * ═══════════════════════════════════════════════════════ */
 
-.will-screen {
-  width: 100%;
+.will-poster {
   display: flex;
   flex-direction: column;
   align-items: center;
-  animation: will-enter 900ms cubic-bezier(0.34, 1.56, 0.64, 1) 200ms both;
-}
-
-@keyframes will-enter {
-  from { opacity: 0; transform: translateY(20px) scale(0.92); }
-  60%  { opacity: 1; transform: translateY(-4px) scale(1.01); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-/* ── Torn edges ── */
-.will-torn {
   width: 100%;
-  height: 14px;
+  animation: poster-fade-in 600ms var(--ease-out-expo) forwards;
   position: relative;
-  overflow: hidden;
-  opacity: 0.5;
 }
 
-.will-torn-top {
-  background: repeating-linear-gradient(
-    90deg,
-    transparent 0px, transparent 6px,
-    rgba(160, 135, 100, 0.45) 6px, rgba(150, 125, 90, 0.45) 8px,
-    transparent 8px, transparent 12px,
-    rgba(140, 115, 85, 0.35) 12px, rgba(130, 105, 75, 0.35) 13px,
-    transparent 13px, transparent 18px,
-    rgba(160, 135, 100, 0.45) 18px, rgba(150, 125, 90, 0.45) 19px,
-    transparent 19px, transparent 24px
-  );
-  border-radius: 2px 2px 0 0;
-  margin-bottom: -2px;
+@keyframes poster-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.will-torn-bottom {
-  background: repeating-linear-gradient(
-    90deg,
-    transparent 0px, transparent 8px,
-    rgba(150, 125, 90, 0.35) 8px, rgba(140, 115, 85, 0.35) 9px,
-    transparent 9px, transparent 15px,
-    rgba(160, 135, 100, 0.45) 15px, rgba(150, 125, 90, 0.45) 17px,
-    transparent 17px, transparent 22px,
-    rgba(140, 115, 85, 0.35) 22px, rgba(130, 105, 75, 0.35) 23px,
-    transparent 23px, transparent 28px
-  );
-  border-radius: 0 0 2px 2px;
-  margin-top: -2px;
-}
-
-/* ── Body — aged parchment ── */
-.will-body {
-  width: 100%;
-  background:
-    linear-gradient(180deg, rgba(215, 200, 170, 0.55) 0%, rgba(235, 220, 190, 0.62) 8%, rgba(245, 232, 205, 0.65) 50%, rgba(235, 220, 190, 0.62) 92%, rgba(215, 200, 170, 0.55) 100%),
-    repeating-linear-gradient(
-      180deg,
-      transparent 0px,
-      transparent 28px,
-      rgba(160, 140, 110, 0.05) 28px,
-      rgba(160, 140, 110, 0.05) 29px
-    );
-  border: 2px solid rgba(160, 135, 100, 0.45);
-  border-left: 3px solid rgba(150, 125, 90, 0.40);
-  border-right: 3px solid rgba(150, 125, 90, 0.40);
-  padding: 24px 28px 20px;
+/* ── Sections ── */
+.will-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  box-shadow:
-    inset 0 2px 16px rgba(180, 155, 120, 0.28),
-    inset 0 -2px 12px rgba(170, 145, 110, 0.22),
-    0 2px 8px rgba(0, 0, 0, 0.35);
-  border-radius: 6px;
+  width: 100%;
   position: relative;
 }
 
-/* Aged stain spots */
-.will-body::before,
-.will-body::after {
-  content: '';
+/* ── Sparkle decorations ── */
+.will-sparkle {
   position: absolute;
-  border-radius: 50%;
+  font-size: 18px;
+  opacity: 0.30;
+  color: #8b7355;
   pointer-events: none;
-  opacity: 0.08;
+  animation: will-sparkle-float 4s ease-in-out infinite;
 }
+.will-sparkle-l  { top: -2px;  left: 6px;   animation-delay: 0s; }
+.will-sparkle-r  { top: -2px;  right: 6px;  animation-delay: 1.5s; }
+.will-sparkle-bl { bottom: -12px; left: 6px; animation-delay: 0.8s; }
 
-.will-body::before {
-  width: 60px; height: 60px;
-  top: 10%; right: 6%;
-  background: radial-gradient(circle, rgba(150, 115, 75, 0.7), transparent 70%);
-}
-
-.will-body::after {
-  width: 44px; height: 44px;
-  bottom: 12%; left: 8%;
-  background: radial-gradient(circle, rgba(140, 105, 65, 0.5), transparent 70%);
+@keyframes will-sparkle-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.30; }
+  50%      { transform: translateY(-6px) rotate(15deg); opacity: 0.55; }
 }
 
 /* ── Header ── */
 .will-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  width: 100%;
-  margin-bottom: 0;
+  padding-bottom: 4px;
 }
-
-.will-doodle {
-  font-family: 'Nunito', sans-serif;
-  color: #7a6648;
-  opacity: 0.50;
-  font-weight: 700;
-}
-
-.will-doodle-left { font-size: 16px; letter-spacing: 0em; }
-.will-doodle-right { font-size: 12px; letter-spacing: 0.04em; }
 
 .will-header-text {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #4a3020;
-  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
-}
-
-/* ── Birthday title ── */
-.will-title {
-  margin: 4px 0 2px;
-  font-size: 24px;
-  font-weight: 900;
-  letter-spacing: 0.10em;
-  color: #5a2e18;
-  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
-  text-shadow: 0 1px 3px rgba(150, 115, 60, 0.14);
-}
-
-.will-subtitle {
   margin: 0;
-  font-size: 13px;
-  color: #5a3e22;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
   font-family: 'Nunito', 'Noto Sans SC', sans-serif;
 }
 
-.will-location {
-  margin: 0 0 6px;
-  font-size: 13px;
-  color: #7a5a3a;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+.will-title-text {
+  margin: 4px 0 8px;
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: var(--ink);
   font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+  text-shadow: 0 1px 2px rgba(150, 115, 60, 0.08);
 }
 
-/* ── Gift stage ── */
-.will-gift-stage {
+.will-deco-row {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  margin: 4px 0;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.will-deco-emoji {
+  font-size: 24px;
+  line-height: 1;
+  animation: will-deco-bounce 2.4s ease-in-out infinite;
+}
+.will-deco-emoji:nth-child(2) { animation-delay: 0.3s; }
+.will-deco-emoji:nth-child(3) { animation-delay: 0.6s; }
+
+@keyframes will-deco-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30%      { transform: translateY(-7px) scale(1.12); }
+  60%      { transform: translateY(0) scale(1); }
+}
+
+.will-sub-text {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+  color: #7a5a3a;
+  line-height: 1.8;
+}
+.will-sub-loc { color: #8a6d50; }
+
+/* ── Animal Island SVG Divider ── */
+.will-divider {
+  width: 100%;
+  height: 14px;
+  margin: 14px 0;
+  background: url("data:image/svg+xml,%3Csvg width='297' height='14' viewBox='0 0 297 14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 10.42L33 11 28.002 0zM10 6.97L0 3l.858 9zM43 1l.613 11L53 5.585zm89 13l11-5.867L133.507 1zm67-3.58l13 .58-4.998-11zm-10-3.45L179 3l.858 9zM90.634 1L88 13l12-4.39zM155 13l12-2.4-8.47-9.6zM110 3l2.057 9L118 6.292zm-47 8.215L76 14 71.048 1zM222 1l.613 11L232 5.585zm47.634 0L267 13l12-4.39zM289 3l2.057 9L297 6.292zm-48 8.215L254 14l-4.952-13z' fill='%23D8D0C3' fill-rule='evenodd'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* ── Gift Box ── */
+.will-gift-section {
+  padding: 4px 0;
 }
 
 .will-gift-box {
@@ -849,236 +861,296 @@ function onRestart() {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 256px;
-  height: 256px;
-  border: 3px double rgba(150, 120, 85, 0.50);
-  border-radius: 16px;
-  background:
-    radial-gradient(ellipse at 50% 40%, rgba(255, 245, 230, 0.82), rgba(225, 210, 180, 0.52));
+  width: 190px;
+  height: 190px;
+  border: 2.5px solid rgba(180, 155, 120, 0.32);
+  border-radius: 20px;
+  background: radial-gradient(ellipse at 50% 35%, rgba(255, 248, 235, 0.70), rgba(235, 222, 195, 0.38));
   box-shadow:
-    inset 0 0 28px rgba(200, 170, 130, 0.35),
-    0 4px 12px rgba(0, 0, 0, 0.25);
-  animation: gift-box-aura 3.5s ease-in-out infinite;
+    inset 0 0 24px rgba(200, 170, 130, 0.24),
+    0 3px 12px rgba(107, 92, 67, 0.12);
+  position: relative;
+  transition: box-shadow 3s ease-in-out;
+  animation: gift-box-pulse 3.2s ease-in-out infinite;
 }
 
-@keyframes gift-box-aura {
+@keyframes gift-box-pulse {
   0%, 100% {
     box-shadow:
-      inset 0 0 28px rgba(200, 170, 130, 0.35),
-      0 4px 12px rgba(0, 0, 0, 0.25);
+      inset 0 0 24px rgba(200, 170, 130, 0.24),
+      0 3px 12px rgba(107, 92, 67, 0.12);
   }
   50% {
     box-shadow:
-      inset 0 0 40px rgba(225, 185, 140, 0.50),
-      0 4px 20px rgba(0, 0, 0, 0.30);
+      inset 0 0 36px rgba(220, 185, 140, 0.38),
+      0 3px 18px rgba(107, 92, 67, 0.18);
   }
 }
 
-.will-gift-icon {
-  font-size: 80px;
-  line-height: 1;
-  filter: drop-shadow(0 2px 6px rgba(130, 105, 65, 0.28));
-  animation: gift-float 3s ease-in-out infinite;
+.will-gift-glow {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(220, 185, 130, 0.14), transparent 70%);
+  animation: gift-glow-breathe 2.8s ease-in-out infinite;
+  pointer-events: none;
 }
 
-@keyframes gift-float {
+@keyframes gift-glow-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50%      { transform: scale(1.35); opacity: 0.85; }
+}
+
+.will-gift-icon {
+  font-size: 68px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(130, 105, 65, 0.18));
+  animation: gift-icon-float 3s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes gift-icon-float {
   0%, 100% { transform: translateY(0) scale(1); }
-  50%      { transform: translateY(-6px) scale(1.04); }
+  50%      { transform: translateY(-6px) scale(1.05); }
 }
 
 .will-gift-hint {
-  margin-top: 6px;
-  font-size: 11px;
-  color: #a09078;
+  font-size: 12px;
+  color: var(--ink-soft);
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+  margin-top: 5px;
+  position: relative;
+  z-index: 1;
 }
 
 .will-gift-label {
-  margin: 0;
-  font-size: 12px;
-  color: #7a5c3a;
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: #8a6b44;
   font-weight: 700;
   letter-spacing: 0.08em;
   font-family: 'Nunito', 'Noto Sans SC', sans-serif;
 }
 
-/* ── Divider ── */
-.will-divider {
-  margin: 4px 0;
-  font-size: 11px;
-  letter-spacing: 0.3em;
-  color: rgba(140, 115, 85, 0.45);
-  font-family: 'Nunito', monospace;
+/* ── Pig Companion ── */
+.will-pig-section {
+  padding: 4px 0;
+  gap: 4px;
 }
 
-/* ── Legacy ── */
-.will-legacy {
+.will-pig-icon {
+  font-size: 42px;
+  line-height: 1;
+  margin-bottom: 4px;
+  animation: pig-bounce 3.2s ease-in-out infinite;
+  filter: drop-shadow(0 2px 3px rgba(150, 120, 80, 0.10));
+}
+
+@keyframes pig-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+.will-pig-line {
+  margin: 0;
+  font-size: 15px;
+  color: #5a3e22;
+  font-weight: 500;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+  letter-spacing: 0.04em;
+}
+.will-pig-main {
+  font-weight: 700 !important;
+  font-size: 17px !important;
+  color: #3a2210 !important;
+}
+.will-pig-sub-1 {
+  color: #6b4d30;
+}
+.will-pig-sub-2 {
+  font-size: 14px;
+  color: #8a7260;
+  font-style: italic;
+}
+
+/* ── Items Grid ── */
+.will-items-section {
+  padding: 4px 0;
+  gap: 8px;
+}
+
+.will-items-label {
   margin: 0;
   font-size: 14px;
-  color: #4a3020;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
-  text-align: center;
-}
-
-.will-legacy-cat {
-  font-size: 15px;
-  font-weight: 700;
-  color: #5a3e1a;
-  letter-spacing: 0.06em;
-}
-
-/* ── Items section ── */
-.will-items-section {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  width: 100%;
-  margin: 4px 0;
-}
-
-.will-items-arrow {
-  margin: 0 0 4px;
-  font-size: 12px;
   color: #7a5a3a;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   font-family: 'Nunito', 'Noto Sans SC', sans-serif;
 }
 
-.will-items-row {
+.will-items-grid {
   display: flex;
-  gap: 6px;
-  justify-content: flex-end;
+  gap: 8px;
   flex-wrap: wrap;
+  justify-content: center;
+  max-width: 360px;
 }
 
-.will-item-icon {
+.will-item-chip {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  font-size: 18px;
-  border: 1px solid rgba(150, 125, 90, 0.45);
-  border-radius: 6px;
-  background: rgba(235, 220, 195, 0.55);
-  box-shadow: inset 0 0 4px rgba(180, 155, 120, 0.2);
-  filter: grayscale(0.3) brightness(0.88);
+  width: 42px;
+  height: 42px;
+  font-size: 22px;
+  border: 1.5px solid rgba(180, 155, 120, 0.32);
+  border-radius: 12px;
+  background: rgba(245, 235, 215, 0.50);
+  box-shadow:
+    inset 0 0 6px rgba(180, 155, 120, 0.12),
+    0 1px 3px rgba(100, 80, 55, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: chip-pop 400ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  cursor: default;
 }
 
-/* ── Estate ── */
+.will-item-chip:hover {
+  transform: scale(1.18);
+  box-shadow:
+    inset 0 0 6px rgba(180, 155, 120, 0.12),
+    0 2px 10px rgba(100, 80, 55, 0.14);
+}
+
+@keyframes chip-pop {
+  from { opacity: 0; transform: scale(0.4); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.will-items-tag {
+  margin: 0;
+  font-size: 13px;
+  color: #8b6a4a;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+}
+
+/* ── Closing ── */
+.will-closing {
+  padding: 4px 0;
+  gap: 4px;
+}
+
 .will-estate {
-  margin: 6px 0 2px;
-  font-size: 12px;
-  color: #7a6850;
+  margin: 0;
+  font-size: 14px;
+  color: #8a7260;
   font-weight: 600;
   letter-spacing: 0.06em;
   font-family: 'Nunito', 'Noto Sans SC', sans-serif;
   font-style: italic;
 }
 
-/* ── Farewell ── */
 .will-farewell {
-  margin: 2px 0 0;
-  font-size: 18px;
+  margin: 4px 0 0;
+  font-size: 26px;
   font-weight: 800;
   letter-spacing: 0.08em;
   color: #3a2210;
   font-family: 'Nunito', 'Noto Sans SC', sans-serif;
-  text-shadow: 0 1px 2px rgba(80, 55, 30, 0.1);
 }
 
-/* ── XOXO ── */
 .will-xoxo {
-  margin: 2px 0 0;
-  font-size: 14px;
-  letter-spacing: 0.22em;
+  margin: 4px 0 0;
+  font-size: 16px;
+  letter-spacing: 0.28em;
   font-weight: 800;
   color: #5a3e1a;
   font-family: 'Nunito', sans-serif;
 }
 
-/* ── Footer doodles ── */
-.will-footer-doodles {
+.will-closing-icons {
   display: flex;
-  justify-content: space-between;
-  width: 100%;
+  gap: 10px;
+  justify-content: center;
   margin-top: 6px;
+  font-size: 22px;
+  filter: drop-shadow(0 1px 2px rgba(100, 80, 55, 0.08));
 }
 
-.will-doodle-bl {
-  font-size: 14px;
-  color: #7a6648;
-  opacity: 0.40;
-  font-family: 'Nunito', sans-serif;
-}
-
-.will-doodle-br {
-  font-size: 20px;
-  color: #7a6648;
-  opacity: 0.35;
-  font-family: 'Nunito', sans-serif;
-  letter-spacing: -0.1em;
-}
-
-/* ── Action buttons ── */
+/* ── Action Buttons (Animal Island primary style) ── */
 .will-actions {
   display: flex;
-  gap: 24px;
-  margin-top: 24px;
+  gap: 20px;
   width: 100%;
   justify-content: center;
+  padding-top: 16px;
+  flex-shrink: 0;
 }
 
 .will-btn {
-  padding: 12px 28px;
-  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 28px;
+  border-radius: 50px;
   font-size: 14px;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   font-family: 'Nunito', 'Noto Sans SC', sans-serif;
   cursor: pointer;
   border: none;
   outline: none;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: btn-enter 500ms var(--ease-out-expo) 400ms both;
+  transition: all var(--animal-motion-duration-base) var(--animal-motion-ease);
+  animation: btn-enter 500ms var(--ease-out-expo) 500ms both;
 }
 
-.will-btn-screenshot {
-  background: linear-gradient(180deg, #f0e8f6 0%, #ddd0ea 100%);
-  color: #5a3e6a;
-  border: 1px solid rgba(140, 120, 170, 0.30);
-  box-shadow: 0 4px #c0b0d0;
+.will-btn:focus-visible {
+  outline: 2px solid var(--animal-primary-color);
+  outline-offset: 2px;
+}
+
+.will-btn-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* Poster button — AI primary style */
+.will-btn-poster {
+  color: var(--animal-text-color);
+  background: var(--animal-bg-color);
+  border: var(--animal-border-width) solid var(--animal-border-color);
+  box-shadow: var(--animal-btn-shadow);
   transform: translateY(0);
 }
-.will-btn-screenshot:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px #c0b0d0, 0 8px 18px rgba(140, 120, 170, 0.14);
-  filter: brightness(1.04);
+.will-btn-poster:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--animal-btn-shadow-hover);
+  border-color: var(--animal-border-color-hover);
 }
-.will-btn-screenshot:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px #c0b0d0;
+.will-btn-poster:active {
+  transform: translateY(2px);
+  box-shadow: var(--animal-btn-shadow-active);
 }
 
+/* Restart button — warm gold */
 .will-btn-restart {
-  background: linear-gradient(180deg, #f8ecc8 0%, #e8d494 100%);
   color: #5a3e1a;
-  border: 1px solid rgba(180, 140, 70, 0.35);
-  box-shadow: 0 4px #bdaea0, inset 0 1px 0 rgba(255, 252, 240, 0.4);
+  background: linear-gradient(180deg, #faf0e0 0%, #ecdbba 100%);
+  border: var(--animal-border-width) solid rgba(180, 140, 70, 0.30);
+  box-shadow: 0 4px #c4b8a8;
   transform: translateY(0);
 }
 .will-btn-restart:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px #bdaea0, 0 8px 22px rgba(200, 160, 80, 0.18), inset 0 1px 0 rgba(255, 252, 240, 0.4);
-  filter: brightness(1.03);
+  transform: translateY(-1px);
+  box-shadow: 0 5px #c4b8a8, 0 6px 18px rgba(200, 160, 80, 0.14);
 }
 .will-btn-restart:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px #bdaea0, inset 0 1px 0 rgba(255, 252, 240, 0.4);
+  transform: translateY(2px);
+  box-shadow: 0 1px #c4b8a8;
 }
 </style>
