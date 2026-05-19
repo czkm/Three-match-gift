@@ -1459,14 +1459,14 @@ function buildComboPraise(biggest, chain) {
   const chainDepth = Math.max(1, chain || 1)
   const prefixColor =
     chainDepth >= 5
-      ? '#ff7f62'
+      ? '#d4452a'
       : chainDepth >= 4
-        ? '#ff9567'
+        ? '#d47030'
         : chainDepth >= 3
-          ? '#ffaf71'
+          ? '#b87818'
           : chainDepth >= 2
-            ? '#b48cff'
-            : '#e8cc84'
+            ? '#7b4fbf'
+            : '#b88620'
   const cascadeBits =
     chainDepth >= 2
       ? {
@@ -1759,7 +1759,7 @@ function onItemCellsPop(payload = {}) {
       if (!board.value) return
       audioManager.playSFX('seal_break', { vol: 0.5 })
       board.value.collapseAt(cells)
-    }, 220)
+    }, 500)
   }
 }
 
@@ -1802,6 +1802,16 @@ function flashCellGroup(cells, variant) {
     const el = layer.querySelector(`[data-tile-pos="${c.row},${c.col}"]`)
     if (!el) continue
     el.classList.add(`cell-flash`, `cell-flash--${variant}`)
+    // Add 💥 explosion overlay for pop variants
+    if (variant === 'treasure-spark' || variant === 'devil-spark') {
+      const boom = document.createElement('span')
+      boom.className = 'cell-boom-overlay'
+      boom.textContent = '💥'
+      el.appendChild(boom)
+      setTimeout(() => {
+        boom.remove()
+      }, 600)
+    }
     setTimeout(() => {
       el.classList.remove(`cell-flash`, `cell-flash--${variant}`)
     }, 440)
@@ -1854,7 +1864,16 @@ function animateTileFlip(cells, target, staggerMs = 30) {
   setTimeout(() => {
     if (!board.value) return
     reconcileTilesToBoardState()
-    for (const { el } of entries) el.classList.remove('tile-flip')
+    for (const { el } of entries) {
+      el.classList.remove('tile-flip')
+      el.classList.add('tile-converted')
+    }
+    // Remove conversion glow after animation completes
+    setTimeout(() => {
+      for (const { el } of entries) {
+        el.classList.remove('tile-converted')
+      }
+    }, 700)
   }, totalMs)
 
   audioManager.playSFX('pageflip', { vol: 0.35, rate: 1.3 })
@@ -3027,6 +3046,13 @@ function stopDjinnTransitionFx() {
   animation: none;
 }
 
+/* ───────────────────────────────────────────
+   Combo Praise — Animal Island warm parchment badge
+   Light cream blob cards with resource-themed accents,
+   warm brown text, and 3D parchment shadows.
+   Replaces the old dark-badge light-text style.
+   ─────────────────────────────────────────── */
+
 .combo-praise {
   position: absolute;
   left: 50%;
@@ -3038,127 +3064,121 @@ function stopDjinnTransitionFx() {
   text-align: center;
   pointer-events: none;
   transform: translateX(-50%);
+  /* Warm parchment base — cream with butter edge */
   background: linear-gradient(
     180deg,
-    rgba(44, 28, 18, 0.88),
-    rgba(20, 12, 8, 0.84)
+    #f9f5ea 0%,
+    #f1e8d4 100%
   );
+  border: 1px solid rgba(180, 150, 110, 0.30);
   box-shadow:
-    0 14px 24px rgba(18, 10, 8, 0.28),
-    inset 0 1px 0 rgba(255, 244, 220, 0.14);
-  --combo-prefix-color: #c39aff;
+    0 4px 10px rgba(114, 93, 66, 0.18),
+    inset 0 1px 0 rgba(255, 252, 245, 0.55);
+  --combo-prefix-color: #7b5ea7;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
 }
 
+/* ── Theme tints — resource accent on parchment base ── */
 .combo-praise.theme-gold {
-  background: linear-gradient(
-    180deg,
-    rgba(70, 48, 24, 0.92),
-    rgba(28, 18, 10, 0.86)
-  );
+  background: linear-gradient(180deg, #fbf6e4 0%, #f3e4c2 100%);
+  border-color: rgba(200, 160, 90, 0.38);
 }
 
 .combo-praise.theme-grape {
-  background: linear-gradient(
-    180deg,
-    rgba(88, 48, 94, 0.92),
-    rgba(34, 18, 40, 0.88)
-  );
+  background: linear-gradient(180deg, #f7f2fa 0%, #e9dcee 100%);
+  border-color: rgba(170, 130, 190, 0.38);
 }
 
 .combo-praise.theme-wood {
-  background: linear-gradient(
-    180deg,
-    rgba(102, 64, 36, 0.92),
-    rgba(40, 24, 14, 0.88)
-  );
+  background: linear-gradient(180deg, #f9f2e7 0%, #efddc4 100%);
+  border-color: rgba(190, 140, 90, 0.38);
 }
 
 .combo-praise.theme-stone {
-  background: linear-gradient(
-    180deg,
-    rgba(92, 92, 94, 0.92),
-    rgba(34, 34, 38, 0.88)
-  );
+  background: linear-gradient(180deg, #f4f3f1 0%, #e6e3dc 100%);
+  border-color: rgba(160, 155, 145, 0.38);
 }
 
 .combo-praise.theme-clay {
-  background: linear-gradient(
-    180deg,
-    rgba(118, 62, 48, 0.92),
-    rgba(46, 20, 16, 0.88)
-  );
+  background: linear-gradient(180deg, #faf1eb 0%, #f0dbcd 100%);
+  border-color: rgba(200, 130, 100, 0.38);
 }
 
 .combo-praise.theme-herb {
-  background: linear-gradient(
-    180deg,
-    rgba(62, 94, 58, 0.92),
-    rgba(24, 40, 22, 0.88)
-  );
+  background: linear-gradient(180deg, #f4f7f0 0%, #dfe8d6 100%);
+  border-color: rgba(150, 180, 120, 0.38);
 }
 
 .combo-praise.theme-magic {
-  background: linear-gradient(
-    180deg,
-    rgba(96, 72, 32, 0.94),
-    rgba(42, 26, 12, 0.9)
-  );
+  background: linear-gradient(180deg, #fbf5e8 0%, #f0e2d0 100%);
+  border-color: rgba(210, 180, 100, 0.45);
+  box-shadow:
+    0 4px 10px rgba(114, 93, 66, 0.18),
+    0 0 14px rgba(240, 210, 120, 0.16),
+    inset 0 1px 0 rgba(255, 252, 245, 0.55);
 }
 
+/* ── Tone scaling — progressive glow on parchment ── */
 .combo-praise.warm {
-  border: 1px solid rgba(232, 188, 106, 0.42);
+  border-color: rgba(190, 150, 90, 0.40);
 }
 
 .combo-praise.rare {
-  border: 1px solid rgba(214, 196, 124, 0.46);
+  border-color: rgba(200, 160, 100, 0.46);
   box-shadow:
-    0 14px 24px rgba(18, 10, 8, 0.28),
-    0 0 18px rgba(232, 196, 118, 0.18),
-    inset 0 1px 0 rgba(255, 244, 220, 0.18);
+    0 4px 12px rgba(114, 93, 66, 0.20),
+    0 0 14px rgba(220, 180, 120, 0.18),
+    inset 0 1px 0 rgba(255, 252, 245, 0.55);
 }
 
 .combo-praise.epic {
-  border: 1px solid rgba(238, 208, 138, 0.58);
+  border-color: rgba(220, 180, 110, 0.55);
+  border-width: 2px;
   box-shadow:
-    0 16px 28px rgba(18, 10, 8, 0.3),
-    0 0 24px rgba(240, 213, 107, 0.28),
-    inset 0 1px 0 rgba(255, 247, 226, 0.24);
+    0 5px 14px rgba(114, 93, 66, 0.22),
+    0 0 22px rgba(240, 200, 130, 0.26),
+    inset 0 1px 0 rgba(255, 252, 245, 0.60);
 }
 
 .combo-praise.cascade {
-  border: 1px solid rgba(182, 132, 255, 0.54);
+  border-color: rgba(155, 115, 230, 0.55);
+  border-width: 2px;
   box-shadow:
-    0 14px 24px rgba(18, 10, 8, 0.28),
-    0 0 18px rgba(184, 132, 255, 0.22),
-    inset 0 1px 0 rgba(248, 242, 255, 0.2);
+    0 5px 14px rgba(114, 93, 66, 0.22),
+    0 0 20px rgba(160, 120, 230, 0.24),
+    inset 0 1px 0 rgba(255, 252, 245, 0.60);
 }
 
 .combo-praise.inferno {
-  border: 1px solid rgba(255, 146, 94, 0.58);
+  border-color: rgba(245, 130, 70, 0.60);
+  border-width: 2px;
   box-shadow:
-    0 16px 30px rgba(32, 12, 8, 0.34),
-    0 0 28px rgba(255, 128, 88, 0.26),
-    inset 0 1px 0 rgba(255, 240, 224, 0.22);
+    0 6px 18px rgba(114, 93, 66, 0.26),
+    0 0 26px rgba(245, 145, 80, 0.30),
+    0 0 48px rgba(245, 145, 80, 0.12),
+    inset 0 1px 0 rgba(255, 252, 245, 0.60);
 }
 
+/* ── Theme + tone border overrides ── */
 .combo-praise.theme-grape.warm,
 .combo-praise.theme-grape.rare,
 .combo-praise.theme-grape.epic {
-  border-color: rgba(196, 146, 220, 0.56);
+  border-color: rgba(175, 125, 210, 0.55);
 }
 
 .combo-praise.theme-magic.warm,
 .combo-praise.theme-magic.rare,
 .combo-praise.theme-magic.epic {
-  border-color: rgba(240, 213, 107, 0.66);
+  border-color: rgba(230, 195, 100, 0.60);
 }
 
 .combo-praise.theme-herb.warm,
 .combo-praise.theme-herb.rare,
 .combo-praise.theme-herb.epic {
-  border-color: rgba(168, 210, 134, 0.54);
+  border-color: rgba(145, 185, 115, 0.55);
 }
 
+/* ── Size scales ── */
 .combo-praise.giant {
   top: 30px;
   min-width: 220px;
@@ -3182,6 +3202,7 @@ function stopDjinnTransitionFx() {
   padding: 18px 24px 16px;
 }
 
+/* ── Typography — warm brown text hierarchy ── */
 .combo-praise-prefix,
 .combo-praise-label,
 .combo-praise-combo,
@@ -3196,8 +3217,7 @@ function stopDjinnTransitionFx() {
   letter-spacing: 0.18em;
   color: var(--combo-prefix-color);
   text-shadow:
-    0 0 10px color-mix(in srgb, var(--combo-prefix-color) 34%, transparent),
-    0 2px 6px rgba(114, 93, 66, 0.28);
+    0 1px 0 rgba(255, 252, 245, 0.40);
 }
 
 .combo-praise-label {
@@ -3205,13 +3225,15 @@ function stopDjinnTransitionFx() {
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: 0.04em;
-  color: #fff1cb;
-  text-shadow: 0 2px 6px rgba(114, 93, 66, 0.28);
+  color: #5a3e1a;
+  text-shadow:
+    0 1px 0 rgba(255, 252, 245, 0.35),
+    0 1px 3px rgba(114, 93, 66, 0.10);
 }
 
 .combo-praise.size-3 .combo-praise-label {
   font-size: 18px;
-  color: #f6dfae;
+  color: #6b4e22;
 }
 
 .combo-praise.giant .combo-praise-label {
@@ -3221,10 +3243,11 @@ function stopDjinnTransitionFx() {
 
 .combo-praise.size-5 .combo-praise-label {
   font-size: 38px;
-  color: #fff4d8;
+  color: #4a2e10;
   text-shadow:
-    0 0 12px rgba(255, 202, 136, 0.26),
-    0 2px 8px rgba(114, 93, 66, 0.34);
+    0 0 10px rgba(240, 200, 120, 0.18),
+    0 1px 0 rgba(255, 252, 245, 0.40),
+    0 1px 4px rgba(114, 93, 66, 0.14);
 }
 
 .combo-praise-combo {
@@ -3233,57 +3256,45 @@ function stopDjinnTransitionFx() {
   font-weight: 800;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: rgba(255, 239, 198, 0.92);
+  color: #8a6b34;
 }
 
 .combo-praise.chained .combo-praise-combo {
-  color: rgba(245, 220, 255, 0.92);
+  color: #7b5ea7;
 }
 
 .combo-praise-subline {
   margin-top: 4px;
   font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(255, 234, 186, 0.82);
+  letter-spacing: 0.12em;
+  color: #9f927d;
+  font-weight: 600;
 }
 
 .combo-praise-fire {
   display: inline-block;
-  filter: drop-shadow(0 0 8px rgba(255, 144, 92, 0.38));
+  filter: drop-shadow(0 0 6px rgba(245, 145, 80, 0.34));
 }
 
+/* ── Trailing ember glow (parchment-visible) ── */
 .combo-praise.trailing::after {
   content: '';
   position: absolute;
   left: 14%;
   right: 14%;
-  bottom: -8px;
-  height: 10px;
+  bottom: -6px;
+  height: 8px;
   border-radius: 999px;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 196, 112, 0.18) 26%,
-    rgba(255, 108, 88, 0.34) 50%,
-    rgba(255, 196, 112, 0.18) 74%,
+    rgba(220, 160, 80, 0.24) 30%,
+    rgba(245, 145, 80, 0.42) 50%,
+    rgba(220, 160, 80, 0.24) 70%,
     transparent 100%
   );
-  filter: blur(4px);
+  filter: blur(3px);
   animation: combo-tail 1.1s ease-out infinite;
-}
-
-.combo-praise-enter-active,
-.combo-praise-leave-active {
-  transition:
-    opacity 220ms ease,
-    transform 300ms var(--ease-out-back);
-}
-
-.combo-praise-enter-from,
-.combo-praise-leave-to {
-  opacity: 0;
-  transform: translateX(-50%) translateY(-10px) scale(0.92);
 }
 
 @keyframes combo-tail {
@@ -3292,7 +3303,7 @@ function stopDjinnTransitionFx() {
     transform: scaleX(0.7);
   }
   30% {
-    opacity: 0.92;
+    opacity: 0.85;
   }
   100% {
     opacity: 0;
@@ -3300,6 +3311,21 @@ function stopDjinnTransitionFx() {
   }
 }
 
+/* ── Transition — light elastic entrance ── */
+.combo-praise-enter-active,
+.combo-praise-leave-active {
+  transition:
+    opacity 240ms ease,
+    transform 340ms var(--ease-out-back);
+}
+
+.combo-praise-enter-from,
+.combo-praise-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-12px) scale(0.90);
+}
+
+/* ── Flash overlay — warm amber on parchment, gentle ── */
 .combo-flash {
   position: absolute;
   inset: 0;
@@ -3308,20 +3334,20 @@ function stopDjinnTransitionFx() {
   background:
     radial-gradient(
       circle at 50% 42%,
-      rgba(255, 240, 194, 0.22),
-      transparent 22%
+      rgba(255, 242, 200, 0.28),
+      transparent 28%
     ),
     radial-gradient(
       circle at 50% 48%,
-      rgba(240, 213, 107, 0.18),
-      transparent 52%
+      rgba(240, 210, 130, 0.18),
+      transparent 54%
     );
-  mix-blend-mode: screen;
+  mix-blend-mode: overlay;
 }
 
 .combo-flash-enter-active,
 .combo-flash-leave-active {
-  transition: opacity 260ms ease;
+  transition: opacity 280ms ease;
 }
 
 .combo-flash-enter-from,

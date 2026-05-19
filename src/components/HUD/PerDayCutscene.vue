@@ -337,7 +337,6 @@ function onOverlayClick() {
   position: absolute;
   top: -24px;
   animation: petal-fall linear forwards;
-  will-change: transform, opacity;
 }
 @keyframes petal-fall {
   0% {

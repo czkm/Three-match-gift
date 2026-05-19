@@ -53,12 +53,12 @@ const BOARD_ROWS = 8
 const BOARD_COLS = 8
 const FIXED_REWARD_OFFERS = {
   1: { treasure: ['stye'], devil: ['brimstone'] },
-  2: { treasure: ['luckyFoot'], devil: ['momsKnife'] },
+  2: { treasure: ['dogTooth'], devil: ['momsKnife'] },
   3: { treasure: ['lunch'], devil: ['thePact'] },
-  4: { treasure: ['sackOfPennies'], devil: ['deadCat'] },
+  4: { treasure: ['sackOfPennies'], devil: ['darkBeggar'] },
   5: { treasure: ['battery'], devil: ['pentagram'] },
   6: { treasure: ['holyWater'], devil: ['mawOfTheVoid'] },
-  7: { treasure: ['compass'], devil: ['blackCandle'] }
+  7: { treasure: ['luckyFoot'], devil: ['blackCandle'] }
 }
 
 export const useGameStore = defineStore('game', {
@@ -80,6 +80,9 @@ export const useGameStore = defineStore('game', {
     seenRewardItemIds: [],
     nextDayStepPenalty: 0,
     maxStepPenalty: 0,
+    maxStepsBonus: 0,
+    darkBeggarTriggerCount: 0,
+    darkBeggarTargetCount: 0,
     itemFlags: {},
     roomHistory: [],
     pendingInvalidSwapReward: null,
@@ -150,7 +153,7 @@ export const useGameStore = defineStore('game', {
       return DAYS.length
     },
     effectiveMaxSteps(state) {
-      return Math.max(14, MAX_STEPS - state.maxStepPenalty)
+      return Math.max(14, MAX_STEPS - state.maxStepPenalty + state.maxStepsBonus)
     },
     ownedItemIds(state) {
       return state.ownedItems.map(item => item.id)
@@ -594,6 +597,9 @@ export const useGameStore = defineStore('game', {
       this.seenRewardItemIds = []
       this.nextDayStepPenalty = 0
       this.maxStepPenalty = 0
+      this.maxStepsBonus = 0
+      this.darkBeggarTriggerCount = 0
+      this.darkBeggarTargetCount = 0
       this.itemFlags = {}
       this.roomHistory = []
       this.pendingInvalidSwapReward = null
@@ -683,6 +689,7 @@ export const useGameStore = defineStore('game', {
       this.stepsLeft--
       this.turnId++
       this._flushPendingInvalidSwapReward()
+      this._triggerDarkBeggarChaos()
     },
 
     /** Add `n` steps, capped at the current effective maximum. */
@@ -914,6 +921,16 @@ export const useGameStore = defineStore('game', {
         ...this.ownedItems.filter(owned => owned.id !== item.id),
         acquired
       ]
+
+      // Apply immediate effects for certain items
+      if (item.effect?.type === 'maxStepsBonus') {
+        this.maxStepsBonus += item.effect.amount || 0
+        this.stepsLeft = Math.min(this.stepsLeft + (item.effect.amount || 0), this.effectiveMaxSteps)
+      }
+      if (item.effect?.type === 'clearTombstonesOnStart') {
+        // Clear tombstones immediately when acquired, and will also clear on each day start
+        this._clearAllTombstones()
+      }
       this.claimedRewardDays = [
         ...new Set([...this.claimedRewardDays, offer.day])
       ]
@@ -1078,6 +1095,12 @@ export const useGameStore = defineStore('game', {
             summaryText: reducedTargets.length
               ? `需求降低：${reducedTargets.map(target => `${RESOURCE_BY_ID[target.id]?.cn || target.id} -${target.reduced}`).join('，')}`
               : ''
+          })
+        } else if (effect.type === 'clearTombstonesOnStart') {
+          this._clearAllTombstones()
+          this._emitItemEffectTriggered(item, {
+            trigger: 'dayStart',
+            summaryText: '狗牙驱散了所有墓碑'
           })
         }
       }
@@ -1298,6 +1321,20 @@ export const useGameStore = defineStore('game', {
             stepsGained: Math.max(0, this.stepsLeft - beforeSteps)
           })
         } else if (
+          effect.type === 'firstBigMatchStep' &&
+          hasBig &&
+          !this._hasItemFlag(item)
+        ) {
+          // 小电池：每天首次 4 连及以上，恢复 1 步
+          const beforeSteps = this.stepsLeft
+          this.recoverSteps(effect.amount || 0)
+          this._markItemFlag(item)
+          this._emitItemEffectTriggered(item, {
+            trigger: 'resourceGain',
+            stepsGained: Math.max(0, this.stepsLeft - beforeSteps),
+            batteryTrigger: true
+          })
+        } else if (
           effect.type === 'firstBigMatchPigEnergy' &&
           hasBig &&
           !this._hasItemFlag(item)
@@ -1360,11 +1397,31 @@ export const useGameStore = defineStore('game', {
             summaryText: '契约生效：最少的那种资源被翻成了最多的那种'
           })
         } else if (
+          effect.type === 'sweepAreaOnChain' &&
+          chain >= (effect.minChain || 2)
+        ) {
+          // 虚空之喉：每次连锁 2+ → 以 match 中心为中心的 3×3 区域被吞没
+          const areaRows = effect.areaRows || 3
+          const areaCols = effect.areaCols || 3
+          const center = this._pickSweepCenter(matchGroups)
+          if (center) {
+            const area = this._buildAreaCells(center.row, center.col, areaRows, areaCols)
+            if (area.length) {
+              EventBus.trigger('itemCellsPop', [
+                { cells: area, variant: 'devil-area', itemId: item.id }
+              ])
+              this._emitItemEffectTriggered(item, {
+                trigger: 'resourceGain',
+                summaryText: `${area.length} 格被虚空吞没`
+              })
+            }
+          }
+        } else if (
           effect.type === 'firstThreeAreaSweep' &&
           chain >= 3 &&
           !this._hasItemFlag(item)
         ) {
-          // 虚空之喉：首次 3 段连锁 → 3×3 区域被吞没
+          // 保留旧类型兼容（如果有其他地方还在使用）
           const center = this._pickSweepCenter(matchGroups)
           if (center) {
             const area = this._buildAreaCells(center.row, center.col, 3, 3)
@@ -1438,7 +1495,7 @@ export const useGameStore = defineStore('game', {
       for (const [dr, dc] of shuffled) {
         const r = center.row + dr
         const c = center.col + dc
-        if (r >= 0 && r < ROWS && c >= 0 && c < COLS)
+        if (r >= 0 && r < BOARD_ROWS && c >= 0 && c < BOARD_COLS)
           return [center, { row: r, col: c }]
       }
       return [center]
@@ -1466,15 +1523,80 @@ export const useGameStore = defineStore('game', {
     _buildAreaCells(row, col, rows, cols) {
       const cells = []
       const rStart = Math.max(0, row - Math.floor(rows / 2))
-      const rEnd = Math.min(ROWS - 1, rStart + rows - 1)
+      const rEnd = Math.min(BOARD_ROWS - 1, rStart + rows - 1)
       const cStart = Math.max(0, col - Math.floor(cols / 2))
-      const cEnd = Math.min(COLS - 1, cStart + cols - 1)
+      const cEnd = Math.min(BOARD_COLS - 1, cStart + cols - 1)
       for (let r = rStart; r <= rEnd; r++) {
         for (let c = cStart; c <= cEnd; c++) {
           cells.push({ row: r, col: c })
         }
       }
       return cells
+    },
+
+    _clearAllTombstones() {
+      const before = this.boardEntities.filter(e => e.kind === 'barrenGrave' && !e.removed).length
+      if (before === 0) return
+      for (const entity of this.boardEntities) {
+        if (entity.kind === 'barrenGrave' && !entity.removed) {
+          entity.removed = true
+          entity.hitsTaken = entity.hitsRequired || 1
+        }
+      }
+      // Play wolf howl
+      try {
+        const audio = new Audio('/狼叫.x-wav')
+        audio.volume = 0.6
+        audio.play()
+      } catch (_) { /* audio may be blocked */ }
+    },
+
+    _triggerDarkBeggarChaos() {
+      const item = this._ownedRewardItems().find(i => i.effect?.type === 'chaoticSabotage')
+      if (!item) return
+
+      const effect = item.effect
+      if (this.darkBeggarTargetCount === 0) {
+        // Roll target count: 3-8
+        this.darkBeggarTargetCount = effect.minTriggers + Math.floor(Math.random() * (effect.maxTriggers - effect.minTriggers + 1))
+        this.darkBeggarTriggerCount = 0
+      }
+
+      // 50% chance to trigger on each action
+      if (Math.random() > 0.5) return
+
+      this.darkBeggarTriggerCount++
+      const day = DAYS[this.currentDay]
+      if (!day) return
+      const needEntries = Object.entries(day.needs)
+      if (!needEntries.length) return
+
+      // Pick a random needed resource
+      const [needId] = needEntries[Math.floor(Math.random() * needEntries.length)]
+      const reduction = 3 + Math.floor(Math.random() * 6) // 3-8
+      this.progress[needId] = Math.max(0, (this.progress[needId] || 0) - reduction)
+      EventBus.trigger('resourceBarUpdate')
+
+      // Check if target count reached → grant pig energy
+      if (this.darkBeggarTriggerCount >= this.darkBeggarTargetCount) {
+        const energyGain = effect.energyMin + Math.floor(Math.random() * (effect.energyMax - effect.energyMin + 1))
+        const beforeEnergy = this.pigEnergy
+        this.pigEnergy = Math.min(PIG_RATING.energyMax, this.pigEnergy + energyGain)
+        this._emitItemEffectTriggered(item, {
+          trigger: 'resourceGain',
+          pigEnergyGained: Math.max(0, this.pigEnergy - beforeEnergy),
+          summaryText: `黑暗乞丐已完成 ${this.darkBeggarTriggerCount} 次破坏，补充小猪能量 +${energyGain}`
+        })
+        // Reset for next cycle
+        this.darkBeggarTriggerCount = 0
+        this.darkBeggarTargetCount = 0
+      } else {
+        this._emitItemEffectTriggered(item, {
+          trigger: 'resourceGain',
+          affectedResources: [needId],
+          summaryText: `黑暗乞丐偷走了 ${RESOURCE_BY_ID[needId]?.cn || needId} -${reduction}（第 ${this.darkBeggarTriggerCount}/${this.darkBeggarTargetCount} 次）`
+        })
+      }
     },
 
     _tryZeroStepRecovery() {

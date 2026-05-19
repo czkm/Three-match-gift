@@ -20,6 +20,7 @@
     @mousedown.prevent="onPick"
     @touchstart.prevent="onPick"
   >
+    <span class="glyph-glow" />
     <span class="glyph">{{ glyph }}</span>
     <span v-if="showHitFx" class="damage-float">-1</span>
   </div>
@@ -111,7 +112,19 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.glyph-glow {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 252, 245, 0.28) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
 .glyph {
+  position: relative;
+  z-index: 1;
   pointer-events: none;
   filter: drop-shadow(0 1px 2px rgba(114, 93, 66, 0.22));
   transition: transform 180ms var(--ease-out-expo), filter 180ms var(--ease-out-expo);

@@ -30,6 +30,7 @@
         <template v-else>
           <span class="ink-subtle" :class="{ revived: zeroStepRecoveryFlash }">步数</span>
           <span class="step-value" :class="{ low: game.stepsLeft <= 5, penalized: penaltyFlash, boosted: stepBoostFlash, revived: zeroStepRecoveryFlash }">
+            <span v-if="batteryFlash" class="battery-icon">⚡️</span>
             {{ game.stepsLeft }} / {{ game.effectiveMaxSteps }}
           </span>
         </template>
@@ -46,9 +47,11 @@ const game = useGameStore()
 const penaltyFlash = ref(false)
 const stepBoostFlash = ref(false)
 const zeroStepRecoveryFlash = ref(false)
+const batteryFlash = ref(false)
 let penaltyTimer = null
 let stepBoostTimer = null
 let zeroStepRecoveryTimer = null
+let batteryFlashTimer = null
 
 function onPigPenalty() {
   penaltyFlash.value = false
@@ -63,6 +66,17 @@ function onPigPenalty() {
 }
 
 function onItemEffectTriggered(payload = {}) {
+  if (payload.batteryTrigger) {
+    batteryFlash.value = false
+    if (batteryFlashTimer) clearTimeout(batteryFlashTimer)
+    requestAnimationFrame(() => {
+      batteryFlash.value = true
+      batteryFlashTimer = setTimeout(() => {
+        batteryFlash.value = false
+        batteryFlashTimer = null
+      }, 1200)
+    })
+  }
   if (!payload.stepsGained) return
   const isZeroStepRecovery = payload.trigger === 'zeroStepRecovery'
   if (isZeroStepRecovery) {
@@ -98,6 +112,7 @@ onBeforeUnmount(() => {
   if (penaltyTimer) clearTimeout(penaltyTimer)
   if (stepBoostTimer) clearTimeout(stepBoostTimer)
   if (zeroStepRecoveryTimer) clearTimeout(zeroStepRecoveryTimer)
+  if (batteryFlashTimer) clearTimeout(batteryFlashTimer)
 })
 </script>
 
@@ -154,7 +169,10 @@ onBeforeUnmount(() => {
   background: #f8f8f0;
   border: 2px solid #d4c9b4;
   box-shadow: 0 3px 0 0 #d4c9b4;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .building .emoji {
   font-size: 22px;
@@ -228,10 +246,16 @@ onBeforeUnmount(() => {
   color: #725d42;
   letter-spacing: 0.06em;
   font-family: 'Nunito', sans-serif;
-  transition: color 300ms var(--ease-out-expo), transform 300ms var(--ease-out-expo);
+  transition:
+    color 300ms var(--ease-out-expo),
+    letter-spacing 300ms var(--ease-out-expo),
+    text-shadow 300ms var(--ease-out-expo);
 }
+
 .step-value.low {
   color: #e05a5a;
+  letter-spacing: 0.10em;
+  text-shadow: 0 0 8px rgba(224, 90, 90, 0.22);
   animation: pulse-low-steps 1.4s infinite ease-in-out;
 }
 
@@ -258,68 +282,84 @@ onBeforeUnmount(() => {
   color: #19c8b9;
 }
 
+.battery-icon {
+  display: inline-block;
+  font-size: 16px;
+  margin-right: 2px;
+  animation: battery-pop 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  filter: drop-shadow(0 0 6px rgba(240, 200, 60, 0.55));
+}
+
+@keyframes battery-pop {
+  0%   { transform: scale(0); opacity: 0; }
+  18%  { transform: scale(1.4); opacity: 1; }
+  35%  { transform: scale(0.95); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
 @keyframes pulse-low-steps {
   0%, 100% {
-    transform: scale(1);
-    opacity: 1;
+    letter-spacing: 0.06em;
     text-shadow: 0 0 0 rgba(224, 90, 90, 0);
+    font-weight: 700;
   }
   50% {
-    transform: scale(1.06);
-    opacity: 0.85;
-    text-shadow: 0 0 8px rgba(224, 90, 90, 0.25);
+    letter-spacing: 0.12em;
+    text-shadow: 0 0 10px rgba(224, 90, 90, 0.28);
+    font-weight: 800;
   }
 }
 
 @keyframes pig-penalty-flash {
   0% {
-    transform: scale(1);
+    letter-spacing: 0.06em;
     text-shadow: 0 0 0 rgba(201, 68, 68, 0);
   }
   22% {
-    transform: scale(1.16);
-    text-shadow: 0 0 16px rgba(201, 68, 68, 0.45);
+    letter-spacing: 0.14em;
+    text-shadow: 0 0 18px rgba(201, 68, 68, 0.50);
   }
   100% {
-    transform: scale(1);
+    letter-spacing: 0.06em;
     text-shadow: 0 0 0 rgba(201, 68, 68, 0);
   }
 }
 
 @keyframes step-boost-flash {
   0% {
-    transform: scale(1);
+    letter-spacing: 0.06em;
     text-shadow: 0 0 0 rgba(17, 168, 155, 0);
   }
   22% {
-    transform: scale(1.16);
-    text-shadow: 0 0 16px rgba(17, 168, 155, 0.42);
+    letter-spacing: 0.14em;
+    text-shadow: 0 0 18px rgba(17, 168, 155, 0.46);
   }
   100% {
-    transform: scale(1);
+    letter-spacing: 0.06em;
     text-shadow: 0 0 0 rgba(17, 168, 155, 0);
   }
 }
 
 @keyframes step-revive-flash {
   0% {
-    transform: scale(1);
+    letter-spacing: 0.06em;
     text-shadow: 0 0 0 rgba(200, 126, 22, 0);
-    filter: saturate(1);
+    font-weight: 700;
   }
   18% {
-    transform: scale(1.24);
+    letter-spacing: 0.16em;
     text-shadow: 0 0 24px rgba(200, 126, 22, 0.55);
-    filter: saturate(1.25);
+    font-weight: 900;
   }
   38% {
-    transform: scale(1.08);
-    text-shadow: 0 0 12px rgba(200, 126, 22, 0.34);
+    letter-spacing: 0.10em;
+    text-shadow: 0 0 14px rgba(200, 126, 22, 0.36);
+    font-weight: 800;
   }
   100% {
-    transform: scale(1);
+    letter-spacing: 0.06em;
     text-shadow: 0 0 0 rgba(200, 126, 22, 0);
-    filter: saturate(1);
+    font-weight: 700;
   }
 }
 </style>

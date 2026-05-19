@@ -80,6 +80,14 @@
           <p class="room-flavor">{{ REWARD_ROOM_COPY.devil.flavor }}</p>
         </template>
 
+        <button
+          type="button"
+          class="back-to-doors"
+          @click="goBackToDoors"
+        >
+          ← 返回房门
+        </button>
+
         <div class="divider-zig-teal" />
 
         <div class="item-cards" :class="`${currentRoomType}-cards`">
@@ -216,6 +224,13 @@ function enterRoom(roomType) {
     phase.value = 'room'
     enteringRoom.value = ''
   }, 600)
+}
+
+function goBackToDoors() {
+  clearTimers()
+  enteringRoom.value = ''
+  currentRoomType.value = ''
+  phase.value = 'choose'
 }
 
 function pickItem(item) {
@@ -718,6 +733,35 @@ onBeforeUnmount(() => {
 .treasure-chest,
 .devil-altar {
   display: none;
+}
+
+.back-to-doors {
+  position: relative;
+  z-index: 3;
+  margin-bottom: 8px;
+  padding: 6px 16px;
+  border: 2px solid #d4c9b4;
+  border-radius: 50px;
+  background: #f7f3df;
+  color: #725d42;
+  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  box-shadow: 0 2px 0 0 #d4c9b4;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.back-to-doors:hover {
+  background: #efe8d0;
+  border-color: #c9a84c;
+  color: #5a3e28;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0 0 #c9a84c;
+}
+.back-to-doors:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 0 0 #d4c9b4;
 }
 
 .room-flavor {

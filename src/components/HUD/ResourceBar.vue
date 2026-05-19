@@ -17,7 +17,10 @@
           :class="[
             `tone-${item.tone || item.roomType || 'treasure'}`,
             `quality-${item.quality || 0}`,
-            { triggered: item.id === highlightedItemId }
+            {
+              triggered: item.id === highlightedItemId,
+              consumed: isItemConsumedToday(item)
+            }
           ]"
           type="button"
           :title="item.name"
@@ -42,7 +45,7 @@
       v-for="r in game.repairView"
       :key="r.id"
       class="row"
-      :class="{ highlighted: highlightedResourceIds.has(r.id) }"
+      :class="{ highlighted: highlightedResourceIds.has(r.id), stolen: stolenResourceIds.has(r.id) }"
     >
       <span class="emoji">{{ r.emoji }}</span>
       <span class="label">{{ r.label }}</span>
@@ -60,7 +63,7 @@
       v-if="messageTitle || messageText"
       :key="messageKey"
       class="message-box"
-      :class="[`kind-${messageKind}`, { fresh: messageFresh }]"
+      :class="[`kind-${messageKind}`, { fresh: messageFresh, 'notice-active': effectNotice }]"
     >
       <div class="message-head">
         <span class="message-icon">
@@ -95,11 +98,13 @@ const trinketFlash = ref(false);
 const effectNotice = ref(null);
 const highlightedItemId = ref('');
 const highlightedResourceIds = ref(new Set());
+const stolenResourceIds = ref(new Set());
 let freshTimer = null;
 let trinketFlashTimer = null;
 let effectNoticeTimer = null;
 let highlightedItemTimer = null;
 let highlightedResourceTimer = null;
+let stolenResourceTimer = null;
 
 const trinketItems = computed(() =>
   [...(game.ownedItems || [])]
@@ -109,6 +114,15 @@ const trinketItems = computed(() =>
 const trinketSlots = computed(() =>
   Array.from({ length: Math.max(0, 6 - trinketItems.value.length) }, (_, index) => index)
 );
+
+function isItemConsumedToday(item) {
+  if (!item?.id) return false
+  return (
+    game._hasItemFlag(item, 'used') ||
+    game._hasItemFlag(item, 'invalid') ||
+    game._hasItemFlag(item, 'zero')
+  )
+}
 
 const messageKind = computed(() => {
   if (effectNotice.value) return effectNotice.value.kind || 'system';
@@ -302,6 +316,16 @@ function onItemEffectTriggered(payload = {}) {
   highlightedItemId.value = payload.itemId || '';
   highlightedResourceIds.value = new Set(payload.affectedResources || []);
 
+  // Devil-tone effects with affected resources → red stolen flash
+  if (payload.itemTone === 'devil' && payload.affectedResources?.length) {
+    stolenResourceIds.value = new Set(payload.affectedResources);
+    if (stolenResourceTimer) clearTimeout(stolenResourceTimer);
+    stolenResourceTimer = setTimeout(() => {
+      stolenResourceIds.value = new Set();
+      stolenResourceTimer = null;
+    }, 1800);
+  }
+
   if (effectNoticeTimer) clearTimeout(effectNoticeTimer);
   if (highlightedItemTimer) clearTimeout(highlightedItemTimer);
   if (highlightedResourceTimer) clearTimeout(highlightedResourceTimer);
@@ -333,6 +357,7 @@ onBeforeUnmount(() => {
   if (effectNoticeTimer) clearTimeout(effectNoticeTimer);
   if (highlightedItemTimer) clearTimeout(highlightedItemTimer);
   if (highlightedResourceTimer) clearTimeout(highlightedResourceTimer);
+  if (stolenResourceTimer) clearTimeout(stolenResourceTimer);
 });
 </script>
 
@@ -422,11 +447,57 @@ onBeforeUnmount(() => {
 }
 
 .trinket-chip.triggered {
-  transform: translateY(-2px) scale(1.08);
+  transform: translateY(-2px) scale(1.12);
   box-shadow:
     0 4px 0 0 #d4c9b4,
-    0 0 0 3px rgba(25, 200, 185, 0.18),
-    0 0 16px rgba(25, 200, 185, 0.2);
+    0 0 0 4px rgba(240, 200, 100, 0.28),
+    0 0 22px rgba(240, 200, 100, 0.32);
+  animation: trinket-trigger-glow 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.trinket-chip.triggered .trinket-emoji {
+  animation: trinket-emoji-pop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes trinket-trigger-glow {
+  0%   {
+    box-shadow:
+      0 4px 0 0 #d4c9b4,
+      0 0 0 0 rgba(240, 200, 100, 0),
+      0 0 0 rgba(240, 200, 100, 0);
+  }
+  30%  {
+    box-shadow:
+      0 4px 0 0 #d4c9b4,
+      0 0 0 8px rgba(240, 200, 100, 0.35),
+      0 0 36px rgba(240, 200, 100, 0.40);
+  }
+  100% {
+    box-shadow:
+      0 4px 0 0 #d4c9b4,
+      0 0 0 4px rgba(240, 200, 100, 0.28),
+      0 0 22px rgba(240, 200, 100, 0.32);
+  }
+}
+
+@keyframes trinket-emoji-pop {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+.trinket-chip.consumed {
+  filter: grayscale(0.55) brightness(0.82);
+  opacity: 0.50;
+  cursor: default;
+  transform: none;
+  box-shadow: 0 2px 0 0 #d4c9b4;
+}
+
+.trinket-chip.consumed:hover,
+.trinket-chip.consumed:focus-visible {
+  transform: none;
+  box-shadow: 0 2px 0 0 #d4c9b4;
 }
 
 .trinket-chip.quality-3 {
@@ -494,6 +565,45 @@ h3 {
   box-shadow:
     0 0 0 2px rgba(25, 200, 185, 0.16),
     0 0 16px rgba(25, 200, 185, 0.14);
+}
+
+.row.stolen {
+  animation: resource-stolen-shake 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.row.stolen .track {
+  box-shadow:
+    0 0 0 2px rgba(224, 90, 90, 0.35),
+    0 0 20px rgba(224, 90, 90, 0.25);
+}
+
+.row.stolen .fill {
+  filter: brightness(1.3) saturate(0.5) hue-rotate(-30deg);
+}
+
+.row.stolen .label {
+  color: #e05a5a;
+}
+
+.row.stolen .count {
+  color: #e05a5a;
+  font-weight: 800;
+  animation: stolen-count-pulse 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes resource-stolen-shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-4px); }
+  30% { transform: translateX(4px); }
+  45% { transform: translateX(-3px); }
+  60% { transform: translateX(3px); }
+  75% { transform: translateX(-1px); }
+  90% { transform: translateX(1px); }
+}
+
+@keyframes stolen-count-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
 }
 
 .emoji { font-size: 18px; width: 22px; text-align: center; }
@@ -708,6 +818,51 @@ h3 {
 
 .kind-hint .message-icon {
   background: #eae4d0;
+}
+
+/* ── Effect notice — golden pulse when item triggers ── */
+.message-box.notice-active {
+  border-color: rgba(240, 200, 100, 0.45);
+  background: linear-gradient(180deg, rgba(255, 245, 210, 0.35), #f8f8f0);
+  box-shadow:
+    0 3px 0 0 #d4c9b4,
+    0 0 22px rgba(240, 200, 100, 0.2);
+  animation: notice-box-pulse 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.message-box.notice-active::before {
+  background: linear-gradient(180deg, #f0c850, #d4a020);
+}
+
+.message-box.notice-active .message-icon {
+  background: rgba(255, 244, 210, 0.82);
+  border-color: rgba(240, 200, 100, 0.35);
+  box-shadow: 0 0 10px rgba(240, 200, 100, 0.2);
+}
+
+.message-box.notice-active .message-title {
+  color: #8b6914;
+}
+
+@keyframes notice-box-pulse {
+  0%   {
+    box-shadow:
+      0 3px 0 0 #d4c9b4,
+      0 0 0 rgba(240, 200, 100, 0),
+      0 0 0 rgba(240, 200, 100, 0);
+  }
+  25%  {
+    box-shadow:
+      0 3px 0 0 #d4c9b4,
+      0 0 36px rgba(240, 200, 100, 0.30),
+      0 0 8px rgba(240, 200, 100, 0.18);
+  }
+  100% {
+    box-shadow:
+      0 3px 0 0 #d4c9b4,
+      0 0 22px rgba(240, 200, 100, 0.2),
+      0 0 4px rgba(240, 200, 100, 0.10);
+  }
 }
 
 @keyframes message-flash {
