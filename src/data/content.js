@@ -1176,6 +1176,23 @@ export const ENDING = {
   defaultGift: '献给小云。',
   lockedGift: '献给小云。',
   blessingLine: '也愿小坤和小云平安幸福，长久相伴。',
+  willScreen: {
+    headerLine: '亲爱的日记，',
+    titleLine: '今天是我的生日！',
+    clearedLine: '我通关了 Corvo Bianco，',
+    gotGiftLine: '在 {{location}}，获得了这份礼物——',
+    giftPlaceholder: '🎁',
+    giftHint: '（礼物图片）',
+    divider: '─────────────────',
+    legacyLine: '我把一路的祝福',
+    legacyLine2: '都留给我的猫咪 Guppy 🐱',
+    itemsLabel: '一路收集的好东西！',
+    estateLine: '白鸦葡萄园，全部修复完成',
+    farewellLine: '谢谢你，Corvo Bianco',
+    goodbyeLine: 'X O X O',
+    screenshotLabel: '生成截图',
+    backLabel: '返回'
+  },
   interceptLine: '哦，我想起来了。你不是小云吗？还在选什么，我帮你填下去就行。',
   giftPresets: [
     { id: 'friend', label: '朋友', text: '朋友' },
