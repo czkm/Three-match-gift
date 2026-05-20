@@ -58,7 +58,7 @@ const FIXED_REWARD_OFFERS = {
   4: { treasure: ['sackOfPennies'], devil: ['darkBeggar'] },
   5: { treasure: ['battery'], devil: ['pentagram'] },
   6: { treasure: ['holyWater'], devil: ['mawOfTheVoid'] },
-  7: { treasure: ['luckyFoot'], devil: ['blackCandle'] }
+  7: { treasure: ['luckyFoot'], devil: ['xRayVision'] }
 }
 
 export const useGameStore = defineStore('game', {
@@ -81,6 +81,7 @@ export const useGameStore = defineStore('game', {
     nextDayStepPenalty: 0,
     maxStepPenalty: 0,
     maxStepsBonus: 0,
+    xrayNeedsChars: null,
     darkBeggarTriggerCount: 0,
     darkBeggarTargetCount: 0,
     itemFlags: {},
@@ -102,7 +103,7 @@ export const useGameStore = defineStore('game', {
     hintMove: null, // { a: {row,col}, b: {row,col} }
 
     // Ending statistics (for will screen)
-    monsterHitCounts: {},   // { kind: totalHits }
+    monsterHitCounts: {}, // { kind: totalHits }
 
     // Ending personalisation
     giftText: ENDING.defaultGift,
@@ -156,7 +157,10 @@ export const useGameStore = defineStore('game', {
       return DAYS.length
     },
     effectiveMaxSteps(state) {
-      return Math.max(14, MAX_STEPS - state.maxStepPenalty + state.maxStepsBonus)
+      return Math.max(
+        14,
+        MAX_STEPS - state.maxStepPenalty + state.maxStepsBonus
+      )
     },
     ownedItemIds(state) {
       return state.ownedItems.map(item => item.id)
@@ -251,7 +255,10 @@ export const useGameStore = defineStore('game', {
       let bestKind = null
       let bestHits = 0
       for (const [kind, hits] of Object.entries(counts)) {
-        if (hits > bestHits) { bestKind = kind; bestHits = hits }
+        if (hits > bestHits) {
+          bestKind = kind
+          bestHits = hits
+        }
       }
       return bestKind ? { kind: bestKind, hits: bestHits } : null
     },
@@ -664,7 +671,7 @@ export const useGameStore = defineStore('game', {
     nextDay() {
       const achievements = useAchievementStore()
       this.currentDay++
-      this._maybeNegateNextDayPenalty()
+      this._applyXRayVision()
       const stepPenalty = this.nextDayStepPenalty
       this.nextDayStepPenalty = 0
       this.stepsLeft = Math.max(1, this.effectiveMaxSteps - stepPenalty)
@@ -938,7 +945,10 @@ export const useGameStore = defineStore('game', {
       // Apply immediate effects for certain items
       if (item.effect?.type === 'maxStepsBonus') {
         this.maxStepsBonus += item.effect.amount || 0
-        this.stepsLeft = Math.min(this.stepsLeft + (item.effect.amount || 0), this.effectiveMaxSteps)
+        this.stepsLeft = Math.min(
+          this.stepsLeft + (item.effect.amount || 0),
+          this.effectiveMaxSteps
+        )
       }
       if (item.effect?.type === 'clearTombstonesOnStart') {
         // Clear tombstones immediately when acquired, and will also clear on each day start
@@ -1120,19 +1130,21 @@ export const useGameStore = defineStore('game', {
     },
 
     /**
-     * 黑蜡烛 negateNextDayPenalty：在 nextDay 中、stepsLeft 被惩罚扣减之前调用。
-     * 直接把 nextDayStepPenalty 清零，由后续步数计算自然吃掉。
+     * X光透视 xRayVision：每天开始时，自动将不属于今日建筑所需的资源随机转为需求资源。
+     * 将 needsChars 存入 store，由 GameBoard 在 board 初始化完成后执行格子转换。
      */
-    _maybeNegateNextDayPenalty() {
-      if (this.nextDayStepPenalty <= 0) return
+    _applyXRayVision() {
       for (const item of this._ownedRewardItems()) {
-        if (item.effect?.type !== 'negateNextDayPenalty') continue
-        const negated = this.nextDayStepPenalty
-        this.nextDayStepPenalty = 0
+        if (item.effect?.type !== 'xRayVision') continue
+        const day = DAYS[this.currentDay]
+        this.xrayNeedsChars = day
+          ? Object.keys(day.needs)
+              .map(id => RESOURCE_BY_ID[id]?.char)
+              .filter(Boolean)
+          : []
         this._emitItemEffectTriggered(item, {
           trigger: 'dayStart',
-          stepsGained: negated,
-          summaryText: `黑蜡烛吞下今日的步数惩罚（-${negated}）`
+          summaryText: 'X光透视已将非需求资源转换为今日所需资源'
         })
         return
       }
@@ -1418,7 +1430,12 @@ export const useGameStore = defineStore('game', {
           const areaCols = effect.areaCols || 3
           const center = this._pickSweepCenter(matchGroups)
           if (center) {
-            const area = this._buildAreaCells(center.row, center.col, areaRows, areaCols)
+            const area = this._buildAreaCells(
+              center.row,
+              center.col,
+              areaRows,
+              areaCols
+            )
             if (area.length) {
               EventBus.trigger('itemCellsPop', [
                 { cells: area, variant: 'devil-area', itemId: item.id }
@@ -1548,7 +1565,9 @@ export const useGameStore = defineStore('game', {
     },
 
     _clearAllTombstones() {
-      const before = this.boardEntities.filter(e => e.kind === 'barrenGrave' && !e.removed).length
+      const before = this.boardEntities.filter(
+        e => e.kind === 'barrenGrave' && !e.removed
+      ).length
       if (before === 0) return
       for (const entity of this.boardEntities) {
         if (entity.kind === 'barrenGrave' && !entity.removed) {
@@ -1558,20 +1577,28 @@ export const useGameStore = defineStore('game', {
       }
       // Play wolf howl
       try {
-        const audio = new Audio('/狼叫.x-wav')
+        const audio = new Audio('/dog howell.x-wav')
         audio.volume = 0.6
         audio.play()
-      } catch (_) { /* audio may be blocked */ }
+      } catch (_) {
+        /* audio may be blocked */
+      }
     },
 
     _triggerDarkBeggarChaos() {
-      const item = this._ownedRewardItems().find(i => i.effect?.type === 'chaoticSabotage')
+      const item = this._ownedRewardItems().find(
+        i => i.effect?.type === 'chaoticSabotage'
+      )
       if (!item) return
 
       const effect = item.effect
       if (this.darkBeggarTargetCount === 0) {
         // Roll target count: 3-8
-        this.darkBeggarTargetCount = effect.minTriggers + Math.floor(Math.random() * (effect.maxTriggers - effect.minTriggers + 1))
+        this.darkBeggarTargetCount =
+          effect.minTriggers +
+          Math.floor(
+            Math.random() * (effect.maxTriggers - effect.minTriggers + 1)
+          )
         this.darkBeggarTriggerCount = 0
       }
 
@@ -1585,16 +1612,25 @@ export const useGameStore = defineStore('game', {
       if (!needEntries.length) return
 
       // Pick a random needed resource
-      const [needId] = needEntries[Math.floor(Math.random() * needEntries.length)]
+      const [needId] =
+        needEntries[Math.floor(Math.random() * needEntries.length)]
       const reduction = 3 + Math.floor(Math.random() * 6) // 3-8
-      this.progress[needId] = Math.max(0, (this.progress[needId] || 0) - reduction)
+      this.progress[needId] = Math.max(
+        0,
+        (this.progress[needId] || 0) - reduction
+      )
       EventBus.trigger('resourceBarUpdate')
 
       // Check if target count reached → grant pig energy
       if (this.darkBeggarTriggerCount >= this.darkBeggarTargetCount) {
-        const energyGain = effect.energyMin + Math.floor(Math.random() * (effect.energyMax - effect.energyMin + 1))
+        const energyGain =
+          effect.energyMin +
+          Math.floor(Math.random() * (effect.energyMax - effect.energyMin + 1))
         const beforeEnergy = this.pigEnergy
-        this.pigEnergy = Math.min(PIG_RATING.energyMax, this.pigEnergy + energyGain)
+        this.pigEnergy = Math.min(
+          PIG_RATING.energyMax,
+          this.pigEnergy + energyGain
+        )
         this._emitItemEffectTriggered(item, {
           trigger: 'resourceGain',
           pigEnergyGained: Math.max(0, this.pigEnergy - beforeEnergy),
@@ -2072,7 +2108,8 @@ export const useGameStore = defineStore('game', {
           if (!hit) continue
           monster.lastDamagedTurn = this.turnId
           monster.hitsTaken = (monster.hitsTaken || 0) + 1
-          this.monsterHitCounts[monster.kind] = (this.monsterHitCounts[monster.kind] || 0) + 1
+          this.monsterHitCounts[monster.kind] =
+            (this.monsterHitCounts[monster.kind] || 0) + 1
           if (monster.hitsTaken >= monster.hitsRequired) {
             monster.removed = true
             removed.push(monster)
@@ -2091,7 +2128,8 @@ export const useGameStore = defineStore('game', {
           if (!hit) continue
           entity.lastDamagedTurn = this.turnId
           entity.hitsTaken = (entity.hitsTaken || 0) + 1
-          this.monsterHitCounts[entity.kind] = (this.monsterHitCounts[entity.kind] || 0) + 1
+          this.monsterHitCounts[entity.kind] =
+            (this.monsterHitCounts[entity.kind] || 0) + 1
           if (entity.hitsTaken >= entity.hitsRequired) {
             entity.removed = true
             audioManager.playSFX('seal_break', { vol: 0.7 })

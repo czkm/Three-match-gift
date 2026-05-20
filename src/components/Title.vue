@@ -55,7 +55,7 @@
       </button>
 
       <div class="intercept-shell" :class="{ visible: showIntercept }" @click="onInterceptClick">
-        <p class="speaker">杰洛特</p>
+        <p class="speaker">白鸦</p>
         <p class="intercept-line">
           {{ interceptDisplay }}
           <span v-if="showInterceptCursor" class="cursor">▍</span>

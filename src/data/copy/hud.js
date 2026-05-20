@@ -7,12 +7,12 @@ export const HUD_COPY = {
     rewardItem: '道具情报',
     monster: '棋盘情报',
     narration: '今日场景',
-    geralt: '杰洛特',
+    geralt: '小猪',
     system: '系统提示',
     hint: '旅途提示'
   },
   messageTitles: {
-    bark: '临场自语',
+    bark: '小猪的话',
     targeting: '当前指令',
     hint: '今日建议',
     djinnFallback: '迪精',

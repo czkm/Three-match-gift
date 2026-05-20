@@ -303,6 +303,12 @@
           class="combo-flash"
         />
       </transition>
+
+      <!-- X-Ray scan overlay -->
+      <div v-if="xrayScanning" class="xray-overlay">
+        <div class="xray-scan-line" />
+        <div class="xray-glow" />
+      </div>
     </div>
 
     <div v-if="targeting" class="targeting-hint">
@@ -334,6 +340,7 @@ import {
   MONSTERS,
   RESOURCE_BY_ID,
   RESOURCE_BY_CHAR,
+  RESOURCE_CHARS,
   ROT_CHAR,
   unlockedCharsForDay
 } from '@/data/content'
@@ -394,6 +401,8 @@ let milkTeaPulseTimer = null
 let milkTeaResolveTimer = null
 let djinnTransitionTimer = null
 let djinnTransitionSettleTimer = null
+const xrayScanning = ref(false)
+let xrayScanTimer = null
 let pigPenaltyShakeTimer = null
 
 const rowsCount = computed(() => ROWS)
@@ -741,18 +750,13 @@ function cancelTarget() {
   game.cancelTarget()
 }
 
-function onMonsterHoverEnter({ kind, entityId }) {
-  if (!kind) return
-  game.showMonsterInfo(kind, entityId, 'hover')
+function onMonsterHoverEnter({ kind }) {
+  // Only visual hover effect — no info popup
+  void kind
 }
 
-function onMonsterHoverLeave({ entityId }) {
-  if (
-    game.inspectedMonster?.source === 'hover' &&
-    (!entityId || game.inspectedMonster.entityId === entityId)
-  ) {
-    game.clearMonsterInfo('hover')
-  }
+function onMonsterHoverLeave() {
+  // Handled by CSS hover — no info to clear
 }
 
 function onMonsterInspect({ kind, entityId }) {
@@ -905,6 +909,7 @@ onMounted(() => {
   EventBus.bind('itemLineSweep', onItemLineSweep)
   EventBus.bind('itemCellsPop', onItemCellsPop)
   EventBus.bind('itemResourceBalance', onItemResourceBalance)
+  EventBus.bind('xrayScan', onXrayScan)
   board.value.fill()
   bumpIdle()
 })
@@ -918,6 +923,7 @@ onBeforeUnmount(() => {
   EventBus.unbind('itemLineSweep', onItemLineSweep)
   EventBus.unbind('itemCellsPop', onItemCellsPop)
   EventBus.unbind('itemResourceBalance', onItemResourceBalance)
+  EventBus.unbind('xrayScan', onXrayScan)
   for (const timer of boardSyncTimers) clearTimeout(timer)
   if (comboPraiseTimer) clearTimeout(comboPraiseTimer)
   if (awakeningTimer) clearTimeout(awakeningTimer)
@@ -929,6 +935,7 @@ onBeforeUnmount(() => {
   if (pigPenaltyShakeTimer) clearTimeout(pigPenaltyShakeTimer)
   if (djinnTransitionTimer) clearTimeout(djinnTransitionTimer)
   if (djinnTransitionSettleTimer) clearTimeout(djinnTransitionSettleTimer)
+  if (xrayScanTimer) clearTimeout(xrayScanTimer)
   if (_idleTimer) clearTimeout(_idleTimer)
   resetBoard()
 })
@@ -945,9 +952,21 @@ watch(
       _unlockedSnapshot.value = fresh
       // Wait until the board is idle, then sweep + refill so the new
       // resource lands gently amongst the old ones.
+      // Full refresh cycle: CLEAR_RETURN + FILL + SWAP_RETURN
+      const fillCycleMs =
+        TIMING.CLEAR_RETURN_MS +
+        (ROWS + COLS) * TIMING.FILL_DELAY_MS +
+        TIMING.SWAP_RETURN_MS +
+        200
       setTimeout(() => {
         if (board.value && board.value.canMove()) {
           board.value.refreshBoard('newDay')
+        }
+        // After the fill animation fully settles, run xray if needed
+        if (game.xrayNeedsChars?.length) {
+          setTimeout(() => {
+            onXrayScan({ needsChars: game.xrayNeedsChars })
+          }, fillCycleMs)
         }
       }, 80)
     }
@@ -2262,6 +2281,90 @@ function stopDjinnTransitionFx() {
   transitionShards.value = []
   transitionFlares.value = []
   transitionRings.value = []
+}
+
+/* ---------- X-Ray Vision scan ---------- */
+
+function onXrayScan(payload = {}) {
+  if (!board.value) return
+  const needsChars = payload.needsChars || []
+  if (!needsChars.length) return
+
+  audioManager.playSFX('xray', { vol: 0.7 })
+  xrayScanning.value = true
+
+  // Build reverse type→char map for resource tiles only
+  const resourceTypeToChar = {}
+  for (const ch of RESOURCE_CHARS) {
+    resourceTypeToChar[charMap[ch]] = ch
+  }
+  const needsSet = new Set(needsChars)
+
+  // Build a lookup of tiles by position so we can update them in-place
+  const tileByPos = {}
+  for (const tile of tiles.value) {
+    if (!tile.pooled && !tile.hidden) {
+      tileByPos[`${tile.row}:${tile.col}`] = tile
+    }
+  }
+
+  // Convert tiles that are NOT in today's building needs
+  // into random tiles from today's needs — both in tileString and in-place.
+  let converted = 0
+  const convertedTiles = []
+  for (let col = 0; col < COLS; col++) {
+    for (let row = 0; row < ROWS; row++) {
+      const idx = board.value.getIndex(row, col)
+      const ch = board.value.tileString.charAt(idx)
+      if (ch === HOLE) continue
+      const type = charMap[ch]
+      if (!type) continue
+      const resourceCh = resourceTypeToChar[type]
+      if (!resourceCh) continue // monster or rot — leave alone
+      if (!needsSet.has(resourceCh)) {
+        const newCh = needsChars[Math.floor(Math.random() * needsChars.length)]
+        const newType = charMap[newCh]
+        board.value.setTile(row, col, newCh)
+        // Update the visual tile in-place — no clear+fill needed
+        const tile = tileByPos[`${row}:${col}`]
+        if (tile) {
+          tile.type = newType
+        }
+        convertedTiles.push(tile)
+        converted++
+      }
+    }
+  }
+
+  // Flash converted tiles after the scan line passes
+  setTimeout(() => {
+    for (const tile of convertedTiles) {
+      if (tile) tile.xrayFlash = true
+    }
+    setTimeout(() => {
+      for (const tile of convertedTiles) {
+        if (tile) tile.xrayFlash = false
+      }
+    }, 450)
+  }, 600)
+
+  // Let the board check for any matches that may have formed from the conversion.
+  // This handles collapsing + refilling naturally via the standard match-3 pipeline.
+  if (converted > 0) {
+    setTimeout(() => {
+      if (board.value && board.value.canMove()) {
+        board.value.checkMatches()
+      }
+    }, 800)
+  }
+
+  // Clean up the scan overlay
+  if (xrayScanTimer) clearTimeout(xrayScanTimer)
+  xrayScanTimer = setTimeout(() => {
+    xrayScanning.value = false
+    xrayScanTimer = null
+    game.xrayNeedsChars = null
+  }, 1600)
 }
 </script>
 
@@ -4074,5 +4177,82 @@ function stopDjinnTransitionFx() {
 .cancel-btn:active {
   transform: translateY(2px);
   box-shadow: 0 1px 0 0 #d4c9b4;
+}
+
+/* ───── X-Ray scan overlay ───── */
+.xray-overlay {
+  position: absolute;
+  inset: 10px;
+  pointer-events: none;
+  z-index: 20;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.xray-scan-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(72, 176, 255, 0.24) 15%,
+    rgba(132, 212, 255, 0.65) 48%,
+    rgba(132, 212, 255, 0.8) 50%,
+    rgba(132, 212, 255, 0.65) 52%,
+    rgba(72, 176, 255, 0.24) 85%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 18px rgba(72, 176, 255, 0.55),
+    0 0 42px rgba(108, 200, 255, 0.28),
+    0 1px 0 rgba(180, 230, 255, 0.5);
+  animation: xray-scan-sweep 1.2s cubic-bezier(0.25, 0.1, 0.1, 1) forwards;
+  filter: blur(0.5px);
+}
+
+.xray-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(72, 160, 255, 0.14) 0%,
+    rgba(40, 120, 220, 0.06) 40%,
+    transparent 70%
+  );
+  animation: xray-glow-fade 1.6s ease-out forwards;
+}
+
+@keyframes xray-scan-sweep {
+  0% {
+    top: -6px;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    top: calc(100% + 6px);
+    opacity: 0;
+  }
+}
+
+@keyframes xray-glow-fade {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="day-header">
     <div class="left">
-      <span class="brand">Corvo Bianco · 白鸦葡萄园</span>
+      <!-- <span class="brand">Corvo Bianco · 白鸦葡萄园</span> -->
       <span class="ink-subtle">
         第 {{ game.currentDay + 1 }} 天 / {{ game.dayCount }}
       </span>
@@ -23,13 +23,30 @@
         <span class="cost-text">{{ game.activePenaltySummary.text }}</span>
       </span>
       <span class="steps">
-        <template v-if="game.phase === 'awakening' || game.phase === 'djinnTransition' || game.djinnReady || game.djinnCeremonyActive">
+        <template
+          v-if="
+            game.phase === 'awakening' ||
+            game.phase === 'djinnTransition' ||
+            game.djinnReady ||
+            game.djinnCeremonyActive
+          "
+        >
           <span class="ink-subtle">仪式中</span>
           <span class="step-value ritual">{{ game.stepsLeft }} / ∞</span>
         </template>
         <template v-else>
-          <span class="ink-subtle" :class="{ revived: zeroStepRecoveryFlash }">步数</span>
-          <span class="step-value" :class="{ low: game.stepsLeft <= 5, penalized: penaltyFlash, boosted: stepBoostFlash, revived: zeroStepRecoveryFlash }">
+          <span class="ink-subtle" :class="{ revived: zeroStepRecoveryFlash }">
+            步数
+          </span>
+          <span
+            class="step-value"
+            :class="{
+              low: game.stepsLeft <= 5,
+              penalized: penaltyFlash,
+              boosted: stepBoostFlash,
+              revived: zeroStepRecoveryFlash
+            }"
+          >
             <span v-if="batteryFlash" class="battery-icon">⚡️</span>
             {{ game.stepsLeft }} / {{ game.effectiveMaxSteps }}
           </span>
@@ -176,7 +193,7 @@ onBeforeUnmount(() => {
 }
 .building .emoji {
   font-size: 22px;
-  filter: drop-shadow(0 1px 2px rgba(114, 93, 66, 0.10));
+  filter: drop-shadow(0 1px 2px rgba(114, 93, 66, 0.1));
 }
 .steps {
   display: flex;
@@ -254,7 +271,7 @@ onBeforeUnmount(() => {
 
 .step-value.low {
   color: #e05a5a;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.1em;
   text-shadow: 0 0 8px rgba(224, 90, 90, 0.22);
   animation: pulse-low-steps 1.4s infinite ease-in-out;
 }
@@ -265,7 +282,7 @@ onBeforeUnmount(() => {
 }
 
 .step-value.boosted {
-  color: #50B9AB;
+  color: #50b9ab;
   animation: step-boost-flash 900ms ease-out;
 }
 
@@ -291,14 +308,27 @@ onBeforeUnmount(() => {
 }
 
 @keyframes battery-pop {
-  0%   { transform: scale(0); opacity: 0; }
-  18%  { transform: scale(1.4); opacity: 1; }
-  35%  { transform: scale(0.95); opacity: 1; }
-  100% { transform: scale(1); opacity: 0; }
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  18% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
+  35% {
+    transform: scale(0.95);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
 }
 
 @keyframes pulse-low-steps {
-  0%, 100% {
+  0%,
+  100% {
     letter-spacing: 0.06em;
     text-shadow: 0 0 0 rgba(224, 90, 90, 0);
     font-weight: 700;
@@ -317,7 +347,7 @@ onBeforeUnmount(() => {
   }
   22% {
     letter-spacing: 0.14em;
-    text-shadow: 0 0 18px rgba(201, 68, 68, 0.50);
+    text-shadow: 0 0 18px rgba(201, 68, 68, 0.5);
   }
   100% {
     letter-spacing: 0.06em;
@@ -352,7 +382,7 @@ onBeforeUnmount(() => {
     font-weight: 900;
   }
   38% {
-    letter-spacing: 0.10em;
+    letter-spacing: 0.1em;
     text-shadow: 0 0 14px rgba(200, 126, 22, 0.36);
     font-weight: 800;
   }

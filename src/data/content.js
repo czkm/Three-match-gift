@@ -422,22 +422,22 @@ export const REWARD_ITEMS = {
     penaltyText: '明天初始步数 -5。',
     reaction: '黑色裂口张开，小猪自觉地往后退了一步。'
   },
-  blackCandle: {
-    id: 'blackCandle',
+  xRayVision: {
+    id: 'xRayVision',
     roomType: 'devil',
-    name: '黑蜡烛',
-    enName: 'Black Candle',
-    titleText: '黑蜡烛',
-    flavorText: '“火焰是黑的，代价也吞得下。”',
+    name: 'X光透视',
+    enName: 'X-Ray Vision',
+    titleText: 'X光透视',
+    flavorText: '“我已看清一切。”',
     quality: 4,
-    emoji: '🕯️',
+    emoji: '👁️',
     slot: 'back',
     tone: 'devil',
-    description: '每天开始时，清零所有「明日步数惩罚」。',
-    effect: { type: 'negateNextDayPenalty' },
+    description: '每天开始时，自动将非建筑需求的资源随机转为需求资源。',
+    effect: { type: 'xRayVision' },
     penalty: { type: 'maxSteps', value: 1 },
-    penaltyText: '永久步数上限 -1（黑蜡烛抵不了永久代价）。',
-    reaction: '黑蜡烛没有风也在晃，小猪向它鞠了一个非常小的躬。'
+    penaltyText: '永久步数上限 -1（看见真相是有代价的）。',
+    reaction: '小猪看着棋盘上不属于今天的资源被一扫而空，满意地点了点头。'
   }
 }
 
@@ -449,11 +449,11 @@ export const DAYS = [
     needs: { grape: 25, wood: 20, stone: 15 },
     ability: 'whiteWolfTidy',
     intro: `庭院里的杂草快长到腰了。石路断了几截，喷泉里只有泥和落叶。
-杰洛特站了一会儿，叹了口气。
-"行吧。至少没有水鬼。"`,
+小猪站在喷泉边，用蹄子戳了戳干涸的池底。
+"哼哼。至少要先把水引来。"`,
     completed:
       '石路重新露了出来，喷泉边的藤蔓被修剪整齐。一只白鸦落在旧门柱上，看了他一眼，又飞走了。',
-    monologue: '"草长得比食尸鬼还快。先收拾这里，至少……像个人住的地方。"',
+    monologue: '"先从这里开始吧。庭院是庄园的脸面。"',
     completedBanner: '庭院重新露出了石路。'
   },
   {
@@ -463,10 +463,10 @@ export const DAYS = [
     ability: 'toussentHarvest',
     intro: `葡萄藤还活着。
 它们只是被荒草压弯，被风雨忘在了这里。
-杰洛特扶起一根藤架，手掌上沾了些泥。`,
+小猪小心翼翼地扶起一根藤架，泥巴沾满了蹄子。`,
     completed:
       '藤架重新立起，嫩叶在风里发亮。远处的陶森特丘陵像一杯浅金色的酒。',
-    monologue: '"等得到。葡萄藤比人活得长。"',
+    monologue: '"这些藤比我爷爷还老。等它们结果，庄园就有自己的酒了。"',
     completedBanner: '葡萄藤重新爬上了藤架。'
   },
   {
@@ -476,10 +476,10 @@ export const DAYS = [
     ability: 'agedBarrel',
     intro: `酒窖里有灰尘、蜘蛛网和几只裂开的旧木桶。
 也有几瓶奇迹般活下来的酒。
-杰洛特拔开木塞，闻了闻。`,
+小猪闻了闻木塞，打了个喷嚏。`,
     completed:
       '石墙被重新加固，木桶排成整齐的一列。最深处的架子上，留出了一瓶酒的位置。',
-    monologue: '"还行。留一瓶。她会说酸，但她会喝。"',
+    monologue: '"这一瓶不错。存起来，等特别的日子再开。"',
     completedBanner: '酒窖里重新有了木桶和灯火。'
   },
   {
@@ -489,10 +489,10 @@ export const DAYS = [
     ability: 'roachPath',
     intro: `马厩的门歪着，屋顶漏了半边。
 萝卜站在门口，像是在审查工程质量。
-杰洛特看着它。它也看着杰洛特。`,
+小猪看着它。它也看着小猪。`,
     completed:
-      '新木梁撑起屋顶，干草铺得厚而暖。萝卜走进去，打了个响鼻，似乎勉强认可。',
-    monologue: '"行了。你也有顶棚了。别再把头从窗户伸进来。"',
+      '新木梁撑起屋顶，干草铺得厚而暖。萝卜走进去，打了个响鼻，满意地转了个圈。',
+    monologue: '"修好了，萝卜！以后下雨可别再乱跑了。"',
     completedBanner: '马厩里又有了干草和顶棚。'
   },
   {
@@ -501,10 +501,10 @@ export const DAYS = [
     needs: { herb: 50, grape: 35 },
     ability: 'lilacReturn',
     intro: `花坛荒了很久。泥土里还有旧时的根。
-杰洛特蹲下，翻出一小截枯枝，闻到一点几乎消失的香气。
+小猪翻出一小截枯枝，闻到一点几乎消失的香气。
 丁香。还有醋栗。`,
     completed: '花园重新有了边界。草药、白花和紫色丁香沿着小径慢慢铺开。',
-    monologue: '"她会说我种得死板。然后亲手拔了重来。"',
+    monologue: '"丁香和醋栗的香气……像昨天做过的梦。"',
     completedBanner: '花园里又开了丁香。'
   },
   {
@@ -526,10 +526,10 @@ export const DAYS = [
     ability: 'toussentSunset',
     intro: `露台朝着夕阳。
 地砖松动，栏杆生锈，但视野很好。
-杰洛特站在这里，沉默了很久。`,
+小猪站在这里，看了很久很久。`,
     completed:
-      '露台铺上新石板，栏杆擦出暗金色的光。一张小圆桌旁，只先放了一把椅子。',
-    monologue: '"先放一把。两把的话……太像在等了。"',
+      '露台铺上新石板，栏杆擦出暗金色的光。一张小圆桌旁，放了一把椅子，面朝落日。',
+    monologue: '"先放一把椅子。等有人来了，再加一把。"',
     completedBanner: '露台等到了夕阳。'
   },
   {
@@ -539,9 +539,9 @@ export const DAYS = [
     ability: 'lilacSeed',
     intro: `厨房的炉子还能用，只是积了太多灰。
 锅挂在墙上，像一面沉默的盾。
-杰洛特想了想，也许炖汤不算太难。`,
+小猪想了想，炖汤应该不算太难。`,
     completed: '炉火重新亮起。木桌擦干净，架子上放着酒、面包和几束草药。',
-    monologue: '"做饭不是我的专长。但炖汤，应该死不了人。"',
+    monologue: '"炖汤嘛，只要不烧糊就行。加点草药，暖暖的。"',
     completedBanner: '厨房里又升起了炉火。'
   },
   {
@@ -556,11 +556,11 @@ export const DAYS = [
     ability: 'hearthStew',
     intro: `最后一间房朝向花园。
 早晨有阳光，傍晚能闻到丁香。
-杰洛特把旧床板拆掉，换上新的木架。`,
+小猪把旧床板拆掉，换上新的木架。`,
     completed:
-      '房间安静下来。窗边有书桌，床边有两只枕头，花瓶里插着紫丁香。风吹进来，窗帘轻轻动了一下。',
-    monologue: '"床别太硬。枕头放两个。她说不会在意，但她会。"',
-    completedBanner: '紫丁香客房，已为她准备好。',
+      '房间安静下来。窗边有书桌，床边有两只枕头，花瓶里插着紫丁香。风从花园吹进来，带着甜甜的香气。',
+    monologue: '"枕头放两个。床要软一点。客人会喜欢的。"',
+    completedBanner: '紫丁香客房收拾好了。窗帘在风里轻轻摆动。',
     ending: true
   }
 ]
@@ -1367,7 +1367,7 @@ export const ENDING = {
       id: 'suite',
       title: '紫丁香客房',
       lines: [
-        '紫丁香客房，已为她准备好。',
+        '紫丁香客房收拾好了。窗帘在风里轻轻摆动。',
         '风从半开的窗里吹进来，窗帘轻轻动了一下。'
       ]
     },
@@ -1423,7 +1423,7 @@ export const ENDING = {
     farewellLine: '谢谢你，Corvo Bianco',
     goodbyeLine: 'X O X O',
   },
-  interceptLine: '哦，我想起来了。你不是小云吗？还在选什么，我帮你填下去就行。',
+  interceptLine: '等一下。你填的这个名字不太对，让我帮你改改。',
   giftPresets: [
     { id: 'friend', label: '朋友', text: '朋友' },
     { id: 'lover', label: '恋人', text: '恋人' },

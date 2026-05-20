@@ -154,15 +154,15 @@ export const ISAAC_ITEMS = {
     sprite: null,
     rewardItemIds: ['mawOfTheVoid']
   },
-  blackCandle: {
-    key: 'blackCandle',
+  xRayVision: {
+    key: 'xRayVision',
     collectibleId: 260,
-    cnName: '黑蜡烛',
-    enName: 'Black Candle',
+    cnName: 'X光透视',
+    enName: 'X-Ray Vision',
     wikiUrl: 'https://isaac.huijiwiki.com/wiki/C260',
-    summary: '每日开始时清零「明日步数惩罚」。',
+    summary: '每天开始时，将非建筑需求的资源随机转为需求资源。',
     sprite: null,
-    rewardItemIds: ['blackCandle']
+    rewardItemIds: ['xRayVision']
   }
 };
 

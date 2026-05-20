@@ -8,7 +8,6 @@
       :aria-disabled="!interactive"
       role="button"
       aria-label="宠物猪"
-      @mouseenter="handleInspect"
       @click="handleInspect"
       @keydown.enter.prevent="handleInspect"
       @keydown.space.prevent="handleInspect"
@@ -91,14 +90,15 @@ const maxIndex = computed(() => {
   return idx
 })
 
-const pigGlyph = computed(() =>
-  state.value === 'walking' ? '🐖' : '🐷'
-)
+const pigGlyph = computed(() => (state.value === 'walking' ? '🐖' : '🐷'))
 const moodGlyph = computed(() => props.mood || '')
 const visibleTrinkets = computed(() =>
   [...(props.trinkets || [])]
     .filter(item => item?.emoji)
-    .sort((a, b) => (b.quality || 0) - (a.quality || 0) || (a.day || 0) - (b.day || 0))
+    .sort(
+      (a, b) =>
+        (b.quality || 0) - (a.quality || 0) || (a.day || 0) - (b.day || 0)
+    )
     .slice(0, 8)
     .map((item, index) => ({
       id: item.id,
@@ -332,7 +332,9 @@ onBeforeUnmount(() => {
     rgba(62, 38, 20, 0.04) 72%,
     transparent 100%
   );
-  transition: width 180ms ease, opacity 180ms ease;
+  transition:
+    width 180ms ease,
+    opacity 180ms ease;
 }
 
 .pig-sprite {
@@ -348,8 +350,7 @@ onBeforeUnmount(() => {
   line-height: 1;
   opacity: 0.98;
   transform: translateX(-50%) scaleX(var(--pig-facing));
-  filter:
-    drop-shadow(0 2px 4px rgba(56, 34, 20, 0.36))
+  filter: drop-shadow(0 2px 4px rgba(56, 34, 20, 0.36))
     drop-shadow(0 0 6px rgba(255, 245, 214, 0.2));
 }
 
@@ -359,8 +360,7 @@ onBeforeUnmount(() => {
 }
 
 .pig-anchor.active .pig-glyph {
-  filter:
-    drop-shadow(0 2px 4px rgba(56, 34, 20, 0.34))
+  filter: drop-shadow(0 2px 4px rgba(56, 34, 20, 0.34))
     drop-shadow(0 0 10px rgba(255, 230, 170, 0.2));
 }
 
@@ -376,16 +376,14 @@ onBeforeUnmount(() => {
   line-height: 1;
   cursor: pointer;
   transform: translate(var(--tx), var(--ty)) rotate(var(--rot));
-  filter:
-    drop-shadow(0 1px 2px rgba(30, 18, 12, 0.32))
+  filter: drop-shadow(0 1px 2px rgba(30, 18, 12, 0.32))
     drop-shadow(0 0 5px rgba(255, 245, 214, 0.18));
   animation: pig-trinket-bob 2.4s ease-in-out infinite;
 }
 
 .pig-trinket:hover,
 .pig-trinket:focus-visible {
-  filter:
-    drop-shadow(0 1px 2px rgba(30, 18, 12, 0.32))
+  filter: drop-shadow(0 1px 2px rgba(30, 18, 12, 0.32))
     drop-shadow(0 0 8px rgba(255, 224, 160, 0.36));
 }
 
@@ -403,25 +401,63 @@ onBeforeUnmount(() => {
   border-radius: 999px;
 }
 
-.pig-trinket.trinket-0 { --tx: -34px; --ty: -2px; --rot: -10deg; animation-delay: 0ms; }
-.pig-trinket.trinket-1 { --tx: 20px; --ty: -5px; --rot: 8deg; animation-delay: 120ms; }
-.pig-trinket.trinket-2 { --tx: -22px; --ty: -22px; --rot: 12deg; animation-delay: 240ms; }
-.pig-trinket.trinket-3 { --tx: 8px; --ty: -25px; --rot: -8deg; animation-delay: 360ms; }
-.pig-trinket.trinket-4 { --tx: -42px; --ty: 10px; --rot: 6deg; animation-delay: 480ms; }
-.pig-trinket.trinket-5 { --tx: 30px; --ty: 8px; --rot: -6deg; animation-delay: 600ms; }
-.pig-trinket.trinket-6 { --tx: -8px; --ty: -34px; --rot: 4deg; animation-delay: 720ms; }
-.pig-trinket.trinket-7 { --tx: 40px; --ty: -16px; --rot: -12deg; animation-delay: 840ms; }
+.pig-trinket.trinket-0 {
+  --tx: -34px;
+  --ty: -2px;
+  --rot: -10deg;
+  animation-delay: 0ms;
+}
+.pig-trinket.trinket-1 {
+  --tx: 20px;
+  --ty: -5px;
+  --rot: 8deg;
+  animation-delay: 120ms;
+}
+.pig-trinket.trinket-2 {
+  --tx: -22px;
+  --ty: -22px;
+  --rot: 12deg;
+  animation-delay: 240ms;
+}
+.pig-trinket.trinket-3 {
+  --tx: 8px;
+  --ty: -25px;
+  --rot: -8deg;
+  animation-delay: 360ms;
+}
+.pig-trinket.trinket-4 {
+  --tx: -42px;
+  --ty: 10px;
+  --rot: 6deg;
+  animation-delay: 480ms;
+}
+.pig-trinket.trinket-5 {
+  --tx: 30px;
+  --ty: 8px;
+  --rot: -6deg;
+  animation-delay: 600ms;
+}
+.pig-trinket.trinket-6 {
+  --tx: -8px;
+  --ty: -34px;
+  --rot: 4deg;
+  animation-delay: 720ms;
+}
+.pig-trinket.trinket-7 {
+  --tx: 40px;
+  --ty: -16px;
+  --rot: -12deg;
+  animation-delay: 840ms;
+}
 
 .pig-trinket.quality-3 {
-  filter:
-    drop-shadow(0 1px 2px rgba(30, 18, 12, 0.32))
+  filter: drop-shadow(0 1px 2px rgba(30, 18, 12, 0.32))
     drop-shadow(0 0 10px rgba(184, 130, 255, 0.52));
 }
 
 .pig-trinket.quality-4 {
   font-size: 16px;
-  filter:
-    drop-shadow(0 1px 2px rgba(30, 18, 12, 0.32))
+  filter: drop-shadow(0 1px 2px rgba(30, 18, 12, 0.32))
     drop-shadow(0 0 14px rgba(255, 98, 70, 0.68))
     drop-shadow(0 0 24px rgba(255, 190, 112, 0.2));
   animation: pig-trinket-legendary 1.9s ease-in-out infinite;
@@ -507,11 +543,13 @@ onBeforeUnmount(() => {
 }
 
 @keyframes pig-trinket-legendary {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(1);
   }
   50% {
-    transform: translate(var(--tx), calc(var(--ty) - 3px)) rotate(var(--rot)) scale(1.1);
+    transform: translate(var(--tx), calc(var(--ty) - 3px)) rotate(var(--rot))
+      scale(1.1);
   }
 }
 

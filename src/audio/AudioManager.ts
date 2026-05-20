@@ -49,7 +49,8 @@ const SFX_THROTTLE: Record<string, SFXThrottlePolicy> = {
   ability_roach: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
   ability_sunset: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
   decoction: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
-  lilac: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 }
+  lilac: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
+  xray: { sameMs: 600, group: 'ritual', groupMs: 300, priority: 3 }
 };
 
 function clamp(value: number, min: number, max: number) {

@@ -9,7 +9,8 @@
       struck: showHitFx,
       'preview-good': preview === 'good',
       'preview-bad':  preview === 'bad',
-      'invalid':      invalid
+      'invalid':      invalid,
+      xrayFlash: tile.xrayFlash
     }]"
     :data-entity-id="monster ? monster.id : undefined"
     :data-entity-kind="monster ? monster.kind : undefined"
@@ -193,6 +194,33 @@ onBeforeUnmount(() => {
   0%   { filter: brightness(1); }
   45%  { filter: brightness(1.18); }
   100% { filter: brightness(1); }
+}
+
+/* X-Ray scan tile flash */
+.tile.xrayFlash {
+  animation: xray-tile-pulse 450ms ease-out forwards;
+}
+
+.tile.xrayFlash .glyph {
+  filter: drop-shadow(0 0 8px rgba(72, 176, 255, 0.7)) brightness(1.3);
+}
+
+@keyframes xray-tile-pulse {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(72, 176, 255, 0.5),
+      inset 0 0 0 0 rgba(72, 176, 255, 0.18);
+  }
+  50% {
+    box-shadow:
+      0 0 0 4px rgba(72, 176, 255, 0.32),
+      inset 0 0 16px rgba(72, 176, 255, 0.14);
+  }
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(72, 176, 255, 0),
+      inset 0 0 0 0 rgba(72, 176, 255, 0);
+  }
 }
 
 </style>
