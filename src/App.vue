@@ -32,26 +32,10 @@
 
   <!-- Main app (after loading) -->
   <template v-else>
-    <Title v-if="game.phase === 'title'" @start="onStart" />
-    <GameContainer
-      v-else-if="
-        [
-          'intro',
-          'playing',
-          'targeting',
-          'dayEnd',
-          'repairing',
-          'rewardChoice',
-          'awakening',
-          'djinnTransition',
-          'wish'
-        ].includes(game.phase)
-      "
-    />
-    <Ending
-      v-else-if="['ending', 'final'].includes(game.phase)"
-      @restart="onRestart"
-    />
+    <Title v-if="game.phase === 'title' && !showTutorial" @start="onStart" />
+    <TutorialOverlay v-else-if="showTutorial" @done="onTutorialDone" />
+    <GameContainer v-else-if="isGamePhase" />
+    <Ending v-else-if="isEndingPhase" @restart="onRestart" />
   </template>
   <transition name="tester-toast">
     <p v-if="testerToast" class="tester-toast parchment grain">
@@ -164,6 +148,7 @@ import AudioControls from './components/HUD/AudioControls.vue'
 import AchievementPanel from './components/HUD/AchievementPanel.vue'
 import AchievementToastStack from './components/HUD/AchievementToastStack.vue'
 import LoadingScreen from './components/LoadingScreen.vue'
+import TutorialOverlay from './components/TutorialOverlay.vue'
 import Title from './components/Title.vue'
 import GameContainer from './components/GameContainer.vue'
 import Ending from './components/Ending.vue'
@@ -177,8 +162,14 @@ const game = useGameStore()
 useAudio()
 const testerToast = ref('')
 const showTesterPanel = ref(false)
+const showTutorial = ref(false)
 const selectedItemIds = ref([])
 const allRewardItems = Object.values(REWARD_ITEMS)
+
+const GAME_PHASES = ['intro', 'playing', 'targeting', 'dayEnd', 'repairing', 'rewardChoice', 'awakening', 'djinnTransition', 'wish']
+const ENDING_PHASES = ['ending', 'final']
+const isGamePhase = computed(() => GAME_PHASES.includes(game.phase))
+const isEndingPhase = computed(() => ENDING_PHASES.includes(game.phase))
 const treasureItems = computed(() =>
   allRewardItems.filter(item => item.roomType === 'treasure')
 )
@@ -194,7 +185,14 @@ let jumpChordTimer = null
 const jumpChordActive = ref(false)
 
 function onStart() {
-  // Title has already called game.start() — fire-and-forget.
+  if (!game.tutorialSeen) {
+    showTutorial.value = true
+  }
+}
+
+function onTutorialDone() {
+  game.markTutorialSeen()
+  showTutorial.value = false
 }
 
 function onRestart() {
@@ -355,6 +353,7 @@ watchEffect(() => {
 onMounted(async () => {
   if (typeof document === 'undefined') return
   achievement.init()
+  game.initTutorial()
   document.body.dataset.day = '1'
   document.body.dataset.phase = 'title'
   window.addEventListener('keydown', onTesterKeydown)

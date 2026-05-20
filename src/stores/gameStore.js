@@ -146,7 +146,11 @@ export const useGameStore = defineStore('game', {
     djinnPendingResolve: false,
     djinnCardNonce: 0,
     djinnRepairCommitted: false,
-    djinnTransition: null
+    djinnTransition: null,
+
+    // Tutorial
+    tutorialSeen: false,
+    tutorialInitialized: false
   }),
 
   getters: {
@@ -2891,6 +2895,36 @@ export const useGameStore = defineStore('game', {
         if (ab && ab.type === 'active') map[id] = ab.usesPerDay
       }
       this.abilityUses = map
+    },
+
+    /* ---------- tutorial ---------- */
+
+    initTutorial() {
+      if (this.tutorialInitialized) return
+      this.tutorialInitialized = true
+      if (typeof window === 'undefined') return
+      try {
+        const raw = window.localStorage.getItem('corvo-bianco.tutorial.v1')
+        if (!raw) return
+        const parsed = JSON.parse(raw)
+        if (!parsed || parsed.version !== 1) return
+        this.tutorialSeen = parsed.tutorialSeen === true
+      } catch (e) {
+        console.warn('[tutorial] failed to load:', e)
+      }
+    },
+
+    markTutorialSeen() {
+      this.tutorialSeen = true
+      if (typeof window === 'undefined') return
+      try {
+        window.localStorage.setItem(
+          'corvo-bianco.tutorial.v1',
+          JSON.stringify({ version: 1, tutorialSeen: true })
+        )
+      } catch (e) {
+        console.warn('[tutorial] failed to persist:', e)
+      }
     }
   }
 })
