@@ -523,7 +523,7 @@ function captionForHotspot(id) {
   switch (id) {
     case 'white-raven':
       if (displayStage.value >= 9)
-        return '白鸦落在紫丁香客房的窗台边狸~没有再飞走狸。'
+        return '白鸦落在星星客房的窗台边狸~没有再飞走狸。'
       if (displayStage.value >= 7)
         return '它落在栏杆上狸~看了一眼那把椅子狸~又像是看见了别的什么狸。'
       return '白鸦在门柱上歪头看了一会儿狸~像在默认这里终于能住人了狸。'

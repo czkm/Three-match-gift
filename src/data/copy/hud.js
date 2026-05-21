@@ -32,18 +32,18 @@ export const AUDIO_COPY = {
 };
 
 export const ABILITY_BAR_COPY = {
-  title: '能力',
-  pigEnergyTitle: '小猪能量',
+  title: '工具',
+  pigEnergyTitle: '小猪星星',
   formatPigEnergy(level, max) {
     return `星级 ${level} / ${max}`;
   },
-  lilacPrompt: '将哪种资源变成哪种？',
+  lilacPrompt: '想把什么变成什么狸？',
   from: '从',
   to: '到',
-  lilacApply: '变身',
-  milkTeaPrompt: '奶茶攻击要收哪种资源？',
-  milkTeaApply: '开喝',
-  passiveTitle: '被动'
+  lilacApply: '变！',
+  milkTeaPrompt: '奶茶要收哪种狸？',
+  milkTeaApply: '干杯狸！',
+  passiveTitle: '特长'
 };
 
 export const REWARD_ROOM_COPY = {

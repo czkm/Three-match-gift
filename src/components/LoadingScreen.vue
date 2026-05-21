@@ -34,7 +34,7 @@
       <p class="loading-emblem">🏰</p>
       <h1 class="loading-title">Corvo Bianco</h1>
       <h2 class="loading-subtitle">白鸦葡萄园</h2>
-      <p class="loading-tagline">一个温柔的三消修复礼物游戏</p>
+      <p class="loading-tagline">一个温柔的三连修复礼物游戏</p>
 
       <!-- Progress bar -->
       <div class="loading-progress-wrap">

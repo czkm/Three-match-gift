@@ -28,7 +28,7 @@
     <div v-if="bannerVisible" class="banner">
       <p class="banner-emoji">{{ today.building.emoji }}</p>
       <p class="banner-line ink-title">{{ today.completedBanner }}</p>
-      <p class="banner-sub ink-subtle">解锁能力 · {{ ABILITIES[today.ability].name }}</p>
+      <p class="banner-sub ink-subtle">解锁工具 · {{ ABILITIES[today.ability].name }}</p>
 
       <Dialog
         v-if="showMono"

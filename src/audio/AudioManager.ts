@@ -27,13 +27,13 @@ const AC_SFX_MAP: Record<string, string> = {
   wish1:       `${AC_BASE}/UI & System/Event_TsunekichiChance00.wav`,
   wish2:       `${AC_BASE}/Environment/Env_ShootingStarAppear00.wav`,
   wish3:       `${AC_BASE}/Environment/Env_ShootingStar_Success.wav`,
-  ability_wolf:    `${AC_BASE}/Environment/Env_GrassWindSummerStrong.wav`,
-  ability_harvest: `${AC_BASE}/Trees & Plants/Tree_Shake_Cedar_Small.wav`,
+  ability_wolf:    `${AC_BASE}/UI & System/UI_WipeRemake_In.wav`,
+  ability_harvest: `${AC_BASE}/Trees & Plants/Tree_Shake_Cedar_Down1.wav`,
   ability_roach:   `${AC_BASE}/Insects/Insect_Cockroach_Move00.wav`,
-  ability_sunset:  `${AC_BASE}/Environment/Env_PlantWind_Bamboo_Strong_00.wav`,
+  ability_sunset:  `${AC_BASE}/UI & System/UI_WipeToIdrDream.wav`,
   decoction:       `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_03.wav`,
   lilac:           `${AC_BASE}/Trees & Plants/FieldPlant_FlowerSplash_00.wav`,
-  xray:            `${AC_BASE}/UI & System/UI_Check.wav`,
+  xray:            `${AC_BASE}/UI & System/System_Lumi_01.wav`,
   pig_gentle:  `${AC_BASE}/Rosie Emotes/RosiePleased.mp3`,
   pig_warm:    `${AC_BASE}/Rosie Emotes/RosieDelight.mp3`,
   pig_warning: `${AC_BASE}/Rosie Emotes/RosieCuriosity.mp3`,
@@ -49,36 +49,192 @@ const AC_SFX_MULTI: Record<string, string[]> = {
     `${AC_BASE}/Rosie Emotes/RosieDelight.mp3`,
     `${AC_BASE}/Rosie Emotes/RosieAmazed.mp3`,
   ],
+  click: [
+    `${AC_BASE}/UI & System/UI_Decide.wav`,
+    `${AC_BASE}/UI & System/UI_Decide_Small.wav`,
+    `${AC_BASE}/UI & System/UI_Decide_Sub.wav`,
+  ],
+  land: [
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_01.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_02.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_03.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_04.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_05.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_06.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_07.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_08.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_09.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_10.wav`,
+  ],
+  spawn: [
+    `${AC_BASE}/Trees & Plants/Tree_Appear_Normal_00.wav`,
+    `${AC_BASE}/Trees & Plants/Tree_ChangeState_00.wav`,
+    `${AC_BASE}/Trees & Plants/Tree_ChangeState_01.wav`,
+    `${AC_BASE}/Trees & Plants/Tree_ChangeState_02.wav`,
+    `${AC_BASE}/Trees & Plants/Tree_ChangeState_03.wav`,
+    `${AC_BASE}/Trees & Plants/Tree_ChangeState_04.wav`,
+    `${AC_BASE}/Trees & Plants/Tree_ChangeState_05.wav`,
+  ],
+  lineclear: [
+    `${AC_BASE}/Trees & Plants/FieldPlant_WaterDrop_00.wav`,
+    `${AC_BASE}/Trees & Plants/FieldPlant_WaterDrop_01.wav`,
+    `${AC_BASE}/Trees & Plants/FieldPlant_WaterDrop_02.wav`,
+    `${AC_BASE}/Trees & Plants/FieldPlant_Shake_Dash_00.wav`,
+    `${AC_BASE}/Trees & Plants/FieldPlant_Shake_Dash_01.wav`,
+    `${AC_BASE}/Trees & Plants/FieldPlant_Shake_Dash_02.wav`,
+  ],
+  hint: [
+    `${AC_BASE}/UI & System/UI_Attention.wav`,
+    `${AC_BASE}/UI & System/UI_Check.wav`,
+    `${AC_BASE}/UI & System/UI_Check_Small.wav`,
+  ],
+  steprestore: [
+    `${AC_BASE}/UI & System/UI_CountUp.wav`,
+    `${AC_BASE}/UI & System/UI_Count_Coin_Reapeat_01.wav`,
+    `${AC_BASE}/UI & System/UI_Count_Coin_Reapeat_02.wav`,
+  ],
+  repair: [
+    `${AC_BASE}/Environment/Env_FacilityConstruction00.wav`,
+    `${AC_BASE}/Environment/Env_StructureRainMetalRoof00.wav`,
+  ],
+  seal_break: [
+    `${AC_BASE}/Environment/Env_BaseRainHard.wav`,
+    `${AC_BASE}/Environment/Env_ThunderS00.wav`,
+    `${AC_BASE}/Environment/Env_ThunderS01.wav`,
+    `${AC_BASE}/Environment/Env_ThunderS02.wav`,
+    `${AC_BASE}/Environment/Env_ThunderS03.wav`,
+  ],
+  rune_hit: [
+    `${AC_BASE}/Trees & Plants/Tree_Shake_Oak_HitAxe.wav`,
+    `${AC_BASE}/Trees & Plants/Tree_Shake_Cedar_HitAxe.wav`,
+    `${AC_BASE}/Trees & Plants/Tree_Shake_Sakura_HitAxe.wav`,
+  ],
+  djinn_appear: [
+    `${AC_BASE}/Environment/Env_ThunderM00.wav`,
+    `${AC_BASE}/Environment/Env_ThunderM01.wav`,
+    `${AC_BASE}/Environment/Env_ThunderL00.wav`,
+    `${AC_BASE}/Environment/Env_ThunderL01.wav`,
+  ],
+  decoction: [
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_01.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_02.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_03.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_04.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_05.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_06.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_07.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_08.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_09.wav`,
+    `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_10.wav`,
+    `${AC_BASE}/Environment/Env_SeaWaterWave00.wav`,
+    `${AC_BASE}/Environment/Env_SeaWaterWave01.wav`,
+  ],
+  pig_gentle: [
+    `${AC_BASE}/Rosie Emotes/RosiePleased.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieGreetings.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieJoy.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieLove.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieEncouraging.mp3`,
+  ],
+  pig_warm: [
+    `${AC_BASE}/Rosie Emotes/RosieDelight.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieAmazed.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieFlourish.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieInspiration.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosiePride.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieLaughter.mp3`,
+  ],
+  pig_warning: [
+    `${AC_BASE}/Rosie Emotes/RosieCuriosity.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieMischief.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieBewilderment.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieSheepishness.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieThought.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieSurprise.mp3`,
+  ],
+  pig_annoyed: [
+    `${AC_BASE}/Rosie Emotes/RosieResignation.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieSighing.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieSorrow.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieSadness.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieDistress.mp3`,
+  ],
+  pig_angry: [
+    `${AC_BASE}/Rosie Emotes/RosieAggravation.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieIntense.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieColdChill.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieHeartbreak.mp3`,
+  ],
+  xray: [
+    `${AC_BASE}/UI & System/System_Lumi_01.wav`,
+    `${AC_BASE}/UI & System/System_Lumi_02.wav`,
+    `${AC_BASE}/UI & System/System_Lumi_03.wav`,
+    `${AC_BASE}/UI & System/System_Lumi_04.wav`,
+  ],
+  ability_harvest: [
+    `${AC_BASE}/Trees & Plants/Tree_Shake_Cedar_Down1.wav`,
+    `${AC_BASE}/Trees & Plants/Tree_Shake_Oak_Down1.wav`,
+    `${AC_BASE}/Trees & Plants/Tree_Shake_Sakura_Down1.wav`,
+    `${AC_BASE}/Trees & Plants/Tree_Shake_Palm_Down1.wav`,
+    `${AC_BASE}/Trees & Plants/Tree_Shake_Bamboo_Down1.wav`,
+  ],
 };
 
-const AC_AMBIENT_MAP: Record<string, string> = {
-  daytime:      `${AC_BASE}/Environment/Env_GrassWindSummerWeak.wav`,
-  evening:      `${AC_BASE}/Environment/BbsBirdNightTwitterA00.wav`,
-  construction: `${AC_BASE}/Environment/Env_FacilityConstruction00.wav`,
-  healing:      `${AC_BASE}/Ambience/AmbPlace_Healing.wav`,
-  space:        `${AC_BASE}/Ambience/AmbPlace_Space.wav`,
+const AC_AMBIENT_MULTI: Record<string, string[]> = {
+  daytime: [
+    `${AC_BASE}/Environment/Env_GrassWindSummerWeak.wav`,
+    `${AC_BASE}/Environment/Env_GrassWindSummerStrong.wav`,
+    `${AC_BASE}/Environment/BbsBirdDay_Twitter00.wav`,
+    `${AC_BASE}/Environment/BbsBirdDay_Twitter01.wav`,
+    `${AC_BASE}/Environment/Env_PlantWind_FlowerMany_00.wav`,
+    `${AC_BASE}/Environment/Env_RiverNearSlow00.wav`,
+    `${AC_BASE}/Environment/Env_SeaWaterBase00.wav`,
+  ],
+  evening: [
+    `${AC_BASE}/Environment/BbsBirdNightTwitterA00.wav`,
+    `${AC_BASE}/Environment/BbsBirdNightTwitterA01.wav`,
+    `${AC_BASE}/Environment/Env_PlantWind_Oak_Calm_00.wav`,
+  ],
+  construction: [`${AC_BASE}/Environment/Env_FacilityConstruction00.wav`],
+  healing:      [`${AC_BASE}/Ambience/AmbPlace_Healing.wav`],
+  space:        [`${AC_BASE}/Ambience/AmbPlace_Space.wav`],
 };
 
-const AC_MATCH = [
-  'FieldPlant_WaterDrop_00.wav',
-  'FieldPlant_WaterDrop_01.wav',
-  'FieldPlant_Shake_Dash_00.wav',
-  'Tree_Shake_Shrub_Small_00.wav',
-  'Tree_Shake_Oak_Small.wav',
-  'Tree_Shake_Oak.wav',
-  'Tree_Shake_Sakura.wav',
-  'Tree_Shake_Cedar_Down1.wav',
+const AC_MATCH: (string | string[])[] = [
+  ['FieldPlant_WaterDrop_00.wav', 'FieldPlant_WaterDrop_01.wav'],
+  ['FieldPlant_WaterDrop_02.wav', 'FieldPlant_Shake_Dash_00.wav'],
+  ['FieldPlant_Shake_Dash_01.wav', 'FieldPlant_Shake_Dash_02.wav'],
+  ['FieldPlant_Shake_Run_00.wav', 'FieldPlant_Shake_Run_01.wav'],
+  ['Tree_Shake_Shrub_Small_00.wav', 'Tree_Shake_Shrub_Small_01.wav'],
+  ['Tree_Shake_Oak_Small.wav', 'Tree_Shake_Oak_Dry_Small.wav', 'Tree_Shake_Palm_Small.wav'],
+  ['Tree_Shake_Oak.wav', 'Tree_Shake_Sakura.wav', 'Tree_Shake_Cedar.wav'],
+  ['Tree_Shake_Cedar_Down1.wav', 'Tree_Shake_Oak_Down1.wav', 'Tree_Shake_Sakura_Down1.wav'],
 ];
 
-const AC_COMBO = [
-  'Tree_Shake_BambooNode_00.wav',
-  'Tree_Shake_BambooNode_01.wav',
-  'Tree_Shake_BambooNode_02.wav',
-  'Tree_Shake_Bamboo_Collid.wav',
-  'Tree_Shake_Cedar.wav',
+const AC_COMBO: (string | string[])[] = [
+  ['Tree_Shake_BambooNode_00.wav', 'Tree_Shake_BambooNode_01.wav'],
+  ['Tree_Shake_BambooNode_02.wav', 'Tree_Shake_Bamboo_Collid.wav'],
+  ['Tree_Shake_Bamboo_Down1.wav', 'Tree_Shake_Oak_Down2.wav'],
+  ['Tree_Shake_Cedar_Down2.wav', 'Tree_Shake_Oak_Dry_Down3.wav'],
+  ['Tree_Shake_Cedar.wav', 'Tree_Shake_Oak.wav', 'Tree_Shake_Sakura.wav'],
+  ['Tree_Shake_Cedar_Down4.wav', 'Tree_Shake_Oak_Down4.wav'],
+  ['Tree_Shake_Bamboo_DownLand4.wav', 'Tree_Shake_Cedar_DownLand4.wav'],
 ];
 
-const AC_DROP = 'Tree_Shake_RandomRainDrop_00.wav';
+const AC_DROP = [
+  'Tree_Shake_RandomRainDrop_00.wav',
+  'Tree_Shake_RandomRainDrop_01.wav',
+  'Tree_Shake_RandomRainDrop_02.wav',
+  'Tree_Shake_RandomRainDrop_Shrub_00.wav',
+  'Tree_Shake_RandomRainDrop_Shrub_01.wav',
+  'Tree_Shake_RandomRainDrop_Shrub_02.wav',
+  'Env_Tree_AfterRain_Single_00.wav',
+  'Env_Tree_AfterRain_Single_01.wav',
+  'Env_Tree_AfterRain_Single_02.wav',
+  'Env_Tree_AfterRain_Single_03.wav',
+  'Env_Tree_AfterRain_Single_04.wav',
+  'Env_Tree_AfterRain_Single_05.wav',
+];
 
 type ChannelKind = 'bgm' | 'ambient';
 type MonsterEvent = 'spawn' | 'hit' | 'defeat';
@@ -86,6 +242,7 @@ type SFXOptions = {
   vol?: number;
   rate?: number;
   bypassThrottle?: boolean;
+  actualPath?: string;
 };
 type BGMOptions = {
   fade?: number;
@@ -135,6 +292,10 @@ const SFX_THROTTLE: Record<string, SFXThrottlePolicy> = {
   pig_sniff:   { sameMs: 4000, group: 'pig', groupMs: 2000, priority: 1 },
   pig_energy:  { sameMs: 5000, group: 'pig', groupMs: 1000, priority: 3 }
 };
+
+function pickOne<T>(entry: T | T[]): T {
+  return Array.isArray(entry) ? entry[Math.floor(Math.random() * entry.length)] : entry;
+}
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -224,20 +385,15 @@ export class AudioManager {
       this.preload('bgm_dayplay.mp3'),
       this.preload('bgm_brithday.mp3'),
       preloadAC('UI & System/UI_Decide.wav'),
-      preloadAC(`Trees & Plants/${AC_DROP}`),
-      preloadAC(`Trees & Plants/${AC_MATCH[0]}`),
-      preloadAC(`Trees & Plants/${AC_MATCH[1]}`),
-      preloadAC(`Trees & Plants/${AC_MATCH[2]}`),
-      preloadAC(`Trees & Plants/${AC_MATCH[3]}`),
-      preloadAC(`Trees & Plants/${AC_MATCH[4]}`),
-      preloadAC(`Trees & Plants/${AC_MATCH[5]}`),
-      preloadAC(`Trees & Plants/${AC_MATCH[6]}`),
-      preloadAC(`Trees & Plants/${AC_MATCH[7]}`),
-      preloadAC(`Trees & Plants/${AC_COMBO[0]}`),
-      preloadAC(`Trees & Plants/${AC_COMBO[1]}`),
-      preloadAC(`Trees & Plants/${AC_COMBO[2]}`),
-      preloadAC(`Trees & Plants/${AC_COMBO[3]}`),
-      preloadAC(`Trees & Plants/${AC_COMBO[4]}`)
+      preloadAC('UI & System/UI_WipeRemake_In.wav'),
+      preloadAC('UI & System/UI_WipeToIdrDream.wav'),
+      preloadAC('UI & System/System_Lumi_01.wav'),
+      preloadAC(`Trees & Plants/Tree_Shake_RandomRainDrop_00.wav`),
+      preloadAC(`Trees & Plants/${pickOne(AC_MATCH[0])}`),
+      preloadAC(`Trees & Plants/${pickOne(AC_MATCH[3])}`),
+      preloadAC(`Trees & Plants/${pickOne(AC_MATCH[7])}`),
+      preloadAC(`Trees & Plants/${pickOne(AC_COMBO[0])}`),
+      preloadAC(`Trees & Plants/${pickOne(AC_COMBO[4])}`)
     ]);
 
     this.initialized = true;
@@ -278,8 +434,8 @@ export class AudioManager {
 
   async playAmbient(name: string, opts: BGMOptions = {}) {
     if (!await this.ensureReady()) return;
-    const acPath = AC_AMBIENT_MAP[name];
-    const file = acPath ?? `amb_${name}.mp3`;
+    const pool = AC_AMBIENT_MULTI[name];
+    const file = pool ? pool[Math.floor(Math.random() * pool.length)] : `amb_${name}.mp3`;
     return this.playLoopingChannel(this.ambientChannel, file, 'ambient', opts.fade ?? AMBIENT_FADE_MS, true);
   }
 
@@ -327,9 +483,12 @@ export class AudioManager {
   }
 
   playMatch(count: number) {
-    const index = clamp(Math.round(count), 1, 8);
-    this.playLooseFile(`eliminate${index}.mp3`, {
-      vol: clamp(0.46 + index * 0.045, 0.5, 0.86),
+    const index = clamp(Math.round(count), 1, 8) - 1;
+    const entry = AC_MATCH[index];
+    const file = entry ? pickOne(entry) : 'FieldPlant_WaterDrop_00.wav';
+    this.playLooseFile(`eliminate${index + 1}.mp3`, {
+      actualPath: `${AC_BASE}/Trees & Plants/${file}`,
+      vol: clamp(0.46 + (index + 1) * 0.045, 0.5, 0.86),
       bypassThrottle: true
     });
   }
@@ -337,15 +496,20 @@ export class AudioManager {
   playCombo(level: number) {
     if (level < 2) return;
     const comboCount = clamp(level, 3, 7);
+    const entry = AC_COMBO[comboCount - 3];
+    const file = entry ? pickOne(entry) : 'Tree_Shake_BambooNode_00.wav';
     const fileName = `contnuousMatch${comboCount}.mp3`;
     this.playLooseFile(fileName, {
+      actualPath: `${AC_BASE}/Trees & Plants/${file}`,
       vol: clamp(0.4 + comboCount * 0.07, 0.52, 0.88),
       bypassThrottle: true
     });
   }
 
   playBoardDrop(fallCount = 1) {
+    const file = pickOne(AC_DROP);
     this.playLooseFile('drop.mp3', {
+      actualPath: `${AC_BASE}/Trees & Plants/${file}`,
       vol: clamp(0.26 + Math.min(fallCount, 8) * 0.035, 0.28, 0.56)
     });
   }
@@ -552,14 +716,18 @@ export class AudioManager {
     }
 
     let actualFile = fileName;
-    if (/^eliminate(\d+)\.mp3$/.test(fileName)) {
+    if (opts.actualPath) {
+      actualFile = opts.actualPath;
+    } else if (/^eliminate(\d+)\.mp3$/.test(fileName)) {
       const i = parseInt(fileName.match(/\d+/)![0]) - 1;
-      actualFile = `${AC_BASE}/Trees & Plants/${AC_MATCH[i]}`;
+      const entry = AC_MATCH[i];
+      actualFile = `${AC_BASE}/Trees & Plants/${entry ? pickOne(entry) : 'FieldPlant_WaterDrop_00.wav'}`;
     } else if (/^contnuousMatch(\d+)\.mp3$/.test(fileName)) {
       const lvl = parseInt(fileName.match(/\d+/)![0]);
-      actualFile = `${AC_BASE}/Trees & Plants/${AC_COMBO[lvl - 3]}`;
+      const entry = AC_COMBO[lvl - 3];
+      actualFile = `${AC_BASE}/Trees & Plants/${entry ? pickOne(entry) : 'Tree_Shake_BambooNode_00.wav'}`;
     } else if (fileName === 'drop.mp3') {
-      actualFile = `${AC_BASE}/Trees & Plants/${AC_DROP}`;
+      actualFile = `${AC_BASE}/Trees & Plants/${pickOne(AC_DROP)}`;
     }
     const audio = createAudio(`/audio/${actualFile}`);
     const baseVolume = clamp((opts.vol ?? 1) * this._sfxVolume, 0, 1);

@@ -670,7 +670,7 @@ function onPick(payload, evt) {
       game.showMonsterInfo(entity.kind, entity.id, 'click')
       if (!game.barkLine) {
         game.queueAmbientBark(
-          hint || monster?.uiPressureShort || `还需命中 ${remain} 次。`
+          hint || monster?.uiPressureShort || `再打 ${remain} 下狸！`
         )
       }
     }
@@ -1489,12 +1489,12 @@ function buildComboPraise(biggest, chain) {
   const cascadeBits =
     chainDepth >= 2
       ? {
-          prefix: '连锁！',
+          prefix: '连击狸！',
           comboText: `${chainDepth} CHAIN`,
           subline:
             chainDepth >= 3
-              ? `第 ${chainDepth} 段引燃`
-              : `第 ${chainDepth} 段续上`,
+              ? `第 ${chainDepth} 段好狸！`
+              : `第 ${chainDepth} 段接上狸！`,
           fireMark: chainDepth >= 3 ? '🔥' : '',
           style: { '--combo-prefix-color': prefixColor },
           chainDepth
@@ -1525,7 +1525,7 @@ function buildComboPraise(biggest, chain) {
     return {
       ...cascadeBits,
       label: '4 连',
-      subline: cascadeBits.subline || '金光正好',
+      subline: cascadeBits.subline || '漂亮狸~',
       tone: chainDepth >= 2 ? 'cascade' : 'rare',
       giant: true,
       flash: true,
@@ -1539,7 +1539,7 @@ function buildComboPraise(biggest, chain) {
     return {
       ...cascadeBits,
       label: '3 连',
-      subline: cascadeBits.subline || '稳稳命中',
+      subline: cascadeBits.subline || '刚刚好狸！',
       tone: chainDepth >= 2 ? 'cascade' : 'warm',
       giant: false,
       flash: false,
@@ -1552,7 +1552,7 @@ function buildComboPraise(biggest, chain) {
   if (chainDepth >= 2) {
     return {
       ...cascadeBits,
-      label: '连锁命中',
+      label: '连击命中狸！',
       tone: chainDepth >= 3 ? 'inferno' : 'cascade',
       giant: chainDepth >= 3,
       flash: chainDepth >= 3,

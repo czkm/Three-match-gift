@@ -11,9 +11,9 @@ export const RESOURCES = [
   { id: 'grape', char: 'g', label: '葡萄', emoji: '🍇', cn: '葡萄' },
   { id: 'wood', char: 'w', label: '木材', emoji: '🪵', cn: '木材' },
   { id: 'stone', char: 's', label: '石材', emoji: '🪨', cn: '石材' },
-  { id: 'clay', char: 'c', label: '陶土', emoji: '🧱', cn: '陶土' },
-  { id: 'herb', char: 'h', label: '草药', emoji: '🌿', cn: '草药' },
-  { id: 'magic', char: 'm', label: '魔力', emoji: '✨', cn: '魔力' }
+  { id: 'clay', char: 'c', label: '黏土', emoji: '🧱', cn: '黏土' },
+  { id: 'herb', char: 'h', label: '花卉', emoji: '🌸', cn: '花卉' },
+  { id: 'magic', char: 'm', label: '星星碎片', emoji: '⭐', cn: '星星碎片' }
 ]
 
 export const RESOURCE_BY_CHAR = Object.fromEntries(
@@ -57,18 +57,18 @@ export function unlockedCharsForDay(dayIndex) {
 export const ABILITIES = {
   whiteWolfTidy: {
     id: 'whiteWolfTidy',
-    name: '白狼整顿',
-    desc: '重置整个棋盘，不消耗步数。',
-    quote: '杰洛特先生说先把碍事的东西清掉狸！',
+    name: '白狼整地',
+    desc: '重置整个棋盘，重新排列所有资源狸！',
+    quote: '白狼先生说挡路的统统清掉狸！',
     type: 'active',
     usesPerDay: 1,
     icon: '🐺'
   },
   toussentHarvest: {
     id: 'toussentHarvest',
-    name: '陶森特丰收',
-    desc: '选一个葡萄方块，将其周围 3×3 全部变成葡萄。',
-    quote: '杰洛特先生说这里的阳光确实有点过分狸~',
+    name: '庄园丰收',
+    desc: '选中一个水果方块，周围 3×3 都变成果园狸！',
+    quote: '豆狸说这里的阳光晒得果子特别甜狸~',
     type: 'active',
     usesPerDay: 1,
     icon: '🍇',
@@ -85,7 +85,7 @@ export const ABILITIES = {
   roachPath: {
     id: 'roachPath',
     name: '萝卜识途',
-    desc: '不限相邻交换两个方块，不扣步数。',
+    desc: '任意交换两个方块，不扣步数狸！',
     quote: '别问它怎么过去的狸~它就是能过去狸！',
     type: 'active',
     usesPerDay: 2,
@@ -95,8 +95,8 @@ export const ABILITIES = {
   lilacSeed: {
     id: 'lilacSeed',
     name: '丁香播种',
-    desc: '将一种资源全部转换为另一种资源。',
-    quote: '杰洛特先生说她会嫌他种得太直狸~所以先留点余地狸！',
+    desc: '将一种资源全部转换为另一种资源狸！',
+    quote: '粒狸说花开的方向只有风知道狸~先留点余地狸！',
     type: 'active',
     usesPerDay: 1,
     icon: '🪻',
@@ -112,9 +112,9 @@ export const ABILITIES = {
   },
   toussentSunset: {
     id: 'toussentSunset',
-    name: '陶森特日落',
-    desc: '消除指定一行或一列。',
-    quote: '夕阳落下的时候什么都安静了狸~',
+    name: '庄园日落',
+    desc: '消除指定一行或一列狸！',
+    quote: '太阳下山了狸~该收工了狸！',
     type: 'active',
     usesPerDay: 1,
     icon: '🌅',
@@ -124,7 +124,7 @@ export const ABILITIES = {
     id: 'hearthStew',
     name: '炉火炖汤',
     desc: '恢复 5 步（不超过 20 步上限）。',
-    quote: '不算精致狸~但热狸！',
+    quote: '粒狸说热汤暖胃狸~不算精致但很暖狸！',
     type: 'active',
     usesPerDay: 1,
     icon: '🍲'
@@ -133,7 +133,7 @@ export const ABILITIES = {
     id: 'lilacReturn',
     name: '紫丁香归途',
     desc: '剩余 ≤5 步时，自动高亮可形成匹配的交换。',
-    quote: '杰洛特先生说有些人来的时候连风都会先知道狸~',
+    quote: '杰洛特先生说连风都会先知道狸~',
     type: 'passive',
     icon: '🪻'
   },
@@ -141,7 +141,7 @@ export const ABILITIES = {
     id: 'milkTeaBarrage',
     name: '奶茶攻击',
     desc: '消耗小猪累积的 5 星评价，选一种资源并将棋盘上该资源全部收获。',
-    quote: '小猪今天状态很好狸~甚至想自己上场狸！',
+    quote: '小猪今天特别精神狸~甚至想自己上场狸！',
     type: 'active',
     usesPerDay: 1,
     icon: '🥤',
@@ -215,7 +215,7 @@ export const REWARD_ITEMS = {
     emoji: '👁️',
     slot: 'head',
     tone: 'treasure',
-    description: '每天首次 4 连：match 周围 1 个随机相邻格子炸开。',
+    description: '每天第一次四连狸~旁边一个格子跟着清掉狸！',
     effect: { type: 'firstBigMatchAdjacentPop' },
     reaction: '小猪用力眨了下右眼狸~旁边的一个格子应声炸开了狸💥！'
   },
@@ -230,7 +230,7 @@ export const REWARD_ITEMS = {
     emoji: '🍀',
     slot: 'feet',
     tone: 'treasure',
-    description: '每天首次 2 段连锁：3 个随机非怪物格翻成当前需求资源。',
+    description: '每天第一次连击狸~三个格子变成今天要的资源狸！',
     effect: { type: 'firstChainScatterConvert', minChain: 2, count: 3 },
     reaction: '小猪踩到一片幸运草狸~脚边的方块自己变了颜色狸！'
   },
@@ -275,7 +275,7 @@ export const REWARD_ITEMS = {
     emoji: '🔋',
     slot: 'back',
     tone: 'treasure',
-    description: '每天首次 4 连及以上，恢复 1 步。',
+    description: '每天第一次四连以上狸~恢复 1 步狸！',
     effect: { type: 'firstBigMatchStep', amount: 1 },
     reaction: '小猪背着它走了两步狸~脚步轻了一点狸！'
   },
@@ -291,7 +291,7 @@ export const REWARD_ITEMS = {
     slot: 'float',
     tone: 'treasure',
     description:
-      '每天首次无效交换返还 1 步，且交换位置周围 2 个随机格翻成需求资源。',
+      '每天第一次出错时返回 1 步狸~旁边两个格子翻成需要的资源狸！',
     effect: { type: 'firstInvalidSwapScatterConvert', count: 2 },
     reaction: '水滴落在一个方块上狸~四周泛起淡淡的光狸！'
   },
@@ -323,10 +323,10 @@ export const REWARD_ITEMS = {
     emoji: '🔥',
     slot: 'back',
     tone: 'devil',
-    description: '每天首次 3 连：match 所在列被硫磺火扫穿清空。',
+    description: '每天第一次三连狸~整列被清空狸！',
     effect: { type: 'firstThreeColSweep' },
     penalty: { type: 'maxSteps', value: 2 },
-    penaltyText: '明天初始步数 -4。',
+    penaltyText: '明天步数会少 4 步狸~。',
     reaction: '小猪嘴角喷出一道火光狸~自己也被烤得往后一跳狸！'
   },
   momsKnife: {
@@ -340,10 +340,10 @@ export const REWARD_ITEMS = {
     emoji: '🔪',
     slot: 'side',
     tone: 'devil',
-    description: '每天首次无效交换：所在列被刀刃划穿清空。',
+    description: '每天第一次无效交换时狸~所在列被清空狸！',
     effect: { type: 'invalidSwapLineSweep' },
     penalty: { type: 'maxSteps', value: 2 },
-    penaltyText: '明天初始步数 -4。',
+    penaltyText: '明天步数会少 4 步狸~。',
     reaction: '刀刃贴着棋盘划过狸~小猪一动不动狸。'
   },
   thePact: {
@@ -358,10 +358,10 @@ export const REWARD_ITEMS = {
     slot: 'side',
     tone: 'devil',
     description:
-      '每天首次 4 连：棋盘上当前最少的那种资源格全部翻成当前最多的那种。',
+      '每天第一次四连狸~最少的那种资源全部变成最多的狸！',
     effect: { type: 'firstBigMatchResourceBalance' },
     penalty: { type: 'maxSteps', value: 2 },
-    penaltyText: '永久步数上限 -1。',
+    penaltyText: '以后每天步数上限少 1 狸~。',
     reaction: '羊皮纸上的字迹扭动起来狸~小猪瞪着棋盘上的方块自动变色狸！'
   },
   darkBeggar: {
@@ -385,7 +385,7 @@ export const REWARD_ITEMS = {
       energyMax: 5
     },
     penalty: { type: 'maxSteps', value: 2 },
-    penaltyText: '永久步数上限 -2。',
+    penaltyText: '以后每天步数上限少 2 狸~。',
     reaction: '黑暗乞丐在棋盘边晃了一圈狸~少了几块砖小猪却精神了一点狸！'
   },
   pentagram: {
@@ -399,10 +399,10 @@ export const REWARD_ITEMS = {
     emoji: '🔻',
     slot: 'float',
     tone: 'devil',
-    description: '每天首次 5 连：棋盘上 5 个随机格被五芒星点亮后炸开。',
+    description: '每天第一次五连狸~五个格子被点亮点炸狸！',
     effect: { type: 'firstFiveScatterPop', count: 5 },
     penalty: { type: 'nextDaySteps', value: 3 },
-    penaltyText: '明天初始步数 -3。',
+    penaltyText: '明天步数会少 3 步狸~。',
     reaction: '五芒星亮了狸~五个方块应声炸开了狸~小猪假装自己没参与狸！'
   },
   mawOfTheVoid: {
@@ -416,10 +416,10 @@ export const REWARD_ITEMS = {
     emoji: '⚫',
     slot: 'float',
     tone: 'devil',
-    description: '每次连锁 2 段及以上：以 match 中心为中心的 3×3 区域被吞没。',
+    description: '每次连击狸~以打中的格子为中心吞掉一片狸！',
     effect: { type: 'sweepAreaOnChain', minChain: 2, areaRows: 3, areaCols: 3 },
     penalty: { type: 'nextDaySteps', value: 5 },
-    penaltyText: '明天初始步数 -5。',
+    penaltyText: '明天步数会少 5 步狸~。',
     reaction: '黑色裂口张开了狸~小猪自觉地往后退了一步狸！'
   },
   xRayVision: {
@@ -436,7 +436,7 @@ export const REWARD_ITEMS = {
     description: '每天开始时，自动将非建筑需求的资源随机转为需求资源。',
     effect: { type: 'xRayVision' },
     penalty: { type: 'maxSteps', value: 1 },
-    penaltyText: '永久步数上限 -1（看见真相是有代价的狸）。',
+    penaltyText: '以后每天步数上限少 1 狸~（看见真相是有代价的狸）。',
     reaction: '小猪看着棋盘上不属于今天的资源被一扫而空狸~满意地点了点头狸！'
   }
 }
@@ -445,78 +445,78 @@ export const REWARD_ITEMS = {
 export const DAYS = [
   {
     day: 1,
-    building: { id: 'courtyard', cn: '庭院', en: 'Courtyard', emoji: '🌿' },
+    building: { id: 'courtyard', cn: '前院', en: 'Courtyard', emoji: '🌿' },
     needs: { grape: 25, wood: 20, stone: 15 },
     ability: 'whiteWolfTidy',
-    intro: '豆狸&粒狸: 今天先修庭院狸~！杂草都快长到腰了狸！ ( ……快长到腰了狸！）\n豆狸&粒狸: 杰洛特先生说先把石路和喷泉修出来狸！ ( ……修出来狸！）',
+    intro: '豆狸&粒狸: 今天先修前院狸~！杂草都快长到腰了狸！ ( ……快长到腰了狸！）\n豆狸&粒狸: 白狼先生说先把石路和喷泉修出来狸！ ( ……修出来狸！）',
     completed:
       '石路重新露出来了狸~喷泉边的藤蔓也修剪整齐了狸！白鸦落在门柱上看了一会儿狸！',
-    monologue: '杰洛特先生说先从庭院开始狸~这里是庄园的脸面狸！',
-    completedBanner: '庭院重新露出了石路狸~！'
+    monologue: '白狼先生说先从院子开始狸~这里是庄园的脸面狸！',
+    completedBanner: '前院重新露出了石路狸~！'
   },
   {
     day: 2,
-    building: { id: 'vineyard', cn: '葡萄园', en: 'Vineyard', emoji: '🍇' },
+    building: { id: 'vineyard', cn: '果园', en: 'Vineyard', emoji: '🍇' },
     needs: { grape: 45, wood: 25 },
     ability: 'toussentHarvest',
-    intro: '豆狸&粒狸: 葡萄藤还活着狸~！虽然被荒草压弯了狸！ ( ……被荒草压弯了狸！）\n豆狸&粒狸: 小猪在帮忙扶藤架狸~今天修葡萄园狸！ ( ……修葡萄园狸！）',
+    intro: '豆狸&粒狸: 葡萄藤还活着狸~！虽然被荒草压弯了狸！ ( ……被荒草压弯了狸！）\n豆狸&粒狸: 小猪在帮忙扶藤架狸~今天修果园狸！ ( ……修果园狸！）',
     completed:
-      '藤架重新立起来了狸~嫩叶在风里发亮狸！远处的丘陵像一杯金色的酒狸！',
-    monologue: '杰洛特先生说这些藤比他爷爷还老狸~等结果就有自己的酒了狸！',
-    completedBanner: '葡萄藤重新爬上了藤架狸~！'
+      '藤架重新立起来了狸~嫩叶在风里发亮狸！远处的丘陵像一片金色的果园狸！',
+    monologue: '白狼先生说这些藤比他爷爷还老狸~等结果就有自己的果子了狸！',
+    completedBanner: '果园里重新飘起了果香狸~！'
   },
   {
     day: 3,
-    building: { id: 'cellar', cn: '酒窖', en: 'Wine Cellar', emoji: '🛢️' },
+    building: { id: 'cellar', cn: '储藏室', en: 'Wine Cellar', emoji: '🛢️' },
     needs: { wood: 28, clay: 28, grape: 19 },
     ability: 'agedBarrel',
-    intro: '豆狸&粒狸: 今天修酒窖狸~！全是灰尘和蜘蛛网狸！ ( ……蜘蛛网狸！）\n豆狸&粒狸: 小猪闻了闻木塞打了个喷嚏狸~不过有几瓶酒还活着狸！ ( ……还活着狸！）',
+    intro: '豆狸&粒狸: 今天修储藏室狸~！全是灰尘和蜘蛛网狸！ ( ……蜘蛛网狸！）\n豆狸&粒狸: 小猪闻了闻木塞打了个喷嚏狸~不过有几桶好东西还留着狸！ ( ……还留着狸！）',
     completed:
-      '石墙加固好了狸~木桶排成一列狸！最深处留了一瓶酒的位置狸！',
-    monologue: '杰洛特先生说这一瓶不错狸~存起来等特别的日子再开狸！',
-    completedBanner: '酒窖里重新有了木桶和灯火狸~！'
+      '石墙加固好了狸~架子排成一列狸！最深处留了一格特别的位置狸！',
+    monologue: '白狼先生说这一桶不错狸~存起来等特别的日子再开狸！',
+    completedBanner: '储藏室里重新有了架子和小灯狸~！'
   },
   {
     day: 4,
-    building: { id: 'stables', cn: '马厩', en: 'Stables', emoji: '🐎' },
+    building: { id: 'stables', cn: '牧场', en: 'Stables', emoji: '🐎' },
     needs: { wood: 45, stone: 35 },
     ability: 'roachPath',
-    intro: '豆狸&粒狸: 马厩的门歪了狸~屋顶漏了半边狸！ ( ……漏了半边狸！）\n豆狸&粒狸: 萝卜站在门口审查工程质量狸~小猪也在旁边看着狸！ ( ……看着狸！）',
+    intro: '豆狸&粒狸: 牧场大门歪了狸~栅栏倒了半边狸！ ( ……倒了半边狸！）\n豆狸&粒狸: 萝卜站在门口审查工程质量狸~小猪也在旁边看着狸！ ( ……看着狸！）',
     completed:
-      '新木梁撑起屋顶了狸~干草铺得厚厚暖暖的狸！萝卜进去转了一圈满意了狸！',
-    monologue: '杰洛特先生对萝卜说修好了狸~以后下雨别再乱跑了狸！',
-    completedBanner: '马厩里又有了干草和顶棚狸~！'
+      '新栅栏围起来了狸~干草铺得厚厚暖暖的狸！萝卜进去转了一圈满意了狸！',
+    monologue: '白狼先生对萝卜说修好了狸~以后下雨别再乱跑了狸！',
+    completedBanner: '牧场里又有了干草和暖棚狸~！'
   },
   {
     day: 5,
-    building: { id: 'garden', cn: '花园', en: 'Garden', emoji: '🪻' },
+    building: { id: 'garden', cn: '花圃', en: 'Garden', emoji: '🪻' },
     needs: { herb: 50, grape: 35 },
     ability: 'lilacReturn',
-    intro: '豆狸&粒狸: 今天修花园狸~！花坛荒了很久狸！ ( ……荒了很久狸！）\n豆狸&粒狸: 小猪翻出一截枯枝狸~闻到了丁香和醋栗的香味狸！ ( ……香味狸！）',
-    completed: '花园重新有了边界狸~草药和丁香沿着小径铺开了狸！',
-    monologue: '杰洛特先生说丁香和醋栗的香气像昨天做过的梦狸~',
-    completedBanner: '花园里又开了丁香狸~！'
+    intro: '豆狸&粒狸: 今天修花圃狸~！花坛荒了很久狸！ ( ……荒了很久狸！）\n豆狸&粒狸: 小猪翻出一截枯枝狸~闻到了丁香和花香狸！ ( ……花香狸！）',
+    completed: '花圃重新有了边界狸~花卉和丁香沿着小径铺开了狸！',
+    monologue: '白狼先生说丁香和花香像昨天做过的梦狸~',
+    completedBanner: '花圃里又开了丁香狸~！'
   },
   {
     day: 6,
     building: { id: 'greenhouse', cn: '温室', en: 'Greenhouse', emoji: '🌱' },
     needs: { herb: 40, clay: 30, magic: 20 },
     ability: 'greenhouseNurture',
-    intro: '豆狸&粒狸: 今天修温室狸~！玻璃碎了几块藤蔓钻进窗缝了狸！ ( ……钻进窗缝了狸！）\n豆狸&粒狸: 杰洛特先生说有些花不适合风雨狸~但只要有一点暖光就会重新开狸！ ( ……重新开狸！）',
+    intro: '豆狸&粒狸: 今天修温室狸~！玻璃碎了几块藤蔓钻进窗缝了狸！ ( ……钻进窗缝了狸！）\n豆狸&粒狸: 有些不耐寒的花暂时搬进去狸~暖光一照就重新精神了狸！ ( ……精神了狸！）',
     completed: '新玻璃映出晚霞了狸~温室里有了暖灯和细小的芽狸！',
-    monologue: '杰洛特先生说花他永远不懂狸~但冷的时候门要关好狸！',
+    monologue: '花这东西说不准狸~但冷的时候门要关好狸！',
     completedBanner: '温室的灯重新亮了狸~！'
   },
   {
     day: 7,
-    building: { id: 'gazebo', cn: '露台', en: 'Gazebo', emoji: '🌅' },
+    building: { id: 'gazebo', cn: '广场', en: 'Gazebo', emoji: '🌅' },
     needs: { stone: 45, wood: 35, magic: 15 },
     ability: 'toussentSunset',
-    intro: '豆狸&粒狸: 今天修露台狸~！朝着夕阳视野很好狸！ ( ……视野很好狸！）\n豆狸&粒狸: 地砖松了栏杆也生锈了狸~小猪在这里看了很久狸！ ( ……看了很久狸！）',
+    intro: '豆狸&粒狸: 今天修广场狸~！朝着夕阳视野很好狸！ ( ……视野很好狸！）\n豆狸&粒狸: 地砖松了围栏也生锈了狸~小猪在这里看了很久狸！ ( ……看了很久狸！）',
     completed:
-      '露台铺上新石板了狸~栏杆擦出暗金色的光狸！小圆桌旁放了一把椅子面朝落日狸！',
-    monologue: '杰洛特先生说先放一把椅子狸~等有人来了再加一把狸！',
-    completedBanner: '露台等到了夕阳狸~！'
+      '广场铺上新石板了狸~围栏擦出暗金色的光狸！小圆桌旁放了一把椅子面朝落日狸！',
+    monologue: '先放一把椅子狸~等有人来了再加一把狸！',
+    completedBanner: '广场等到了夕阳狸~！'
   },
   {
     day: 8,
@@ -524,25 +524,25 @@ export const DAYS = [
     needs: { clay: 45, grape: 35, wood: 20 },
     ability: 'lilacSeed',
     intro: '豆狸&粒狸: 今天修厨房狸~！炉子还能用但积了好多灰狸！ ( ……好多灰狸！）\n豆狸&粒狸: 小猪说炖汤应该不算太难狸~今天加把劲狸！ ( ……加把劲狸！）',
-    completed: '炉火重新亮起来了狸~木桌擦干净了狸！架子上放着酒和草药狸！',
-    monologue: '杰洛特先生说炖汤只要不烧糊就行狸~加点草药暖暖的狸！',
+    completed: '炉火重新亮起来了狸~木桌擦干净了狸！架子上放着果酱和花朵狸！',
+    monologue: '炖汤只要不烧糊就行狸~加点花果暖暖的狸！',
     completedBanner: '厨房里又升起了炉火狸~！'
   },
   {
     day: 9,
     building: {
       id: 'lilacSuite',
-      cn: '紫丁香客房',
+      cn: '星星客房',
       en: 'Lilac Suite',
       emoji: '🛏️'
     },
     needs: { wood: 30, herb: 22, magic: 18 },
     ability: 'hearthStew',
-    intro: '豆狸&粒狸: 最后一天狸~修紫丁香客房狸！ ( ……紫丁香客房狸！）\n豆狸&粒狸: 早晨有阳光傍晚能闻到丁香狸~小猪在换新床板狸！ ( ……新床板狸！）',
+    intro: '豆狸&粒狸: 最后一天狸~修星星客房狸！ ( ……星星客房狸！）\n豆狸&粒狸: 早晨有阳光晚上能看见星星狸~小猪在换新床板狸！ ( ……新床板狸！）',
     completed:
-      '房间安静下来了狸~窗边有书桌床边有两只枕头狸！紫丁香插在花瓶里风从花园吹进来狸！',
-    monologue: '杰洛特先生说枕头放两个狸~床要软一点客人会喜欢的狸！',
-    completedBanner: '紫丁香客房收拾好了狸~窗帘在风里轻轻摆动狸！',
+      '房间安静下来了狸~窗边有书桌床边有两只枕头狸！花瓶里插着丁香窗台上放着星星碎片狸！',
+    monologue: '枕头放两个狸~床要软一点客人会喜欢的狸！',
+    completedBanner: '星星客房收拾好了狸~窗帘在风里轻轻摆动狸！',
     ending: true
   }
 ]
@@ -589,7 +589,7 @@ export const MONSTERS = {
     emoji: '🦠',
     category: 'ritual',
     uiLabel: '疾病印记',
-    uiWeaknessShort: '弱点：在它上下左右打出一次三消。',
+    uiWeaknessShort: '在旁边凑三连狸~',
     uiPressureShort: '这是第一愿要驱散的病气。',
     hp: 3,
     hits: 3,
@@ -597,14 +597,14 @@ export const MONSTERS = {
     clearReward: {},
     damageRule: {
       type: 'orthogonalAdjacent',
-      hint: '在它上下左右打出一次 3 连及以上匹配，就能驱散这个疾病印记。'
+      hint: '在旁边凑三个以上狸~就能驱散这个疾病印记狸！'
     },
     pressureRule: { type: 'none' },
     telegraph: '病气',
     echoLabel: '清掉全部 6 个印记，就能完成第一愿。',
     clearRule: {
       type: 'adjacentMatch',
-      hint: '在它上下左右打出一次 3 连及以上匹配，就能驱散这个疾病印记。'
+      hint: '在旁边凑三个以上狸~就能驱散这个疾病印记狸！'
     },
     introLine: '病气浮出来了狸！先把它们清干净狸！',
     removeLine: '又散掉一个狸~'
@@ -615,23 +615,23 @@ export const MONSTERS = {
     emoji: '🕯️',
     category: 'ritual',
     uiLabel: '欢欣蜡烛',
-    statusLabel: '守在角落 · 不参与匹配',
-    uiWeaknessShort: '这是第二愿的角落烛火，不参与匹配。',
-    uiPressureShort: '只要完成一次 4 连，或打出一次 2 连锁，它们就会一起亮起。',
+    statusLabel: '守在角落·不参与消除',
+    uiWeaknessShort: '这是第二愿的角落烛火，不参与消除。',
+    uiPressureShort: '只要一次四连狸~或一次连击~它们就会一起亮起狸！',
     hp: 3,
     hits: 3,
     reward: {},
     clearReward: {},
     damageRule: {
       type: 'none',
-      hint: '它只是第二愿的角落烛火占位，不会参与匹配，也不会被消除。'
+      hint: '它只是第二愿的角落烛火占位，不会参与消除，也不会被消掉。'
     },
     pressureRule: { type: 'none' },
     telegraph: '角落烛火',
     echoLabel: '四个角落的蜡烛会一直守在原位。',
     clearRule: {
       type: 'none',
-      hint: '它只是第二愿的角落烛火占位，不会参与匹配，也不会被消除。'
+      hint: '它只是第二愿的角落烛火占位，不会参与消除，也不会被消掉。'
     },
     introLine: '四角的烛火已经就位了狸~',
     removeLine: '烛火熄了狸~',
@@ -642,7 +642,7 @@ export const MONSTERS = {
     name: '孽鬼',
     emoji: '👺',
     uiLabel: '孽鬼',
-    uiWeaknessShort: '弱点：在它上下左右打出一次三消。',
+    uiWeaknessShort: '在旁边凑三连狸~',
     uiPressureShort: '它不会移动，只会一直占住这一格。',
     hp: 3,
     hits: 3,
@@ -650,14 +650,14 @@ export const MONSTERS = {
     clearReward: {},
     damageRule: {
       type: 'orthogonalAdjacent',
-      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
+      hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     pressureRule: { type: 'none' },
     telegraph: '静止占位',
     echoLabel: '击退后，空出这一格。',
     clearRule: {
       type: 'adjacentMatch',
-      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
+      hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     introLine: '孽鬼狸！闻到葡萄味了狸~',
     removeLine: '去别处找吃的狸~'
@@ -668,7 +668,7 @@ export const MONSTERS = {
     name: '水鬼',
     emoji: '🧟',
     uiLabel: '水鬼',
-    uiWeaknessShort: '弱点：在它上下左右打出一次三消。',
+    uiWeaknessShort: '在旁边凑三连狸~',
     uiPressureShort: '它不会移动，只会一直占住这一格。',
     hp: 4,
     hits: 4,
@@ -676,14 +676,14 @@ export const MONSTERS = {
     clearReward: {},
     damageRule: {
       type: 'orthogonalAdjacent',
-      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
+      hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     pressureRule: { type: 'none' },
     telegraph: '静止占位',
     echoLabel: '击退后，空出这一格。',
     clearRule: {
       type: 'adjacentMatch',
-      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
+      hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     introLine: '水鬼狸！也闻到葡萄味了狸~',
     removeLine: '回水里去狸~'
@@ -694,7 +694,7 @@ export const MONSTERS = {
     name: '食尸鬼',
     emoji: '🧌',
     uiLabel: '食尸鬼',
-    uiWeaknessShort: '弱点：在它上下左右打出一次三消。',
+    uiWeaknessShort: '在旁边凑三连狸~',
     uiPressureShort: '它不会移动，只会一直占住这一格。',
     hp: 4,
     hits: 4,
@@ -702,14 +702,14 @@ export const MONSTERS = {
     clearReward: {},
     damageRule: {
       type: 'orthogonalAdjacent',
-      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
+      hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     pressureRule: { type: 'none' },
     telegraph: '静止占位',
     echoLabel: '击退后，空出这一格。',
     clearRule: {
       type: 'adjacentMatch',
-      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
+      hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     introLine: '食尸鬼狸~大概是跟着杰洛特先生来的狸！',
     removeLine: '走吧狸~这里没你要的狸~'
@@ -720,7 +720,7 @@ export const MONSTERS = {
     name: '狮鹫幼雏',
     emoji: '🦅',
     uiLabel: '狮鹫幼雏',
-    uiWeaknessShort: '弱点：在它上下左右打出一次三消。',
+    uiWeaknessShort: '在旁边凑三连狸~',
     uiPressureShort: '它不会移动，只会一直占住这一格。',
     hp: 5,
     hits: 5,
@@ -728,14 +728,14 @@ export const MONSTERS = {
     clearReward: {},
     damageRule: {
       type: 'orthogonalAdjacent',
-      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
+      hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     pressureRule: { type: 'none' },
     telegraph: '静止占位',
     echoLabel: '击退后，空出这一格。',
     clearRule: {
       type: 'adjacentMatch',
-      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
+      hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     introLine: '狮鹫幼雏狸~在等大的回来狸！',
     removeLine: '飞远点狸~等大的来接你狸~'
@@ -746,7 +746,7 @@ export const MONSTERS = {
     name: '怨灵',
     emoji: '👻',
     uiLabel: '怨灵',
-    uiWeaknessShort: '弱点：在它上下左右打出一次三消。',
+    uiWeaknessShort: '在旁边凑三连狸~',
     uiPressureShort: '它不会移动，只会一直占住这一格。',
     hp: 5,
     hits: 5,
@@ -754,14 +754,14 @@ export const MONSTERS = {
     clearReward: {},
     damageRule: {
       type: 'orthogonalAdjacent',
-      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
+      hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     pressureRule: { type: 'none' },
     telegraph: '静止占位',
     echoLabel: '击退后，空出这一格。',
     clearRule: {
       type: 'adjacentMatch',
-      hint: '在它上下左右打出一次 3 连及以上匹配，就会削掉 1 点生命。'
+      hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     introLine: '怨灵狸！得用点魔力才能让它散狸~',
     removeLine: '安静了狸~'
@@ -771,19 +771,19 @@ export const MONSTERS = {
     name: '迪精',
     emoji: '🧞',
     uiLabel: '迪精',
-    uiWeaknessShort: '本阶段要求：命中封印外圈。',
-    uiPressureShort: '下一次推进，会唤起一段愿望。',
+    uiWeaknessShort: '要打到封印外侧狸！',
+    uiPressureShort: '再推进一次狸~就会唤起一段愿望。',
     uiStageRules: {
-      0: '第 1 阶段：普通正交匹配命中外圈封印。',
-      1: '第 2 阶段：纵向匹配命中纵向封印。',
-      2: '第 3 阶段：连锁 ≥2 或 4 连及以上命中命运封印。',
-      3: '封印已满，愿望正在成形。'
+      0: '第一阶段狸：普通三连打到外侧封印狸！',
+      1: '第二阶段狸：竖着凑三连打到封印狸！',
+      2: '第三阶段狸：连击或四连以上打到命运封印狸~',
+      3: '封印已满狸~愿望正在成形狸！'
     },
     uiStagePreview: {
-      0: '下一次推进，会唤起第一个愿望。',
-      1: '下一次推进，会唤起第二个愿望。',
-      2: '下一次推进，会唤起最后的愿望。',
-      3: '迪精已经听见了。'
+      0: '再推进一次狸~会唤起第一个愿望狸！',
+      1: '再推进一次狸~会唤起第二个愿望狸！',
+      2: '再推进一次狸~会唤起最后的愿望狸！',
+      3: '迪精已经听见了狸~'
     },
     hits: 3,
     damageRule: { type: 'djinnStages' },
@@ -791,7 +791,7 @@ export const MONSTERS = {
     echoLabel: '每阶段推进一次愿望叙事。',
     clearRule: {
       type: 'djinnCorners',
-      hint: '三段封印依次要求：普通正交、纵向、连锁或大组。'
+      hint: '三段封印狸：先普通三连~再竖着凑~最后连击或四连以上狸！'
     },
     introLine: '迪精狸~杰洛特先生说你已经走了狸……'
   }
@@ -950,7 +950,7 @@ export const BARREN_GRAVE_LAYOUTS = {
 
 export const DJINN_WISHES = {
   sleepTitle: '沉睡的迪精',
-  sleepHint: '迪精还在睡狸~先把紫丁香客房准备好再唤醒仪式狸！',
+  sleepHint: '迪精还在睡狸~先把星星客房准备好再唤醒仪式狸！',
   sleepLine: '迪精还在睡狸~头顶轻轻浮着 💤 狸！',
   wakeTitle: '迪精醒来',
   wakeQuote: '豆狸&粒狸: 最后一盏灯亮起来时狸~那团沉睡已久的光也慢慢睁开了眼狸！ ( ……睁开了眼狸！）',
@@ -960,8 +960,8 @@ export const DJINN_WISHES = {
   ],
   readyTitle: '迪精',
   readyHint: '资源已经备齐了狸~点击迪精开始最后的仪式狸！',
-  readyLine: '紫丁香客房已经准备好了狸~剩下的就是把祝福亲手送进去狸！',
-  wakeLine: '紫丁香客房已经准备好了狸~迪精醒了等你开始最后的仪式狸！',
+  readyLine: '星星客房已经准备好了狸~剩下的就是把祝福亲手送进去狸！',
+  wakeLine: '星星客房已经准备好了狸~迪精醒了等你开始最后的仪式狸！',
   ceremonyDoneLine: '豆狸&粒狸: 愿望已经说完狸~灯也亮起来了狸！ ( ……亮起来了狸！）',
   stages: {
     1: {
@@ -977,7 +977,7 @@ export const DJINN_WISHES = {
       objective: {
         type: 'clearMarks',
         total: 8,
-        label: '在印记周围打出三消狸~清掉围住迪精的 8 个病气印记狸'
+        label: '在印记旁边凑三连狸~清掉围住迪精的 8 个病气印记狸'
       },
       resolveLines: [
         '豆狸&粒狸: 病气散了狸~药草色的光沿着封印亮起来了狸！ ( ……亮起来了狸！）',
@@ -997,8 +997,8 @@ export const DJINN_WISHES = {
       objective: {
         type: 'joyBursts',
         total: 1,
-        label: '完成一次 4 连狸~或打出一次 2 连锁狸！',
-        rulesText: '完成一次 4 连或更大组狸~或打出一次 2 连锁即可狸！'
+        label: '完成一次四连狸~或打出一次连击狸！',
+        rulesText: '四连以上狸~或一次连击就能点亮所有蜡烛狸！'
       },
       resolveLines: [
         '豆狸&粒狸: 彩带般的光从四角拢向中央狸~花园里都带了笑意狸！ ( ……带了笑意狸！）',
@@ -1022,9 +1022,9 @@ export const DJINN_WISHES = {
         total: 3,
         label: '按顺序完成生日蛋糕狸~！',
         steps: [
-          '先达成一次葡萄 3 连及以上狸~做出蛋糕底座狸！',
-          '再达成一次草药 3 连及以上狸~铺出紫丁香奶油狸！',
-          '最后达成一次魔力 3 连及以上狸~或一次 2 连锁点亮蜡烛狸！'
+          '先凑一次葡萄三连以上狸~做出蛋糕底座狸！',
+          '再凑一次花卉三连以上狸~铺出丁香奶油狸！',
+          '最后凑一次星星碎片三连以上狸~或一次连击点亮蜡烛狸！'
         ]
       },
       resolveLines: [
@@ -1180,12 +1180,12 @@ export const ESTATE_STRIP_STAGES = [
     unlockCount: 3,
     buildingId: 'cellar',
     segmentId: 'cellar',
-    revealLabel: '新修复 · 酒窖',
+    revealLabel: '新修复 · 储藏室',
     ambientLevel: 3,
     hotspots: [
       {
         id: 'cellar-lamp',
-        label: '酒窖灯火',
+        label: '储藏室灯火',
         unlockCount: 3,
         motion: 'cellarGlow',
         lines: [
@@ -1261,12 +1261,12 @@ export const ESTATE_STRIP_STAGES = [
     unlockCount: 7,
     buildingId: 'gazebo',
     segmentId: 'gazebo',
-    revealLabel: '新修复 · 露台',
+    revealLabel: '新修复 · 广场',
     ambientLevel: 7,
     hotspots: [
       {
         id: 'sunset-seat',
-        label: '露台椅子',
+        label: '广场长椅',
         unlockCount: 7,
         motion: 'sunGlint',
         lines: [
@@ -1301,7 +1301,7 @@ export const ESTATE_STRIP_STAGES = [
     unlockCount: 9,
     buildingId: 'lilacSuite',
     segmentId: 'lilacSuite',
-    revealLabel: '新修复 · 紫丁香客房',
+    revealLabel: '新修复 · 星星客房',
     ambientLevel: 9,
     hotspots: [
       {
@@ -1333,7 +1333,7 @@ export const ESTATE_PIG_LINES = {
   late: [
     '豆狸&粒狸: 它现在连厨房窗下都敢守着了狸~明显知道哪边会先有香味狸！ ( ……香味狸！）',
     '豆狸&粒狸: 小猪绕着亮灯的屋檐底下转了一圈狸~像在数今晚会不会有人都回来狸！ ( ……回来狸！）',
-    '豆狸&粒狸: 它在紫丁香客房前停了一会儿狸~又慢吞吞往花园那边走了狸！ ( ……走了狸！）'
+    '豆狸&粒狸: 它在星星客房前停了一会儿狸~又慢吞吞往花圃那边走了狸！ ( ……走了狸！）'
   ]
 }
 
@@ -1342,9 +1342,9 @@ export const ENDING = {
   beats: [
     {
       id: 'suite',
-      title: '紫丁香客房',
+      title: '星星客房',
       lines: [
-        '豆狸&粒狸: 紫丁香客房收拾好了狸~窗帘在风里轻轻摆动狸！ ( ……轻轻摆动狸！）',
+        '豆狸&粒狸: 星星客房收拾好了狸~窗帘在风里轻轻摆动狸！ ( ……轻轻摆动狸！）',
         '豆狸&粒狸: 风从半开的窗里吹进来狸~窗帘轻轻动了一下狸！ ( ……动了一下狸！）'
       ]
     },
@@ -1413,7 +1413,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'day1_clear_the_way',
     title: '先把路找出来',
-    description: '第 1 天完成庭院修复，且未使用白狼整顿。',
+    description: '第 1 天完成前院修复，且未使用白狼整地。',
     icon: '🌿',
     rarity: 'common',
     hidden: false,
@@ -1423,7 +1423,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'day2_vines_remember',
     title: '藤蔓记得回家',
-    description: '第 2 天完成葡萄园修复，且当日至少出现过一次 4 连或更大组。',
+    description: '第 2 天完成果园修复，且当天凑出过四连以上狸！',
     icon: '🍇',
     rarity: 'common',
     hidden: false,
@@ -1433,7 +1433,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'day3_one_bottle_saved',
     title: '留一瓶',
-    description: '第 3 天完成酒窖修复，且当天击退过水鬼。',
+    description: '第 3 天完成储藏室修复，且当天击退过水鬼。',
     icon: '🛢️',
     rarity: 'common',
     hidden: false,
@@ -1443,7 +1443,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'day4_roach_approves',
     title: '萝卜点头了',
-    description: '第 4 天完成马厩修复，且至少使用过一次萝卜识途。',
+    description: '第 4 天完成牧场修复，且至少使用过一次萝卜识途。',
     icon: '🐎',
     rarity: 'common',
     hidden: false,
@@ -1453,7 +1453,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'day5_lilac_in_the_wind',
     title: '风里有丁香',
-    description: '第 5 天完成花园修复，且完成时剩余步数至少为 6。',
+    description: '第 5 天完成花圃修复，且完成时剩余步数至少为 6。',
     icon: '🪻',
     rarity: 'rare',
     hidden: false,
@@ -1464,7 +1464,7 @@ export const ACHIEVEMENTS = [
     id: 'day6_keep_the_lamp_warm',
     title: '灯别熄',
     description:
-      '第 6 天完成温室修复，且当天至少打出过一次 2 连锁或 4 连以上。',
+      '第 6 天完成温室修复，且当天打出过一次连击或四连以上狸！',
     icon: '🌱',
     rarity: 'rare',
     hidden: false,
@@ -1474,7 +1474,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'day7_a_chair_for_waiting',
     title: '先放一把椅子',
-    description: '第 7 天完成露台修复，且至少使用过一次陶森特日落。',
+    description: '第 7 天完成广场修复，且至少使用过一次庄园日落。',
     icon: '🌅',
     rarity: 'rare',
     hidden: false,
@@ -1494,7 +1494,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'day9_room_for_her',
     title: '为她留灯',
-    description: '第 9 天完成紫丁香客房，并完整走到最终结局展示。',
+    description: '第 9 天完成星星客房，并完整走到最终结局展示。',
     icon: '🛏️',
     rarity: 'epic',
     hidden: true,
@@ -1523,8 +1523,8 @@ export const ACHIEVEMENTS = [
   },
   {
     id: 'cascade_poetry',
-    title: '连锁像诗',
-    description: '单次行动打出 3 层或以上连锁。',
+    title: '连击像诗',
+    description: '单次出手打出三连击以上狸！',
     icon: '✨',
     rarity: 'epic',
     hidden: false,
@@ -1534,7 +1534,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'grand_harvest',
     title: '丰收时刻',
-    description: '出现任意一次 5 消或更大组。',
+    description: '凑出一次五连以上狸！',
     icon: '🍷',
     rarity: 'epic',
     hidden: false,

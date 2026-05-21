@@ -1299,7 +1299,7 @@ export const useGameStore = defineStore('game', {
             trigger: 'resourceGain',
             affectedResources: Object.keys(summary),
             bonusAmount: effect.amount || 0,
-            summaryText: `连锁达到 ${effect.minChain || 2} 段`
+            summaryText: `连击达到 ${effect.minChain || 2} 段狸~`
           })
         } else if (
           effect.type === 'chainLineSweep' &&
