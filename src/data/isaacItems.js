@@ -1,18 +1,3 @@
-export const ISAAC_SPRITE_SHEET = {
-  url: '/Collectibles_sprite.png',
-  width: 640,
-  height: 1280,
-  tileSize: 32
-};
-
-const sprite = (x, y) => ({
-  x,
-  y,
-  backgroundPosition: `${x}px ${y}px`
-});
-
-export const ISAAC_ITEM_SPRITES = {};
-
 /**
  * 适配后的道具池：7 件宝箱房 + 7 件恶魔房。
  * 每件道具对应 REWARD_ITEMS 中的一个条目（rewardItemIds 长度恒为 1）。

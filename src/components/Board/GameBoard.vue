@@ -677,7 +677,7 @@ function onPick(payload, evt) {
     return
   }
   if (game.djinnReady) {
-    game.queueAmbientBark('只差最后一步了。点击迪精，开始仪式。')
+    game.queueAmbientBark('只差最后一步了狸~点击迪精开始仪式狸！')
     return
   }
   if (game.phase === 'targeting' && game.pendingAbility === 'milkTeaBarrage') {
@@ -1443,15 +1443,15 @@ function onNoMoreMoves() {
 
 function maybePraiseCombo(chain, groupSizes) {
   if (chain >= 4) {
-    game.queueAmbientBark('漂亮。连着打下去，整个庭院都跟着醒了。')
+    game.queueAmbientBark('漂亮狸~连着打下去整个庭院都跟着醒了狸！')
     return
   }
   if (chain === 3) {
-    game.queueAmbientBark('很好。就照这个势头继续。')
+    game.queueAmbientBark('很好狸~就照这个势头继续狸！')
     return
   }
   if (chain === 2 && groupSizes.some(size => size >= 4)) {
-    game.queueAmbientBark('不错。手感找到了。')
+    game.queueAmbientBark('不错狸~手感找到了狸！')
   }
 }
 

@@ -163,6 +163,18 @@ export const useAchievementStore = defineStore('achievements', {
       return this.unlock(id);
     },
 
+    clearAllForTesting() {
+      this.unlockedIds = [];
+      this.unlockQueue = [];
+      if (typeof window !== 'undefined') {
+        try {
+          window.localStorage.removeItem(STORAGE_KEY);
+        } catch (error) {
+          console.warn('[achievements] failed to clear data:', error);
+        }
+      }
+    },
+
     track(event, payload = {}) {
       if (this.disabledForRun && event !== 'runStart') return;
 

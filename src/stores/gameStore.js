@@ -214,7 +214,7 @@ export const useGameStore = defineStore('game', {
     },
     defaultEstateCaption(state) {
       return (
-        state.monologue || '风会先回来。然后是灯火、花香、还有住在这里的声音。'
+        state.monologue || '风会先回来狸~然后是灯火、花香、还有住在这里的声音狸！'
       )
     },
     activeBoardEntities(state) {
@@ -2924,6 +2924,17 @@ export const useGameStore = defineStore('game', {
         )
       } catch (e) {
         console.warn('[tutorial] failed to persist:', e)
+      }
+    },
+
+    resetTutorialForTesting() {
+      this.tutorialSeen = false
+      if (typeof window !== 'undefined') {
+        try {
+          window.localStorage.removeItem('corvo-bianco.tutorial.v1')
+        } catch (e) {
+          console.warn('[tutorial] failed to reset:', e)
+        }
       }
     }
   }

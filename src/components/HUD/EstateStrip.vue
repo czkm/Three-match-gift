@@ -465,7 +465,7 @@ function clearRevealTimers() {
 }
 
 function baseCaption() {
-  if (displayStage.value === 0) return '从庭院开始。先把门、路和喷泉修出来。'
+  if (displayStage.value === 0) return '从庭院开始狸~先把门、路和喷泉修出来狸！'
   return game.defaultEstateCaption
 }
 
@@ -503,12 +503,12 @@ function stageHotspotLines(buildingId) {
 }
 
 function roachLine() {
-  if (displayStage.value >= 9) return '它今天特别安静。'
-  if (displayStage.value >= 8) return '萝卜在看厨房。它知道汤快好了。'
+  if (displayStage.value >= 9) return '它今天特别安静狸。'
+  if (displayStage.value >= 8) return '萝卜在看厨房狸~它知道汤快好了狸！'
   const lines = [
-    '它在检查工程。',
-    '萝卜觉得还行。只是还行。',
-    '别看了。它不会夸人的。'
+    '它在检查工程狸。',
+    '萝卜觉得还行狸~只是还行狸。',
+    '别看了狸~它不会夸人的狸！'
   ]
   return lines[(lineCursor.roach ?? 0) % lines.length]
 }
@@ -523,14 +523,14 @@ function captionForHotspot(id) {
   switch (id) {
     case 'white-raven':
       if (displayStage.value >= 9)
-        return '白鸦落在紫丁香客房的窗台边，没有再飞走。'
+        return '白鸦落在紫丁香客房的窗台边狸~没有再飞走狸。'
       if (displayStage.value >= 7)
-        return '它落在栏杆上，看了一眼那把椅子，又像是看见了别的什么。'
-      return '白鸦在门柱上歪头看了一会儿，像在默认这里终于能住人了。'
+        return '它落在栏杆上狸~看了一眼那把椅子狸~又像是看见了别的什么狸。'
+      return '白鸦在门柱上歪头看了一会儿狸~像在默认这里终于能住人了狸。'
     case 'vine-cluster':
       return nextLine('vine-cluster', stageHotspotLines('vineyard'))
     case 'cellar-bottle':
-      return '“还行。留一瓶。”'
+      return '“还行狸~留一瓶狸。”'
     case 'roach': {
       const line = roachLine()
       lineCursor.roach = (lineCursor.roach ?? 0) + 1
@@ -539,19 +539,19 @@ function captionForHotspot(id) {
     case 'pet-pig':
       return nextLine('pet-pig', pigLines())
     case 'butterfly':
-      return '蝴蝶飞起盘旋一圈，又轻轻落回花苞旁。'
+      return '蝴蝶飞起盘旋一圈狸~又轻轻落回花苞旁狸。'
     case 'greenhouse-door':
       return greenhouseWarning.value
-        ? '灯开始轻轻闪，像在提醒今天快到尽头了。'
-        : '门关好。灯点上。剩下的它们自己会处理。'
+        ? '灯开始轻轻闪了狸~像是在提醒今天快到尽头了狸。'
+        : '门关好狸~灯点上了狸~剩下的它们自己会处理狸。'
     case 'terrace-chair':
       return terraceChairCount.value >= 2
-        ? '两把椅子并排摆着，不需要再解释什么。'
-        : '先放一把。两把的话……太像在等了。'
+        ? '两把椅子并排摆着狸~不需要再解释什么狸。'
+        : '先放一把狸~两把的话太像在等了狸。'
     case 'kitchen-window':
-      return '窗里的人影停了一下，又轻轻搅了搅锅。'
+      return '窗里的人影停了一下狸~又轻轻搅了搅锅狸。'
     case 'suite-lilac':
-      return '花瓶里的紫丁香轻轻一颤，窗帘顺着晚风摆开。'
+      return '花瓶里的紫丁香轻轻一颤狸~窗帘顺着晚风摆开狸。'
     default:
       return baseCaption()
   }

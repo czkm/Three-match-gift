@@ -101,6 +101,19 @@
       >
         测试归零救场
       </button>
+      <button type="button" class="tester-action" @click="jumpToEnding">
+        跳到结尾
+      </button>
+      <button
+        type="button"
+        class="tester-action danger"
+        @click="clearAllAchievements"
+      >
+        清空所有成就
+      </button>
+      <button type="button" class="tester-action" @click="resetTutorial">
+        测试引导
+      </button>
     </div>
     <div class="tester-columns">
       <div class="tester-group">
@@ -315,6 +328,22 @@ function selectAllItems() {
   showTesterToast(
     `测试道具：已勾选全部 ${allRewardItems.length} 件道具（点"应用当前组合"生效）`
   )
+}
+
+function jumpToEnding() {
+  game.jumpToEndingForTesting()
+  showTesterToast('测试跳转：已进入结局画面')
+}
+
+function clearAllAchievements() {
+  achievement.clearAllForTesting()
+  showTesterToast('测试成就：已清空所有成就')
+}
+
+function resetTutorial() {
+  game.resetTutorialForTesting()
+  game.phase = 'title'
+  showTesterToast('测试引导：已重置，回到标题画面后点"开始"即可触发')
 }
 
 function armJumpChord() {

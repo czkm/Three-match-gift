@@ -15,19 +15,19 @@ export const TARGETING_COPY = {
 
 export const GAMEPLAY_COPY = {
   hints: {
-    initial: '点击棋盘开始整理。优先凑出顺手的三消，让资源稳稳涨起来。',
-    awakening: '棋盘上的雷光正在汇向中央。等迪精醒来，最后的仪式就会开始。',
-    djinnTransitionFallback: '封印正在重组，下一愿即将显现。',
-    pigEnergyReady: '小猪已经攒满了 5 星好评。去右侧能力栏发动一次“奶茶攻击”，把棋盘上的某种资源全部收获。'
+    initial: '豆狸&粒狸: 点击棋盘开始整理狸~优先凑出顺手的三消让资源稳稳涨起来狸！ ( ……涨起来狸！）',
+    awakening: '豆狸&粒狸: 棋盘上的雷光正在汇向中央狸~等迪精醒来最后的仪式就会开始狸！ ( ……开始狸！）',
+    djinnTransitionFallback: '豆狸&粒狸: 封印正在重组狸~下一愿即将显现狸！ ( ……显现狸！）',
+    pigEnergyReady: '豆狸&粒狸: 小猪已经攒满了 5 星好评狸~去右侧能力栏发动一次奶茶攻击狸！ ( ……奶茶攻击狸！）'
   },
   djinn: {
-    readyHealthLabel: '仪式已经就绪',
-    readyEcho: '点击迪精，开始最后的三愿仪式。',
+    readyHealthLabel: '仪式已经就绪了狸',
+    readyEcho: '豆狸&粒狸: 点击迪精狸~开始最后的三愿仪式狸！ ( ……三愿仪式狸！）',
     sleepingHealthLabel: '睡眠中 💤',
-    sleepingEcho: '先把房间准备好，再把她叫醒。',
-    roomPrepHealthLabel: '先把第九天的房间准备好。',
-    roomPrepWeakness: '当资源达标后，迪精会回应最后的仪式。',
-    cakePressure: '按照顺序完成蛋糕底座、奶油和蜡烛。',
+    sleepingEcho: '豆狸&粒狸: 先把房间准备好狸~再把她叫醒狸！ ( ……叫醒狸！）',
+    roomPrepHealthLabel: '先把第九天的房间准备好狸。',
+    roomPrepWeakness: '当资源达标后狸~迪精会回应最后的仪式狸！',
+    cakePressure: '按照顺序完成蛋糕底座狸~奶油和蜡烛狸！',
     actionLabels: {
       enterBoard: '进入仪式棋盘',
       nextWish: '继续下一愿',
@@ -38,9 +38,9 @@ export const GAMEPLAY_COPY = {
       continue: '点击继续'
     },
     stageCompleteBarks: {
-      1: '病气退开了。',
-      2: '灯火已经亮起来了。',
-      3: '蛋糕做好了。'
+      1: '豆狸&粒狸: 病气退开了狸！ ( ……退开了狸！）',
+      2: '豆狸&粒狸: 灯火已经亮起来了狸！ ( ……亮起来了狸！）',
+      3: '豆狸&粒狸: 蛋糕做好了狸！ ( ……做好了狸！）'
     },
     formatMarkProgress(progress, total) {
       return `病气印记 ${progress} / ${total}`;
@@ -69,6 +69,6 @@ export const GAMEPLAY_COPY = {
     }
   },
   pig: {
-    angryBark: '小猪不高兴了。它拿走了你 1 步。'
+    angryBark: '豆狸&粒狸: 小猪不高兴了狸~它拿走了你 1 步狸！ ( ……1 步狸！）'
   }
 };
