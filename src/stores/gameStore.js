@@ -1579,14 +1579,7 @@ export const useGameStore = defineStore('game', {
           entity.hitsTaken = entity.hitsRequired || 1
         }
       }
-      // Play wolf howl
-      try {
-        const audio = new Audio('/dog howell.x-wav')
-        audio.volume = 0.6
-        audio.play()
-      } catch (_) {
-        /* audio may be blocked */
-      }
+      audioManager.playSFX('ability_wolf', { vol: 0.6 }).catch(() => {})
     },
 
     _triggerDarkBeggarChaos() {
@@ -1827,6 +1820,7 @@ export const useGameStore = defineStore('game', {
     inspectPig() {
       this.pigClickCount += 1
       if (this.pigAngryUsedDay === this.currentDay) {
+        audioManager.playSFX('pig_annoyed', { vol: 0.4 }).catch(() => {})
         return {
           ...PIG_REACTIONS.annoyed,
           angry: false,
@@ -1843,6 +1837,8 @@ export const useGameStore = defineStore('game', {
               ? PIG_REACTIONS.warm
               : PIG_REACTIONS.warning
         const pick = pool[(this.pigClickCount - 1) % pool.length] || pool[0]
+        const pigSound = progress < 0.34 ? 'pig_gentle' : progress < 0.68 ? 'pig_warm' : 'pig_warning'
+        audioManager.playSFX(pigSound, { vol: 0.45 }).catch(() => {})
         return {
           ...pick,
           angry: false,
@@ -1854,7 +1850,7 @@ export const useGameStore = defineStore('game', {
       this.stepsLeft = Math.max(0, this.stepsLeft - 1)
       this.turnId++
       this.pigAngryUsedDay = this.currentDay
-      audioManager.playSFX('error', { vol: 0.44 })
+      audioManager.playSFX('pig_angry', { vol: 0.55 })
       EventBus.trigger('pigPenalty', [{ stepsLost: 1 }])
       this.queueBark(GAMEPLAY_COPY.pig.angryBark)
       return {

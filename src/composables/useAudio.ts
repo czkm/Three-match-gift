@@ -8,19 +8,21 @@ type PhaseConfig = {
   bgmVolume?: number;
 };
 
+const AC_BGM = 'animalcrossingnewhorizons/Bgm';
+
 const PHASE_AUDIO_MAP: Record<string, PhaseConfig> = {
-  title: { bgm: 'dayplay', ambient: null, bgmVolume: 0.36 },
-  intro: { bgm: 'dayplay', ambient: null, bgmVolume: 0.36 },
-  playing: { bgm: 'dayplay', ambient: null, bgmVolume: 0.36 },
-  targeting: { bgm: 'dayplay', ambient: null, bgmVolume: 0.24 },
-  dayEnd: { bgm: 'dayplay', ambient: null, bgmVolume: 0.3 },
-  repairing: { bgm: 'dayplay', ambient: null, bgmVolume: 0.34 },
-  rewardChoice: { bgm: 'dayplay', ambient: null, bgmVolume: 0.32 },
-  awakening: { bgm: 'dayplay', ambient: null, bgmVolume: 0.38 },
-  djinnTransition: { bgm: 'dayplay', ambient: null, bgmVolume: 0.36 },
-  wish: { bgm: 'dayplay', ambient: null, bgmVolume: 0.36 },
-  ending: { bgm: 'brithday', ambient: null, bgmVolume: 0.32 },
-  final: { bgm: 'brithday', ambient: null, bgmVolume: 0.28 }
+  title:   { bgm: `${AC_BGM}/3-01 Main Theme - Welcome Horizons.mp3`,              ambient: null,        bgmVolume: 0.34 },
+  intro:   { bgm: `${AC_BGM}/1-05 500 a.m. (~Sunny Weather~).mp3`,                 ambient: 'daytime',   bgmVolume: 0.32 },
+  playing: { bgm: `${AC_BGM}/1-10 1000 a.m. (~Sunny Weather~).mp3`,                ambient: 'daytime',   bgmVolume: 0.36 },
+  targeting:     { bgm: `${AC_BGM}/2-03 300 p.m. (~Sunny Weather~).mp3`,           ambient: 'daytime',   bgmVolume: 0.24 },
+  dayEnd:        { bgm: `${AC_BGM}/2-06 600 p.m. (~Sunny Weather~).mp3`,           ambient: 'evening',   bgmVolume: 0.30 },
+  repairing:     { bgm: `${AC_BGM}/3-08 Prologue 2.mp3`,                           ambient: 'construction', bgmVolume: 0.34 },
+  rewardChoice:  { bgm: `${AC_BGM}/3-50 Able Sisters - Welcome To The Able Sisters!.mp3`, ambient: null, bgmVolume: 0.32 },
+  awakening:     { bgm: `${AC_BGM}/2-12 Midnight (~Sunny Weather~).mp3`,           ambient: 'space',     bgmVolume: 0.38 },
+  djinnTransition: { bgm: `${AC_BGM}/2-12 Midnight (~Sunny Weather~).mp3`,         ambient: 'space',     bgmVolume: 0.36 },
+  wish:          { bgm: `${AC_BGM}/3-01 Main Theme - Welcome Horizons.mp3`,        ambient: 'healing',   bgmVolume: 0.36 },
+  ending:        { bgm: `${AC_BGM}/3-60 Welcome to Our Island!.mp3`,               ambient: 'healing',   bgmVolume: 0.32 },
+  final:         { bgm: `${AC_BGM}/3-61 Goodbye!.mp3`,                             ambient: 'healing',   bgmVolume: 0.28 }
 };
 
 let mountedCount = 0;
@@ -30,7 +32,7 @@ let teardownHandlers: Array<() => void> = [];
 
 function getSceneConfig(game: ReturnType<typeof useGameStore>): PhaseConfig | null {
   if (game.phase === 'playing' && game.currentDay === 8 && (game.djinnState === 'ready' || game.djinnBoardStage)) {
-    return { bgm: 'dayplay', ambient: null, bgmVolume: 0.38 };
+    return { bgm: PHASE_AUDIO_MAP.playing.bgm, ambient: 'space', bgmVolume: 0.38 };
   }
   return PHASE_AUDIO_MAP[game.phase] || null;
 }
@@ -39,7 +41,9 @@ async function syncSceneAudio(game: ReturnType<typeof useGameStore>) {
   const config = getSceneConfig(game);
   if (!config) return;
 
-  const targetBGMName = config.bgm ? `/audio/bgm_${config.bgm}.mp3` : '';
+  const targetBGMName = config.bgm
+    ? `/audio/${config.bgm.includes('/') ? config.bgm : `bgm_${config.bgm}.mp3`}`
+    : '';
   const shouldStartBGM = Boolean(config.bgm) && audioManager.currentBGMName !== targetBGMName;
 
   if (typeof config.bgmVolume === 'number') {

@@ -5,6 +5,81 @@ const MAX_SFX = 4;
 const BGM_FADE_MS = 1200;
 const AMBIENT_FADE_MS = 1800;
 
+const AC_BASE = 'animalcrossingnewhorizons';
+
+const AC_SFX_MAP: Record<string, string> = {
+  click:       `${AC_BASE}/UI & System/UI_Decide.wav`,
+  pageflip:    `${AC_BASE}/UI & System/UI_Page_Next.wav`,
+  error:       `${AC_BASE}/UI & System/UI_Invalid.wav`,
+  swap:        `${AC_BASE}/UI & System/UI_DragStart.wav`,
+  land:        `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_01.wav`,
+  spawn:       `${AC_BASE}/Trees & Plants/Tree_Appear_Normal_00.wav`,
+  lineclear:   `${AC_BASE}/Trees & Plants/FieldPlant_WaterDrop_00.wav`,
+  hint:        `${AC_BASE}/UI & System/UI_Attention.wav`,
+  lowsteps:    `${AC_BASE}/UI & System/System_Timer_CountDown.wav`,
+  steprestore: `${AC_BASE}/UI & System/UI_CountUp.wav`,
+  dayend:      `${AC_BASE}/Environment/BbsBirdNightTwitterB00.wav`,
+  achievement: `${AC_BASE}/Rosie Emotes/RosieDelight.mp3`,
+  repair:      `${AC_BASE}/Environment/Env_FacilityConstruction00.wav`,
+  seal_break:  `${AC_BASE}/Environment/Env_BaseRainHard.wav`,
+  rune_hit:    `${AC_BASE}/Trees & Plants/Tree_Shake_Oak_HitAxe.wav`,
+  djinn_appear:`${AC_BASE}/Environment/Env_ThunderM00.wav`,
+  wish1:       `${AC_BASE}/UI & System/Event_TsunekichiChance00.wav`,
+  wish2:       `${AC_BASE}/Environment/Env_ShootingStarAppear00.wav`,
+  wish3:       `${AC_BASE}/Environment/Env_ShootingStar_Success.wav`,
+  ability_wolf:    `${AC_BASE}/Environment/Env_GrassWindSummerStrong.wav`,
+  ability_harvest: `${AC_BASE}/Trees & Plants/Tree_Shake_Cedar_Small.wav`,
+  ability_roach:   `${AC_BASE}/Insects/Insect_Cockroach_Move00.wav`,
+  ability_sunset:  `${AC_BASE}/Environment/Env_PlantWind_Bamboo_Strong_00.wav`,
+  decoction:       `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_03.wav`,
+  lilac:           `${AC_BASE}/Trees & Plants/FieldPlant_FlowerSplash_00.wav`,
+  xray:            `${AC_BASE}/UI & System/UI_Check.wav`,
+  pig_gentle:  `${AC_BASE}/Rosie Emotes/RosiePleased.mp3`,
+  pig_warm:    `${AC_BASE}/Rosie Emotes/RosieDelight.mp3`,
+  pig_warning: `${AC_BASE}/Rosie Emotes/RosieCuriosity.mp3`,
+  pig_annoyed: `${AC_BASE}/Rosie Emotes/RosieResignation.mp3`,
+  pig_angry:   `${AC_BASE}/Rosie Emotes/RosieAggravation.mp3`,
+  pig_idle:    `${AC_BASE}/Rosie Emotes/RosieSleepy.mp3`,
+  pig_sniff:   `${AC_BASE}/Rosie Emotes/RosieCuriosity.mp3`,
+  pig_energy:  `${AC_BASE}/Rosie Emotes/RosieFlourish.mp3`,
+};
+
+const AC_SFX_MULTI: Record<string, string[]> = {
+  achievement: [
+    `${AC_BASE}/Rosie Emotes/RosieDelight.mp3`,
+    `${AC_BASE}/Rosie Emotes/RosieAmazed.mp3`,
+  ],
+};
+
+const AC_AMBIENT_MAP: Record<string, string> = {
+  daytime:      `${AC_BASE}/Environment/Env_GrassWindSummerWeak.wav`,
+  evening:      `${AC_BASE}/Environment/BbsBirdNightTwitterA00.wav`,
+  construction: `${AC_BASE}/Environment/Env_FacilityConstruction00.wav`,
+  healing:      `${AC_BASE}/Ambience/AmbPlace_Healing.wav`,
+  space:        `${AC_BASE}/Ambience/AmbPlace_Space.wav`,
+};
+
+const AC_MATCH = [
+  'FieldPlant_WaterDrop_00.wav',
+  'FieldPlant_WaterDrop_01.wav',
+  'FieldPlant_Shake_Dash_00.wav',
+  'Tree_Shake_Shrub_Small_00.wav',
+  'Tree_Shake_Oak_Small.wav',
+  'Tree_Shake_Oak.wav',
+  'Tree_Shake_Sakura.wav',
+  'Tree_Shake_Cedar_Down1.wav',
+];
+
+const AC_COMBO = [
+  'Tree_Shake_BambooNode_00.wav',
+  'Tree_Shake_BambooNode_01.wav',
+  'Tree_Shake_BambooNode_02.wav',
+  'Tree_Shake_Bamboo_Collid.wav',
+  'Tree_Shake_Cedar.wav',
+];
+
+const AC_DROP = 'Tree_Shake_RandomRainDrop_00.wav';
+
 type ChannelKind = 'bgm' | 'ambient';
 type MonsterEvent = 'spawn' | 'hit' | 'defeat';
 type SFXOptions = {
@@ -50,7 +125,15 @@ const SFX_THROTTLE: Record<string, SFXThrottlePolicy> = {
   ability_sunset: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
   decoction: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
   lilac: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
-  xray: { sameMs: 600, group: 'ritual', groupMs: 300, priority: 3 }
+  xray: { sameMs: 600, group: 'ritual', groupMs: 300, priority: 3 },
+  pig_gentle:  { sameMs: 800,  group: 'pig', groupMs: 400, priority: 1 },
+  pig_warm:    { sameMs: 800,  group: 'pig', groupMs: 400, priority: 1 },
+  pig_warning: { sameMs: 1200, group: 'pig', groupMs: 500, priority: 2 },
+  pig_annoyed: { sameMs: 1800, group: 'pig', groupMs: 600, priority: 2 },
+  pig_angry:   { sameMs: 3000, group: 'pig', groupMs: 900, priority: 3 },
+  pig_idle:    { sameMs: 8000, group: 'pig', groupMs: 3000, priority: 1 },
+  pig_sniff:   { sameMs: 4000, group: 'pig', groupMs: 2000, priority: 1 },
+  pig_energy:  { sameMs: 5000, group: 'pig', groupMs: 1000, priority: 3 }
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -136,24 +219,25 @@ export class AudioManager {
       }
     }
 
+    const preloadAC = (p: string) => this.preload(`${AC_BASE}/${p}`);
     await Promise.all([
       this.preload('bgm_dayplay.mp3'),
       this.preload('bgm_brithday.mp3'),
-      this.preload('sfx_click.mp3'),
-      this.preload('drop.mp3'),
-      this.preload('eliminate1.mp3'),
-      this.preload('eliminate2.mp3'),
-      this.preload('eliminate3.mp3'),
-      this.preload('eliminate4.mp3'),
-      this.preload('eliminate5.mp3'),
-      this.preload('eliminate6.mp3'),
-      this.preload('eliminate7.mp3'),
-      this.preload('eliminate8.mp3'),
-      this.preload('contnuousMatch3.mp3'),
-      this.preload('contnuousMatch4.mp3'),
-      this.preload('contnuousMatch5.mp3'),
-      this.preload('contnuousMatch6.mp3'),
-      this.preload('contnuousMatch7.mp3')
+      preloadAC('UI & System/UI_Decide.wav'),
+      preloadAC(`Trees & Plants/${AC_DROP}`),
+      preloadAC(`Trees & Plants/${AC_MATCH[0]}`),
+      preloadAC(`Trees & Plants/${AC_MATCH[1]}`),
+      preloadAC(`Trees & Plants/${AC_MATCH[2]}`),
+      preloadAC(`Trees & Plants/${AC_MATCH[3]}`),
+      preloadAC(`Trees & Plants/${AC_MATCH[4]}`),
+      preloadAC(`Trees & Plants/${AC_MATCH[5]}`),
+      preloadAC(`Trees & Plants/${AC_MATCH[6]}`),
+      preloadAC(`Trees & Plants/${AC_MATCH[7]}`),
+      preloadAC(`Trees & Plants/${AC_COMBO[0]}`),
+      preloadAC(`Trees & Plants/${AC_COMBO[1]}`),
+      preloadAC(`Trees & Plants/${AC_COMBO[2]}`),
+      preloadAC(`Trees & Plants/${AC_COMBO[3]}`),
+      preloadAC(`Trees & Plants/${AC_COMBO[4]}`)
     ]);
 
     this.initialized = true;
@@ -188,12 +272,15 @@ export class AudioManager {
 
   async playBGM(name: string, opts: BGMOptions = {}) {
     if (!await this.ensureReady()) return;
-    return this.playLoopingChannel(this.bgmChannel, `bgm_${name}.mp3`, 'bgm', opts.fade ?? BGM_FADE_MS, opts.loop ?? true);
+    const fileName = name.includes('/') ? name : `bgm_${name}.mp3`;
+    return this.playLoopingChannel(this.bgmChannel, fileName, 'bgm', opts.fade ?? BGM_FADE_MS, opts.loop ?? true);
   }
 
   async playAmbient(name: string, opts: BGMOptions = {}) {
     if (!await this.ensureReady()) return;
-    return this.playLoopingChannel(this.ambientChannel, `amb_${name}.mp3`, 'ambient', opts.fade ?? AMBIENT_FADE_MS, true);
+    const acPath = AC_AMBIENT_MAP[name];
+    const file = acPath ?? `amb_${name}.mp3`;
+    return this.playLoopingChannel(this.ambientChannel, file, 'ambient', opts.fade ?? AMBIENT_FADE_MS, true);
   }
 
   async stopAmbient(fade = AMBIENT_FADE_MS) {
@@ -214,7 +301,11 @@ export class AudioManager {
       this.activeSFXs.delete(oldest);
     }
 
-    const audio = createAudio(`/audio/sfx_${name}.mp3`);
+    const multi = AC_SFX_MULTI[name];
+    const pool = multi ?? (AC_SFX_MAP[name] ? [AC_SFX_MAP[name]] : []);
+    const acPath = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : null;
+    const src = acPath ? `/audio/${acPath}` : `/audio/sfx_${name}.mp3`;
+    const audio = createAudio(src);
     const baseVolume = clamp((opts.vol ?? 1) * this._sfxVolume, 0, 1);
     audio.volume = baseVolume;
     audio.playbackRate = clamp(opts.rate ?? 1, 0.5, 2);
@@ -261,7 +352,20 @@ export class AudioManager {
 
   playMonster(type: string, event: MonsterEvent) {
     void type;
-    void event;
+    const map: Record<string, string> = {
+      spawn:  `${AC_BASE}/Trees & Plants/Tree_Appear_Normal_00.wav`,
+      hit:    `${AC_BASE}/Trees & Plants/Tree_Shake_Oak_HitAxe.wav`,
+      defeat: `${AC_BASE}/Trees & Plants/Tree_Disappear_Normal_00.wav`,
+    };
+    const path = map[event];
+    if (!path) return;
+    const audio = createAudio(`/audio/${path}`);
+    audio.volume = clamp(0.5 * this._sfxVolume, 0, 1);
+    this.activeSFXs.add(audio);
+    const cleanup = () => { audio.pause(); this.activeSFXs.delete(audio); };
+    audio.addEventListener('ended', cleanup, { once: true });
+    audio.addEventListener('error', cleanup, { once: true });
+    audio.play().catch(cleanup);
   }
 
   pauseAll() {
@@ -447,7 +551,17 @@ export class AudioManager {
       this.activeSFXs.delete(oldest);
     }
 
-    const audio = createAudio(`/audio/${fileName}`);
+    let actualFile = fileName;
+    if (/^eliminate(\d+)\.mp3$/.test(fileName)) {
+      const i = parseInt(fileName.match(/\d+/)![0]) - 1;
+      actualFile = `${AC_BASE}/Trees & Plants/${AC_MATCH[i]}`;
+    } else if (/^contnuousMatch(\d+)\.mp3$/.test(fileName)) {
+      const lvl = parseInt(fileName.match(/\d+/)![0]);
+      actualFile = `${AC_BASE}/Trees & Plants/${AC_COMBO[lvl - 3]}`;
+    } else if (fileName === 'drop.mp3') {
+      actualFile = `${AC_BASE}/Trees & Plants/${AC_DROP}`;
+    }
+    const audio = createAudio(`/audio/${actualFile}`);
     const baseVolume = clamp((opts.vol ?? 1) * this._sfxVolume, 0, 1);
     audio.volume = baseVolume;
     audio.playbackRate = clamp(opts.rate ?? 1, 0.5, 2);

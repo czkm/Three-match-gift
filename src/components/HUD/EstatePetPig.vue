@@ -40,6 +40,7 @@
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { audioManager } from '@/audio/AudioManager'
 
 const props = defineProps({
   displayStage: { type: Number, default: 0 },
@@ -150,7 +151,8 @@ function randomPauseMs() {
 }
 
 function settleState() {
-  return Math.random() < 0.36 ? 'sniffing' : 'idle'
+  const state = Math.random() < 0.36 ? 'sniffing' : 'idle'
+  return state
 }
 
 function movementMs(fromNode, toNode) {
