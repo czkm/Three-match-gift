@@ -101,10 +101,11 @@
               <div class="will-section will-gift-section">
                 <div class="will-gift-box">
                   <div class="will-gift-glow" />
-                  <span class="will-gift-icon">{{ willScreen.giftPlaceholder }}</span>
+                  <img src="/img/animal_icon2.png" class="will-gift-piggy" alt="粒狸" />
+                  <img src="/img/nook-receipt.png" class="will-gift-receipt" alt="报酬收据" />
                   <span class="will-gift-hint">{{ willScreen.giftHint }}</span>
                 </div>
-                <p class="will-gift-label">↑ 生日礼物 ↑</p>
+                <p class="will-gift-label">↑ 报酬收据狸 ↑</p>
               </div>
 
               <!-- Divider -->
@@ -289,6 +290,7 @@ function buildPosterHTML() {
   const items = ownedWillItems.value;
   const location = willLocationText.value;
   const itemIcons = items.map(i => `<span class="pi">${i.emoji}</span>`).join('');
+  const base = window.location.origin;
 
   return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -308,7 +310,8 @@ body{display:flex;align-items:center;justify-content:center;min-height:100vh;bac
 .gift-stage{display:flex;flex-direction:column;align-items:center;margin:6px 0;gap:8px}
 .gift-box{width:210px;height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2.5px solid rgba(180,155,120,.3);border-radius:20px;background:radial-gradient(ellipse at 50% 35%,rgba(255,248,235,.75),rgba(232,218,192,.35));box-shadow:inset 0 0 26px rgba(200,170,130,.22),0 3px 12px rgba(107,92,67,.1);position:relative}
 .gift-glow{position:absolute;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(220,185,130,.15),transparent 70%);pointer-events:none}
-.gift-icon{font-size:76px;line-height:1;filter:drop-shadow(0 2px 4px rgba(130,105,65,.18));position:relative;z-index:1}
+.gift-piggy{width:44px;height:44px;border-radius:50%;border:2.5px solid #f5c31c;object-fit:cover;background:#f0e8d8;position:relative;z-index:1;margin-bottom:2px}
+.gift-receipt{width:120px;height:auto;object-fit:contain;position:relative;z-index:1}
 .gift-hint{font-size:12px;color:#a09078;font-weight:600;letter-spacing:.06em;margin-top:5px;position:relative;z-index:1}
 .gift-label{font-size:14px;color:#8a6b44;font-weight:700;letter-spacing:.08em}
 /* pig */
@@ -335,7 +338,7 @@ body{display:flex;align-items:center;justify-content:center;min-height:100vh;bac
 <div class="deco-row"><span>🎂</span><span>🎉</span><span>🎈</span></div>
 <p class="sub">${ws.clearedLine}<br>${location}</p>
 <div class="svg-divider"></div>
-<div class="gift-stage"><div class="gift-box"><div class="gift-glow"></div><span class="gift-icon">${ws.giftPlaceholder}</span><span class="gift-hint">${ws.giftHint}</span></div><p class="gift-label">↑ 生日礼物 ↑</p></div>
+<div class="gift-stage"><div class="gift-box"><div class="gift-glow"></div><img class="gift-piggy" src="${base}/img/animal_icon2.png" /><img class="gift-receipt" src="${base}/img/nook-receipt.png" /><span class="gift-hint">${ws.giftHint}</span></div><p class="gift-label">↑ 报酬收据狸 ↑</p></div>
 <div class="svg-divider"></div>
 <div class="pig-stage"><span class="pig-icon">🐷</span><p class="pig-line pig-line-em">${ws.pigCompanionLine2}</p><p class="pig-line">${ws.pigCompanionLine1}</p><p class="pig-line pig-line-sub">${ws.pigCompanionLine3}</p></div>
 <div class="svg-divider"></div>
@@ -900,6 +903,35 @@ function onRestart() {
 @keyframes gift-glow-breathe {
   0%, 100% { transform: scale(1); opacity: 0.5; }
   50%      { transform: scale(1.35); opacity: 0.85; }
+}
+
+.will-gift-piggy {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2.5px solid #f5c31c;
+  box-shadow: 0 2px 0 0 #dba90e;
+  object-fit: cover;
+  background: #f0e8d8;
+  animation: gift-icon-float 3s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 2px;
+}
+
+.will-gift-receipt {
+  width: 120px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(130, 105, 65, 0.2));
+  position: relative;
+  z-index: 1;
+  animation: receipt-sway 3.6s ease-in-out infinite;
+}
+
+@keyframes receipt-sway {
+  0%, 100% { transform: rotate(-1deg) scale(1); }
+  50% { transform: rotate(1deg) scale(1.03); }
 }
 
 .will-gift-icon {

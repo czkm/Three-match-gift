@@ -11,9 +11,7 @@ const sprite = (x, y) => ({
   backgroundPosition: `${x}px ${y}px`
 });
 
-export const ISAAC_ITEM_SPRITES = {
-  stye: sprite(0, -1152)
-};
+export const ISAAC_ITEM_SPRITES = {};
 
 /**
  * 适配后的道具池：7 件宝箱房 + 7 件恶魔房。
@@ -28,8 +26,8 @@ export const ISAAC_ITEMS = {
     cnName: '麦粒肿',
     enName: 'Stye',
     wikiUrl: 'https://isaac.huijiwiki.com/wiki/C731',
-    summary: '每日首次 4 连：match 中心 + 1 个随机相邻格炸开。',
-    sprite: ISAAC_ITEM_SPRITES.stye,
+    summary: '每日首次 4 连：match 周围 1 个随机相邻格炸开。',
+    sprite: null,
     rewardItemIds: ['stye']
   },
   luckyFoot: {

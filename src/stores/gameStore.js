@@ -1384,7 +1384,7 @@ export const useGameStore = defineStore('game', {
           hasBig &&
           !this._hasItemFlag(item)
         ) {
-          // 麦粒肿：match 中心 + 1 个随机相邻格炸开
+          // 麦粒肿：match 周围 1 个随机相邻格炸开
           const cells = this._pickAdjacentPopCells(matchGroups)
           if (cells.length) {
             this._markItemFlag(item)
@@ -1514,7 +1514,7 @@ export const useGameStore = defineStore('game', {
     },
 
     /**
-     * 麦粒肿辅助：从 matchGroups 取一个代表中心 + 1 个随机有效相邻格（十字方向）。
+     * 麦粒肿辅助：从 matchGroups 中心取 1 个随机有效相邻格（十字方向）。
      */
     _pickAdjacentPopCells(matchGroups) {
       const center = this._pickSweepCenter(matchGroups)
@@ -1530,9 +1530,9 @@ export const useGameStore = defineStore('game', {
         const r = center.row + dr
         const c = center.col + dc
         if (r >= 0 && r < BOARD_ROWS && c >= 0 && c < BOARD_COLS)
-          return [center, { row: r, col: c }]
+          return [{ row: r, col: c }]
       }
-      return [center]
+      return []
     },
 
     /**
