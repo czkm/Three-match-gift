@@ -638,9 +638,10 @@ export const MONSTERS = {
   nekkers: {
     id: 'nekkers',
     char: 'N',
-    name: '孽鬼',
-    emoji: '👺',
-    uiLabel: '孽鬼',
+    name: '螳螂',
+    emoji: '🦗',
+    img: '/img/monsters/mantis.png',
+    uiLabel: '螳螂',
     uiWeaknessShort: '在旁边凑三连狸~',
     uiPressureShort: '它不会移动，只会一直占住这一格。',
     hp: 3,
@@ -658,15 +659,16 @@ export const MONSTERS = {
       type: 'adjacentMatch',
       hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
-    introLine: '孽鬼狸！闻到橙子味了狸~',
-    removeLine: '去别处找吃的狸~'
+    introLine: '螳螂挥着镰刀手臂走过来狸！',
+    removeLine: '螳螂飞走去别处狸~'
   },
   drowner: {
     id: 'drowner',
     char: 'D',
-    name: '水鬼',
-    emoji: '🧟',
-    uiLabel: '水鬼',
+    name: '水黾',
+    emoji: '🪲',
+    img: '/img/monsters/water-strider.png',
+    uiLabel: '水黾',
     uiWeaknessShort: '在旁边凑三连狸~',
     uiPressureShort: '它不会移动，只会一直占住这一格。',
     hp: 4,
@@ -684,15 +686,16 @@ export const MONSTERS = {
       type: 'adjacentMatch',
       hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
-    introLine: '水鬼狸！也闻到橙子味了狸~',
-    removeLine: '回水里去狸~'
+    introLine: '水黾在水面上滑过来狸！',
+    removeLine: '水黾滑走狸~'
   },
   ghoul: {
     id: 'ghoul',
     char: 'G',
-    name: '食尸鬼',
-    emoji: '🧌',
-    uiLabel: '食尸鬼',
+    name: '蜣螂',
+    emoji: '🪲',
+    img: '/img/monsters/dung-beetle.png',
+    uiLabel: '蜣螂',
     uiWeaknessShort: '在旁边凑三连狸~',
     uiPressureShort: '它不会移动，只会一直占住这一格。',
     hp: 4,
@@ -710,15 +713,16 @@ export const MONSTERS = {
       type: 'adjacentMatch',
       hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
-    introLine: '食尸鬼狸~大概是跟着杰洛特先生来的狸！',
-    removeLine: '走吧狸~这里没你要的狸~'
+    introLine: '蜣螂推着粪球滚过来狸！',
+    removeLine: '蜣螂滚走狸~'
   },
   griffinChick: {
     id: 'griffinChick',
     char: 'C',
-    name: '狮鹫幼雏',
-    emoji: '🦅',
-    uiLabel: '狮鹫幼雏',
+    name: '大蓝闪蝶',
+    emoji: '🦋',
+    img: '/img/monsters/blue-morpho.png',
+    uiLabel: '大蓝闪蝶',
     uiWeaknessShort: '在旁边凑三连狸~',
     uiPressureShort: '它不会移动，只会一直占住这一格。',
     hp: 5,
@@ -736,15 +740,16 @@ export const MONSTERS = {
       type: 'adjacentMatch',
       hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
-    introLine: '狮鹫幼雏狸~在等大的回来狸！',
-    removeLine: '飞远点狸~等大的来接你狸~'
+    introLine: '大蓝闪蝶扇着翅膀飞过来狸！',
+    removeLine: '大蓝闪蝶飞走狸~'
   },
   wraith: {
     id: 'wraith',
     char: 'W',
-    name: '怨灵',
-    emoji: '👻',
-    uiLabel: '怨灵',
+    name: '人面樁象',
+    emoji: '🪲',
+    img: '/img/monsters/face-bug.png',
+    uiLabel: '人面樁象',
     uiWeaknessShort: '在旁边凑三连狸~',
     uiPressureShort: '它不会移动，只会一直占住这一格。',
     hp: 5,
@@ -762,8 +767,8 @@ export const MONSTERS = {
       type: 'adjacentMatch',
       hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
-    introLine: '怨灵狸！得用点魔力才能让它散狸~',
-    removeLine: '安静了狸~'
+    introLine: '人面樁象背上的花纹在盯着你狸…',
+    removeLine: '人面樁象逃走狸~'
   },
   djinn: {
     id: 'djinn',
@@ -1444,7 +1449,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'day3_one_bottle_saved',
     title: '留一瓶',
-    description: '第 3 天完成储藏室修复，且当天击退过水鬼。',
+    description: '第 3 天完成储藏室修复，且当天击退过水黾。',
     icon: '🛢️',
     rarity: 'common',
     hidden: false,

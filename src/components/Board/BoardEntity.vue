@@ -18,6 +18,7 @@
   >
     <span class="slot-frame" />
     <img v-if="entity.kind === 'barrenGrave'" class="glyph gyroid-img" :src="gyroidImg" alt="陶俑" />
+    <img v-else-if="monster?.img" class="glyph monster-img" :src="monster.img" :alt="monster.name" />
     <span v-else class="glyph">{{ monster?.emoji || '' }}</span>
     <span v-if="showHitFx" class="damage-float">-1</span>
     <span v-if="entity.kind === 'djinn'" class="djinn-core" :class="`p${djinnStage}`" />
@@ -185,15 +186,15 @@ onBeforeUnmount(() => {
 
 .nekkers {
   background:
-    radial-gradient(circle at 32% 28%, rgba(210, 150, 116, 0.26), transparent 36%),
-    linear-gradient(160deg, rgba(90, 50, 28, 0.96) 0%, rgba(52, 28, 16, 0.98) 100%);
+    radial-gradient(circle at 32% 28%, rgba(148, 200, 96, 0.26), transparent 36%),
+    linear-gradient(160deg, rgba(64, 128, 36, 0.96) 0%, rgba(36, 80, 20, 0.98) 100%);
   animation: nue-giggle 1.2s ease-in-out infinite;
 }
 
 .drowner {
   background:
-    radial-gradient(circle at 34% 28%, rgba(124, 178, 208, 0.24), transparent 38%),
-    linear-gradient(165deg, rgba(46, 82, 112, 0.96) 0%, rgba(24, 46, 68, 0.98) 100%);
+    radial-gradient(circle at 34% 28%, rgba(124, 200, 220, 0.24), transparent 38%),
+    linear-gradient(165deg, rgba(36, 130, 150, 0.96) 0%, rgba(18, 70, 86, 0.98) 100%);
   animation: drowner-drip 2s ease-in-out infinite;
 }
 
@@ -206,8 +207,8 @@ onBeforeUnmount(() => {
 
 .wraith {
   background:
-    radial-gradient(circle at 45% 32%, rgba(232, 214, 255, 0.18), transparent 38%),
-    linear-gradient(160deg, rgba(88, 58, 122, 0.94) 0%, rgba(42, 24, 70, 0.98) 100%);
+    radial-gradient(circle at 45% 32%, rgba(220, 158, 128, 0.20), transparent 38%),
+    linear-gradient(160deg, rgba(148, 72, 44, 0.94) 0%, rgba(82, 36, 20, 0.98) 100%);
   animation: wraith-flicker 1.6s ease-in-out infinite;
 }
 
@@ -329,6 +330,12 @@ onBeforeUnmount(() => {
   filter:
     drop-shadow(0 1px 3px rgba(10, 8, 6, 0.45))
     drop-shadow(0 0 4px rgba(200, 178, 148, 0.05));
+}
+
+.monster-img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
 }
 
 .barrenGrave .slot-frame {
