@@ -33,7 +33,7 @@
     <div class="loading-card">
       <p class="loading-emblem">🏰</p>
       <h1 class="loading-title">Corvo Bianco</h1>
-      <h2 class="loading-subtitle">白鸦葡萄园</h2>
+      <h2 class="loading-subtitle">白鸦果园</h2>
       <p class="loading-tagline">一个温柔的三连修复礼物游戏</p>
 
       <!-- Progress bar -->
@@ -93,7 +93,7 @@ const bounceEmojis = ref([true, false, false]);
 
 let bounceTimer = null;
 
-const resourceEmojis = ['🍇', '🪵', '🪨'];
+const resourceEmojis = ['🍊', '🪵', '🪨'];
 
 const statusText = computed(() => {
   if (displayProgress.value < 30) return '正在准备修复工具...';

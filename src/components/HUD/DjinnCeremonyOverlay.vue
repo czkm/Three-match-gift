@@ -1,5 +1,36 @@
 <template>
-  <div class="wish-overlay" @click="onOverlayClick">
+  <!-- ── Transition mode: floating narrative card ── -->
+  <div v-if="isTransition" class="transition-overlay" @click="onOverlayClick">
+    <div class="transition-card" @click.stop>
+      <div class="transition-card-inner">
+        <p class="transition-title">{{ card.title }}</p>
+        <div class="transition-divider">
+          <span class="divider-dot">✦</span>
+        </div>
+        <p class="transition-quote" v-if="card.quote">{{ card.quote }}</p>
+        <div class="dialog-area">
+          <Dialog
+            v-if="activeLine"
+            ref="dialogRef"
+            class="transition-dialog"
+            :text="activeLine"
+            :hint="readyForAdvance ? '点击继续观礼' : COMMON_COPY.continueHint"
+            @done="onDialogDone"
+            @skip="onOverlayClick"
+            @ready="onLineReady"
+          />
+        </div>
+        <div v-if="readyForAdvance" class="action-row">
+          <button class="advance-btn transition-btn" @click.stop="onAdvance">
+            继续观礼
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Intro / Resolve mode: bottom-aligned card ── -->
+  <div v-else class="wish-overlay" @click="onOverlayClick">
     <div class="card" @click.stop>
       <div class="portrait-panel">
         <div class="dual-portrait">
@@ -50,6 +81,8 @@ const game = useGameStore();
 const lineIndex = ref(0);
 const lineReady = ref(false);
 const dialogRef = ref(null);
+
+const isTransition = computed(() => game.djinnCardMode === 'transition');
 const card = computed(() => game.currentDjinnCard || { title: '', quote: '', lines: [] });
 const activeLine = computed(() => card.value.lines?.[lineIndex.value] || '');
 const readyForAdvance = computed(() => lineReady.value && lineIndex.value >= (card.value.lines?.length || 0));
@@ -83,6 +116,10 @@ function onLineReady() {
 
 function onAdvance() {
   audioManager.playSFX('pageflip', { vol: 0.4 });
+  if (isTransition.value) {
+    game.finishDjinnTransition();
+    return;
+  }
   if (game.djinnCardMode === 'intro') {
     game.beginDjinnBoardStage();
     return;
@@ -104,6 +141,89 @@ function onOverlayClick() {
 </script>
 
 <style scoped>
+/* ═══════════════════════════════════════════════════════
+   Transition mode — floating narrative card
+   ═══════════════════════════════════════════════════════ */
+
+.transition-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(114, 93, 66, 0.35);
+  backdrop-filter: blur(4px);
+  animation: fade-in 500ms var(--ease-out-expo);
+}
+
+.transition-card {
+  width: min(440px, 88vw);
+  clip-path: url(#animal-modal-clip);
+  background:
+    url('/img/background/menu_bg.png') bottom center/auto 36px no-repeat,
+    rgb(247, 243, 223);
+  box-shadow:
+    0 4px 12px rgba(107, 92, 67, 0.45),
+    0 0 0 1px rgba(255, 242, 214, 0.2);
+  animation: card-in 600ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.transition-card-inner {
+  padding: 32px 36px 38px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.transition-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #794f27;
+  letter-spacing: 0.06em;
+}
+
+.transition-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 10px 0 8px;
+}
+
+.divider-dot {
+  font-size: 10px;
+  color: #c8b898;
+  letter-spacing: 4px;
+}
+
+.transition-quote {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #9f927d;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.transition-dialog {
+  max-width: none;
+  text-align: center;
+  width: 100%;
+  font-size: 14px;
+}
+
+.transition-btn {
+  margin-top: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Intro / Resolve mode — bottom-aligned card (unchanged)
+   ═══════════════════════════════════════════════════════ */
+
 .wish-overlay {
   position: absolute;
   inset: 0;
@@ -113,9 +233,10 @@ function onOverlayClick() {
   justify-content: center;
   padding: 0 20px 28px;
   background:
-    radial-gradient(circle at 30% 30%, rgba(25, 200, 185, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 70% 20%, rgba(247, 205, 103, 0.1) 0%, transparent 35%),
-    linear-gradient(180deg, #f8f8f0 0%, #f7f3df 50%, #e8dfc8 100%);
+    radial-gradient(circle at 30% 30%, rgba(25, 200, 185, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 70% 20%, rgba(247, 205, 103, 0.08) 0%, transparent 35%),
+    rgba(114, 93, 66, 0.28);
+  backdrop-filter: blur(2px);
   animation: fade-in 400ms var(--ease-out-expo);
 }
 

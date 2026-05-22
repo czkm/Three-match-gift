@@ -1,12 +1,12 @@
 export const TARGETING_COPY = {
   short: {
-    grape: '点一个 🍇 果子狸~',
+    grape: '点一个 🍊 果子狸~',
     rowOrCol: '点一整行或一整列清扫狸！',
     twoTiles: '先点一个，再点另一个狸~',
     twoResources: '想变成什么狸？在右边选吧狸！'
   },
   long: {
-    grape: '点一个 🍇 果子狸~丰收会把周围变成一片果园狸！',
+    grape: '点一个 🍊 果子狸~丰收会把周围变成一片果园狸！',
     rowOrCol: '点一行或一列狸~直接清扫过去狸！',
     twoTiles: '先点一个再点另一个狸~萝卜会帮你换好狸！',
     twoResources: '在右边选两种资源狸~全部变成你想要的狸！'

@@ -20,39 +20,67 @@
       </aside>
     </div>
 
-    <div v-if="game.phase === 'intro'" class="intro-overlay" @click="onIntroDone" />
+    <div
+      v-if="game.phase === 'intro'"
+      class="intro-overlay"
+      @click="onIntroDone"
+    />
 
     <!-- Day-end gentle reminder -->
     <DayEndOverlay v-if="game.phase === 'dayEnd'" @advance="onDayEndAdvance" />
 
-    <DjinnCeremonyOverlay v-if="game.phase === 'wish'" :board-ref="boardEl" />
+    <DjinnCeremonyOverlay
+      v-if="
+        game.phase === 'wish' ||
+        (game.phase === 'djinnTransition' &&
+          game.djinnCardMode === 'transition')
+      "
+      :board-ref="boardEl"
+    />
 
     <!-- Repair sequence: per-day differentiated cutscene -->
-    <PerDayCutscene v-if="game.phase === 'repairing'" @advance="onRepairAdvance" />
+    <PerDayCutscene
+      v-if="game.phase === 'repairing'"
+      @advance="onRepairAdvance"
+    />
 
-    <RewardRoomOverlay v-if="game.phase === 'rewardChoice'" @choose="onRewardChoose" />
+    <RewardRoomOverlay
+      v-if="game.phase === 'rewardChoice'"
+      @choose="onRewardChoose"
+    />
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
-import DayHeader from './HUD/DayHeader.vue';
-import ResourceBar from './HUD/ResourceBar.vue';
-import AbilityBar from './HUD/AbilityBar.vue';
-import PerDayCutscene from './HUD/PerDayCutscene.vue';
-import DayEndOverlay from './HUD/DayEndOverlay.vue';
-import EstateStrip from './HUD/EstateStrip.vue';
-import GameBoard from './Board/GameBoard.vue';
-import DjinnCeremonyOverlay from './HUD/DjinnCeremonyOverlay.vue';
-import RewardRoomOverlay from './HUD/RewardRoomOverlay.vue';
-import { useGameStore } from '@/stores/gameStore';
+import { computed, ref } from 'vue'
+import DayHeader from './HUD/DayHeader.vue'
+import ResourceBar from './HUD/ResourceBar.vue'
+import AbilityBar from './HUD/AbilityBar.vue'
+import PerDayCutscene from './HUD/PerDayCutscene.vue'
+import DayEndOverlay from './HUD/DayEndOverlay.vue'
+import EstateStrip from './HUD/EstateStrip.vue'
+import GameBoard from './Board/GameBoard.vue'
+import DjinnCeremonyOverlay from './HUD/DjinnCeremonyOverlay.vue'
+import RewardRoomOverlay from './HUD/RewardRoomOverlay.vue'
+import { useGameStore } from '@/stores/gameStore'
 
-const game = useGameStore();
-const boardEl = ref(null);
-const showEstateStrip = computed(() => ['intro', 'playing', 'targeting', 'dayEnd', 'repairing', 'rewardChoice', 'awakening', 'djinnTransition'].includes(game.phase));
+const game = useGameStore()
+const boardEl = ref(null)
+const showEstateStrip = computed(() =>
+  [
+    'intro',
+    'playing',
+    'targeting',
+    'dayEnd',
+    'repairing',
+    'rewardChoice',
+    'awakening',
+    'djinnTransition'
+  ].includes(game.phase)
+)
 
 function onIntroDone() {
-  game.startPlay();
+  game.startPlay()
 }
 
 function onDayEndAdvance() {
@@ -60,13 +88,12 @@ function onDayEndAdvance() {
 }
 
 function onRepairAdvance() {
-  game.advanceFromRepair();
+  game.advanceFromRepair()
 }
 
 function onRewardChoose(itemId) {
-  game.chooseRewardItem(itemId);
+  game.chooseRewardItem(itemId)
 }
-
 </script>
 
 <style scoped>
@@ -84,7 +111,7 @@ function onRewardChoose(itemId) {
 
 .game-container::before,
 .game-container::after {
-  content: "";
+  content: '';
   position: absolute;
   pointer-events: none;
 }
@@ -92,9 +119,21 @@ function onRewardChoose(itemId) {
 .game-container::before {
   inset: 0;
   background:
-    radial-gradient(circle at 50% 18%, rgba(255, 219, 158, 0.2) 0%, transparent 32%),
-    radial-gradient(circle at 18% 82%, rgba(255, 200, 140, 0.08) 0%, transparent 28%),
-    linear-gradient(180deg, rgba(20, 12, 8, 0.04) 0%, rgba(20, 12, 8, 0.2) 100%),
+    radial-gradient(
+      circle at 50% 18%,
+      rgba(255, 219, 158, 0.2) 0%,
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 18% 82%,
+      rgba(255, 200, 140, 0.08) 0%,
+      transparent 28%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(20, 12, 8, 0.04) 0%,
+      rgba(20, 12, 8, 0.2) 100%
+    ),
     url('/img/background/content_bg_pc.jpg') center/cover no-repeat;
   z-index: -2;
 }
@@ -159,5 +198,4 @@ function onRewardChoose(itemId) {
     gap: 14px;
   }
 }
-
 </style>

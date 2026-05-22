@@ -17,7 +17,8 @@
     @click.stop="emit('monster-inspect', { kind: entity.kind, entityId: entity.id })"
   >
     <span class="slot-frame" />
-    <span class="glyph">{{ monster?.emoji || '' }}</span>
+    <img v-if="entity.kind === 'barrenGrave'" class="glyph gyroid-img" :src="gyroidImg" alt="陶俑" />
+    <span v-else class="glyph">{{ monster?.emoji || '' }}</span>
     <span v-if="showHitFx" class="damage-float">-1</span>
     <span v-if="entity.kind === 'djinn'" class="djinn-core" :class="`p${djinnStage}`" />
     <span v-if="entity.kind === 'djinn' && entity.sleeping" class="sleep-mark">💤</span>
@@ -47,6 +48,28 @@ let hitFxTimer = null;
 
 const monster = computed(() => MONSTERS[props.entity.kind]);
 const djinnStage = computed(() => Math.max(0, Math.min(3, props.entity.hitsTaken || 0)));
+
+const GYROID_POOL = [
+  'img/chessPiece/FtrHaniwaCrash00.png',
+  'img/chessPiece/FtrHaniwaCrash01.png',
+  'img/chessPiece/FtrHaniwaCrash02.png',
+  'img/chessPiece/FtrHaniwaCrash03.png',
+  'img/chessPiece/FtrHaniwaCrash04.png',
+  'img/chessPiece/FtrHaniwaCrash05.png',
+  'img/chessPiece/FtrHaniwaCrash06.png',
+  'img/chessPiece/FtrHaniwaCrash07.png',
+  'img/chessPiece/FtrHaniwaCrash08.png',
+  'img/chessPiece/FtrHaniwaCrash09.png',
+  'img/chessPiece/FtrHaniwaCrash10.png',
+  'img/chessPiece/FtrHaniwaCrash11.png',
+  'img/chessPiece/FtrHaniwaCrash12.png',
+];
+
+const gyroidImg = computed(() => {
+  if (props.entity.kind !== 'barrenGrave') return '';
+  const hash = [...props.entity.id].reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  return GYROID_POOL[hash % GYROID_POOL.length];
+});
 const hitSignature = computed(() => {
   if (props.entity.lastDamagedTurn == null) return '';
   return `${props.entity.id}:${props.entity.lastDamagedTurn}:${props.entity.hitsTaken || 0}:${props.entity.hitsRequired || 0}`;
@@ -260,60 +283,56 @@ onBeforeUnmount(() => {
 
 .barrenGrave {
   background:
-    linear-gradient(180deg, rgba(244, 221, 162, 0.05) 0%, transparent 18%),
-    radial-gradient(circle at 50% 32%, rgba(208, 173, 102, 0.12), transparent 34%),
-    radial-gradient(circle at 24% 74%, rgba(96, 82, 60, 0.26), transparent 34%),
-    linear-gradient(180deg, rgba(80, 58, 36, 0.16) 0%, rgba(56, 42, 28, 0.12) 44%, transparent 44% 100%),
-    linear-gradient(160deg, rgba(70, 58, 50, 0.96) 0%, rgba(30, 24, 22, 0.98) 100%);
-  border-color: rgba(214, 184, 112, 0.24);
+    radial-gradient(ellipse at 50% 42%, rgba(74, 56, 38, 0.95) 0%, rgba(58, 44, 30, 0.98) 42%, transparent 50%),
+    linear-gradient(160deg, #6a5a48 0%, #4d3d2e 100%);
+  border-color: rgba(140, 120, 95, 0.28);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 238, 196, 0.08),
-    inset 0 0 22px rgba(214, 184, 112, 0.08),
-    inset 0 -18px 24px rgba(14, 10, 8, 0.38),
-    0 8px 18px rgba(12, 9, 7, 0.28);
+    inset 0 0 0 1px rgba(255, 238, 196, 0.06),
+    inset 0 -4px 8px rgba(10, 8, 6, 0.28),
+    0 4px 10px rgba(24, 16, 12, 0.22);
 }
 
+/* Oval pit in the center — like a dug hole */
 .barrenGrave::before {
   content: '';
   position: absolute;
-  inset: auto 7px 7px;
-  height: 18px;
-  border-radius: 999px;
+  width: 44px;
+  height: 30px;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
   background:
-    radial-gradient(circle at 36% 42%, rgba(128, 114, 92, 0.46), transparent 24%),
-    radial-gradient(circle at 68% 58%, rgba(84, 72, 56, 0.34), transparent 26%),
-    linear-gradient(180deg, rgba(40, 28, 22, 0.82) 0%, rgba(28, 20, 16, 0.96) 100%);
-  filter: blur(0.2px);
-  z-index: 1;
+    radial-gradient(ellipse at 50% 50%, rgba(40, 28, 18, 0.92) 0%, rgba(52, 38, 26, 0.80) 55%, transparent 100%);
+  z-index: 0;
 }
 
+/* Dirt mound at the bottom */
 .barrenGrave::after {
   content: '';
   position: absolute;
-  inset: 9px;
-  border-radius: 12px;
-  border: 1px solid rgba(214, 184, 112, 0.22);
-  box-shadow:
-    0 0 0 1px rgba(255, 241, 204, 0.04),
-    inset 0 0 12px rgba(214, 184, 112, 0.08);
-  opacity: 0.86;
+  inset: auto 8px 5px;
+  height: 14px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 40% 50%, rgba(160, 140, 110, 0.40), transparent 50%),
+    linear-gradient(180deg, rgba(100, 80, 58, 0.88) 0%, rgba(78, 60, 42, 0.96) 100%);
   z-index: 1;
 }
 
-.barrenGrave .glyph {
-  font-size: 30px;
-  transform: translateY(-7px);
+/* Gyroid sits in the pit — slightly smaller, semi-buried */
+.barrenGrave .gyroid-img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  transform: translateY(2px);
   filter:
-    drop-shadow(0 3px 6px rgba(10, 8, 6, 0.42))
-    drop-shadow(0 0 8px rgba(214, 184, 112, 0.12));
+    drop-shadow(0 1px 3px rgba(10, 8, 6, 0.45))
+    drop-shadow(0 0 4px rgba(200, 178, 148, 0.05));
 }
 
 .barrenGrave .slot-frame {
-  border-color: rgba(214, 184, 112, 0.12);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 247, 236, 0.08),
-    inset 0 0 12px rgba(214, 184, 112, 0.06),
-    inset 0 -10px 14px rgba(114, 93, 66, 0.16);
+  display: none;
 }
 
 .barrenGrave .hp-bar {

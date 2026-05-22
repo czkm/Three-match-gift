@@ -50,7 +50,7 @@
       class="row"
       :class="{ highlighted: highlightedResourceIds.has(r.id), stolen: stolenResourceIds.has(r.id) }"
     >
-      <span class="emoji">{{ r.emoji }}</span>
+      <span class="emoji"><img v-if="r.chessImg" class="chess-icon" :src="r.chessImg" :alt="r.label" /><span v-else>{{ r.emoji }}</span></span>
       <span class="label">{{ r.label }}</span>
       <div class="track">
         <div
@@ -647,7 +647,8 @@ h3 {
   50% { transform: scale(1.15); }
 }
 
-.emoji { font-size: 18px; width: 22px; text-align: center; }
+.emoji { font-size: 18px; width: 22px; text-align: center; display: inline-flex; align-items: center; justify-content: center; }
+.chess-icon { width: 20px; height: 20px; object-fit: contain; }
 .label { width: 32px; color: #725d42; font-weight: 600; }
 
 .track {

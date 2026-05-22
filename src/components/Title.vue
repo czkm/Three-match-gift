@@ -3,11 +3,11 @@
     <div class="card">
       <p class="emblem">⚜️</p>
       <h1 class="ink-title">Corvo Bianco</h1>
-      <h2 class="ink-title sub">白鸦葡萄园</h2>
+      <h2 class="ink-title sub">白鸦果园</h2>
       <p class="byline ink-subtle">一份温柔的三连修复礼物 · 9 天</p>
 
       <blockquote class="quote">
-        "听说你有了一座葡萄园。<br />
+        "听说你有了一座果园。<br />
         种点什么。<br />
         等它好了，我也许会去看看。"
         <footer>—— Y</footer>

@@ -3,7 +3,7 @@
     <header class="strip-head">
       <div class="title-group">
         <p class="eyebrow">
-          白鸦葡萄园场景 {{ displayStage }}/{{ stages.length }}
+          白鸦果园场景 {{ displayStage }}/{{ stages.length }}
         </p>
         <p class="caption">{{ displayCaption }}</p>
       </div>
@@ -153,7 +153,7 @@
             <span class="vine-leaf vine-leaf-b" />
             <span class="vine-leaf vine-leaf-c" />
             <span class="vine-grape grape-a">🍃</span>
-            <span class="vine-grape grape-b">🍇</span>
+            <span class="vine-grape grape-b">🍊</span>
             <button
               v-if="displayStage >= 2"
               class="hotspot vine vine-hotspot"
@@ -162,7 +162,7 @@
               @mouseenter="onHotspot('vine-cluster')"
               @click="onHotspot('vine-cluster')"
             >
-              <span class="actor">🍇</span>
+              <span class="actor">🍊</span>
             </button>
           </template>
 

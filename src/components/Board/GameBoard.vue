@@ -33,8 +33,8 @@
             <span class="growth-leaf leaf-a">🌿</span>
             <span class="growth-leaf leaf-b">🍃</span>
             <span class="growth-leaf leaf-c">🌿</span>
-            <span class="growth-grape grape-a">🍇</span>
-            <span class="growth-grape grape-b">🍇</span>
+            <span class="growth-grape grape-a">🍊</span>
+            <span class="growth-grape grape-b">🍊</span>
           </template>
           <template v-else-if="boardThemeKey === 'cellar'">
             <span class="growth-mote mote-a">✨</span>
@@ -808,7 +808,9 @@ defineExpose({
       const MID_MS = 260 // 翻转中点：glyph 此时不可见，切换资源
       for (let i = 0; i < cells.length; i++) {
         setTimeout(() => {
-          const el = layer?.querySelector(`[data-tile-pos="${cells[i].row},${cells[i].col}"]`)
+          const el = layer?.querySelector(
+            `[data-tile-pos="${cells[i].row},${cells[i].col}"]`
+          )
           if (el) el.classList.add('tile-flip')
         }, i * 22)
       }
@@ -857,7 +859,9 @@ defineExpose({
     const layer = document.querySelector('.tileContainer')
     for (let i = 0; i < cells.length; i++) {
       setTimeout(() => {
-        const el = layer?.querySelector(`[data-tile-pos="${cells[i].row},${cells[i].col}"]`)
+        const el = layer?.querySelector(
+          `[data-tile-pos="${cells[i].row},${cells[i].col}"]`
+        )
         if (el) el.classList.add('tile-flip')
       }, i * 20)
     }
@@ -2384,19 +2388,15 @@ function onXrayScan(payload = {}) {
     transform 280ms var(--ease-out-expo),
     filter 280ms var(--ease-out-expo);
   transform-origin: center center;
-  background:
-    linear-gradient(180deg, rgba(255, 248, 230, 0.16) 0%, transparent 12%),
-    linear-gradient(
-      160deg,
-      rgba(93, 66, 40, 0.95) 0%,
-      rgba(36, 22, 12, 0.98) 100%
-    );
-  border: 1px solid rgba(220, 188, 132, 0.42);
+  /* background:
+    linear-gradient(180deg, rgba(255, 248, 235, 0.2) 0%, transparent 12%),
+    linear-gradient(160deg, var(--board-frame-1) 0%, var(--board-frame-2) 100%);
+  border: 1px solid rgba(200, 178, 148, 0.5);
   box-shadow:
-    0 24px 48px rgba(14, 8, 6, 0.42),
-    0 6px 14px rgba(14, 8, 6, 0.18),
-    inset 0 0 0 1px rgba(255, 245, 218, 0.1),
-    inset 0 0 0 5px rgba(20, 12, 8, 0.28);
+    0 24px 48px rgba(24, 16, 12, 0.28),
+    0 6px 14px rgba(24, 16, 12, 0.12),
+    inset 0 0 0 1px rgba(255, 245, 218, 0.12),
+    inset 0 0 0 5px rgba(114, 93, 66, 0.14); */
 }
 
 .gameBoard.idle {
@@ -2414,12 +2414,16 @@ function onXrayScan(payload = {}) {
 .gameBoard::before {
   inset: 5px;
   background:
-    linear-gradient(160deg, rgba(255, 245, 222, 0.08), rgba(114, 93, 66, 0.06)),
-    linear-gradient(160deg, var(--board-inner-1) 0%, var(--board-inner-2) 100%);
+    linear-gradient(
+      160deg,
+      rgba(255, 248, 235, 0.50),
+      rgba(200, 185, 160, 0.55)
+    ),
+    var(--game-bg, url('/img/background/gameBoardbg1.webp')) center/cover no-repeat;
   box-shadow:
     inset 0 0 0 1px rgba(255, 245, 222, 0.08),
     inset 0 0 0 3px rgba(114, 93, 66, 0.18),
-    inset 0 3px 10px rgba(114, 93, 66, 0.10);
+    inset 0 3px 10px rgba(114, 93, 66, 0.1);
 }
 
 .gameBoard::after {
@@ -2436,10 +2440,10 @@ function onXrayScan(payload = {}) {
 }
 .gameBoard.repairing[data-theme='vineyard'] {
   box-shadow:
-    0 24px 44px rgba(14, 8, 6, 0.42),
+    0 24px 44px rgba(24, 16, 12, 0.28),
     0 0 28px rgba(122, 192, 88, 0.18),
     inset 0 0 0 1px rgba(255, 242, 214, 0.08),
-    inset 0 0 0 6px rgba(18, 10, 7, 0.28);
+    inset 0 0 0 6px rgba(114, 93, 66, 0.14);
 }
 
 @keyframes gb-shake {
@@ -2476,17 +2480,16 @@ function onXrayScan(payload = {}) {
   background:
     linear-gradient(90deg, var(--board-grid) 0 1px, transparent 1px 100%),
     linear-gradient(180deg, var(--board-grid) 0 1px, transparent 1px 100%),
-    radial-gradient(
-      circle at 30% 18%,
-      rgba(255, 226, 166, 0.12) 0%,
-      transparent 34%
-    ),
-    radial-gradient(circle at 78% 82%, rgba(114, 93, 66, 0.08) 0%, transparent 40%),
-    linear-gradient(160deg, var(--board-cell-2) 0%, var(--board-cell-1) 100%);
+      radial-gradient(
+        circle at 30% 18%,
+        rgba(255, 240, 210, 0.16) 0%,
+        transparent 34%
+      ),
+      radial-gradient(circle at 78% 82%, rgba(160, 140, 110, 0.06) 0%, transparent 40%),
+      linear-gradient(160deg, var(--board-cell-2) 0%, var(--board-cell-1) 100%);
   background-size:
     60px 60px,
     60px 60px,
-    auto,
     auto,
     auto,
     auto;
@@ -2517,15 +2520,11 @@ function onXrayScan(payload = {}) {
   animation: board-idle-aura 4s ease-in-out infinite;
 }
 
-.gameBoard .tileContainer {
-  --board-theme-tint: var(--board-theme-hue);
-}
-
 .gameBoard.idle .tileContainer::before {
   animation: board-idle-veil var(--board-idle-particle-rate, 8.6s) ease-in-out
     infinite;
 }
-
+/* 
 .gameBoard[data-theme='vineyard'] .tileContainer {
   background:
     linear-gradient(
@@ -2740,7 +2739,7 @@ function onXrayScan(payload = {}) {
     60px 60px,
     auto,
     auto;
-}
+} */
 
 @keyframes board-idle-aura {
   0%,
@@ -3168,12 +3167,8 @@ function onXrayScan(payload = {}) {
   pointer-events: none;
   transform: translateX(-50%);
   /* Warm parchment base — cream with butter edge */
-  background: linear-gradient(
-    180deg,
-    #f9f5ea 0%,
-    #f1e8d4 100%
-  );
-  border: 1px solid rgba(180, 150, 110, 0.30);
+  background: linear-gradient(180deg, #f9f5ea 0%, #f1e8d4 100%);
+  border: 1px solid rgba(180, 150, 110, 0.3);
   box-shadow:
     0 4px 10px rgba(114, 93, 66, 0.18),
     inset 0 1px 0 rgba(255, 252, 245, 0.55);
@@ -3188,33 +3183,33 @@ function onXrayScan(payload = {}) {
 }
 
 .combo-praise.theme-grape {
-  background: linear-gradient(180deg, #f7f2fa 0%, #e9dcee 100%);
-  border-color: rgba(170, 130, 190, 0.38);
+  background: linear-gradient(180deg, #fef3e8 0%, #fde4c8 100%);
+  border-color: rgba(245, 163, 82, 0.38);
 }
 
 .combo-praise.theme-wood {
-  background: linear-gradient(180deg, #f9f2e7 0%, #efddc4 100%);
-  border-color: rgba(190, 140, 90, 0.38);
+  background: linear-gradient(180deg, #faf2e9 0%, #f5e6d3 100%);
+  border-color: rgba(212, 165, 116, 0.38);
 }
 
 .combo-praise.theme-stone {
-  background: linear-gradient(180deg, #f4f3f1 0%, #e6e3dc 100%);
-  border-color: rgba(160, 155, 145, 0.38);
+  background: linear-gradient(180deg, #f6f5f0 0%, #f0ece2 100%);
+  border-color: rgba(180, 180, 170, 0.38);
 }
 
 .combo-praise.theme-clay {
-  background: linear-gradient(180deg, #faf1eb 0%, #f0dbcd 100%);
-  border-color: rgba(200, 130, 100, 0.38);
+  background: linear-gradient(180deg, #fcf0e8 0%, #fce4d6 100%);
+  border-color: rgba(232, 180, 160, 0.38);
 }
 
 .combo-praise.theme-herb {
-  background: linear-gradient(180deg, #f4f7f0 0%, #dfe8d6 100%);
-  border-color: rgba(150, 180, 120, 0.38);
+  background: linear-gradient(180deg, #fef0f4 0%, #fde8ef 100%);
+  border-color: rgba(248, 180, 200, 0.38);
 }
 
 .combo-praise.theme-magic {
-  background: linear-gradient(180deg, #fbf5e8 0%, #f0e2d0 100%);
-  border-color: rgba(210, 180, 100, 0.45);
+  background: linear-gradient(180deg, #fef8e0 0%, #fff3c4 100%);
+  border-color: rgba(245, 206, 66, 0.45);
   box-shadow:
     0 4px 10px rgba(114, 93, 66, 0.18),
     0 0 14px rgba(240, 210, 120, 0.16),
@@ -3223,13 +3218,13 @@ function onXrayScan(payload = {}) {
 
 /* ── Tone scaling — progressive glow on parchment ── */
 .combo-praise.warm {
-  border-color: rgba(190, 150, 90, 0.40);
+  border-color: rgba(190, 150, 90, 0.4);
 }
 
 .combo-praise.rare {
   border-color: rgba(200, 160, 100, 0.46);
   box-shadow:
-    0 4px 12px rgba(114, 93, 66, 0.20),
+    0 4px 12px rgba(114, 93, 66, 0.2),
     0 0 14px rgba(220, 180, 120, 0.18),
     inset 0 1px 0 rgba(255, 252, 245, 0.55);
 }
@@ -3240,7 +3235,7 @@ function onXrayScan(payload = {}) {
   box-shadow:
     0 5px 14px rgba(114, 93, 66, 0.22),
     0 0 22px rgba(240, 200, 130, 0.26),
-    inset 0 1px 0 rgba(255, 252, 245, 0.60);
+    inset 0 1px 0 rgba(255, 252, 245, 0.6);
 }
 
 .combo-praise.cascade {
@@ -3249,36 +3244,36 @@ function onXrayScan(payload = {}) {
   box-shadow:
     0 5px 14px rgba(114, 93, 66, 0.22),
     0 0 20px rgba(160, 120, 230, 0.24),
-    inset 0 1px 0 rgba(255, 252, 245, 0.60);
+    inset 0 1px 0 rgba(255, 252, 245, 0.6);
 }
 
 .combo-praise.inferno {
-  border-color: rgba(245, 130, 70, 0.60);
+  border-color: rgba(245, 130, 70, 0.6);
   border-width: 2px;
   box-shadow:
     0 6px 18px rgba(114, 93, 66, 0.26),
-    0 0 26px rgba(245, 145, 80, 0.30),
+    0 0 26px rgba(245, 145, 80, 0.3),
     0 0 48px rgba(245, 145, 80, 0.12),
-    inset 0 1px 0 rgba(255, 252, 245, 0.60);
+    inset 0 1px 0 rgba(255, 252, 245, 0.6);
 }
 
 /* ── Theme + tone border overrides ── */
 .combo-praise.theme-grape.warm,
 .combo-praise.theme-grape.rare,
 .combo-praise.theme-grape.epic {
-  border-color: rgba(175, 125, 210, 0.55);
+  border-color: rgba(245, 163, 82, 0.55);
 }
 
 .combo-praise.theme-magic.warm,
 .combo-praise.theme-magic.rare,
 .combo-praise.theme-magic.epic {
-  border-color: rgba(230, 195, 100, 0.60);
+  border-color: rgba(245, 206, 66, 0.6);
 }
 
 .combo-praise.theme-herb.warm,
 .combo-praise.theme-herb.rare,
 .combo-praise.theme-herb.epic {
-  border-color: rgba(145, 185, 115, 0.55);
+  border-color: rgba(248, 180, 200, 0.55);
 }
 
 /* ── Size scales ── */
@@ -3319,8 +3314,7 @@ function onXrayScan(payload = {}) {
   font-weight: 900;
   letter-spacing: 0.18em;
   color: var(--combo-prefix-color);
-  text-shadow:
-    0 1px 0 rgba(255, 252, 245, 0.40);
+  text-shadow: 0 1px 0 rgba(255, 252, 245, 0.4);
 }
 
 .combo-praise-label {
@@ -3331,7 +3325,7 @@ function onXrayScan(payload = {}) {
   color: #5a3e1a;
   text-shadow:
     0 1px 0 rgba(255, 252, 245, 0.35),
-    0 1px 3px rgba(114, 93, 66, 0.10);
+    0 1px 3px rgba(114, 93, 66, 0.1);
 }
 
 .combo-praise.size-3 .combo-praise-label {
@@ -3349,7 +3343,7 @@ function onXrayScan(payload = {}) {
   color: #4a2e10;
   text-shadow:
     0 0 10px rgba(240, 200, 120, 0.18),
-    0 1px 0 rgba(255, 252, 245, 0.40),
+    0 1px 0 rgba(255, 252, 245, 0.4),
     0 1px 4px rgba(114, 93, 66, 0.14);
 }
 
@@ -3425,7 +3419,7 @@ function onXrayScan(payload = {}) {
 .combo-praise-enter-from,
 .combo-praise-leave-to {
   opacity: 0;
-  transform: translateX(-50%) translateY(-12px) scale(0.90);
+  transform: translateX(-50%) translateY(-12px) scale(0.9);
 }
 
 /* ── Flash overlay — warm amber on parchment, gentle ── */

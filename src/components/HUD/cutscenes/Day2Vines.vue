@@ -21,7 +21,7 @@
       :key="`grape-${n}`"
       class="grape"
       :style="{ '--i': n - 1, left: 24 + (n - 1) * 18 + '%' }"
-    >🍇</span>
+    >🍊</span>
 
     <!-- Light scatter of new leaves -->
     <span

@@ -21,8 +21,9 @@
     @mousedown.prevent="onPick"
     @touchstart.prevent="onPick"
   >
-    <span class="glyph-glow" />
-    <span class="glyph">{{ glyph }}</span>
+    <span v-if="!chessImg" class="glyph-glow" />
+    <img v-if="chessImg" class="glyph chess-glyph" :src="chessImg" :alt="glyph" />
+    <span v-else class="glyph">{{ glyph }}</span>
     <span v-if="showHitFx" class="damage-float">-1</span>
   </div>
 </template>
@@ -45,6 +46,15 @@ let hitFxTimer = null;
 
 const TILE_SIZE = 60;
 
+const CHESS_IMG_MAP = {
+  grape: 'img/chessPiece/orange.png',
+  wood: 'img/chessPiece/tree branch.png',
+  stone: 'img/chessPiece/stone.png',
+  clay: 'img/chessPiece/clay.png',
+  herb: 'img/chessPiece/cherry-blossom petal.png',
+  magic: 'img/chessPiece/star fragment.png',
+};
+
 // The .tileContainer parent already starts at gameBoard's inner-padding edge,
 // so individual tiles don't need an additional pad offset.
 const style = computed(() => {
@@ -57,9 +67,11 @@ const style = computed(() => {
   };
 });
 
+const chessImg = computed(() => CHESS_IMG_MAP[props.tile.type] || '');
+
 const glyph = computed(() => {
   switch (props.tile.type) {
-    case 'grape': return '🍇';
+    case 'grape': return '🍊';
     case 'wood':  return '🪵';
     case 'stone': return '🪨';
     case 'clay':  return '🧱';
@@ -129,6 +141,12 @@ onBeforeUnmount(() => {
   pointer-events: none;
   filter: drop-shadow(0 1px 2px rgba(114, 93, 66, 0.22));
   transition: transform 180ms var(--ease-out-expo), filter 180ms var(--ease-out-expo);
+}
+
+.chess-glyph {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
 }
 
 .tile:hover .glyph {

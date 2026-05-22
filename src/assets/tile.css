@@ -16,6 +16,7 @@
   line-height: 1;
   cursor: pointer;
   border-radius: 14px;
+  box-sizing: border-box;
   transition:
     transform var(--t-tile) var(--t-tile-easing),
     box-shadow 200ms var(--ease-out-expo),
@@ -23,10 +24,15 @@
     opacity var(--t-tile) var(--ease-out-expo);
   background-clip: padding-box;
 
+  /* Wood craft surface — warm beige */
+  background: linear-gradient(145deg, #f0e8d8, #e8dcc8);
+
+  /* Darker wood frame — like a handcrafted token edge */
+  border: 2px solid #d4c9b4;
+
   /* Warm parchment-style shadows — no pure black */
   filter: drop-shadow(0 3px 6px rgba(114, 93, 66, 0.18));
   text-shadow: 0 1px 0 rgba(255, 252, 245, 0.30);
-  border: 1px solid rgba(255, 252, 245, 0.22);
 
   /* Inner shadows — gentle warm depth */
   box-shadow:
@@ -116,132 +122,38 @@
 }
 
 /* ───────────────────────────────────────────
-   Resource gradients — ceramic-token aesthetic
-   Each tile: glaze highlight + rich depth + subtle texture
-   Like painted ceramic game pieces on warm parchment
+   Resource tiles — wooden craft token with paper-card insert
+   Each tile is a handcrafted wood piece with a cream paper inlay
+   and a colored card frame matching the resource type.
    ─────────────────────────────────────────── */
 
-.tile.grape {
-  background:
-    /* Ceramic glaze — strong top-left light reflection */
-    radial-gradient(circle at 14% 18%, rgba(255, 252, 248, 0.34) 0%, transparent 26%),
-    /* Berry highlight blush */
-    radial-gradient(circle at 28% 32%, var(--grape-3) 0%, rgba(197, 151, 182, 0.55) 28%, transparent 48%),
-    /* Deep plum shadow — bottom right */
-    radial-gradient(circle at 78% 82%, rgba(32, 12, 28, 0.48) 0%, transparent 44%),
-    /* Berry speckle texture */
-    radial-gradient(circle 3px at 22% 48%, rgba(197, 151, 182, 0.28) 0%, transparent 100%),
-    radial-gradient(circle 2px at 58% 28%, rgba(197, 151, 182, 0.24) 0%, transparent 100%),
-    radial-gradient(circle 2.5px at 74% 56%, rgba(197, 151, 182, 0.20) 0%, transparent 100%),
-    radial-gradient(circle 2px at 40% 70%, rgba(197, 151, 182, 0.16) 0%, transparent 100%),
-    /* Main body */
-    linear-gradient(155deg, var(--grape-2) 0%, #5c3050 42%, var(--grape-1) 100%),
-    /* Warm light overlay */
-    linear-gradient(180deg, rgba(255, 250, 242, 0.10) 0%, transparent 32%);
+/* Cream paper insert — each resource gets a colored card frame
+   on the same warm cream backing. */
+.tile.grape::before,
+.tile.wood::before,
+.tile.stone::before,
+.tile.clay::before,
+.tile.herb::before,
+.tile.magic::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 10px;
+  background: var(--animal-card-bg);
+  z-index: 0;
+  pointer-events: none;
 }
 
-.tile.wood {
-  background:
-    /* Ceramic glaze highlight */
-    radial-gradient(circle at 16% 20%, rgba(255, 252, 248, 0.28) 0%, transparent 24%),
-    /* Warm grain highlight */
-    radial-gradient(circle at 32% 28%, var(--wood-3) 0%, rgba(185, 139, 93, 0.45) 32%, transparent 50%),
-    /* Deep grain shadow */
-    radial-gradient(circle at 76% 80%, rgba(30, 14, 8, 0.40) 0%, transparent 42%),
-    /* Wood grain — vertical striping */
-    repeating-linear-gradient(92deg,
-      rgba(185, 139, 93, 0.12) 0px 2px,
-      transparent 2px 6px,
-      var(--wood-2) 6px 9px,
-      var(--wood-1) 9px 14px,
-      rgba(120, 72, 40, 0.85) 14px 15px,
-      var(--wood-2) 15px 22px),
-    /* Warm body */
-    linear-gradient(160deg, var(--wood-2) 0%, var(--wood-1) 100%),
-    /* Top light wash */
-    linear-gradient(180deg, rgba(255, 250, 240, 0.08) 0%, transparent 24%);
-}
+/* Per-resource colored card border */
+.tile.grape::before { border: 2px solid var(--grape-2); }
+.tile.wood::before  { border: 2px solid var(--wood-2); }
+.tile.stone::before { border: 2px solid var(--stone-2); }
+.tile.clay::before  { border: 2px solid var(--clay-2); }
+.tile.herb::before  { border: 2px solid var(--herb-2); }
+.tile.magic::before { border: 2px solid var(--magic-2); }
 
-.tile.stone {
-  background:
-    /* Ceramic glaze */
-    radial-gradient(circle at 16% 20%, rgba(255, 252, 248, 0.30) 0%, transparent 26%),
-    /* Light face highlight */
-    radial-gradient(circle at 24% 26%, var(--stone-3) 0%, rgba(215, 207, 191, 0.50) 30%, transparent 50%),
-    /* Deep crevice shadow */
-    radial-gradient(circle at 80% 78%, rgba(50, 50, 50, 0.42) 0%, transparent 44%),
-    /* Granite speckle */
-    radial-gradient(circle 2px at 18% 52%, rgba(215, 207, 191, 0.20) 0%, transparent 100%),
-    radial-gradient(circle 1.5px at 42% 38%, rgba(215, 207, 191, 0.16) 0%, transparent 100%),
-    radial-gradient(circle 1.5px at 62% 60%, rgba(255, 252, 248, 0.14) 0%, transparent 100%),
-    radial-gradient(circle 2px at 82% 34%, rgba(163, 160, 150, 0.18) 0%, transparent 100%),
-    radial-gradient(circle 1.5px at 36% 72%, rgba(163, 160, 150, 0.14) 0%, transparent 100%),
-    /* Main body gradient */
-    linear-gradient(150deg, var(--stone-2) 0%, #8a8984 38%, var(--stone-1) 100%),
-    /* Warm light overlay */
-    linear-gradient(180deg, rgba(255, 252, 245, 0.08) 0%, transparent 22%);
-}
-
-.tile.clay {
-  background:
-    /* Ceramic glaze */
-    radial-gradient(circle at 16% 20%, rgba(255, 252, 248, 0.26) 0%, transparent 24%),
-    /* Terracotta warm face */
-    radial-gradient(circle at 28% 30%, var(--clay-3) 0%, rgba(207, 141, 113, 0.42) 32%, transparent 50%),
-    /* Deep shadow */
-    radial-gradient(circle at 78% 80%, rgba(40, 16, 10, 0.38) 0%, transparent 44%),
-    /* Brick horizontal lines */
-    repeating-linear-gradient(0deg,
-      transparent 0px 10px,
-      rgba(114, 93, 66, 0.05) 10px 11px),
-    /* Brick vertical lines */
-    repeating-linear-gradient(90deg,
-      transparent 0px 16px,
-      rgba(114, 93, 66, 0.05) 16px 17px),
-    /* Sun-baked terracotta body */
-    linear-gradient(155deg, var(--clay-2) 0%, #7a3a28 38%, var(--clay-1) 100%),
-    /* Warm light wash */
-    linear-gradient(180deg, rgba(255, 250, 240, 0.08) 0%, transparent 22%);
-}
-
-.tile.herb {
-  background:
-    /* Ceramic glaze */
-    radial-gradient(circle at 16% 20%, rgba(255, 252, 248, 0.30) 0%, transparent 26%),
-    /* Fresh leaf highlight */
-    radial-gradient(circle at 28% 30%, var(--herb-3) 0%, rgba(144, 175, 125, 0.48) 32%, transparent 52%),
-    /* Deep forest shadow */
-    radial-gradient(circle at 76% 78%, rgba(16, 28, 18, 0.44) 0%, transparent 44%),
-    /* Leaf vein texture — fine organic lines */
-    radial-gradient(ellipse 14px 3px at 50% 30%, rgba(144, 175, 125, 0.08) 0%, transparent 100%),
-    radial-gradient(ellipse 12px 2px at 50% 52%, rgba(144, 175, 125, 0.06) 0%, transparent 100%),
-    radial-gradient(ellipse 10px 2px at 50% 70%, rgba(144, 175, 125, 0.05) 0%, transparent 100%),
-    /* Main body */
-    linear-gradient(148deg, var(--herb-2) 0%, #385a3a 38%, var(--herb-1) 100%),
-    /* Warm light wash */
-    linear-gradient(180deg, rgba(248, 245, 232, 0.08) 0%, transparent 22%);
-}
-
-/* Magic tile — ceramic token with gold + cosmic shimmer */
+/* Magic resource — warm golden shimmer aura */
 .tile.magic {
-  background:
-    /* Ceramic glaze highlight */
-    radial-gradient(circle at 14% 18%, rgba(255, 252, 248, 0.30) 0%, transparent 22%),
-    /* Gold shimmer center */
-    radial-gradient(circle at 50% 45%, rgba(240, 213, 107, 0.70) 0%, transparent 32%),
-    /* Amethyst highlight */
-    radial-gradient(circle at 32% 28%, var(--magic-2) 0%, rgba(111, 73, 161, 0.50) 32%, transparent 50%),
-    /* Deep cosmic shadow */
-    radial-gradient(circle at 72% 78%, rgba(20, 8, 36, 0.50) 0%, transparent 44%),
-    /* Star sparkle specks */
-    radial-gradient(circle 2px at 28% 38%, rgba(229, 203, 135, 0.40) 0%, transparent 100%),
-    radial-gradient(circle 1.5px at 62% 28%, rgba(229, 203, 135, 0.32) 0%, transparent 100%),
-    radial-gradient(circle 1.5px at 76% 52%, rgba(229, 203, 135, 0.28) 0%, transparent 100%),
-    radial-gradient(circle 2px at 40% 62%, rgba(229, 203, 135, 0.24) 0%, transparent 100%),
-    /* Cosmic body */
-    linear-gradient(155deg, var(--magic-2) 0%, #4b2e70 42%, var(--magic-1) 100%),
-    /* Gold warm wash */
-    linear-gradient(180deg, rgba(255, 248, 226, 0.10) 0%, transparent 24%);
   box-shadow:
     inset 0 1px 0 rgba(255, 248, 226, 0.22),
     0 0 10px rgba(240, 213, 107, 0.22),
@@ -251,7 +163,7 @@
 
 @keyframes magic-shimmer {
   0%, 100% { filter: drop-shadow(0 2px 3px rgba(114, 93, 66, 0.16)) brightness(1.0); }
-  50%      { filter: drop-shadow(0 2px 8px rgba(240, 213, 107, 0.55)) brightness(1.16); }
+  50%      { filter: drop-shadow(0 2px 8px rgba(255, 200, 160, 0.40)) brightness(1.06); }
 }
 
 /* ───────────────────────────────────────────

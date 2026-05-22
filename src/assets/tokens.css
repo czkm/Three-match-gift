@@ -98,24 +98,24 @@
   --glass-blur:   0px;
 
   /* ── Resource hues (PRESERVED for game readability) ── */
-  --grape-1:      #44203b;
-  --grape-2:      #744061;
-  --grape-3:      #c597b6;
-  --wood-1:       #402312;
-  --wood-2:       #764827;
-  --wood-3:       #b98b5d;
-  --stone-1:      #5f605f;
-  --stone-2:      #a3a096;
-  --stone-3:      #d7cfbf;
-  --clay-1:       #572115;
-  --clay-2:       #9a4836;
-  --clay-3:       #cf8d71;
-  --herb-1:       #223726;
-  --herb-2:       #476449;
-  --herb-3:       #90af7d;
-  --magic-1:      #301741;
-  --magic-2:      #6f49a1;
-  --magic-3:      #e5cb87;
+  --grape-1:      #c06a2b;
+  --grape-2:      #f5a352;
+  --grape-3:      #fde4c8;
+  --wood-1:       #b8845c;
+  --wood-2:       #d4a574;
+  --wood-3:       #f5e6d3;
+  --stone-1:      #b8b4aa;
+  --stone-2:      #d4d0c8;
+  --stone-3:      #f0ece2;
+  --clay-1:       #d4947c;
+  --clay-2:       #e8b4a0;
+  --clay-3:       #fce4d6;
+  --herb-1:       #e88ca8;
+  --herb-2:       #f8b4c8;
+  --herb-3:       #fde8ef;
+  --magic-1:      #e6a817;
+  --magic-2:      #f5ce42;
+  --magic-3:      #fff3c4;
 
   /* ── Animal Island accent colors (NookPhone palette) ── */
   --lilac:        #b77dee;
@@ -156,13 +156,13 @@
   --surface-glow:  0 0 0 0 transparent;
 
   /* ── Board frame — lightened for Animal Island warmth, tiles still read against it ── */
-  --board-frame-1: #c4b89e;
-  --board-frame-2: #a89878;
-  --board-inner-1: #b8a888;
-  --board-inner-2: #9a8b6b;
-  --board-cell-1:  #8a7b66;
-  --board-cell-2:  #a89880;
-  --board-grid:    rgba(114, 93, 66, 0.08);
+  --board-frame-1: #ddd5c4;
+  --board-frame-2: #c4b89e;
+  --board-inner-1: #e8dfce;
+  --board-inner-2: #d4c9b4;
+  --board-cell-1:  #e3dac8;
+  --board-cell-2:  #d8cfb8;
+  --board-grid:    rgba(114, 93, 66, 0.06);
 
   /* ── Animation timings ── */
   --t-tile:       200ms;
@@ -246,6 +246,18 @@ body[data-phase='ending'] {
   --bg-grad-2: #b89870;
   --bg-grad-3: #9a8060;
 }
+
+/* ── Day-specific game board background — cycles through bg1→bg2→bg3→bg4 ── */
+body[data-day='1'],
+body[data-day='2'],
+body[data-day='3'] { --game-bg: url('/img/background/gameBoardbg1.webp'); }
+body[data-day='4'],
+body[data-day='5'],
+body[data-day='6'] { --game-bg: url('/img/background/gameBoardbg2.webp'); }
+body[data-day='7'],
+body[data-day='8'] { --game-bg: url('/img/background/gameBoardbg3.webp'); }
+body[data-day='9'],
+body[data-phase='ending'] { --game-bg: url('/img/background/gameBoardbg4.jpg'); }
 
 /* ── NookPhone card palette (13 colors — match upstream exactly) ── */
 :root {

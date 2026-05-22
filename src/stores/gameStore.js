@@ -325,6 +325,7 @@ export const useGameStore = defineStore('game', {
     djinnCardMode(state) {
       if (/Intro$/.test(state.djinnState)) return 'intro'
       if (/Resolve$/.test(state.djinnState)) return 'resolve'
+      if (/Transition$/.test(state.djinnState)) return 'transition'
       return null
     },
     currentDjinnTransition(state) {
@@ -334,6 +335,15 @@ export const useGameStore = defineStore('game', {
       return DJINN_WISHES.stages[state.djinnStage] || null
     },
     currentDjinnCard(state) {
+      if (/Transition$/.test(state.djinnState)) {
+        const transition = state.djinnTransition
+        if (!transition) return null
+        return {
+          title: transition.title || '仪式进行中',
+          quote: transition.transitionQuote || transition.hint || '',
+          lines: transition.transitionLines || [transition.hint || '']
+        }
+      }
       const stage = DJINN_WISHES.stages[state.djinnStage]
       if (!stage) return null
       if (/Intro$/.test(state.djinnState)) {
@@ -552,6 +562,7 @@ export const useGameStore = defineStore('game', {
           id,
           label: RESOURCE_BY_ID[id].cn,
           emoji: RESOURCE_BY_ID[id].emoji,
+          chessImg: RESOURCE_BY_ID[id].chessImg,
           have,
           need: targetNeed,
           pct: targetNeed ? have / targetNeed : 1
@@ -1128,7 +1139,7 @@ export const useGameStore = defineStore('game', {
           this._clearAllTombstones()
           this._emitItemEffectTriggered(item, {
             trigger: 'dayStart',
-            summaryText: '狗牙驱散了所有墓碑'
+            summaryText: '小狗挖出了全部陶俑狸~'
           })
         }
       }
@@ -2089,7 +2100,9 @@ export const useGameStore = defineStore('game', {
 
     finishDjinnTransition() {
       const nextStage = this.djinnTransition?.toStage
+      if (!nextStage) return
       this.djinnTransition = null
+      if (!this.djinnState || !/Transition$/.test(this.djinnState)) return // already advanced
       if (!nextStage) return
       this.startDjinnStage(nextStage)
     },

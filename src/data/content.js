@@ -8,12 +8,12 @@
 
 /* -------- Resources -------- */
 export const RESOURCES = [
-  { id: 'grape', char: 'g', label: '葡萄', emoji: '🍇', cn: '葡萄' },
-  { id: 'wood', char: 'w', label: '木材', emoji: '🪵', cn: '木材' },
-  { id: 'stone', char: 's', label: '石材', emoji: '🪨', cn: '石材' },
-  { id: 'clay', char: 'c', label: '黏土', emoji: '🧱', cn: '黏土' },
-  { id: 'herb', char: 'h', label: '花卉', emoji: '🌸', cn: '花卉' },
-  { id: 'magic', char: 'm', label: '星星碎片', emoji: '⭐', cn: '星星碎片' }
+  { id: 'grape', char: 'g', label: '橙子', emoji: '🍊', cn: '橙子', chessImg: 'img/chessPiece/orange.png' },
+  { id: 'wood', char: 'w', label: '木材', emoji: '🪵', cn: '木材', chessImg: 'img/chessPiece/tree branch.png' },
+  { id: 'stone', char: 's', label: '石材', emoji: '🪨', cn: '石材', chessImg: 'img/chessPiece/stone.png' },
+  { id: 'clay', char: 'c', label: '黏土', emoji: '🧱', cn: '黏土', chessImg: 'img/chessPiece/clay.png' },
+  { id: 'herb', char: 'h', label: '花卉', emoji: '🌸', cn: '花卉', chessImg: 'img/chessPiece/cherry-blossom petal.png' },
+  { id: 'magic', char: 'm', label: '星星碎片', emoji: '⭐', cn: '星星碎片', chessImg: 'img/chessPiece/star fragment.png' }
 ]
 
 export const RESOURCE_BY_CHAR = Object.fromEntries(
@@ -71,7 +71,7 @@ export const ABILITIES = {
     quote: '豆狸说这里的阳光晒得果子特别甜狸~',
     type: 'active',
     usesPerDay: 1,
-    icon: '🍇',
+    icon: '🍊',
     needsTarget: 'grape'
   },
   agedBarrel: {
@@ -298,17 +298,17 @@ export const REWARD_ITEMS = {
   dogTooth: {
     id: 'dogTooth',
     roomType: 'treasure',
-    name: '狗牙',
+    name: '小狗刨刨',
     enName: "Dog's Tooth",
-    titleText: '狗牙',
-    flavorText: '“狗牙啃过的地狸~连鬼都不愿待狸！”',
+    titleText: '小狗刨刨',
+    flavorText: '"小狗最喜欢挖土了狸~咚咚咚几下就挖出来狸！"',
     quality: 2,
     emoji: '🦷',
     slot: 'float',
     tone: 'treasure',
-    description: '进入当天地图时，清除全部墓碑。',
+    description: '每天开始时，挖出全部埋藏陶俑狸！',
     effect: { type: 'clearTombstonesOnStart' },
-    reaction: '一声狼嚎从远处传来狸~棋盘上的墓碑碎成了粉末狸！'
+    reaction: '远处传来汪汪声狸~小狗跑过来把陶俑全刨出来啦狸！'
   },
 
   /* ───── 恶魔房 7 件（正面 + 步数代价） ───── */
@@ -455,13 +455,13 @@ export const DAYS = [
   },
   {
     day: 2,
-    building: { id: 'vineyard', cn: '果园', en: 'Vineyard', emoji: '🍇' },
+    building: { id: 'vineyard', cn: '果园', en: 'Vineyard', emoji: '🍊' },
     needs: { grape: 45, wood: 25 },
     ability: 'toussentHarvest',
-    intro: '豆狸&粒狸: 葡萄藤还活着狸~！虽然被荒草压弯了狸！ ( ……被荒草压弯了狸！）\n豆狸&粒狸: 小猪在帮忙扶藤架狸~今天修果园狸！ ( ……修果园狸！）',
+    intro: '豆狸&粒狸: 果树还活着狸~！虽然被荒草压弯了狸！ ( ……被荒草压弯了狸！）\n豆狸&粒狸: 小猪在帮忙照料狸~今天修果园狸！ ( ……修果园狸！）',
     completed:
-      '藤架重新立起来了狸~嫩叶在风里发亮狸！远处的丘陵像一片金色的果园狸！',
-    monologue: '白狼先生说这些藤比他爷爷还老狸~等结果就有自己的果子了狸！',
+      '果树重新精神起来了狸~嫩叶在风里发亮狸！远处的丘陵像一片金色的果园狸！',
+    monologue: '白狼先生说这些果树比他爷爷还老狸~等结果就有自己的果子了狸！',
     completedBanner: '果园里重新飘起了果香狸~！'
   },
   {
@@ -550,7 +550,7 @@ export const DAYS = [
 export const DAY_END_LINES = [
   '太阳快落山了狸~今天先到这里狸！',
   '再修下去萝卜都要嫌吵了狸~',
-  '明天继续狸~葡萄藤不会一夜之间跑掉狸！',
+  '明天继续狸~果树不会一夜之间跑掉狸！',
   '工具放好狸~明天接着干狸！',
   '今天先这样狸~天黑得慢明天早点开工狸！'
 ]
@@ -558,27 +558,27 @@ export const DAY_END_LINES = [
 export const MONSTERS = {
   barrenGrave: {
     id: 'barrenGrave',
-    name: '贫瘠土地',
+    name: '陶俑埋藏地',
     emoji: '🪦',
     category: 'terrain',
-    uiLabel: '贫瘠土地',
-    statusLabel: '土地仍封着 · 本日不可恢复',
-    uiWeaknessShort: '随着庄园逐日恢复，这片封着的地才会慢慢松开。',
-    uiPressureShort: '这片地太冷太荒，今天还不会重新长起来。',
+    uiLabel: '陶俑埋藏地',
+    statusLabel: '今天还挖不出来狸~',
+    uiWeaknessShort: '地下好像埋着什么狸~再过几天就能挖出来狸！',
+    uiPressureShort: '土还有点硬狸~明天再来看看狸！',
     hp: 0,
     hits: 0,
     reward: {},
     clearReward: {},
     damageRule: {
       type: 'none',
-      hint: '土地仍太贫瘠，今天还无法恢复。等后面的日子继续修整，这些墓碑才会逐渐减少。'
+      hint: '埋得太深了狸~继续建设庄园，陶俑会慢慢露出来狸！'
     },
     pressureRule: { type: 'none' },
-    telegraph: '荒地封印',
-    echoLabel: '随着天数推进，庄园会一点点把这些荒地重新要回来。',
+    telegraph: '陶俑探测点',
+    echoLabel: '庄园越来越热闹狸~陶俑也会慢慢现身狸！',
     clearRule: {
       type: 'none',
-      hint: '土地仍太贫瘠，今天还无法恢复。等后面的日子继续修整，这些墓碑才会逐渐减少。'
+      hint: '埋得太深了狸~继续建设庄园，陶俑会慢慢露出来狸！'
     }
   },
   blightMark: {
@@ -658,7 +658,7 @@ export const MONSTERS = {
       type: 'adjacentMatch',
       hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
-    introLine: '孽鬼狸！闻到葡萄味了狸~',
+    introLine: '孽鬼狸！闻到橙子味了狸~',
     removeLine: '去别处找吃的狸~'
   },
   drowner: {
@@ -684,7 +684,7 @@ export const MONSTERS = {
       type: 'adjacentMatch',
       hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
-    introLine: '水鬼狸！也闻到葡萄味了狸~',
+    introLine: '水鬼狸！也闻到橙子味了狸~',
     removeLine: '回水里去狸~'
   },
   ghoul: {
@@ -1021,7 +1021,7 @@ export const DJINN_WISHES = {
         total: 3,
         label: '按顺序完成生日蛋糕狸~！',
         steps: [
-          '先凑一次葡萄三连以上狸~做出蛋糕底座狸！',
+          '先凑一次橙子三连以上狸~做出蛋糕底座狸！',
           '再凑一次花卉三连以上狸~铺出丁香奶油狸！',
           '最后凑一次星星碎片三连以上狸~或一次连击点亮蜡烛狸！'
         ]
@@ -1094,6 +1094,12 @@ export const DJINN_STAGE_TRANSITIONS = {
     durationMs: 2000,
     title: '封印重组',
     hint: '病气正在散去，四角的烛火即将亮起。',
+    transitionQuote: '愿病痛如雾气般消散，只留下温暖的烛光。',
+    transitionLines: [
+      '病气的封印已经被解开了狸~',
+      '迪精的力量正在重新凝聚，向棋盘的四个角落蔓延……',
+      '豆狸悄悄对你说："第二个愿望，是让她的世界重新亮起来。"'
+    ],
     sourceCells: DJINN_MARK_SETS.health.map(cell => ({
       row: cell.row,
       col: cell.col
@@ -1115,6 +1121,12 @@ export const DJINN_STAGE_TRANSITIONS = {
     durationMs: 2000,
     title: '祝福成形',
     hint: '角落的光正在向中央汇拢，最后的愿望即将成形。',
+    transitionQuote: '烛光汇成一束，照亮了桌前那张空了很久的椅子。',
+    transitionLines: [
+      '四角的烛火正在向棋盘中央流动狸~',
+      '迪精将全部的魔力聚在一起，只为完成这最后一个愿望……',
+      '粒狸轻声说："三层蛋糕，每一层都是一份心意。动手吧。"'
+    ],
     sourceCells: DJINN_MARK_SETS.joy.map(cell => ({
       row: cell.row,
       col: cell.col
@@ -1159,7 +1171,7 @@ export const ESTATE_STRIP_STAGES = [
     unlockCount: 2,
     buildingId: 'vineyard',
     segmentId: 'vineyard',
-    revealLabel: '新修复 · 葡萄园',
+    revealLabel: '新修复 · 果园',
     ambientLevel: 2,
     hotspots: [
       {
@@ -1169,7 +1181,7 @@ export const ESTATE_STRIP_STAGES = [
         motion: 'vineShine',
         lines: [
           '豆狸&粒狸: 新扶正的藤架在风里慢慢找回了方向狸！ ( ……找回了方向狸！）',
-          '豆狸&粒狸: 葡萄还没完全熟透狸~但已经不像被忘掉的样子了狸！ ( ……不像被忘掉了狸！）'
+          '豆狸&粒狸: 橙子还没完全熟透狸~但已经不像被忘掉的样子了狸！ ( ……不像被忘掉了狸！）'
         ],
         anchor: { x: 54, y: 38 }
       }
@@ -1383,7 +1395,7 @@ export const ENDING = {
   blessingLine: '豆狸&粒狸: 也愿小坤和小云平安幸福狸~长久相伴狸！ ( ……长久相伴狸！）',
   willScreen: {
     headerLine: '完成了~！',
-    titleLine: '白鸦葡萄园修复记狸！',
+    titleLine: '白鸦果园修复记狸！',
     clearedLine: '你帮杰洛特先生修好了庄园狸~！',
     gotGiftLine: '在 {{location}}，获得了报酬收据狸——',
     giftPlaceholder: '🧾',
@@ -1395,7 +1407,7 @@ export const ENDING = {
     // Card 4: Treasures
     itemsLabel: '收集的道具狸！',
     itemsArrow: '一路收集的好东西',
-    estateLine: '白鸦葡萄园，全部修复完成狸',
+    estateLine: '白鸦果园，全部修复完成狸',
     farewellLine: '谢谢你的帮忙狸~！',
     goodbyeLine: '欢迎再来狸~！',
   },
@@ -1421,12 +1433,12 @@ export const ACHIEVEMENTS = [
   },
   {
     id: 'day2_vines_remember',
-    title: '藤蔓记得回家',
+    title: '果树记得回家',
     description: '第 2 天完成果园修复，且当天凑出过四连以上狸！',
-    icon: '🍇',
+    icon: '🍊',
     rarity: 'common',
     hidden: false,
-    flavor: '藤蔓没有忘记该往哪里爬狸~',
+    flavor: '果树没有忘记该往哪里长狸~',
     trigger: { type: 'dayComplete', day: 2 }
   },
   {
@@ -1547,7 +1559,7 @@ export const ACHIEVEMENTS = [
     icon: '💛',
     rarity: 'gold',
     hidden: true,
-    flavor: '这座葡萄园的尽头狸~是一封终于送达的心意狸！',
+    flavor: '这片果园的尽头狸~是一封终于送达的心意狸！',
     trigger: { type: 'ending' }
   }
 ]
