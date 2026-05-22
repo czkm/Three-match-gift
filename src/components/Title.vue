@@ -259,9 +259,10 @@ onBeforeUnmount(() => {
   justify-content: center;
   padding: 20px;
   background:
-    radial-gradient(circle at 30% 30%, rgba(25, 200, 185, 0.06) 0%, transparent 40%),
-    radial-gradient(circle at 70% 20%, rgba(247, 205, 103, 0.08) 0%, transparent 35%),
-    linear-gradient(180deg, #f8f8f0 0%, rgb(247, 243, 223) 50%, #e8dfc8 100%);
+    url('/img/background/home_bg.webp') center/cover no-repeat,
+    radial-gradient(circle at 30% 30%, rgba(25, 200, 185, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 70% 20%, rgba(247, 205, 103, 0.06) 0%, transparent 35%),
+    linear-gradient(180deg, rgba(248, 248, 240, 0.55) 0%, rgba(247, 243, 223, 0.6) 50%, rgba(232, 223, 200, 0.7) 100%);
 }
 
 .card {

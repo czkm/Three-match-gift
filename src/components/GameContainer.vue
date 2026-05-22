@@ -94,7 +94,8 @@ function onRewardChoose(itemId) {
   background:
     radial-gradient(circle at 50% 18%, rgba(255, 219, 158, 0.2) 0%, transparent 32%),
     radial-gradient(circle at 18% 82%, rgba(255, 200, 140, 0.08) 0%, transparent 28%),
-    linear-gradient(180deg, rgba(20, 12, 8, 0.04) 0%, rgba(20, 12, 8, 0.2) 100%);
+    linear-gradient(180deg, rgba(20, 12, 8, 0.04) 0%, rgba(20, 12, 8, 0.2) 100%),
+    url('/img/background/content_bg_pc.jpg') center/cover no-repeat;
   z-index: -2;
 }
 
