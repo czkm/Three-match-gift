@@ -376,13 +376,12 @@ export const REWARD_ITEMS = {
     slot: 'back',
     tone: 'devil',
     description:
-      '每次行动随机扣除修复进度（-3~8），累计 3~8 次后随机补充小猪能量 3~5 格。',
+      '每次行动随机扣除修复进度（3~5），累计 2~4 次后补充小猪能量 5 格。',
     effect: {
       type: 'chaoticSabotage',
-      minTriggers: 3,
-      maxTriggers: 8,
-      energyMin: 3,
-      energyMax: 5
+      minTriggers: 2,
+      maxTriggers: 4,
+      energyAmount: 5
     },
     penalty: { type: 'maxSteps', value: 2 },
     penaltyText: '以后每天步数上限少 2 狸~。',

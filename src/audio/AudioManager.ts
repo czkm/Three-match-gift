@@ -6,6 +6,7 @@ const BGM_FADE_MS = 1200;
 const AMBIENT_FADE_MS = 1800;
 
 const AC_BASE = 'animalcrossingnewhorizons';
+const ISAAC_BASE = 'isaac';
 
 const AC_SFX_MAP: Record<string, string> = {
   click:       `${AC_BASE}/UI & System/UI_Decide.wav`,
@@ -42,6 +43,11 @@ const AC_SFX_MAP: Record<string, string> = {
   pig_idle:    `${AC_BASE}/Rosie Emotes/RosieSleepy.mp3`,
   pig_sniff:   `${AC_BASE}/Rosie Emotes/RosieCuriosity.mp3`,
   pig_energy:  `${AC_BASE}/Rosie Emotes/RosieFlourish.mp3`,
+  treasure_door_open:  `${ISAAC_BASE}/Sound Effects/feedback/door heavy open.wav`,
+  devil_door_appear:   `${ISAAC_BASE}/Sound Effects/feedback/satan room appear.wav`,
+  treasure_item_pick:  `${ISAAC_BASE}/Sound Effects/feedback/chest open 1.wav`,
+  devil_item_pick:     `${ISAAC_BASE}/Sound Effects/feedback/thumbs down.wav`,
+  item_voiceover:      `${ISAAC_BASE}/Pickup Voice Overs/voiceover/friends 1.wav`,
 };
 
 const AC_SFX_MULTI: Record<string, string[]> = {
@@ -171,6 +177,34 @@ const AC_SFX_MULTI: Record<string, string[]> = {
     `${AC_BASE}/UI & System/System_Lumi_03.wav`,
     `${AC_BASE}/UI & System/System_Lumi_04.wav`,
   ],
+  treasure_item_pick: [
+    `${ISAAC_BASE}/Sound Effects/feedback/chest open 1.wav`,
+    `${ISAAC_BASE}/Sound Effects/feedback/chest drop 1.wav`,
+    `${ISAAC_BASE}/Sound Effects/feedback/unlock.wav`,
+  ],
+  devil_item_pick: [
+    `${ISAAC_BASE}/Sound Effects/feedback/thumbs down.wav`,
+    `${ISAAC_BASE}/Sound Effects/feedback/lock break 1.wav`,
+    `${ISAAC_BASE}/Sound Effects/feedback/lock break 3.wav`,
+  ],
+  item_power_up: [
+    `${ISAAC_BASE}/Sound Effects/feedback/power up1.wav`,
+    `${ISAAC_BASE}/Sound Effects/feedback/power up 3.wav`,
+    `${ISAAC_BASE}/Sound Effects/feedback/power up 4.wav`,
+    `${ISAAC_BASE}/Sound Effects/feedback/power up 7.wav`,
+  ],
+  item_voiceover: [
+    `${ISAAC_BASE}/Pickup Voice Overs/voiceover/48 hr energy 6.wav`,
+    `${ISAAC_BASE}/Pickup Voice Overs/voiceover/full health 1.wav`,
+    `${ISAAC_BASE}/Pickup Voice Overs/voiceover/health up 1.wav`,
+    `${ISAAC_BASE}/Pickup Voice Overs/voiceover/i found pills 3.wav`,
+    `${ISAAC_BASE}/Pickup Voice Overs/voiceover/friends 1.wav`,
+    `${ISAAC_BASE}/Pickup Voice Overs/voiceover/holy card 2.wav`,
+    `${ISAAC_BASE}/Pickup Voice Overs/voiceover/balls of steel 4.wav`,
+    `${ISAAC_BASE}/Pickup Voice Overs/voiceover/bombs are key 1.wav`,
+    `${ISAAC_BASE}/Pickup Voice Overs/voiceover/card against humanity 3.wav`,
+    `${ISAAC_BASE}/Pickup Voice Overs/voiceover/chaos card 2.wav`,
+  ],
   ability_harvest: [
     `${AC_BASE}/Trees & Plants/Tree_Shake_Cedar_Down1.wav`,
     `${AC_BASE}/Trees & Plants/Tree_Shake_Oak_Down1.wav`,
@@ -290,7 +324,13 @@ const SFX_THROTTLE: Record<string, SFXThrottlePolicy> = {
   pig_angry:   { sameMs: 3000, group: 'pig', groupMs: 900, priority: 3 },
   pig_idle:    { sameMs: 8000, group: 'pig', groupMs: 3000, priority: 1 },
   pig_sniff:   { sameMs: 4000, group: 'pig', groupMs: 2000, priority: 1 },
-  pig_energy:  { sameMs: 5000, group: 'pig', groupMs: 1000, priority: 3 }
+  pig_energy:     { sameMs: 5000, group: 'pig', groupMs: 1000, priority: 3 },
+  treasure_door_open: { sameMs: 300, group: 'reward', groupMs: 200, priority: 3 },
+  devil_door_appear:  { sameMs: 300, group: 'reward', groupMs: 200, priority: 3 },
+  treasure_item_pick: { sameMs: 400, group: 'reward', groupMs: 300, priority: 3 },
+  devil_item_pick:    { sameMs: 400, group: 'reward', groupMs: 300, priority: 3 },
+  item_power_up:      { sameMs: 600, group: 'reward', groupMs: 400, priority: 3 },
+  item_voiceover:     { sameMs: 3000, group: 'voiceover', groupMs: 2000, priority: 2 },
 };
 
 function pickOne<T>(entry: T | T[]): T {
@@ -381,6 +421,7 @@ export class AudioManager {
     }
 
     const preloadAC = (p: string) => this.preload(`${AC_BASE}/${p}`);
+    const preloadISAAC = (p: string) => this.preload(`${ISAAC_BASE}/${p}`);
     await Promise.all([
       this.preload('bgm_dayplay.mp3'),
       this.preload('bgm_brithday.mp3'),
@@ -393,7 +434,12 @@ export class AudioManager {
       preloadAC(`Trees & Plants/${pickOne(AC_MATCH[3])}`),
       preloadAC(`Trees & Plants/${pickOne(AC_MATCH[7])}`),
       preloadAC(`Trees & Plants/${pickOne(AC_COMBO[0])}`),
-      preloadAC(`Trees & Plants/${pickOne(AC_COMBO[4])}`)
+      preloadAC(`Trees & Plants/${pickOne(AC_COMBO[4])}`),
+      preloadISAAC('Sound Effects/feedback/door heavy open.wav'),
+      preloadISAAC('Sound Effects/feedback/satan room appear.wav'),
+      preloadISAAC('Sound Effects/feedback/chest open 1.wav'),
+      preloadISAAC('Sound Effects/feedback/power up1.wav'),
+      preloadISAAC('Pickup Voice Overs/voiceover/friends 1.wav'),
     ]);
 
     this.initialized = true;

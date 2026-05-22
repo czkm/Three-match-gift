@@ -975,6 +975,7 @@ export const useGameStore = defineStore('game', {
         rate: 1.16,
         bypassThrottle: true
       })
+      audioManager.playSFX('item_voiceover', { vol: 0.5 })
       this.clearRewardItemInfo()
       this.pendingRewardDay = null
       this.pendingRewardOffer = null
@@ -1245,6 +1246,10 @@ export const useGameStore = defineStore('game', {
       const hasThree = groupSizes.some(size => size >= 3)
       const hasBig = groupSizes.some(size => size >= 4)
       const hasFive = groupSizes.some(size => size >= 5)
+
+      // Collect triggered effects into a queue for sequential playback
+      const queue = []
+
       for (const item of this._ownedRewardItems()) {
         const effect = item.effect
         if (!effect) continue
@@ -1255,10 +1260,10 @@ export const useGameStore = defineStore('game', {
         ) {
           this._addBonusToSummaryResources(summary, effect.amount || 0)
           this._markItemFlag(item)
-          this._emitItemEffectTriggered(item, {
-            trigger: 'resourceGain',
-            affectedResources: Object.keys(summary),
-            bonusAmount: effect.amount || 0
+          queue.push({
+            item,
+            notify: { trigger: 'resourceGain', affectedResources: Object.keys(summary), bonusAmount: effect.amount || 0 },
+            delay: 500
           })
         } else if (
           effect.type === 'firstFiveLineSweep' &&
@@ -1268,25 +1273,20 @@ export const useGameStore = defineStore('game', {
           const row = this._pickSweepIndex(matchGroups, 5, 'row')
           if (row != null) {
             this._markItemFlag(item)
-            EventBus.trigger('itemLineSweep', [
-              {
-                axis: 'row',
-                index: row,
-                variant: 'devil-red',
-                itemId: item.id
-              }
-            ])
-            this._emitItemEffectTriggered(item, {
-              trigger: 'resourceGain',
-              summaryText: `第 ${row + 1} 行被硫磺火扫穿`
+            queue.push({
+              item,
+              event: 'itemLineSweep',
+              payload: [{ axis: 'row', index: row, variant: 'devil-red', itemId: item.id }],
+              notify: { trigger: 'resourceGain', summaryText: `第 ${row + 1} 行被硫磺火扫穿` },
+              delay: 900
             })
           }
         } else if (effect.type === 'allBigMatchBonus' && hasBig) {
           this._addBonusToSummaryResources(summary, effect.amount || 0)
-          this._emitItemEffectTriggered(item, {
-            trigger: 'resourceGain',
-            affectedResources: Object.keys(summary),
-            bonusAmount: effect.amount || 0
+          queue.push({
+            item,
+            notify: { trigger: 'resourceGain', affectedResources: Object.keys(summary), bonusAmount: effect.amount || 0 },
+            delay: 500
           })
         } else if (
           effect.type === 'chainBonus' &&
@@ -1295,11 +1295,10 @@ export const useGameStore = defineStore('game', {
         ) {
           this._addBonusToSummaryResources(summary, effect.amount || 0)
           this._markItemFlag(item)
-          this._emitItemEffectTriggered(item, {
-            trigger: 'resourceGain',
-            affectedResources: Object.keys(summary),
-            bonusAmount: effect.amount || 0,
-            summaryText: `连击达到 ${effect.minChain || 2} 段狸~`
+          queue.push({
+            item,
+            notify: { trigger: 'resourceGain', affectedResources: Object.keys(summary), bonusAmount: effect.amount || 0, summaryText: `连击达到 ${effect.minChain || 2} 段狸~` },
+            delay: 500
           })
         } else if (
           effect.type === 'chainLineSweep' &&
@@ -1309,17 +1308,12 @@ export const useGameStore = defineStore('game', {
           const col = this._pickSweepIndex(matchGroups, 3, 'col')
           if (col != null) {
             this._markItemFlag(item)
-            EventBus.trigger('itemLineSweep', [
-              {
-                axis: 'col',
-                index: col,
-                variant: 'devil-purple',
-                itemId: item.id
-              }
-            ])
-            this._emitItemEffectTriggered(item, {
-              trigger: 'resourceGain',
-              summaryText: `第 ${col + 1} 列被虚空吞没`
+            queue.push({
+              item,
+              event: 'itemLineSweep',
+              payload: [{ axis: 'col', index: col, variant: 'devil-purple', itemId: item.id }],
+              notify: { trigger: 'resourceGain', summaryText: `第 ${col + 1} 列被虚空吞没` },
+              delay: 900
             })
           }
         } else if (
@@ -1332,10 +1326,10 @@ export const useGameStore = defineStore('game', {
           const affectedResources = Object.keys(summary).filter(
             id => (summary[id] || 0) > (beforeSummary[id] || 0)
           )
-          this._emitItemEffectTriggered(item, {
-            trigger: 'resourceGain',
-            affectedResources,
-            bonusAmount: effect.amount || 0
+          queue.push({
+            item,
+            notify: { trigger: 'resourceGain', affectedResources, bonusAmount: effect.amount || 0 },
+            delay: 500
           })
         } else if (
           effect.type === 'firstFiveMatchStep' &&
@@ -1345,23 +1339,23 @@ export const useGameStore = defineStore('game', {
           const beforeSteps = this.stepsLeft
           this.recoverSteps(effect.amount || 0)
           this._markItemFlag(item)
-          this._emitItemEffectTriggered(item, {
-            trigger: 'resourceGain',
-            stepsGained: Math.max(0, this.stepsLeft - beforeSteps)
+          queue.push({
+            item,
+            notify: { trigger: 'resourceGain', stepsGained: Math.max(0, this.stepsLeft - beforeSteps) },
+            delay: 500
           })
         } else if (
           effect.type === 'firstBigMatchStep' &&
           hasBig &&
           !this._hasItemFlag(item)
         ) {
-          // 小电池：每天首次 4 连及以上，恢复 1 步
           const beforeSteps = this.stepsLeft
           this.recoverSteps(effect.amount || 0)
           this._markItemFlag(item)
-          this._emitItemEffectTriggered(item, {
-            trigger: 'resourceGain',
-            stepsGained: Math.max(0, this.stepsLeft - beforeSteps),
-            batteryTrigger: true
+          queue.push({
+            item,
+            notify: { trigger: 'resourceGain', stepsGained: Math.max(0, this.stepsLeft - beforeSteps), batteryTrigger: true },
+            delay: 500
           })
         } else if (
           effect.type === 'firstBigMatchPigEnergy' &&
@@ -1374,26 +1368,25 @@ export const useGameStore = defineStore('game', {
             this.pigEnergy + (effect.amount || 0)
           )
           this._markItemFlag(item)
-          this._emitItemEffectTriggered(item, {
-            trigger: 'resourceGain',
-            pigEnergyGained: Math.max(0, this.pigEnergy - beforeEnergy)
+          queue.push({
+            item,
+            notify: { trigger: 'resourceGain', pigEnergyGained: Math.max(0, this.pigEnergy - beforeEnergy) },
+            delay: 500
           })
-          /* ── 新增：板面操作类 handler ── */
         } else if (
           effect.type === 'firstBigMatchAdjacentPop' &&
           hasBig &&
           !this._hasItemFlag(item)
         ) {
-          // 麦粒肿：match 周围 1 个随机相邻格炸开
           const cells = this._pickAdjacentPopCells(matchGroups)
           if (cells.length) {
             this._markItemFlag(item)
-            EventBus.trigger('itemCellsPop', [
-              { cells, variant: 'treasure-spark', itemId: item.id }
-            ])
-            this._emitItemEffectTriggered(item, {
-              trigger: 'resourceGain',
-              summaryText: `炸开 ${cells.length} 格`
+            queue.push({
+              item,
+              event: 'itemCellsPop',
+              payload: [{ cells, variant: 'treasure-spark', itemId: item.id }],
+              notify: { trigger: 'resourceGain', summaryText: `炸开 ${cells.length} 格` },
+              delay: 800
             })
           }
         } else if (
@@ -1401,16 +1394,15 @@ export const useGameStore = defineStore('game', {
           hasThree &&
           !this._hasItemFlag(item)
         ) {
-          // 硫磺火：首次 3 连 → match 所在列被扫穿
           const col = this._pickSweepIndex(matchGroups, 3, 'col')
           if (col != null) {
             this._markItemFlag(item)
-            EventBus.trigger('itemLineSweep', [
-              { axis: 'col', index: col, variant: 'devil-red', itemId: item.id }
-            ])
-            this._emitItemEffectTriggered(item, {
-              trigger: 'resourceGain',
-              summaryText: `第 ${col + 1} 列被硫磺火扫穿`
+            queue.push({
+              item,
+              event: 'itemLineSweep',
+              payload: [{ axis: 'col', index: col, variant: 'devil-red', itemId: item.id }],
+              notify: { trigger: 'resourceGain', summaryText: `第 ${col + 1} 列被硫磺火扫穿` },
+              delay: 950
             })
           }
         } else if (
@@ -1418,18 +1410,18 @@ export const useGameStore = defineStore('game', {
           hasBig &&
           !this._hasItemFlag(item)
         ) {
-          // 契约：首次 4 连 → 棋盘上最少资源格翻成最多的那种
           this._markItemFlag(item)
-          EventBus.trigger('itemResourceBalance', [{ itemId: item.id }])
-          this._emitItemEffectTriggered(item, {
-            trigger: 'resourceGain',
-            summaryText: '契约生效：最少的那种资源被翻成了最多的那种'
+          queue.push({
+            item,
+            event: 'itemResourceBalance',
+            payload: [{ itemId: item.id }],
+            notify: { trigger: 'resourceGain', summaryText: '契约生效：最少的那种资源被翻成了最多的那种' },
+            delay: 800
           })
         } else if (
           effect.type === 'sweepAreaOnChain' &&
           chain >= (effect.minChain || 2)
         ) {
-          // 虚空之喉：每次连锁 2+ → 以 match 中心为中心的 3×3 区域被吞没
           const areaRows = effect.areaRows || 3
           const areaCols = effect.areaCols || 3
           const center = this._pickSweepCenter(matchGroups)
@@ -1441,12 +1433,12 @@ export const useGameStore = defineStore('game', {
               areaCols
             )
             if (area.length) {
-              EventBus.trigger('itemCellsPop', [
-                { cells: area, variant: 'devil-area', itemId: item.id }
-              ])
-              this._emitItemEffectTriggered(item, {
-                trigger: 'resourceGain',
-                summaryText: `${area.length} 格被虚空吞没`
+              queue.push({
+                item,
+                event: 'itemCellsPop',
+                payload: [{ cells: area, variant: 'devil-area', itemId: item.id }],
+                notify: { trigger: 'resourceGain', summaryText: `${area.length} 格被虚空吞没` },
+                delay: 800
               })
             }
           }
@@ -1455,18 +1447,17 @@ export const useGameStore = defineStore('game', {
           chain >= 3 &&
           !this._hasItemFlag(item)
         ) {
-          // 保留旧类型兼容（如果有其他地方还在使用）
           const center = this._pickSweepCenter(matchGroups)
           if (center) {
             const area = this._buildAreaCells(center.row, center.col, 3, 3)
             if (area.length) {
               this._markItemFlag(item)
-              EventBus.trigger('itemCellsPop', [
-                { cells: area, variant: 'devil-area', itemId: item.id }
-              ])
-              this._emitItemEffectTriggered(item, {
-                trigger: 'resourceGain',
-                summaryText: `${area.length} 格被虚空吞没`
+              queue.push({
+                item,
+                event: 'itemCellsPop',
+                payload: [{ cells: area, variant: 'devil-area', itemId: item.id }],
+                notify: { trigger: 'resourceGain', summaryText: `${area.length} 格被虚空吞没` },
+                delay: 800
               })
             }
           }
@@ -1475,42 +1466,59 @@ export const useGameStore = defineStore('game', {
           hasFive &&
           !this._hasItemFlag(item)
         ) {
-          // 五芒星：首次 5 连 → 5 个随机格被打上烙印后炸开
           this._markItemFlag(item)
-          EventBus.trigger('itemCellsPop', [
-            {
-              count: effect.count || 5,
-              variant: 'devil-spark',
-              itemId: item.id,
-              pickRandom: true
-            }
-          ])
-          this._emitItemEffectTriggered(item, {
-            trigger: 'resourceGain',
-            summaryText: `棋盘上 ${effect.count || 5} 格被五芒星炸开`
+          queue.push({
+            item,
+            event: 'itemCellsPop',
+            payload: [{ count: effect.count || 5, variant: 'devil-spark', itemId: item.id, pickRandom: true }],
+            notify: { trigger: 'resourceGain', summaryText: `棋盘上 ${effect.count || 5} 格被五芒星炸开` },
+            delay: 800
           })
         } else if (
           effect.type === 'firstChainScatterConvert' &&
           chain >= (effect.minChain || 2) &&
           !this._hasItemFlag(item)
         ) {
-          // 幸运脚：首次 2 段连锁 → 3 个随机格翻成需求资源
           this._markItemFlag(item)
-          EventBus.trigger('itemCellsPop', [
-            {
-              count: effect.count || 3,
-              variant: 'treasure-spark',
-              itemId: item.id,
-              pickRandom: true,
-              convertToNeed: true
-            }
-          ])
-          this._emitItemEffectTriggered(item, {
-            trigger: 'resourceGain',
-            summaryText: `${effect.count || 3} 格翻成需求资源`
+          queue.push({
+            item,
+            event: 'itemCellsPop',
+            payload: [{ count: effect.count || 3, variant: 'treasure-spark', itemId: item.id, pickRandom: true, convertToNeed: true }],
+            notify: { trigger: 'resourceGain', summaryText: `${effect.count || 3} 格翻成需求资源` },
+            delay: 800
           })
         }
       }
+
+      // Process effects sequentially so players can see each one
+      if (queue.length > 0) {
+        this._flushEffectQueue(queue, 0)
+      }
+    },
+
+    /**
+     * Play item effect notifications one at a time with delays,
+     * so players can see each effect happen in sequence.
+     */
+    _flushEffectQueue(queue, index) {
+      if (index >= queue.length) return
+      const entry = queue[index]
+
+      // Fire board animation event if present
+      if (entry.event) {
+        EventBus.trigger(entry.event, entry.payload)
+      }
+
+      // Show notification in ResourceBar
+      if (entry.notify) {
+        this._emitItemEffectTriggered(entry.item, entry.notify)
+      }
+
+      // Schedule next effect after delay
+      const delay = entry.delay || 600
+      setTimeout(() => {
+        this._flushEffectQueue(queue, index + 1)
+      }, delay)
     },
 
     /**
@@ -1590,7 +1598,7 @@ export const useGameStore = defineStore('game', {
 
       const effect = item.effect
       if (this.darkBeggarTargetCount === 0) {
-        // Roll target count: 3-8
+        // Roll target count: 2-4
         this.darkBeggarTargetCount =
           effect.minTriggers +
           Math.floor(
@@ -1608,10 +1616,10 @@ export const useGameStore = defineStore('game', {
       const needEntries = Object.entries(day.needs)
       if (!needEntries.length) return
 
-      // Pick a random needed resource
+      // Pick a random needed resource, reduction 3-5
       const [needId] =
         needEntries[Math.floor(Math.random() * needEntries.length)]
-      const reduction = 3 + Math.floor(Math.random() * 6) // 3-8
+      const reduction = 3 + Math.floor(Math.random() * 3) // 3-5
       this.progress[needId] = Math.max(
         0,
         (this.progress[needId] || 0) - reduction
@@ -1620,14 +1628,17 @@ export const useGameStore = defineStore('game', {
 
       // Check if target count reached → grant pig energy
       if (this.darkBeggarTriggerCount >= this.darkBeggarTargetCount) {
-        const energyGain =
-          effect.energyMin +
-          Math.floor(Math.random() * (effect.energyMax - effect.energyMin + 1))
+        const energyGain = effect.energyAmount || 5
         const beforeEnergy = this.pigEnergy
         this.pigEnergy = Math.min(
           PIG_RATING.energyMax,
           this.pigEnergy + energyGain
         )
+        // Enhanced visual notification for energy restore
+        EventBus.trigger('pigEnergyRestored', [{
+          amount: Math.max(0, this.pigEnergy - beforeEnergy),
+          source: 'darkBeggar'
+        }])
         this._emitItemEffectTriggered(item, {
           trigger: 'resourceGain',
           pigEnergyGained: Math.max(0, this.pigEnergy - beforeEnergy),

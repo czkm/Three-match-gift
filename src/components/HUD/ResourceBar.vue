@@ -29,7 +29,10 @@
           @mouseleave="game.clearRewardItemInfo('hud')"
           @blur="game.clearRewardItemInfo('hud')"
         >
-          <span class="trinket-emoji">{{ item.emoji }}</span>
+          <span class="trinket-emoji">
+            <span v-if="isItemConsumedToday(item)" class="trinket-consumed-icon">🚫</span>
+            <span v-else>{{ item.emoji }}</span>
+          </span>
         </button>
         <span
           v-for="slot in trinketSlots"
@@ -344,14 +347,43 @@ function onItemEffectTriggered(payload = {}) {
   }, 1600);
 }
 
+function onPigEnergyRestored(payload = {}) {
+  // Enhanced visual notification for energy restore (darkBeggar etc.)
+  trinketFlash.value = false;
+  if (trinketFlashTimer) clearTimeout(trinketFlashTimer);
+  requestAnimationFrame(() => {
+    trinketFlash.value = true;
+    trinketFlashTimer = setTimeout(() => {
+      trinketFlash.value = false;
+      trinketFlashTimer = null;
+    }, 900);
+  });
+  // Show as an effect notice for max visibility
+  const amount = payload.amount || 0;
+  effectNotice.value = {
+    kind: 'system',
+    itemEmoji: '⚡',
+    title: '能量恢复！',
+    body: `黑暗乞丐归还了能量，小猪精神 +${amount}`,
+    detail: `来源：${payload.source || '未知'}`
+  };
+  if (effectNoticeTimer) clearTimeout(effectNoticeTimer);
+  effectNoticeTimer = setTimeout(() => {
+    effectNotice.value = null;
+    effectNoticeTimer = null;
+  }, 3000);
+}
+
 onMounted(() => {
   EventBus.bind('rewardHudFlash', onRewardHudFlash);
   EventBus.bind('itemEffectTriggered', onItemEffectTriggered);
+  EventBus.bind('pigEnergyRestored', onPigEnergyRestored);
 });
 
 onBeforeUnmount(() => {
   EventBus.unbind('rewardHudFlash', onRewardHudFlash);
   EventBus.unbind('itemEffectTriggered', onItemEffectTriggered);
+  EventBus.unbind('pigEnergyRestored', onPigEnergyRestored);
   if (freshTimer) clearTimeout(freshTimer);
   if (trinketFlashTimer) clearTimeout(trinketFlashTimer);
   if (effectNoticeTimer) clearTimeout(effectNoticeTimer);
@@ -487,17 +519,26 @@ onBeforeUnmount(() => {
 }
 
 .trinket-chip.consumed {
-  filter: grayscale(0.55) brightness(0.82);
-  opacity: 0.50;
+  filter: grayscale(0.65) brightness(0.75);
+  opacity: 0.48;
   cursor: default;
   transform: none;
-  box-shadow: 0 2px 0 0 #d4c9b4;
+  box-shadow: 0 1px 0 0 #c0b8a4;
+  border-color: #c0b8a4;
 }
 
 .trinket-chip.consumed:hover,
 .trinket-chip.consumed:focus-visible {
   transform: none;
-  box-shadow: 0 2px 0 0 #d4c9b4;
+  box-shadow: 0 1px 0 0 #c0b8a4;
+}
+
+.trinket-consumed-icon {
+  font-size: 14px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .trinket-chip.quality-3 {

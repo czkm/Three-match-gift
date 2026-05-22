@@ -220,6 +220,11 @@ function enterRoom(roomType) {
   clearTimers()
   currentRoomType.value = roomType
   enteringRoom.value = roomType
+  if (roomType === 'treasure') {
+    audioManager.playSFX('treasure_door_open', { vol: 0.5 })
+  } else {
+    audioManager.playSFX('devil_door_appear', { vol: 0.5 })
+  }
   enterTimer = setTimeout(() => {
     phase.value = 'room'
     enteringRoom.value = ''
@@ -240,6 +245,11 @@ function pickItem(item) {
   phase.value = 'acquired'
   launchStarted.value = false
   flightFx.value = null
+  if (currentRoomType.value === 'treasure') {
+    audioManager.playSFX('treasure_item_pick', { vol: 0.5 })
+  } else {
+    audioManager.playSFX('devil_item_pick', { vol: 0.45 })
+  }
   void startRewardFlight(item)
   acquireTimer = setTimeout(() => {
     emit('choose', item.id)
@@ -277,6 +287,7 @@ async function startRewardFlight(item) {
   }
 
   audioManager.playSFX('achievement', { vol: 0.56 })
+  audioManager.playSFX('item_power_up', { vol: 0.42, bypassThrottle: true })
   flightLaunchTimer = setTimeout(() => {
     launchStarted.value = true
   }, 120)
