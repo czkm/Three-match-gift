@@ -27,11 +27,11 @@
     </defs>
   </svg>
 
-  <!-- Loading screen -->
-  <LoadingScreen v-if="loading" :progress="loadProgress" />
+  <!-- Loading screen (persists during closing animation, game mounts behind) -->
+  <LoadingScreen v-if="loadingScreenVisible" :progress="loadProgress" @done="loadingScreenVisible = false" />
 
-  <!-- Main app (after loading) -->
-  <template v-else>
+  <!-- Main app (mounts behind loading screen before closing animation) -->
+  <template v-if="!loading">
     <Title v-if="game.phase === 'title' && !showTutorial" @start="onStart" />
     <TutorialOverlay v-else-if="showTutorial" @done="onTutorialDone" />
     <GameContainer v-else-if="isGamePhase" />
@@ -64,6 +64,9 @@
       `Ctrl/Cmd + I` 打开。先勾选道具点"应用当前组合"，再用下面动作快速触发。
     </p>
     <div class="tester-shortcuts">
+      <button type="button" class="tester-action accent" @click="triggerLoadingDemo">
+        展示加载画面
+      </button>
       <button type="button" class="tester-action" @click="applySelectedItems">
         应用当前组合
       </button>
@@ -156,7 +159,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onBeforeUnmount, ref, watchEffect } from 'vue'
+import { computed, nextTick, onMounted, onBeforeUnmount, ref, watchEffect } from 'vue'
 import AudioControls from './components/HUD/AudioControls.vue'
 import AchievementPanel from './components/HUD/AchievementPanel.vue'
 import AchievementToastStack from './components/HUD/AchievementToastStack.vue'
@@ -190,8 +193,9 @@ const devilItems = computed(() =>
   allRewardItems.filter(item => item.roomType === 'devil')
 )
 
-// Loading state
+// Loading state — two flags: loading (game content mount) & loadingScreenVisible (overlay)
 const loading = ref(true)
+const loadingScreenVisible = ref(true)
 const loadProgress = ref(0)
 let toastTimer = null
 let jumpChordTimer = null
@@ -346,6 +350,18 @@ function resetTutorial() {
   showTesterToast('测试引导：已重置，回到标题画面后点"开始"即可触发')
 }
 
+function triggerLoadingDemo() {
+  if (loadingScreenVisible.value) return
+  loadingScreenVisible.value = true
+  loadProgress.value = 0
+  let p = 0
+  const interval = setInterval(() => {
+    p += 6
+    loadProgress.value = Math.min(p, 100)
+    if (p >= 100) clearInterval(interval)
+  }, 60)
+}
+
 function armJumpChord() {
   jumpChordActive.value = true
   if (jumpChordTimer) clearTimeout(jumpChordTimer)
@@ -387,7 +403,8 @@ onMounted(async () => {
   document.body.dataset.phase = 'title'
   window.addEventListener('keydown', onTesterKeydown)
 
-  // Loading sequence
+  // Loading sequence — minimum 1.5s display time
+  const loadStart = performance.now()
   loadProgress.value = 20
   await document.fonts?.ready
   loadProgress.value = 60
@@ -395,8 +412,16 @@ onMounted(async () => {
   loadProgress.value = 90
   await new Promise(r => setTimeout(r, 300))
   loadProgress.value = 100
-  await new Promise(r => setTimeout(r, 300))
+
+  // Ensure minimum display time so users can appreciate the loading screen
+  const elapsed = performance.now() - loadStart
+  const remaining = Math.max(0, 1500 - elapsed)
+  if (remaining > 0) await new Promise(r => setTimeout(r, remaining))
+
+  // Mount game content behind the loading screen before its closing animation starts
+  await nextTick()
   loading.value = false
+  // LoadingScreen emits 'done' → loadingScreenVisible = false after wipe animation
 })
 
 onBeforeUnmount(() => {
@@ -528,6 +553,12 @@ onBeforeUnmount(() => {
   border-color: rgba(200, 70, 70, 0.35);
   box-shadow: 0 3px 0 0 rgba(200, 70, 70, 0.25);
   color: #b94a4a;
+}
+
+.tester-action.accent {
+  border-color: #19c8b9;
+  box-shadow: 0 3px 0 0 #50B9AB;
+  color: #19c8b9;
 }
 
 .tester-shortcuts.tear-row {

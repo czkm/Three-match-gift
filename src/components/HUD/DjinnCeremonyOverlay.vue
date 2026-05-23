@@ -162,7 +162,7 @@ function onOverlayClick() {
   width: min(440px, 88vw);
   clip-path: url(#animal-modal-clip);
   background:
-    url('/img/background/menu_bg.png') bottom center/auto 36px no-repeat,
+    url('/img/background/overlay_card_ceremony.png') bottom center/auto 36px no-repeat,
     rgb(247, 243, 223);
   box-shadow:
     0 4px 12px rgba(107, 92, 67, 0.45),

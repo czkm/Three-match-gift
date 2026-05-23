@@ -1,6 +1,6 @@
 <template>
-  <div class="loading-screen">
-    <!-- Blob SVG clip-path (also used by CbModal) -->
+  <div class="loading-screen" :class="{ closing: isClosing }">
+    <!-- Blob SVG clip-path -->
     <svg style="position:absolute;width:0;height:0" aria-hidden>
       <defs>
         <clipPath id="animal-modal-clip" clipPathUnits="objectBoundingBox">
@@ -26,10 +26,10 @@
       </defs>
     </svg>
 
-    <!-- Background with day-tinted warm gradient -->
+    <!-- Background -->
     <div class="loading-bg" />
 
-    <!-- Central logo card (blob shape) -->
+    <!-- Central logo card -->
     <div class="loading-card">
       <p class="loading-emblem">🏰</p>
       <h1 class="loading-title">Corvo Bianco</h1>
@@ -58,7 +58,7 @@
       </div>
     </div>
 
-    <!-- Bottom wave decoration -->
+    <!-- Bottom wave -->
     <div class="loading-wave">
       <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
         <path
@@ -82,13 +82,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 
 const props = defineProps({
   progress: { type: Number, default: 0 },
 });
 
+const emit = defineEmits(['done']);
+
 const displayProgress = ref(0);
+const isClosing = ref(false);
 const bounceEmojis = ref([true, false, false]);
 
 let bounceTimer = null;
@@ -111,7 +114,19 @@ function animateProgress() {
     raf = requestAnimationFrame(animateProgress);
   } else {
     displayProgress.value = props.progress;
+    if (displayProgress.value >= 99.5 && props.progress >= 100) {
+      startClosing();
+    }
   }
+}
+
+function startClosing() {
+  if (isClosing.value) return;
+  isClosing.value = true;
+  const duration = 800;
+  setTimeout(() => {
+    emit('done');
+  }, duration);
 }
 
 // Bounce animation for resource chips
@@ -126,6 +141,11 @@ function startBounce() {
 onMounted(() => {
   animateProgress();
   startBounce();
+});
+
+watch(() => props.progress, () => {
+  if (raf) cancelAnimationFrame(raf);
+  animateProgress();
 });
 
 onBeforeUnmount(() => {
@@ -146,6 +166,11 @@ onBeforeUnmount(() => {
   animation: loading-fade-in 0.6s ease-out forwards;
 }
 
+.loading-screen.closing {
+  animation: wipe-close 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  pointer-events: none;
+}
+
 .loading-bg {
   position: absolute;
   inset: 0;
@@ -156,7 +181,7 @@ onBeforeUnmount(() => {
   z-index: 0;
 }
 
-/* ── Logo card (blob shape) ── */
+/* ── Logo card ── */
 .loading-card {
   position: relative;
   z-index: 2;
@@ -255,7 +280,7 @@ onBeforeUnmount(() => {
   background: #eae4d0;
   border: 2px solid #d4c9b4;
   box-shadow: 0 3px 0 0 #d4c9b4;
-  font-size: 22px;
+  font-size: 24px;
   animation: resource-bounce 1.2s ease-in-out infinite;
 }
 
@@ -280,6 +305,11 @@ onBeforeUnmount(() => {
   to   { opacity: 1; }
 }
 
+@keyframes wipe-close {
+  0%   { clip-path: circle(150vmax at center); }
+  100% { clip-path: circle(0px at center); }
+}
+
 @keyframes card-bounce-in {
   0%   { opacity: 0; transform: scale(0.85) translateY(20px); }
   60%  { opacity: 1; transform: scale(1.03) translateY(-4px); }
@@ -301,4 +331,5 @@ onBeforeUnmount(() => {
   30%      { transform: translateY(-8px) scale(1.08); }
   50%      { transform: translateY(-4px) scale(1.04); }
 }
+
 </style>

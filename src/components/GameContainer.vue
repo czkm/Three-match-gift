@@ -134,7 +134,7 @@ function onRewardChoose(itemId) {
       rgba(20, 12, 8, 0.04) 0%,
       rgba(20, 12, 8, 0.2) 100%
     ),
-    url('/img/background/content_bg_pc.jpg') center/cover no-repeat;
+    url('/img/background/game_bg.jpg') center/cover no-repeat;
   z-index: -2;
 }
 

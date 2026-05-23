@@ -7,6 +7,7 @@ import { TIMING } from '@/utils/timing';
 
 export function useTypewriter(textRef, opts = {}) {
   const speed = opts.speed ?? TIMING.TYPEWRITER_CHAR_MS;
+  const onChar = opts.onChar ?? (() => {});
   const display = ref('');
   const done = ref(false);
   let timer = null;
@@ -20,7 +21,9 @@ export function useTypewriter(textRef, opts = {}) {
     let i = 0;
     timer = setInterval(() => {
       i++;
+      const char = text[i - 1];
       display.value = text.slice(0, i);
+      onChar(char);
       if (i >= text.length) { stop(); done.value = true; }
     }, speed);
   }

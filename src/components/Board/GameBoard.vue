@@ -2419,7 +2419,7 @@ function onXrayScan(payload = {}) {
       rgba(255, 248, 235, 0.50),
       rgba(200, 185, 160, 0.55)
     ),
-    var(--game-bg, url('/img/background/gameBoardbg1.webp')) center/cover no-repeat;
+    var(--game-bg, url('/img/background/board_bg_01.webp')) center/cover no-repeat;
   box-shadow:
     inset 0 0 0 1px rgba(255, 245, 222, 0.08),
     inset 0 0 0 3px rgba(114, 93, 66, 0.18),

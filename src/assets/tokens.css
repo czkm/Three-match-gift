@@ -250,14 +250,14 @@ body[data-phase='ending'] {
 /* ── Day-specific game board background — cycles through bg1→bg2→bg3→bg4 ── */
 body[data-day='1'],
 body[data-day='2'],
-body[data-day='3'] { --game-bg: url('/img/background/gameBoardbg1.webp'); }
+body[data-day='3'] { --game-bg: url('/img/background/board_bg_01.webp'); }
 body[data-day='4'],
 body[data-day='5'],
-body[data-day='6'] { --game-bg: url('/img/background/gameBoardbg2.webp'); }
+body[data-day='6'] { --game-bg: url('/img/background/board_bg_02.webp'); }
 body[data-day='7'],
-body[data-day='8'] { --game-bg: url('/img/background/gameBoardbg3.webp'); }
+body[data-day='8'] { --game-bg: url('/img/background/board_bg_03.webp'); }
 body[data-day='9'],
-body[data-phase='ending'] { --game-bg: url('/img/background/gameBoardbg4.jpg'); }
+body[data-phase='ending'] { --game-bg: url('/img/background/board_bg_04.webp'); }
 
 /* ── NookPhone card palette (13 colors — match upstream exactly) ── */
 :root {

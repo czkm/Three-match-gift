@@ -19,7 +19,16 @@ const props = defineProps({
 const emit = defineEmits(['done', 'skip', 'ready']);
 
 const textRef = toRef(props, 'text');
-const { display, done, skip } = useTypewriter(textRef, { speed: props.speed });
+const { display, done, skip } = useTypewriter(textRef, {
+  speed: props.speed,
+  onChar: (char) => {
+    if (char === ' ' || char === '\n') {
+      audioManager.playSFX('typewriter_space', { vol: 0.15 });
+    } else {
+      audioManager.playSFX('typewriter_key', { vol: 0.2 });
+    }
+  }
+});
 
 function onSkip() {
   if (!done.value) {
@@ -33,7 +42,10 @@ function onSkip() {
 }
 
 watch(done, (value, oldValue) => {
-  if (value && !oldValue) emit('ready');
+  if (value && !oldValue) {
+    audioManager.playSFX('typewriter_enter', { vol: 0.22 });
+    emit('ready');
+  }
 });
 
 defineExpose({

@@ -238,6 +238,23 @@ function goBackToDoors() {
   phase.value = 'choose'
 }
 
+const ITEM_SFX_MAP = {
+  brimstone:    'brimstone_laser',
+  mawOfTheVoid: 'maw_void',
+  pentagram:    'pentagram_blast',
+  darkBeggar:   'beggar_vamp',
+  holyWater:    'holy_water_whip',
+  luckyFoot:    'lucky_foot',
+  battery:      'battery_energy',
+  dogTooth:     'dog_bark',
+  momsKnife:    'knife_pull',
+  thePact:      'pact_power',
+  xRayVision:   'xray_see',
+  stye:         'stye_explosion',
+  lunch:        'lunch_health',
+  sackOfPennies:'pennies_pickup',
+}
+
 function pickItem(item) {
   if (!item || phase.value !== 'room') return
   acquiredItem.value = item
@@ -249,6 +266,10 @@ function pickItem(item) {
     audioManager.playSFX('treasure_item_pick', { vol: 0.5 })
   } else {
     audioManager.playSFX('devil_item_pick', { vol: 0.45 })
+  }
+  const itemSfx = ITEM_SFX_MAP[item.id]
+  if (itemSfx) {
+    audioManager.playSFX(itemSfx, { vol: 0.5, bypassThrottle: true })
   }
   void startRewardFlight(item)
   acquireTimer = setTimeout(() => {
