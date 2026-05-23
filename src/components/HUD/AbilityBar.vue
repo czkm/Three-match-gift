@@ -3,9 +3,9 @@
     <div class="bar-head">
       <h3 class="ink-title">{{ ABILITY_BAR_COPY.title }}</h3>
       <button class="achievement-entry" @click="achievement.openPanel()">
-        <span class="entry-icon">🏆</span>
+        <span class="entry-icon">🍃</span>
         <span class="entry-text">
-          {{ achievement.unlockedCount }} / {{ achievement.totalCount }}
+          哩程 {{ achievement.unlockedCount }} / {{ achievement.totalCount }}
         </span>
       </button>
     </div>

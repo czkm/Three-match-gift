@@ -50,8 +50,8 @@
       </div>
 
       <button class="achievement-entry" @click="openAchievements">
-        <span class="entry-icon">🏆</span>
-        <span class="entry-text">成就 {{ achievement.unlockedCount }} / {{ achievement.totalCount }}</span>
+        <span class="entry-icon">🍃</span>
+        <span class="entry-text">哩程 {{ achievement.unlockedCount }} / {{ achievement.totalCount }}</span>
       </button>
 
       <div class="intercept-shell" :class="{ visible: showIntercept }" @click="onInterceptClick">

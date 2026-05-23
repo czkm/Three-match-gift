@@ -85,6 +85,7 @@ export const useGameStore = defineStore('game', {
     darkBeggarTriggerCount: 0,
     darkBeggarTargetCount: 0,
     itemFlags: {},
+    suppressItemCascade: false, // 道具触发级联匹配时抑制其他道具效果
     roomHistory: [],
     pendingInvalidSwapReward: null,
     pigMoodPenalty: 0,
@@ -635,6 +636,7 @@ export const useGameStore = defineStore('game', {
       this.darkBeggarTriggerCount = 0
       this.darkBeggarTargetCount = 0
       this.itemFlags = {}
+      this.suppressItemCascade = false
       this.roomHistory = []
       this.pendingInvalidSwapReward = null
       this.pigMoodPenalty = 0
@@ -1065,6 +1067,7 @@ export const useGameStore = defineStore('game', {
 
     _resetDailyItemFlags() {
       this.itemFlags = {}
+      this.suppressItemCascade = false
     },
 
     _applyRewardPenalty(penalty) {
@@ -1254,6 +1257,7 @@ export const useGameStore = defineStore('game', {
       matchGroups = []
     ) {
       if (!Object.keys(resourcesByChar || {}).length) return
+      if (this.suppressItemCascade) return // 道具触发级联匹配时不触发其他道具
       const hasThree = groupSizes.some(size => size >= 3)
       const hasBig = groupSizes.some(size => size >= 4)
       const hasFive = groupSizes.some(size => size >= 5)
@@ -1431,7 +1435,8 @@ export const useGameStore = defineStore('game', {
           })
         } else if (
           effect.type === 'sweepAreaOnChain' &&
-          chain >= (effect.minChain || 2)
+          chain >= (effect.minChain || 2) &&
+          !this._hasItemFlag(item)
         ) {
           const areaRows = effect.areaRows || 3
           const areaCols = effect.areaCols || 3
@@ -1444,6 +1449,7 @@ export const useGameStore = defineStore('game', {
               areaCols
             )
             if (area.length) {
+              this._markItemFlag(item)
               queue.push({
                 item,
                 event: 'itemCellsPop',
@@ -1512,7 +1518,11 @@ export const useGameStore = defineStore('game', {
      * so players can see each effect happen in sequence.
      */
     _flushEffectQueue(queue, index) {
-      if (index >= queue.length) return
+      if (index === 0) this.suppressItemCascade = true // 开始播放道具队列，抑制级联触发
+      if (index >= queue.length) {
+        this.suppressItemCascade = false // 队列播放完毕，恢复
+        return
+      }
       const entry = queue[index]
 
       // Fire board animation event if present

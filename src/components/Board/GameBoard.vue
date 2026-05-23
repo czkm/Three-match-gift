@@ -2354,10 +2354,14 @@ function onXrayScan(payload = {}) {
 
   // Let the board check for any matches that may have formed from the conversion.
   // This handles collapsing + refilling naturally via the standard match-3 pipeline.
+  // Suppress item effects during xRay auto-matches to prevent cascade overlap.
   if (converted > 0) {
     setTimeout(() => {
       if (board.value && board.value.canMove()) {
+        game.suppressItemCascade = true
         board.value.checkMatches()
+        // Reset after the checkMatches chain settles (it processes synchronously)
+        setTimeout(() => { game.suppressItemCascade = false }, 100)
       }
     }, 800)
   }
@@ -2416,10 +2420,11 @@ function onXrayScan(payload = {}) {
   background:
     linear-gradient(
       160deg,
-      rgba(255, 248, 235, 0.50),
+      rgba(255, 248, 235, 0.5),
       rgba(200, 185, 160, 0.55)
     ),
-    var(--game-bg, url('/img/background/board_bg_01.webp')) center/cover no-repeat;
+    var(--game-bg, url('/img/background/board_bg_01.webp')) center/cover
+      no-repeat;
   box-shadow:
     inset 0 0 0 1px rgba(255, 245, 222, 0.08),
     inset 0 0 0 3px rgba(114, 93, 66, 0.18),
@@ -2477,7 +2482,7 @@ function onXrayScan(payload = {}) {
   height: 100%;
   border-radius: var(--radius-md);
   overflow: hidden;
-  background:
+  /* background:
     linear-gradient(90deg, var(--board-grid) 0 1px, transparent 1px 100%),
     linear-gradient(180deg, var(--board-grid) 0 1px, transparent 1px 100%),
       radial-gradient(
@@ -2497,7 +2502,7 @@ function onXrayScan(payload = {}) {
     inset 0 0 0 1px rgba(245, 225, 178, 0.1),
     inset 0 16px 24px rgba(255, 232, 190, 0.04),
     inset 0 -16px 22px rgba(114, 93, 66, 0.18),
-    inset 0 0 20px rgba(114, 93, 66, 0.08);
+    inset 0 0 20px rgba(114, 93, 66, 0.08); */
 }
 
 .board-idle-aura {

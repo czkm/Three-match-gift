@@ -3,9 +3,12 @@
     <div v-if="achievement.panelOpen" class="achievement-panel-overlay" @click="achievement.closePanel">
       <section class="achievement-panel" @click.stop>
         <header class="panel-head">
-          <div>
-            <p class="panel-eyebrow">成就册</p>
-            <h3 class="panel-title ink-title">成就 {{ achievement.unlockedCount }} / {{ achievement.totalCount }}</h3>
+          <div class="panel-title-group">
+            <span class="panel-leaf">🍃</span>
+            <div>
+              <p class="panel-eyebrow">哩程</p>
+              <h3 class="panel-title">{{ achievement.unlockedCount }} / {{ achievement.totalCount }}</h3>
+            </div>
           </div>
           <button class="panel-close" @click="achievement.closePanel">&times;</button>
         </header>
@@ -17,19 +20,30 @@
             class="achievement-card"
             :class="[
               `rarity-${item.rarity}`,
-              { unlocked: item.unlocked, hidden: item.masked, highlight: item.id === achievement.highlightId }
+              { unlocked: item.unlocked, masked: item.masked, highlight: item.id === achievement.highlightId }
             ]"
           >
-            <div class="card-top">
-              <span class="card-icon">{{ item.icon }}</span>
-              <div class="card-tags">
-                <span class="card-tag">{{ item.tag }}</span>
-                <span class="card-rarity">{{ rarityLabel(item.rarity) }}</span>
-              </div>
+            <div class="card-icon-wrap">
+              <img
+                v-if="item.unlocked && item.iconFile && !item.imgError"
+                :src="`/img/achievements/${item.iconFile}.svg`"
+                :alt="item.title"
+                class="card-icon-img"
+                @error="item.imgError = true"
+              >
+              <span v-else class="card-icon-emoji">{{ item.masked ? '🍂' : item.icon }}</span>
             </div>
-            <p class="card-title ink-title">{{ item.title }}</p>
-            <p class="card-description">{{ item.description }}</p>
-            <p v-if="item.unlocked" class="card-flavor ink-subtle">{{ item.flavor }}</p>
+            <div class="card-body">
+              <div class="card-header">
+                <p class="card-title">{{ item.title }}</p>
+                <div class="card-badges">
+                  <span class="card-tag">{{ item.tag }}</span>
+                  <span class="card-rarity">{{ rarityLabel(item.rarity) }}</span>
+                </div>
+              </div>
+              <p class="card-description">{{ item.description }}</p>
+              <p v-if="item.unlocked && !item.masked" class="card-flavor">{{ item.flavor }}</p>
+            </div>
           </article>
         </div>
       </section>
@@ -51,10 +65,10 @@ const renderedItems = computed(() => achievement.orderedAchievements.map((item) 
     ...item,
     unlocked,
     masked,
-    icon: masked ? '❔' : item.icon,
     title: masked ? '？？？' : item.title,
-    description: masked ? '继续在庄园里探索。' : item.description,
+    description: masked ? '繼續在果園裡探索狸～' : item.description,
     flavor: item.flavor,
+    iconFile: item.iconFile || null,
     tag: dayMatch ? `第 ${dayMatch[1]} 天` : '通用',
     rarity: item.rarity || 'common'
   };
@@ -63,7 +77,7 @@ const renderedItems = computed(() => achievement.orderedAchievements.map((item) 
 function rarityLabel(rarity) {
   switch (rarity) {
     case 'gold': return '金色';
-    case 'epic': return '史诗';
+    case 'epic': return '史詩';
     case 'rare': return '稀有';
     default: return '普通';
   }
@@ -91,20 +105,20 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(114, 93, 66, 0.45);
-  backdrop-filter: blur(2px);
+  background: rgba(93, 64, 55, 0.38);
+  backdrop-filter: blur(3px);
 }
 
 .achievement-panel {
-  clip-path: url(#animal-modal-clip);
-  background: rgb(247, 243, 223);
-  width: min(920px, calc(100vw - 40px));
+  background: #F8F4E8;
+  width: min(880px, calc(100vw - 40px));
   max-height: calc(100vh - 60px);
-  padding: 40px 36px 28px;
+  padding: 32px 32px 20px;
+  border-radius: 48px;
   overflow: auto;
-  color: #725d42;
+  color: #5d4037;
   font-family: 'Nunito', 'Noto Sans SC', sans-serif;
-  box-shadow: 0 4px 10px rgba(107, 92, 67, 0.42);
+  box-shadow: 0 8px 32px rgba(93, 64, 55, 0.2);
 }
 
 .panel-head {
@@ -115,23 +129,30 @@ onBeforeUnmount(() => {
   margin-bottom: 20px;
 }
 
-.panel-eyebrow,
-.panel-title {
-  margin: 0;
+.panel-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.panel-leaf {
+  font-size: 32px;
+  line-height: 1;
 }
 
 .panel-eyebrow {
+  margin: 0;
   font-size: 11px;
   letter-spacing: 0.16em;
-  color: #9f927d;
+  color: #a1887f;
   text-transform: uppercase;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .panel-title {
-  margin-top: 4px;
-  font-size: 24px;
-  color: #794f27;
+  margin: 2px 0 0;
+  font-size: 22px;
+  color: #5d4037;
   font-weight: 800;
 }
 
@@ -141,7 +162,7 @@ onBeforeUnmount(() => {
   border-radius: 50px;
   border: 2px solid #d4c9b4;
   background: rgb(247, 243, 223);
-  color: #9f927d;
+  color: #a1887f;
   font-size: 20px;
   font-weight: 700;
   display: flex;
@@ -149,6 +170,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   padding: 0;
   line-height: 1;
+  cursor: pointer;
   box-shadow: 0 3px 0 0 #d4c9b4;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -156,7 +178,7 @@ onBeforeUnmount(() => {
 .panel-close:hover {
   box-shadow: 0 4px 0 0 #d4c9b4;
   transform: translateY(-1px);
-  color: #725d42;
+  color: #5d4037;
 }
 
 .panel-close:active {
@@ -166,203 +188,224 @@ onBeforeUnmount(() => {
 
 .achievement-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
 .achievement-card {
-  min-height: 152px;
+  display: flex;
+  gap: 14px;
   padding: 14px;
-  border-radius: 12px;
+  border-radius: 20px;
+  background: #fdfdf5;
+  border: 2px solid #e8dcc8;
+  box-shadow: 0 3px 0 0 #e8dcc8;
   position: relative;
-  background: #f8f8f0;
-  border: 2px solid #d4c9b4;
-  box-shadow: 0 3px 0 0 #d4c9b4;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .achievement-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 0 0 #d4c9b4;
 }
 
 .achievement-card.unlocked {
-  border-color: #19c8b9;
-  box-shadow: 0 3px 0 0 #50B9AB;
+  border-color: #82d5bb;
+  box-shadow: 0 3px 0 0 #64c4a3;
 }
 
 .achievement-card.unlocked:hover {
-  box-shadow: 0 5px 0 0 #50B9AB;
+  box-shadow: 0 5px 0 0 #64c4a3;
 }
 
-.achievement-card.unlocked::before {
+.achievement-card.masked {
+  filter: saturate(0.4);
+  opacity: 0.75;
+}
+
+.achievement-card.highlight {
+  transform: translateY(-2px);
+  border-color: #82d5bb;
+  box-shadow: 0 0 0 3px rgba(130, 213, 187, 0.25), 0 5px 0 0 #64c4a3;
+}
+
+/* Left rarity strip */
+.achievement-card::before {
   content: '';
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
   width: 4px;
-  background: linear-gradient(180deg, #19c8b9, #50B9AB);
 }
 
-.achievement-card.rarity-rare.unlocked {
-  border-color: rgba(94, 154, 226, 0.58);
-  box-shadow: 0 3px 0 0 rgba(64, 116, 188, 0.4);
-}
-
-.achievement-card.rarity-rare.unlocked:hover {
-  box-shadow: 0 5px 0 0 rgba(64, 116, 188, 0.4);
+.achievement-card.rarity-common.unlocked::before {
+  background: linear-gradient(180deg, #82d5bb, #5cb899);
 }
 
 .achievement-card.rarity-rare.unlocked::before {
-  background: linear-gradient(180deg, rgba(118, 188, 255, 0.98), rgba(64, 116, 188, 0.9));
-}
-
-.achievement-card.rarity-epic.unlocked {
-  border-color: rgba(172, 124, 228, 0.62);
-  box-shadow: 0 3px 0 0 rgba(114, 72, 176, 0.4);
-}
-
-.achievement-card.rarity-epic.unlocked:hover {
-  box-shadow: 0 5px 0 0 rgba(114, 72, 176, 0.4);
+  background: linear-gradient(180deg, #889df0, #6478cc);
 }
 
 .achievement-card.rarity-epic.unlocked::before {
-  background: linear-gradient(180deg, rgba(206, 148, 255, 0.98), rgba(114, 72, 176, 0.92));
-}
-
-.achievement-card.rarity-gold.unlocked {
-  border-color: rgba(235, 189, 84, 0.82);
-  background: linear-gradient(180deg, #fff7dc, #ecdc8e);
-  box-shadow: 0 3px 0 0 rgba(205, 142, 38, 0.4);
-}
-
-.achievement-card.rarity-gold.unlocked:hover {
-  box-shadow: 0 5px 0 0 rgba(205, 142, 38, 0.4);
+  background: linear-gradient(180deg, #b77dee, #9558d6);
 }
 
 .achievement-card.rarity-gold.unlocked::before {
   width: 5px;
-  background: linear-gradient(180deg, rgba(255, 226, 126, 1), rgba(205, 142, 38, 0.94));
+  background: linear-gradient(180deg, #f7cd67, #dba12e);
 }
 
-.achievement-card.hidden {
-  filter: saturate(0.46);
-  opacity: 0.88;
+/* Icon area */
+.card-icon-wrap {
+  width: 64px;
+  height: 64px;
+  flex: none;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f4e8;
+  border: 2px solid #e8dcc8;
+  overflow: hidden;
 }
 
-.achievement-card.highlight {
-  transform: translateY(-2px);
-  border-color: #19c8b9;
-  box-shadow:
-    0 0 0 2px rgba(25, 200, 185, 0.18),
-    0 5px 0 0 #50B9AB;
+.achievement-card.unlocked .card-icon-wrap {
+  border-color: transparent;
+  background: rgba(130, 213, 187, 0.12);
 }
 
-.card-top {
+.achievement-card.rarity-rare.unlocked .card-icon-wrap {
+  background: rgba(136, 157, 240, 0.12);
+}
+
+.achievement-card.rarity-epic.unlocked .card-icon-wrap {
+  background: rgba(183, 125, 238, 0.12);
+}
+
+.achievement-card.rarity-gold.unlocked .card-icon-wrap {
+  background: rgba(247, 205, 103, 0.18);
+}
+
+.card-icon-img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.card-icon-emoji {
+  font-size: 28px;
+  line-height: 1;
+}
+
+/* Card body */
+.card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.card-tags {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.card-icon {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  font-size: 22px;
-  background: #f8f8f0;
-  border: 2px solid #d4c9b4;
-}
-
-.rarity-rare .card-icon {
-  background: rgba(234, 247, 255, 0.96);
-  border-color: rgba(96, 154, 226, 0.3);
-}
-
-.rarity-epic .card-icon {
-  background: rgba(246, 236, 255, 0.96);
-  border-color: rgba(172, 124, 228, 0.3);
-}
-
-.rarity-gold .card-icon {
-  background: rgba(255, 244, 204, 0.98);
-  border-color: rgba(228, 186, 92, 0.4);
-  box-shadow: 0 0 12px rgba(228, 186, 92, 0.18);
-}
-
-.card-tag {
-  font-size: 10px;
-  padding: 4px 8px;
-  border-radius: 50px;
-  color: #9f927d;
-  background: #f8f8f0;
-  border: 1.5px solid #d4c9b4;
-  font-weight: 600;
-}
-
-.card-rarity {
-  font-size: 10px;
-  padding: 4px 8px;
-  border-radius: 50px;
-  color: #9f927d;
-  background: #eae4d0;
-  font-weight: 600;
-}
-
-.rarity-rare .card-rarity {
-  color: #2d5f92;
-  background: rgba(164, 206, 255, 0.52);
-}
-
-.rarity-epic .card-rarity {
-  color: #6f47a8;
-  background: rgba(214, 186, 255, 0.52);
-}
-
-.rarity-gold .card-rarity {
-  color: #8a5a0f;
-  background: linear-gradient(180deg, rgba(255, 231, 162, 0.92), rgba(233, 189, 79, 0.88));
-}
-
-.card-title,
-.card-description,
-.card-flavor {
-  margin: 0;
+  align-items: flex-start;
+  gap: 8px;
 }
 
 .card-title {
+  margin: 0;
   font-size: 15px;
-  color: #794f27;
+  color: #5d4037;
   font-weight: 700;
+  line-height: 1.3;
+}
+
+.masked .card-title {
+  color: #a1887f;
+}
+
+.card-badges {
+  display: flex;
+  gap: 5px;
+  flex: none;
+}
+
+.card-tag {
+  font-size: 9px;
+  padding: 3px 7px;
+  border-radius: 50px;
+  background: #eae4d0;
+  color: #a1887f;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.card-rarity {
+  font-size: 9px;
+  padding: 3px 7px;
+  border-radius: 50px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: #eae4d0;
+  color: #a1887f;
+}
+
+.rarity-rare.unlocked .card-rarity {
+  color: #3a67a0;
+  background: rgba(164, 206, 255, 0.45);
+}
+
+.rarity-epic.unlocked .card-rarity {
+  color: #7d4fbb;
+  background: rgba(214, 186, 255, 0.45);
+}
+
+.rarity-gold.unlocked .card-rarity {
+  color: #8a5a0f;
+  background: linear-gradient(180deg, #ffe7a2, #e9bd4f);
 }
 
 .card-description {
-  margin-top: 6px;
-  font-size: 13px;
+  margin: 6px 0 0;
+  font-size: 12px;
   line-height: 1.5;
-  color: #9f927d;
+  color: #a1887f;
   font-weight: 500;
 }
 
-.card-flavor {
-  margin-top: 8px;
-  line-height: 1.45;
-  color: #8a7b66;
+.masked .card-description {
+  color: #b8a99a;
 }
 
+.card-flavor {
+  margin: 8px 0 0;
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #8d6e63;
+  background: rgba(130, 213, 187, 0.08);
+  border-radius: 10px;
+  border-left: 3px solid #82d5bb;
+}
+
+.rarity-rare.unlocked .card-flavor {
+  background: rgba(136, 157, 240, 0.08);
+  border-left-color: #889df0;
+}
+
+.rarity-epic.unlocked .card-flavor {
+  background: rgba(183, 125, 238, 0.08);
+  border-left-color: #b77dee;
+}
+
+.rarity-gold.unlocked .card-flavor {
+  background: rgba(247, 205, 103, 0.12);
+  border-left-color: #f7cd67;
+}
+
+/* Transition */
 .panel-fade-enter-active,
 .panel-fade-leave-active {
-  transition: opacity 260ms var(--ease-out-expo);
+  transition: opacity 260ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .panel-fade-enter-from,
@@ -370,9 +413,14 @@ onBeforeUnmount(() => {
   opacity: 0;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 720px) {
   .achievement-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
+  }
+
+  .achievement-panel {
+    padding: 24px 16px 16px;
+    border-radius: 32px;
   }
 }
 </style>

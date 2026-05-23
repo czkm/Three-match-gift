@@ -114,6 +114,13 @@
       >
         清空所有成就
       </button>
+      <button
+        type="button"
+        class="tester-action accent"
+        @click="unlockAllAchievements"
+      >
+        解锁所有成就
+      </button>
       <button type="button" class="tester-action" @click="resetTutorial">
         测试引导
       </button>
@@ -342,6 +349,17 @@ function jumpToEnding() {
 function clearAllAchievements() {
   achievement.clearAllForTesting()
   showTesterToast('测试成就：已清空所有成就')
+}
+
+function unlockAllAchievements() {
+  let count = 0
+  for (const item of achievement.achievementList) {
+    if (!achievement.unlockedSet.has(item.id)) {
+      achievement.unlockForTesting(item.id)
+      count++
+    }
+  }
+  showTesterToast(`测试成就：已解锁 ${count} 个成就`)
 }
 
 function resetTutorial() {

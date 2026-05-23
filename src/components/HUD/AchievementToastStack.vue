@@ -9,16 +9,22 @@
         @click="openAchievement(entry.id)"
       >
         <div class="toast-medal">
-          <span class="toast-badge">🏆</span>
-          <span class="toast-icon">{{ definition(entry.id)?.icon || '🏆' }}</span>
+          <img
+            v-if="definition(entry.id)?.iconFile && !entry._imgError"
+            :src="`/img/achievements/${definition(entry.id).iconFile}.svg`"
+            alt=""
+            class="toast-icon-img"
+            @error="entry._imgError = true"
+          >
+          <span v-else class="toast-icon-emoji">{{ definition(entry.id)?.icon || '🏆' }}</span>
         </div>
         <div class="toast-copy">
-          <p class="toast-label">成就已解锁</p>
-          <p class="toast-title ink-title">{{ definition(entry.id)?.title }}</p>
-          <p class="toast-flavor ink-subtle">{{ definition(entry.id)?.flavor }}</p>
+          <p class="toast-label">哩程達成！</p>
+          <p class="toast-title">{{ definition(entry.id)?.title }}</p>
+          <p class="toast-flavor">{{ definition(entry.id)?.flavor }}</p>
           <div class="toast-foot">
             <p class="toast-rarity">{{ rarityLabel(definition(entry.id)?.rarity) }}</p>
-            <p class="toast-hint">点击查看详情</p>
+            <p class="toast-hint">點擊查看詳情</p>
           </div>
         </div>
       </button>
@@ -42,10 +48,10 @@ function definition(id) {
 
 function rarityLabel(rarity) {
   switch (rarity) {
-    case 'gold': return '金色成就';
-    case 'epic': return '史诗成就';
-    case 'rare': return '稀有成就';
-    default: return '普通成就';
+    case 'gold': return '金色';
+    case 'epic': return '史詩';
+    case 'rare': return '稀有';
+    default: return '普通';
   }
 }
 
@@ -97,15 +103,16 @@ watch(
   gap: 12px;
   text-align: left;
   pointer-events: auto;
-  border-radius: 16px;
-  border: 2px solid #d4c9b4;
-  box-shadow: 0 4px 0 0 #d4c9b4, 0 8px 20px rgba(107, 92, 67, 0.18);
-  background: rgb(247, 243, 223);
+  border-radius: 20px;
+  border: 2px solid #e8dcc8;
+  box-shadow: 0 4px 0 0 #e8dcc8, 0 8px 24px rgba(93, 64, 55, 0.15);
+  background: #fdfdf5;
   overflow: hidden;
   transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1), border-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   font-family: 'Nunito', 'Noto Sans SC', sans-serif;
-  color: #725d42;
+  color: #5d4037;
+  cursor: pointer;
 }
 
 .toast::before {
@@ -115,85 +122,83 @@ watch(
   top: 0;
   bottom: 0;
   width: 4px;
-  background: linear-gradient(180deg, #19c8b9, #50B9AB);
+  background: linear-gradient(180deg, #82d5bb, #5cb899);
 }
 
 .toast:hover {
   transform: translateY(-2px);
-  border-color: #19c8b9;
-  box-shadow: 0 5px 0 0 #50B9AB, 0 10px 24px rgba(25, 200, 185, 0.18);
+  border-color: #82d5bb;
+  box-shadow: 0 5px 0 0 #64c4a3, 0 10px 28px rgba(130, 213, 187, 0.15);
 }
 
 .toast.rarity-rare {
-  border-color: rgba(94, 154, 226, 0.5);
+  border-color: rgba(136, 157, 240, 0.5);
 }
 
 .toast.rarity-rare::before {
-  background: linear-gradient(180deg, #76bcff, #4074bc);
+  background: linear-gradient(180deg, #889df0, #6478cc);
 }
 
 .toast.rarity-rare:hover {
-  border-color: rgba(94, 154, 226, 0.8);
-  box-shadow: 0 5px 0 0 rgba(64, 116, 188, 0.45), 0 10px 24px rgba(94, 154, 226, 0.2);
+  border-color: rgba(136, 157, 240, 0.8);
+  box-shadow: 0 5px 0 0 rgba(100, 120, 204, 0.45), 0 10px 28px rgba(136, 157, 240, 0.18);
 }
 
 .toast.rarity-epic {
-  border-color: rgba(172, 124, 228, 0.5);
+  border-color: rgba(183, 125, 238, 0.5);
 }
 
 .toast.rarity-epic::before {
-  background: linear-gradient(180deg, #ce94ff, #7248b0);
+  background: linear-gradient(180deg, #b77dee, #9558d6);
 }
 
 .toast.rarity-epic:hover {
-  border-color: rgba(172, 124, 228, 0.8);
-  box-shadow: 0 5px 0 0 rgba(114, 72, 176, 0.45), 0 10px 24px rgba(172, 124, 228, 0.2);
+  border-color: rgba(183, 125, 238, 0.8);
+  box-shadow: 0 5px 0 0 rgba(149, 88, 214, 0.45), 0 10px 28px rgba(183, 125, 238, 0.18);
 }
 
 .toast.rarity-gold {
-  border-color: rgba(228, 186, 92, 0.7);
+  border-color: rgba(247, 205, 103, 0.7);
   background: linear-gradient(180deg, #fff7dc, #f7eab4);
 }
 
 .toast.rarity-gold::before {
   width: 5px;
-  background: linear-gradient(180deg, #ffe27e, #cd8e26);
+  background: linear-gradient(180deg, #f7cd67, #dba12e);
 }
 
 .toast.rarity-gold:hover {
-  border-color: rgba(228, 186, 92, 1);
-  box-shadow: 0 5px 0 0 rgba(205, 142, 38, 0.5), 0 10px 24px rgba(245, 195, 28, 0.22);
+  border-color: rgba(247, 205, 103, 1);
+  box-shadow: 0 5px 0 0 rgba(219, 161, 46, 0.5), 0 10px 28px rgba(247, 205, 103, 0.2);
 }
 
 .toast-medal {
   width: 60px;
   flex: none;
-  border-radius: 12px;
+  border-radius: 14px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  background: #f8f8f0;
-  border: 2px solid #d4c9b4;
-  box-shadow: 0 2px 0 0 #d4c9b4;
+  background: #f8f4e8;
+  border: 2px solid #e8dcc8;
+  box-shadow: 0 2px 0 0 #e8dcc8;
   position: relative;
   z-index: 1;
 }
 
 .toast.rarity-gold .toast-medal {
-  background: linear-gradient(180deg, #fff7dc, #ffe27e);
-  border-color: rgba(228, 186, 92, 0.7);
-  box-shadow: 0 2px 0 0 rgba(205, 142, 38, 0.4);
+  background: linear-gradient(180deg, #fff7dc, #f7cd67);
+  border-color: rgba(247, 205, 103, 0.7);
+  box-shadow: 0 2px 0 0 rgba(219, 161, 46, 0.4);
 }
 
-.toast-badge {
-  font-size: 11px;
-  color: #9f927d;
-  font-weight: 700;
+.toast-icon-img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
 }
 
-.toast-icon {
+.toast-icon-emoji {
   width: 34px;
   height: 34px;
   display: grid;
@@ -204,7 +209,7 @@ watch(
   border: 2px solid #d4c9b4;
 }
 
-.toast.rarity-gold .toast-icon {
+.toast.rarity-gold .toast-icon-emoji {
   background: radial-gradient(circle, #fff5c8, #ffd97a);
   border-color: #dba90e;
 }
@@ -231,18 +236,18 @@ watch(
   font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #19c8b9;
+  color: #82d5bb;
   font-weight: 700;
 }
 
-.toast.rarity-rare .toast-label { color: #4074bc; }
-.toast.rarity-epic .toast-label { color: #7248b0; }
+.toast.rarity-rare .toast-label { color: #6478cc; }
+.toast.rarity-epic .toast-label { color: #7d4fbb; }
 .toast.rarity-gold .toast-label { color: #b07a18; }
 
 .toast-title {
   margin-top: 2px;
   font-size: 15px;
-  color: #794f27;
+  color: #5d4037;
   font-weight: 800;
   letter-spacing: 0.02em;
 }
@@ -251,7 +256,7 @@ watch(
   margin-top: 5px;
   font-size: 12px;
   line-height: 1.4;
-  color: #9f927d;
+  color: #a1887f;
   font-weight: 500;
 }
 
@@ -267,19 +272,19 @@ watch(
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: #9f927d;
+  color: #a1887f;
   padding: 3px 8px;
   border-radius: 50px;
   background: #eae4d0;
 }
 
 .toast.rarity-rare .toast-rarity {
-  color: #2d5f92;
+  color: #3a67a0;
   background: rgba(164, 206, 255, 0.4);
 }
 
 .toast.rarity-epic .toast-rarity {
-  color: #6f47a8;
+  color: #7d4fbb;
   background: rgba(214, 186, 255, 0.4);
 }
 
@@ -291,7 +296,7 @@ watch(
 .toast-hint {
   font-size: 10px;
   letter-spacing: 0.04em;
-  color: #9f927d;
+  color: #a1887f;
   font-weight: 600;
 }
 
