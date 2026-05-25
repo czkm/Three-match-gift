@@ -11,7 +11,7 @@
         <div class="toast-medal">
           <img
             v-if="definition(entry.id)?.iconFile && !entry._imgError"
-            :src="`/img/achievements/${definition(entry.id).iconFile}.svg`"
+            :src="`/img/achievements/${definition(entry.id).iconFile}.png`"
             alt=""
             class="toast-icon-img"
             @error="entry._imgError = true"

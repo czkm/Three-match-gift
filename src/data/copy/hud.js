@@ -1,12 +1,12 @@
 import { COMMON_COPY, formatAcquiredText } from './common';
 
 export const HUD_COPY = {
-  trinketTitle: '道具栏',
-  repairProgressTitle: '修复进度',
+  trinketTitle: '收藏袋',
+  repairProgressTitle: '施工进度',
   messageEyebrows: {
-    rewardItem: '道具情报',
-    monster: '棋盘情报',
-    narration: '今日场景',
+    rewardItem: '物品介绍',
+    monster: '地形观察',
+    narration: '今日风景',
     geralt: '小猪',
     system: '系统提示',
     hint: '旅途提示'
@@ -21,7 +21,7 @@ export const HUD_COPY = {
   dayEnd: {
     continueHint: COMMON_COPY.continueAnywhereHint,
     formatRestHint(maxSteps) {
-      return `明天再继续。步数会恢复到 ${maxSteps}，今天的进度会保留。`;
+      return `明天再继续狸~步数会恢复到 ${maxSteps}，今天的进度会好好留着狸！`;
     }
   }
 };
@@ -33,7 +33,7 @@ export const AUDIO_COPY = {
 };
 
 export const ABILITY_BAR_COPY = {
-  title: '工具',
+  title: '随身工具',
   pigEnergyTitle: '小猪星星',
   formatPigEnergy(level, max) {
     return `星级 ${level} / ${max}`;
@@ -44,7 +44,7 @@ export const ABILITY_BAR_COPY = {
   lilacApply: '变！',
   milkTeaPrompt: '奶茶要收哪种狸？',
   milkTeaApply: '干杯狸！',
-  passiveTitle: '特长'
+  passiveTitle: '拿手好戏'
 };
 
 export const REWARD_ROOM_COPY = {

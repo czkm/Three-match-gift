@@ -22,10 +22,16 @@
           pending: game.pendingAbility === ab.id
         }"
         :disabled="!game.canUseAbility(ab.id)"
-        :title="ab.desc"
-        @click="onTrigger(ab)"
+        @click="onAbilityClick(ab)"
       >
-        <span class="ab-icon">{{ ab.icon }}</span>
+        <img
+          v-if="!failedSkillIcons.has(ab.id)"
+          :src="`/img/skills/${ab.id}.png`"
+          :alt="ab.name"
+          class="ab-icon-img"
+          @error="failedSkillIcons.add(ab.id)"
+        >
+        <span v-else class="ab-icon">{{ ab.icon }}</span>
         <span class="ab-name">{{ ab.name }}</span>
         <span class="ab-uses">
           {{
@@ -38,6 +44,25 @@
         </span>
       </button>
     </div>
+
+    <!-- Ability message box — shows hovered ability description -->
+    <Transition name="msg-fade">
+      <div v-if="hoverAbility" class="ability-msg-box">
+        <p class="msg-name">
+          <img
+            v-if="hoverAbility && !failedSkillIcons.has(hoverAbility.id)"
+            :src="`/img/skills/${hoverAbility.id}.png`"
+            :alt="hoverAbility.name"
+            class="msg-icon-img"
+            @error="failedSkillIcons.add(hoverAbility.id)"
+          >
+          <span v-else class="msg-icon">{{ hoverAbility.icon }}</span>
+          {{ hoverAbility.name }}
+        </p>
+        <p class="msg-desc">{{ hoverAbility.desc }}</p>
+        <p v-if="hoverAbility.quote" class="msg-quote">{{ hoverAbility.quote }}</p>
+      </div>
+    </Transition>
 
     <div class="pig-energy">
       <div class="pig-energy-head">
@@ -152,9 +177,16 @@
         v-for="ab in game.passiveAbilities"
         :key="ab.id"
         class="passive"
-        :title="ab.desc"
+        @click="hoverAbility = ab"
       >
-        <span class="ab-icon small">{{ ab.icon }}</span>
+        <img
+          v-if="!failedSkillIcons.has(ab.id)"
+          :src="`/img/skills/${ab.id}.png`"
+          :alt="ab.name"
+          class="ab-icon-img small"
+          @error="failedSkillIcons.add(ab.id)"
+        >
+        <span v-else class="ab-icon small">{{ ab.icon }}</span>
         <span class="ab-name small">{{ ab.name }}</span>
       </div>
     </div>
@@ -162,7 +194,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { audioManager } from '@/audio/AudioManager'
 import { ABILITY_BAR_COPY, COMMON_COPY } from '@/data/copy'
 import EventBus from '@/core/eventBus'
@@ -196,6 +228,8 @@ const lilacTo = ref(null)
 const lilacReady = computed(
   () => lilacFrom.value && lilacTo.value && lilacFrom.value !== lilacTo.value
 )
+const hoverAbility = ref(null)
+const failedSkillIcons = reactive(new Set())
 const milkTeaOpen = ref(false)
 const milkTeaTarget = ref(null)
 const pigAwards = ref([])
@@ -203,7 +237,15 @@ const displayPigEnergy = ref(game.pigEnergy || 0)
 const chargingSlot = ref(0)
 let pigAwardTimer = null
 let pigEnergySyncTimer = null
-function onTrigger(ab) {
+function onAbilityClick(ab) {
+  // Toggle: click same ability again to dismiss the message box
+  if (hoverAbility.value?.id === ab.id) {
+    hoverAbility.value = null
+    return
+  }
+  hoverAbility.value = ab
+
+  // Only trigger the ability if it can be used
   if (!game.canUseAbility(ab.id)) return
 
   if (ab.id === 'whiteWolfTidy') {
@@ -649,6 +691,18 @@ h3 {
   font-size: 14px;
 }
 
+.ab-icon-img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.ab-icon-img.small {
+  width: 16px;
+  height: 16px;
+}
+
 .ab-name {
   flex: 1;
   font-weight: 700;
@@ -835,5 +889,77 @@ h3 {
 .cancel:active {
   transform: translateY(2px);
   box-shadow: 0 1px 0 0 #d4c9b4;
+}
+
+/* ── Ability message box ── */
+.ability-msg-box {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(25, 200, 185, 0.06), #f8f8f0);
+  border: 2px solid rgba(25, 200, 185, 0.18);
+  box-shadow: 0 2px 0 0 rgba(25, 200, 185, 0.1);
+}
+
+.msg-name {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #50B9AB;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.msg-icon {
+  font-size: 16px;
+}
+
+.msg-icon-img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.msg-desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #725d42;
+  font-weight: 500;
+}
+
+.msg-quote {
+  margin: 6px 0 0;
+  padding-top: 6px;
+  border-top: 1px dashed #e8e2d6;
+  font-size: 11px;
+  line-height: 1.45;
+  color: #9f927d;
+}
+
+.msg-fade-enter-active {
+  animation: msg-in 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.msg-fade-leave-active {
+  animation: msg-out 120ms ease-in forwards;
+}
+
+@keyframes msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes msg-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 </style>

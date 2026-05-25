@@ -1,14 +1,14 @@
 export const TARGETING_COPY = {
   short: {
     grape: '点一个 🍊 果子狸~',
-    rowOrCol: '点一整行或一整列清扫狸！',
+    rowOrCol: '点左侧按钮选行，或右侧按钮选列狸！',
     twoTiles: '先点一个，再点另一个狸~',
     twoResources: '想变成什么狸？在右边选吧狸！'
   },
   long: {
-    grape: '点一个 🍊 果子狸~丰收会把周围变成一片果园狸！',
-    rowOrCol: '点一行或一列狸~直接清扫过去狸！',
-    twoTiles: '先点一个再点另一个狸~萝卜会帮你换好狸！',
+    grape: '点一个 🍊 果子狸~派对会把周围变成一片果园狸！',
+    rowOrCol: '左侧按钮选行，右侧按钮选列狸~一扫而光狸！',
+    twoTiles: '先点一个再点另一个狸~萝卜快递马上到狸！',
     twoResources: '在右边选两种资源狸~全部变成你想要的狸！'
   }
 };
@@ -18,7 +18,7 @@ export const GAMEPLAY_COPY = {
     initial: '豆狸&粒狸: 点击棋盘开始整理狸~优先凑出顺手的三连让资源稳稳涨起来狸！ ( ……涨起来狸！）',
     awakening: '豆狸&粒狸: 棋盘上的雷光正在汇向中央狸~等迪精醒来最后的仪式就会开始狸！ ( ……开始狸！）',
     djinnTransitionFallback: '豆狸&粒狸: 封印正在重组狸~下一愿即将显现狸！ ( ……显现狸！）',
-    pigEnergyReady: '豆狸&粒狸: 小猪已经攒满了 5 星好评狸~去右侧工具栏发动一次奶茶攻击狸！ ( ……奶茶攻击狸！）'
+    pigEnergyReady: '豆狸&粒狸: 小猪已经攒满了 5 星好评狸~去右侧工具栏来一杯果汁特调狸！ ( ……果汁特调狸！）'
   },
   djinn: {
     readyHealthLabel: '仪式已经就绪了狸',
@@ -35,7 +35,7 @@ export const GAMEPLAY_COPY = {
     },
     actionHints: {
       enterBoard: '点击进入仪式棋盘',
-      continue: '点击继续'
+      continue: '点一下继续狸'
     },
     stageCompleteBarks: {
       1: '豆狸&粒狸: 病气退开了狸！ ( ……退开了狸！）',

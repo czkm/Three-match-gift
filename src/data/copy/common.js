@@ -1,8 +1,8 @@
 export const COMMON_COPY = {
-  continueHint: '点击继续',
-  continueAnywhereHint: '点击任意处继续',
-  cancel: '取消',
-  ready: '就绪',
+  continueHint: '点一下继续狸',
+  continueAnywhereHint: '点哪里都行狸',
+  cancel: '算了狸',
+  ready: '好了狸',
   expand: '展开',
   collapse: '收起',
   adjust: '调节',
@@ -10,7 +10,7 @@ export const COMMON_COPY = {
   unmute: '开启声音',
   muted: '静音中',
   sound: '声音',
-  acquirePrefix: '获得了'
+  acquirePrefix: '捡到了'
 };
 
 export function formatAcquiredText(name) {

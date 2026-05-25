@@ -238,28 +238,6 @@
         </div>
       </div>
 
-      <!-- Targeting overlay: row/col selectors for sunset ability -->
-      <template v-if="targeting === 'rowOrCol'">
-        <button
-          v-for="r in rowsCount"
-          :key="`row-${r}`"
-          class="line-btn line-row"
-          :style="{ top: `${(r - 1) * 60 + 4}px` }"
-          @click="confirmRowOrCol('row', r - 1)"
-        >
-          第 {{ r }} 行
-        </button>
-        <button
-          v-for="c in colsCount"
-          :key="`col-${c}`"
-          class="line-btn line-col"
-          :style="{ left: `${(c - 1) * 60 + 4}px` }"
-          @click="confirmRowOrCol('col', c - 1)"
-        >
-          第 {{ c }} 列
-        </button>
-      </template>
-
       <transition name="combo-praise">
         <div
           v-if="comboPraise"
@@ -310,6 +288,28 @@
         <div class="xray-glow" />
       </div>
     </div>
+
+    <!-- Targeting overlay: row/col selectors for sunset (outside .gameBoard to avoid overflow:hidden clip) -->
+    <template v-if="targeting === 'rowOrCol'">
+      <button
+        v-for="r in rowsCount"
+        :key="`row-${r}`"
+        class="line-btn line-row"
+        :style="{ top: `${(r - 1) * 60 + 14}px` }"
+        @click="confirmRowOrCol('row', r - 1)"
+      >
+        第 {{ r }} 行
+      </button>
+      <button
+        v-for="c in colsCount"
+        :key="`col-${c}`"
+        class="line-btn line-col"
+        :style="{ top: `${(c - 1) * 60 + 14}px` }"
+        @click="confirmRowOrCol('col', c - 1)"
+      >
+        第 {{ c }} 列
+      </button>
+    </template>
 
     <div v-if="targeting" class="targeting-hint">
       <p class="ink-title">{{ targetingHint }}</p>
@@ -4294,13 +4294,12 @@ function onXrayScan(payload = {}) {
   justify-content: center;
 }
 .line-col {
-  bottom: -42px;
-  height: 32px;
-  width: 56px;
+  right: -84px;
+  height: 56px;
+  width: 76px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 2px;
 }
 
 .targeting-hint {

@@ -26,7 +26,7 @@
             <div class="card-icon-wrap">
               <img
                 v-if="item.unlocked && item.iconFile && !item.imgError"
-                :src="`/img/achievements/${item.iconFile}.svg`"
+                :src="`/img/achievements/${item.iconFile}.png`"
                 :alt="item.title"
                 class="card-icon-img"
                 @error="item.imgError = true"
