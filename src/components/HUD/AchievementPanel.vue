@@ -25,11 +25,11 @@
           >
             <div class="card-icon-wrap">
               <img
-                v-if="item.unlocked && item.iconFile && !item.imgError"
+                v-if="item.unlocked && item.iconFile && !achievementImgErrors[item.id]"
                 :src="`/img/achievements/${item.iconFile}.png`"
                 :alt="item.title"
                 class="card-icon-img"
-                @error="item.imgError = true"
+                @error="achievementImgErrors[item.id] = true"
               >
               <span v-else class="card-icon-emoji">{{ item.masked ? '🍂' : item.icon }}</span>
             </div>
@@ -52,10 +52,11 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useAchievementStore } from '@/stores/achievementStore';
 
 const achievement = useAchievementStore();
+const achievementImgErrors = ref({});
 
 const renderedItems = computed(() => achievement.orderedAchievements.map((item) => {
   const unlocked = achievement.unlockedSet.has(item.id);

@@ -162,8 +162,17 @@
           <span class="milk-tea-burst-ring ring-a" />
           <span class="milk-tea-burst-ring ring-b" />
           <span class="milk-tea-burst-core">{{ milkTeaSigil.glyph }}</span>
-          <span class="milk-tea-burst-label">奶茶攻击</span>
+          <span class="milk-tea-burst-label">果汁特调</span>
         </div>
+
+        <Transition name="milk-tea-pop">
+          <div v-if="milkTeaResult" class="milk-tea-image-overlay">
+            <div class="milk-tea-image-card">
+              <img :src="milkTeaResult" alt="" class="milk-tea-image">
+            </div>
+            <p class="milk-tea-image-label">果汁特调完成狸~</p>
+          </div>
+        </Transition>
 
         <div
           v-if="showCakeBuild"
@@ -341,6 +350,7 @@ import {
   RESOURCE_BY_ID,
   RESOURCE_BY_CHAR,
   RESOURCE_CHARS,
+  MILK_TEA_IMAGES,
   ROT_CHAR,
   unlockedCharsForDay
 } from '@/data/content'
@@ -399,6 +409,8 @@ let milkTeaFlashTimer = null
 let milkTeaSweepTimer = null
 let milkTeaPulseTimer = null
 let milkTeaResolveTimer = null
+const milkTeaResult = ref(null)
+let milkTeaResultTimer = null
 let djinnTransitionTimer = null
 let djinnTransitionSettleTimer = null
 const xrayScanning = ref(false)
@@ -936,6 +948,7 @@ onBeforeUnmount(() => {
   if (milkTeaSweepTimer) clearTimeout(milkTeaSweepTimer)
   if (milkTeaPulseTimer) clearTimeout(milkTeaPulseTimer)
   if (milkTeaResolveTimer) clearTimeout(milkTeaResolveTimer)
+  if (milkTeaResultTimer) { clearTimeout(milkTeaResultTimer); milkTeaResultTimer = null }
   if (pigPenaltyShakeTimer) clearTimeout(pigPenaltyShakeTimer)
   if (djinnTransitionTimer) clearTimeout(djinnTransitionTimer)
   if (djinnTransitionSettleTimer) clearTimeout(djinnTransitionSettleTimer)
@@ -2057,6 +2070,15 @@ function triggerMilkTeaBarrageFx(resourceId) {
     milkTeaFlares.value = []
     milkTeaSigil.value = null
   }, 1700)
+
+  if (milkTeaResultTimer) clearTimeout(milkTeaResultTimer)
+  milkTeaResultTimer = setTimeout(() => {
+    milkTeaResult.value = MILK_TEA_IMAGES[resourceId] || null
+    milkTeaResultTimer = setTimeout(() => {
+      milkTeaResult.value = null
+      milkTeaResultTimer = null
+    }, 2000)
+  }, 1200)
 }
 
 function triggerSunsetRake(variant = 'gold', axis = 'row', index = null) {
@@ -4052,6 +4074,72 @@ function onXrayScan(payload = {}) {
     0 10px 18px rgba(78, 30, 22, 0.16),
     inset 0 1px 0 rgba(255, 220, 214, 0.26);
   animation: milk-tea-burst-label 620ms var(--ease-out-expo) forwards;
+}
+
+/* ── Milk tea result image overlay ── */
+.milk-tea-image-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.milk-tea-image-card {
+  width: 120px;
+  height: 120px;
+  border-radius: 24px;
+  background: rgb(247, 243, 223);
+  border: 3px solid #d4c9b4;
+  box-shadow: 0 6px 0 0 #d4c9b4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.milk-tea-image {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+.milk-tea-image-label {
+  margin-top: 14px;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #725d42;
+  background: rgb(247, 243, 223);
+  border: 2px solid #d4c9b4;
+  box-shadow: 0 3px 0 0 #d4c9b4;
+}
+
+.milk-tea-pop-enter-active {
+  animation: milk-tea-bounce-in 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.milk-tea-pop-leave-active {
+  transition: opacity 400ms ease;
+}
+.milk-tea-pop-leave-to {
+  opacity: 0;
+}
+
+@keyframes milk-tea-bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(40px);
+  }
+  60% {
+    transform: scale(1.12) translateY(-6px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .tileContainer.milk-tea-pulse::before {

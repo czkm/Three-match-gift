@@ -25,11 +25,11 @@
         @click="onAbilityClick(ab)"
       >
         <img
-          v-if="!failedSkillIcons.has(ab.id)"
+          v-if="!failedSkillIcons[ab.id]"
           :src="`/img/skills/${ab.id}.png`"
           :alt="ab.name"
           class="ab-icon-img"
-          @error="failedSkillIcons.add(ab.id)"
+          @error="failedSkillIcons[ab.id] = true"
         >
         <span v-else class="ab-icon">{{ ab.icon }}</span>
         <span class="ab-name">{{ ab.name }}</span>
@@ -50,11 +50,11 @@
       <div v-if="hoverAbility" class="ability-msg-box">
         <p class="msg-name">
           <img
-            v-if="hoverAbility && !failedSkillIcons.has(hoverAbility.id)"
+            v-if="hoverAbility && !failedSkillIcons[hoverAbility.id]"
             :src="`/img/skills/${hoverAbility.id}.png`"
             :alt="hoverAbility.name"
             class="msg-icon-img"
-            @error="failedSkillIcons.add(hoverAbility.id)"
+            @error="failedSkillIcons[hoverAbility.id] = true"
           >
           <span v-else class="msg-icon">{{ hoverAbility.icon }}</span>
           {{ hoverAbility.name }}
@@ -180,11 +180,11 @@
         @click="hoverAbility = ab"
       >
         <img
-          v-if="!failedSkillIcons.has(ab.id)"
+          v-if="!failedSkillIcons[ab.id]"
           :src="`/img/skills/${ab.id}.png`"
           :alt="ab.name"
           class="ab-icon-img small"
-          @error="failedSkillIcons.add(ab.id)"
+          @error="failedSkillIcons[ab.id] = true"
         >
         <span v-else class="ab-icon small">{{ ab.icon }}</span>
         <span class="ab-name small">{{ ab.name }}</span>
@@ -194,7 +194,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { audioManager } from '@/audio/AudioManager'
 import { ABILITY_BAR_COPY, COMMON_COPY } from '@/data/copy'
 import EventBus from '@/core/eventBus'
@@ -229,7 +229,7 @@ const lilacReady = computed(
   () => lilacFrom.value && lilacTo.value && lilacFrom.value !== lilacTo.value
 )
 const hoverAbility = ref(null)
-const failedSkillIcons = reactive(new Set())
+const failedSkillIcons = ref({})
 const milkTeaOpen = ref(false)
 const milkTeaTarget = ref(null)
 const pigAwards = ref([])

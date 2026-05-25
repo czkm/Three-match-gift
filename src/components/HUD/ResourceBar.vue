@@ -70,8 +70,14 @@
     >
       <div class="message-head">
         <span class="message-icon">
+          <img
+            v-if="messageIconImg"
+            :src="messageIconImg"
+            class="message-icon-img"
+            alt="豆狸&粒狸"
+          >
           <IsaacCollectibleIcon
-            v-if="game.currentRewardItemInfo"
+            v-else-if="game.currentRewardItemInfo"
             :reward-item-id="game.currentRewardItemInfo.itemId"
             :size="22"
             :fallback-emoji="game.currentRewardItemInfo.emoji"
@@ -162,6 +168,11 @@ const messageIcon = computed(() => {
     default: return '🕯️';
   }
 });
+
+const messageIconImg = computed(() => {
+  if (messageKind.value === 'geralt') return '/img/animal_icon_couple1.png'
+  return null
+})
 
 const messageTitle = computed(() => {
   if (effectNotice.value) return effectNotice.value.title || '';
@@ -810,6 +821,14 @@ h3 {
 
 .kind-geralt .message-text {
   font-weight: 500;
+}
+
+.message-icon-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  filter: drop-shadow(0 1px 2px rgba(58, 34, 18, 0.12));
 }
 
 .kind-system {

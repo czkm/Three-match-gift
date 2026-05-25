@@ -7,12 +7,12 @@ export const HUD_COPY = {
     rewardItem: '物品介绍',
     monster: '地形观察',
     narration: '今日风景',
-    geralt: '小猪',
+    geralt: '豆狸&粒狸',
     system: '系统提示',
     hint: '旅途提示'
   },
   messageTitles: {
-    bark: '小猪的话',
+    bark: '豆狸&粒狸',
     targeting: '当前指令',
     hint: '今日建议',
     djinnFallback: '迪精',
@@ -42,7 +42,7 @@ export const ABILITY_BAR_COPY = {
   from: '从',
   to: '到',
   lilacApply: '变！',
-  milkTeaPrompt: '奶茶要收哪种狸？',
+  milkTeaPrompt: '果汁特调要用哪种狸？',
   milkTeaApply: '干杯狸！',
   passiveTitle: '拿手好戏'
 };

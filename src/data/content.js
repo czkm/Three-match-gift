@@ -23,6 +23,15 @@ export const RESOURCE_BY_ID = Object.fromEntries(RESOURCES.map(r => [r.id, r]))
 export const RESOURCE_CHARS = RESOURCES.map(r => r.char)
 export const ROT_CHAR = 'r'
 
+export const MILK_TEA_IMAGES = {
+  grape: '/img/milktea/ToolTapioca0.png',
+  wood: '/img/milktea/ToolTapioca1.png',
+  stone: '/img/milktea/ToolTapioca2.png',
+  clay: '/img/milktea/ToolTapioca3.png',
+  herb: '/img/milktea/ToolTapioca4.png',
+  magic: '/img/milktea/ToolTapioca5.png',
+}
+
 /**
  * Resources unlock progressively as new buildings introduce them.
  * The board only spawns tiles whose char appears in the union of every
