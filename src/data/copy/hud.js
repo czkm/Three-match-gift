@@ -28,7 +28,8 @@ export const HUD_COPY = {
 
 export const AUDIO_COPY = {
   bgm: '配乐',
-  sfx: '音效'
+  sfx: '音效',
+  ambient: '环境'
 };
 
 export const ABILITY_BAR_COPY = {

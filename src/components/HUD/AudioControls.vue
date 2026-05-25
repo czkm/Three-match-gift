@@ -13,8 +13,13 @@
       </label>
       <label class="slider-row">
         <span class="row-label">{{ AUDIO_COPY.sfx }}</span>
-        <input v-model.number="sfxV" type="range" min="0" max="200" />
+        <input v-model.number="sfxV" type="range" min="0" max="100" />
         <span class="row-value">{{ sfxV }}</span>
+      </label>
+      <label class="slider-row">
+        <span class="row-label">{{ AUDIO_COPY.ambient }}</span>
+        <input v-model.number="ambV" type="range" min="0" max="100" />
+        <span class="row-value">{{ ambV }}</span>
       </label>
     </div>
 
@@ -33,6 +38,7 @@ const expanded = ref(false);
 const mutedState = ref(audioManager.isMuted);
 const bgmState = ref(Math.round(audioManager.bgmVolume * 100));
 const sfxState = ref(Math.round(audioManager.sfxVolume * 100));
+const ambState = ref(Math.round(audioManager.ambientVolume * 100));
 
 const muted = computed(() => mutedState.value);
 const bgmV = computed({
@@ -49,6 +55,13 @@ const sfxV = computed({
     audioManager.sfxVolume = value / 100;
   }
 });
+const ambV = computed({
+  get: () => ambState.value,
+  set: (value) => {
+    ambState.value = value;
+    audioManager.ambientVolume = value / 100;
+  }
+});
 
 let unsubscribe = null;
 
@@ -56,6 +69,7 @@ function syncState() {
   mutedState.value = audioManager.isMuted;
   bgmState.value = Math.round(audioManager.bgmVolume * 100);
   sfxState.value = Math.round(audioManager.sfxVolume * 100);
+  ambState.value = Math.round(audioManager.ambientVolume * 100);
 }
 
 function toggleMute() {

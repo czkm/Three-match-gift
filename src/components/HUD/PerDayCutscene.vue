@@ -139,6 +139,7 @@ const monoDialogRef = ref(null)
 let timers = []
 
 onMounted(() => {
+  audioManager.playSFX('scenetransition', { vol: 0.25 })
   // Ambient petals — fewer & gentler than original 80
   for (let i = 0; i < 50; i++) {
     petals.value.push({

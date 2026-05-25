@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-import { toRef, watch } from 'vue';
+import { onMounted, toRef, watch } from 'vue';
 import { audioManager } from '@/audio/AudioManager';
 import { useTypewriter } from '@/composables/useTypewriter';
 import { COMMON_COPY } from '@/data/copy';
@@ -40,6 +40,10 @@ function onSkip() {
     emit('done');
   }
 }
+
+onMounted(() => {
+  audioManager.playSFX('dialogopen', { vol: 0.3 });
+});
 
 watch(done, (value, oldValue) => {
   if (value && !oldValue) {

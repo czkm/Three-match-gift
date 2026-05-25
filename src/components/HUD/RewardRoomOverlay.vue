@@ -220,11 +220,7 @@ function enterRoom(roomType) {
   clearTimers()
   currentRoomType.value = roomType
   enteringRoom.value = roomType
-  if (roomType === 'treasure') {
-    audioManager.playSFX('treasure_door_open', { vol: 0.5 })
-  } else {
-    audioManager.playSFX('devil_door_appear', { vol: 0.5 })
-  }
+  audioManager.playSFX('scenetransition', { vol: 0.35 })
   enterTimer = setTimeout(() => {
     phase.value = 'room'
     enteringRoom.value = ''
@@ -233,26 +229,10 @@ function enterRoom(roomType) {
 
 function goBackToDoors() {
   clearTimers()
+  audioManager.playSFX('dialogclose', { vol: 0.3 })
   enteringRoom.value = ''
   currentRoomType.value = ''
   phase.value = 'choose'
-}
-
-const ITEM_SFX_MAP = {
-  brimstone:    'brimstone_laser',
-  mawOfTheVoid: 'maw_void',
-  pentagram:    'pentagram_blast',
-  darkBeggar:   'beggar_vamp',
-  holyWater:    'holy_water_whip',
-  luckyFoot:    'lucky_foot',
-  battery:      'battery_energy',
-  dogTooth:     'dog_bark',
-  momsKnife:    'knife_pull',
-  thePact:      'pact_power',
-  xRayVision:   'xray_see',
-  stye:         'stye_explosion',
-  lunch:        'lunch_health',
-  sackOfPennies:'pennies_pickup',
 }
 
 function pickItem(item) {
@@ -262,15 +242,7 @@ function pickItem(item) {
   phase.value = 'acquired'
   launchStarted.value = false
   flightFx.value = null
-  if (currentRoomType.value === 'treasure') {
-    audioManager.playSFX('treasure_item_pick', { vol: 0.5 })
-  } else {
-    audioManager.playSFX('devil_item_pick', { vol: 0.45 })
-  }
-  const itemSfx = ITEM_SFX_MAP[item.id]
-  if (itemSfx) {
-    audioManager.playSFX(itemSfx, { vol: 0.5, bypassThrottle: true })
-  }
+  audioManager.playSFX('item_get', { vol: 0.45 })
   void startRewardFlight(item)
   acquireTimer = setTimeout(() => {
     emit('choose', item.id)
@@ -308,7 +280,7 @@ async function startRewardFlight(item) {
   }
 
   audioManager.playSFX('achievement', { vol: 0.56 })
-  audioManager.playSFX('item_power_up', { vol: 0.42, bypassThrottle: true })
+  audioManager.playSFX('item_get', { vol: 0.42, bypassThrottle: true })
   flightLaunchTimer = setTimeout(() => {
     launchStarted.value = true
   }, 120)

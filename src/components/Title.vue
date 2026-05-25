@@ -212,6 +212,7 @@ function completeFlow() {
 }
 
 function commitStart() {
+  audioManager.playSFX('scenetransition', { vol: 0.35 });
   game.start();
   game.setGiftDedication({
     finalText: ENDING.lockedGift,
@@ -237,6 +238,7 @@ function clearTimers() {
 }
 
 onMounted(() => {
+  audioManager.playSFX('scenetransition', { vol: 0.3 });
   giftInput.value?.focus();
   window.addEventListener('keydown', onWindowKeydown);
 });

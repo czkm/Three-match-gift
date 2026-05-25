@@ -24,11 +24,11 @@
     opacity var(--t-tile) var(--ease-out-expo);
   background-clip: padding-box;
 
-  /* Wood craft surface — warm beige */
-  background: linear-gradient(145deg, #f0e8d8, #e8dcc8);
+  /* Fallback background — overridden by per-type gradients below */
+  background: linear-gradient(145deg, #e0d8c8, #d0c8b8);
 
   /* Darker wood frame — like a handcrafted token edge */
-  border: 2px solid #d4c9b4;
+  border: 2px solid #c0b8a8;
 
   /* Warm parchment-style shadows — no pure black */
   filter: drop-shadow(0 3px 6px rgba(114, 93, 66, 0.18));
@@ -122,48 +122,82 @@
 }
 
 /* ───────────────────────────────────────────
-   Resource tiles — wooden craft token with paper-card insert
-   Each tile is a handcrafted wood piece with a cream paper inlay
-   and a colored card frame matching the resource type.
+   Resource tiles — unique AC-styled backgrounds
+   Each resource has a distinct gradient (cf. monster tile pattern)
+   so tiles are instantly distinguishable by color & feel.
    ─────────────────────────────────────────── */
 
-/* Cream paper insert — each resource gets a colored card frame
-   on the same warm cream backing. */
-.tile.grape::before,
-.tile.wood::before,
-.tile.stone::before,
-.tile.clay::before,
-.tile.herb::before,
-.tile.magic::before {
-  content: '';
-  position: absolute;
-  inset: 3px;
-  border-radius: 10px;
-  background: var(--animal-card-bg);
-  z-index: 0;
-  pointer-events: none;
+/* grape — sunny citrus grove */
+.tile.grape {
+  background:
+    radial-gradient(circle at 16% 18%, rgba(255, 252, 238, 0.26) 0%, transparent 24%),
+    radial-gradient(circle at 78% 76%, rgba(200, 160, 50, 0.18) 0%, transparent 40%),
+    linear-gradient(158deg, #f8d66a 0%, #e8c048 50%, #d4a830 100%);
+  border-color: #d4a830;
 }
 
-/* Per-resource colored card border */
-.tile.grape::before { border: 2px solid var(--grape-2); }
-.tile.wood::before  { border: 2px solid var(--wood-2); }
-.tile.stone::before { border: 2px solid var(--stone-2); }
-.tile.clay::before  { border: 2px solid var(--clay-2); }
-.tile.herb::before  { border: 2px solid var(--herb-2); }
-.tile.magic::before { border: 2px solid var(--magic-2); }
+/* wood — forest sage */
+.tile.wood {
+  background:
+    radial-gradient(circle at 16% 18%, rgba(238, 252, 232, 0.22) 0%, transparent 22%),
+    radial-gradient(circle at 78% 76%, rgba(60, 100, 40, 0.20) 0%, transparent 38%),
+    linear-gradient(158deg, #8aba70 0%, #6a9e50 50%, #528238 100%);
+  border-color: #5a9040;
+}
 
-/* Magic resource — warm golden shimmer aura */
+/* stone — coastal slate */
+.tile.stone {
+  background:
+    radial-gradient(circle at 16% 18%, rgba(238, 245, 252, 0.20) 0%, transparent 22%),
+    radial-gradient(circle at 78% 76%, rgba(80, 100, 120, 0.20) 0%, transparent 38%),
+    linear-gradient(158deg, #b8c8d8 0%, #98aaba 50%, #7a8e9e 100%);
+  border-color: #8a9aaa;
+}
+
+/* clay — warm terracotta */
+.tile.clay {
+  background:
+    radial-gradient(circle at 16% 18%, rgba(255, 245, 238, 0.22) 0%, transparent 22%),
+    radial-gradient(circle at 78% 76%, rgba(180, 80, 40, 0.20) 0%, transparent 38%),
+    linear-gradient(158deg, #e8b098 0%, #d48868 50%, #c07048 100%);
+  border-color: #c07850;
+}
+
+/* herb — spring meadow mint */
+.tile.herb {
+  background:
+    radial-gradient(circle at 16% 18%, rgba(238, 252, 244, 0.22) 0%, transparent 22%),
+    radial-gradient(circle at 78% 76%, rgba(60, 160, 120, 0.18) 0%, transparent 38%),
+    linear-gradient(158deg, #7acaaa 0%, #58b090 50%, #3a9678 100%);
+  border-color: #4aa080;
+}
+
+/* magic — starry midglen */
 .tile.magic {
+  background:
+    radial-gradient(circle at 16% 18%, rgba(220, 210, 255, 0.20) 0%, transparent 22%),
+    radial-gradient(circle at 78% 76%, rgba(50, 20, 120, 0.28) 0%, transparent 40%),
+    linear-gradient(158deg, #7a6abc 0%, #5a4aa0 50%, #3c2a80 100%);
+  border-color: #6a5ab0;
   box-shadow:
-    inset 0 1px 0 rgba(255, 248, 226, 0.22),
-    0 0 10px rgba(240, 213, 107, 0.22),
+    inset 0 1px 0 rgba(220, 210, 255, 0.18),
+    0 0 10px rgba(180, 160, 255, 0.18),
     0 3px 8px rgba(114, 93, 66, 0.12);
   animation: magic-shimmer 3.2s var(--ease-in-out-sine) infinite;
 }
 
+/* rot — decayed earth */
+.tile.rot {
+  background:
+    radial-gradient(circle at 16% 18%, rgba(240, 235, 225, 0.12) 0%, transparent 20%),
+    radial-gradient(circle at 78% 76%, rgba(40, 20, 8, 0.28) 0%, transparent 38%),
+    linear-gradient(158deg, #8a7a68 0%, #6a5a48 50%, #4a3a28 100%);
+  border-color: #5a4a38;
+}
+
 @keyframes magic-shimmer {
   0%, 100% { filter: drop-shadow(0 2px 3px rgba(114, 93, 66, 0.16)) brightness(1.0); }
-  50%      { filter: drop-shadow(0 2px 8px rgba(255, 200, 160, 0.40)) brightness(1.06); }
+  50%      { filter: drop-shadow(0 2px 8px rgba(180, 160, 255, 0.35)) brightness(1.05); }
 }
 
 /* ───────────────────────────────────────────

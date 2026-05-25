@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { audioManager } from '@/audio/AudioManager';
 import { HUD_COPY } from '@/data/copy';
 import { useGameStore } from '@/stores/gameStore';
@@ -18,6 +18,10 @@ import { useGameStore } from '@/stores/gameStore';
 const game = useGameStore();
 const emit = defineEmits(['advance']);
 const restHint = computed(() => HUD_COPY.dayEnd.formatRestHint(game.effectiveMaxSteps));
+
+onMounted(() => {
+  audioManager.playSFX('dayendopen', { vol: 0.35 });
+});
 
 function onContinue() {
   audioManager.playSFX('pageflip', { vol: 0.4 });

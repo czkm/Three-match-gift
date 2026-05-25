@@ -669,6 +669,7 @@ export const useGameStore = defineStore('game', {
       this.phase = 'intro'
     },
     startPlay() {
+      audioManager.playSFX('daystart', { vol: 0.5 })
       this.phase = 'playing'
       this.introShown = true
       this._ensureActiveEntities()
@@ -724,6 +725,7 @@ export const useGameStore = defineStore('game', {
       if (this.djinnUnlimitedSteps) return
       if (this.stepsLeft <= 0) return
       this.stepsLeft--
+      audioManager.playSFX('stepcost', { vol: 0.25 })
       this.turnId++
       this._flushPendingInvalidSwapReward()
       this._triggerDarkBeggarChaos()
@@ -853,6 +855,7 @@ export const useGameStore = defineStore('game', {
         needsReady &&
         !this.djinnRepairCommitted
       ) {
+        audioManager.playSFX('taskcomplete', { vol: 0.5 })
         this.phase = 'repairing'
         return 'complete'
       }
@@ -873,6 +876,7 @@ export const useGameStore = defineStore('game', {
         return 'djinnReady'
       }
       if (needsReady) {
+        audioManager.playSFX('taskcomplete', { vol: 0.5 })
         this.phase = 'repairing'
         return 'complete'
       }
@@ -889,6 +893,7 @@ export const useGameStore = defineStore('game', {
     },
 
     finishRepair() {
+      audioManager.playSFX('repairdone', { vol: 0.55 })
       const achievements = useAchievementStore()
       const day = DAYS[this.currentDay]
       const rating = this._calcPigRating()
@@ -988,7 +993,7 @@ export const useGameStore = defineStore('game', {
         rate: 1.16,
         bypassThrottle: true
       })
-      audioManager.playSFX('item_voiceover', { vol: 0.5 })
+      audioManager.playSFX('item_get', { vol: 0.45 })
       this.clearRewardItemInfo()
       this.pendingRewardDay = null
       this.pendingRewardOffer = null
@@ -1972,6 +1977,7 @@ export const useGameStore = defineStore('game', {
       if (!line) return
       if (this.barkLine) return
       if (this.phase === 'repairing' || this.phase === 'dayEnd') return
+      audioManager.playSFX('bark', { vol: 0.35 })
       this.barkLine = line
       this.barkNonce++
     },

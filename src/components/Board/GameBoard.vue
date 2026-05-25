@@ -1378,18 +1378,21 @@ function onTilesCleared(
   const safeChain = chain || 1
   const totalCleared = safeGroupSizes.reduce((sum, size) => sum + size, 0)
   if (totalCleared > 0) audioManager.playMatch(totalCleared)
+  const biggest = Math.max(0, ...(safeGroupSizes))
+  if (biggest >= 4) audioManager.playMatchPraise(biggest)
   if (safeChain >= 2) {
     pendingComboAudioLevel.value = Math.max(
       pendingComboAudioLevel.value,
       safeChain
     )
   }
-  game.gainResources(
+  const gained = game.gainResources(
     resourcesByChar,
     groupSizes || [],
     chain || 1,
     matchGroups || []
   )
+  if (gained) audioManager.playSFX('resourcegain', { vol: 0.30, bypassThrottle: true })
   game.recordDjinnBoardProgress({
     clearedPositions: collectClearedPositions(),
     groupSizes: groupSizes || [],
@@ -1429,6 +1432,7 @@ function collectClearedPositions() {
 }
 
 function onNoMoreMoves() {
+  audioManager.playSFX('boardshuffle', { vol: 0.45 })
   if (game.djinnBoardStage) {
     const boardString = game.loadDjinnCeremonyBoard?.()
     if (boardString && board.value) {
@@ -1446,6 +1450,11 @@ function onNoMoreMoves() {
 }
 
 function maybePraiseCombo(chain, groupSizes) {
+  const biggest = Math.max(0, ...(groupSizes || []))
+  if (chain >= 5) {
+    game.queueAmbientBark('奇迹狸！整个葡萄园都在为你喝彩狸！！')
+    return
+  }
   if (chain >= 4) {
     game.queueAmbientBark('漂亮狸~连着打下去整个庭院都跟着醒了狸！')
     return
@@ -1454,8 +1463,28 @@ function maybePraiseCombo(chain, groupSizes) {
     game.queueAmbientBark('很好狸~就照这个势头继续狸！')
     return
   }
-  if (chain === 2 && groupSizes.some(size => size >= 4)) {
-    game.queueAmbientBark('不错狸~手感找到了狸！')
+  if (chain === 2) {
+    if (biggest >= 6) {
+      game.queueAmbientBark('太厉害了狸！这么大的连击还是头一回狸！！')
+      return
+    }
+    if (biggest >= 4) {
+      game.queueAmbientBark('不错狸~手感找到了狸！')
+      return
+    }
+    game.queueAmbientBark('接上了狸！')
+    return
+  }
+  if (biggest >= 6) {
+    game.queueAmbientBark('哇狸！这一下不得了啊狸！！')
+    return
+  }
+  if (biggest >= 5) {
+    game.queueAmbientBark('厉害狸！这一下好大狸！')
+    return
+  }
+  if (biggest >= 4) {
+    game.queueAmbientBark('哦狸！运气不错狸！')
   }
 }
 
@@ -1512,10 +1541,49 @@ function buildComboPraise(biggest, chain) {
           chainDepth
         }
 
+  if (biggest >= 8) {
+    return {
+      ...cascadeBits,
+      label: '神迹降临狸！！！！',
+      tone: 'ultimate',
+      giant: true,
+      flash: true,
+      trailing: true,
+      sizeClass: 'size-8',
+      durationMs: chainDepth >= 2 ? 3200 : 2800
+    }
+  }
+
+  if (biggest === 7) {
+    return {
+      ...cascadeBits,
+      label: '不可思议狸！！！',
+      tone: 'mythic',
+      giant: true,
+      flash: true,
+      trailing: true,
+      sizeClass: 'size-7',
+      durationMs: chainDepth >= 2 ? 2900 : 2600
+    }
+  }
+
+  if (biggest === 6) {
+    return {
+      ...cascadeBits,
+      label: '太棒了狸！！',
+      tone: 'legendary',
+      giant: true,
+      flash: true,
+      trailing: true,
+      sizeClass: 'size-6',
+      durationMs: chainDepth >= 2 ? 2600 : 2400
+    }
+  }
+
   if (biggest >= 5) {
     return {
       ...cascadeBits,
-      label: `${biggest} 连`,
+      label: '好棒狸！',
       tone: chainDepth >= 2 ? 'inferno' : 'epic',
       giant: true,
       flash: true,
@@ -1528,7 +1596,7 @@ function buildComboPraise(biggest, chain) {
   if (biggest === 4) {
     return {
       ...cascadeBits,
-      label: '4 连',
+      label: '不错狸！',
       subline: cascadeBits.subline || '漂亮狸~',
       tone: chainDepth >= 2 ? 'cascade' : 'rare',
       giant: true,
@@ -3262,6 +3330,60 @@ function onXrayScan(payload = {}) {
     inset 0 1px 0 rgba(255, 252, 245, 0.6);
 }
 
+.combo-praise.legendary {
+  border-color: rgba(245, 190, 70, 0.7);
+  border-width: 2px;
+  background: linear-gradient(180deg, #fef7e0 0%, #fde8b0 100%);
+  box-shadow:
+    0 6px 18px rgba(114, 93, 66, 0.26),
+    0 0 30px rgba(245, 195, 80, 0.35),
+    0 0 60px rgba(245, 195, 80, 0.15),
+    inset 0 1px 0 rgba(255, 252, 245, 0.6);
+}
+
+.combo-praise.mythic {
+  border-color: rgba(210, 120, 240, 0.65);
+  border-width: 2.5px;
+  background: linear-gradient(180deg, #fef0fc 0%, #fde0f0 100%);
+  box-shadow:
+    0 6px 20px rgba(114, 93, 66, 0.28),
+    0 0 34px rgba(200, 130, 240, 0.3),
+    0 0 60px rgba(200, 130, 240, 0.12),
+    inset 0 1px 0 rgba(255, 252, 245, 0.5);
+}
+
+.combo-praise.ultimate {
+  border-color: rgba(255, 215, 100, 0.8);
+  border-width: 3px;
+  background: linear-gradient(180deg, #fffae8 0%, #fff0c0 100%);
+  box-shadow:
+    0 8px 24px rgba(114, 93, 66, 0.3),
+    0 0 40px rgba(255, 215, 100, 0.4),
+    0 0 80px rgba(255, 215, 100, 0.2),
+    0 0 120px rgba(255, 200, 80, 0.08),
+    inset 0 1px 0 rgba(255, 252, 245, 0.6);
+  animation: combo-ultimate-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes combo-ultimate-pulse {
+  0%, 100% {
+    box-shadow:
+      0 8px 24px rgba(114, 93, 66, 0.3),
+      0 0 40px rgba(255, 215, 100, 0.4),
+      0 0 80px rgba(255, 215, 100, 0.2),
+      0 0 120px rgba(255, 200, 80, 0.08),
+      inset 0 1px 0 rgba(255, 252, 245, 0.6);
+  }
+  50% {
+    box-shadow:
+      0 8px 24px rgba(114, 93, 66, 0.3),
+      0 0 50px rgba(255, 215, 100, 0.5),
+      0 0 100px rgba(255, 215, 100, 0.25),
+      0 0 150px rgba(255, 200, 80, 0.12),
+      inset 0 1px 0 rgba(255, 252, 245, 0.6);
+  }
+}
+
 /* ── Theme + tone border overrides ── */
 .combo-praise.theme-grape.warm,
 .combo-praise.theme-grape.rare,
@@ -3303,6 +3425,24 @@ function onXrayScan(payload = {}) {
   top: 30px;
   min-width: 244px;
   padding: 18px 24px 16px;
+}
+
+.combo-praise.size-6 {
+  top: 32px;
+  min-width: 270px;
+  padding: 18px 24px 16px;
+}
+
+.combo-praise.size-7 {
+  top: 34px;
+  min-width: 300px;
+  padding: 20px 28px 18px;
+}
+
+.combo-praise.size-8 {
+  top: 36px;
+  min-width: 340px;
+  padding: 22px 32px 20px;
 }
 
 /* ── Typography — warm brown text hierarchy ── */
@@ -3350,6 +3490,37 @@ function onXrayScan(payload = {}) {
     0 0 10px rgba(240, 200, 120, 0.18),
     0 1px 0 rgba(255, 252, 245, 0.4),
     0 1px 4px rgba(114, 93, 66, 0.14);
+}
+
+.combo-praise.size-6 .combo-praise-label {
+  font-size: 42px;
+  color: #3d2a0c;
+  text-shadow:
+    0 0 14px rgba(245, 195, 80, 0.28),
+    0 1px 0 rgba(255, 252, 245, 0.45),
+    0 1px 6px rgba(114, 93, 66, 0.18);
+}
+
+.combo-praise.size-7 .combo-praise-label {
+  font-size: 48px;
+  color: #2e1e08;
+  text-shadow:
+    0 0 18px rgba(200, 130, 240, 0.22),
+    0 0 36px rgba(200, 130, 240, 0.1),
+    0 1px 0 rgba(255, 252, 245, 0.5),
+    0 1px 8px rgba(114, 93, 66, 0.2);
+}
+
+.combo-praise.size-8 .combo-praise-label {
+  font-size: 54px;
+  color: #1f1406;
+  letter-spacing: 0.08em;
+  text-shadow:
+    0 0 22px rgba(255, 215, 100, 0.35),
+    0 0 48px rgba(255, 215, 100, 0.18),
+    0 0 72px rgba(255, 215, 100, 0.08),
+    0 1px 0 rgba(255, 252, 245, 0.55),
+    0 1px 10px rgba(114, 93, 66, 0.22);
 }
 
 .combo-praise-combo {

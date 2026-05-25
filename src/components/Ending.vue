@@ -328,6 +328,7 @@ const currentParticles = computed(() =>
 )
 
 onMounted(() => {
+  audioManager.playSFX('scenetransition', { vol: 0.3 })
   timers.push(
     setTimeout(() => {
       particlesReady.value = true
@@ -364,6 +365,7 @@ function revealNextLine() {
 function onAdvance() {
   if (!allLinesShown.value) return
   audioManager.playSFX('pageflip', { vol: 0.4 })
+  audioManager.playSFX('scenetransition', { vol: 0.3 })
   currentAct.value++
   linesRevealed.value = 0
   allLinesShown.value = false

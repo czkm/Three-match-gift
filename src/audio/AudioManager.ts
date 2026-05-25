@@ -6,7 +6,6 @@ const BGM_FADE_MS = 1200;
 const AMBIENT_FADE_MS = 1800;
 
 const AC_BASE = 'animalcrossingnewhorizons';
-const ISAAC_BASE = 'isaac';
 
 const AC_SFX_MAP: Record<string, string> = {
   click:       `${AC_BASE}/UI & System/UI_Decide.wav`,
@@ -43,33 +42,25 @@ const AC_SFX_MAP: Record<string, string> = {
   pig_idle:    `${AC_BASE}/Rosie Emotes/RosieSleepy.mp3`,
   pig_sniff:   `${AC_BASE}/Rosie Emotes/RosieCuriosity.mp3`,
   pig_energy:  `${AC_BASE}/Rosie Emotes/RosieFlourish.mp3`,
-  treasure_door_open:  `${ISAAC_BASE}/chest open 1.wav`,
-  devil_door_appear:   `${ISAAC_BASE}/satan room appear.wav`,
-  treasure_item_pick:  `${ISAAC_BASE}/chest open 1.wav`,
-  devil_item_pick:     `${ISAAC_BASE}/unholy!.wav`,
-  item_voiceover:      `${ISAAC_BASE}/health up 1.wav`,
   typewriter_key:      `${AC_BASE}/UI & System/UI_Swkbd_Normal.wav`,
   typewriter_space:    `${AC_BASE}/UI & System/UI_Swkbd_Space.wav`,
   typewriter_enter:    `${AC_BASE}/UI & System/UI_Swkbd_Enter.wav`,
   typewriter_backspace:`${AC_BASE}/UI & System/UI_Swkbd_BackSpace.wav`,
-  brimstone_laser:     `${ISAAC_BASE}/blood laser strong 1.wav`,
-  maw_void:            `${ISAAC_BASE}/maw of the void.wav`,
-  pentagram_blast:     `${ISAAC_BASE}/redlightning_burst01.wav`,
-  beggar_vamp:         `${ISAAC_BASE}/vamp.wav`,
-  beggar_vamp_double:  `${ISAAC_BASE}/vamp_double.wav`,
-  holy_water_whip:     `${ISAAC_BASE}/whip_02.wav`,
-  lucky_foot:          `${ISAAC_BASE}/luck up.wav`,
-  battery_energy:      `${ISAAC_BASE}/48 hr energy.wav`,
-  battery_charge:      `${ISAAC_BASE}/battery charge.wav`,
-  dog_bark:            `${ISAAC_BASE}/dog bark.wav`,
-  dog_howell:          `${ISAAC_BASE}/dog howell.wav`,
-  knife_pull:          `${ISAAC_BASE}/knife_pull.wav`,
-  pact_power:          `${ISAAC_BASE}/power up1.wav`,
-  xray_see:            `${ISAAC_BASE}/see 4ever 1.wav`,
-  xray_flashback:      `${ISAAC_BASE}/flashback.wav`,
-  stye_explosion:      `${ISAAC_BASE}/explosion_weak1.wav`,
-  lunch_health:        `${ISAAC_BASE}/health up 1.wav`,
-  pennies_pickup:      `${ISAAC_BASE}/penny pickup 1.wav`,
+  item_get:            `${AC_BASE}/UI & System/UI_Check.wav`,
+  daystart:        `${AC_BASE}/Environment/BbsBirdDay_TwitterAc00.wav`,
+  resourcegain:    `${AC_BASE}/UI & System/UI_Count_Coin_Reapeat_01.wav`,
+  stepcost:        `${AC_BASE}/UI & System/UI_Decide_Small.wav`,
+  taskcomplete:    `${AC_BASE}/UI & System/Event_Quest_Finish.wav`,
+  repairtick:      `${AC_BASE}/UI & System/UI_Count_Mile_Repeat_01.wav`,
+  repairdone:      `${AC_BASE}/UI & System/Event_Harvest_Bell00.wav`,
+  boardshuffle:    `${AC_BASE}/Trees & Plants/Tree_ChangeState_00.wav`,
+  dialogopen:      `${AC_BASE}/UI & System/UI_MessageWindow_Open.wav`,
+  dialogclose:     `${AC_BASE}/UI & System/UI_Cmn_Close.wav`,
+  dayendopen:      `${AC_BASE}/UI & System/UI_Cmn_Open.wav`,
+  itemhover:       `${AC_BASE}/UI & System/UI_Select.wav`,
+  tutorialstep:    `${AC_BASE}/UI & System/UI_Check.wav`,
+  scenetransition: `${AC_BASE}/UI & System/UI_WipeToIdrDream.wav`,
+  bark:            `${AC_BASE}/Rosie Emotes/RosieGreetings.mp3`,
 };
 
 const AC_SFX_MULTI: Record<string, string[]> = {
@@ -199,24 +190,7 @@ const AC_SFX_MULTI: Record<string, string[]> = {
     `${AC_BASE}/UI & System/System_Lumi_03.wav`,
     `${AC_BASE}/UI & System/System_Lumi_04.wav`,
   ],
-  treasure_item_pick: [
-    `${ISAAC_BASE}/chest open 1.wav`,
-    `${ISAAC_BASE}/holy!.wav`,
-    `${ISAAC_BASE}/superholy.wav`,
-  ],
-  devil_item_pick: [
-    `${ISAAC_BASE}/unholy!.wav`,
-    `${ISAAC_BASE}/vamp.wav`,
-  ],
-  item_power_up: [
-    `${ISAAC_BASE}/power up1.wav`,
-  ],
-  item_voiceover: [
-    `${ISAAC_BASE}/health up 1.wav`,
-    `${ISAAC_BASE}/48 hr energy.wav`,
-    `${ISAAC_BASE}/r u a wiz 2.wav`,
-    `${ISAAC_BASE}/see 4ever 1.wav`,
-  ],
+
   ability_harvest: [
     `${AC_BASE}/Trees & Plants/Tree_Shake_Cedar_Down1.wav`,
     `${AC_BASE}/Trees & Plants/Tree_Shake_Oak_Down1.wav`,
@@ -227,23 +201,21 @@ const AC_SFX_MULTI: Record<string, string[]> = {
 };
 
 const AC_AMBIENT_MULTI: Record<string, string[]> = {
-  daytime: [
-    `${AC_BASE}/Environment/Env_GrassWindSummerWeak.wav`,
-    `${AC_BASE}/Environment/Env_GrassWindSummerStrong.wav`,
-    `${AC_BASE}/Environment/BbsBirdDay_Twitter00.wav`,
-    `${AC_BASE}/Environment/BbsBirdDay_Twitter01.wav`,
-    `${AC_BASE}/Environment/Env_PlantWind_FlowerMany_00.wav`,
-    `${AC_BASE}/Environment/Env_RiverNearSlow00.wav`,
-    `${AC_BASE}/Environment/Env_SeaWaterBase00.wav`,
-  ],
-  evening: [
-    `${AC_BASE}/Environment/BbsBirdNightTwitterA00.wav`,
-    `${AC_BASE}/Environment/BbsBirdNightTwitterA01.wav`,
-    `${AC_BASE}/Environment/Env_PlantWind_Oak_Calm_00.wav`,
-  ],
   construction: [`${AC_BASE}/Environment/Env_FacilityConstruction00.wav`],
   healing:      [`${AC_BASE}/Ambience/AmbPlace_Healing.wav`],
   space:        [`${AC_BASE}/Ambience/AmbPlace_Space.wav`],
+};
+
+const AMBIENT_INTERMITTENT: Record<string, IntermittentGroup[]> = {
+  daytime: [
+    { files: [`${AC_BASE}/Environment/BbsBirdDay_Twitter00.wav`, `${AC_BASE}/Environment/BbsBirdDay_Twitter01.wav`], minMs: 5000, maxMs: 15000, vol: [0.15, 0.3] },
+    { files: [`${AC_BASE}/Environment/Env_RiverNearSlow00.wav`], minMs: 8000, maxMs: 20000, vol: [0.1, 0.2] },
+    { files: [`${AC_BASE}/Environment/Env_GrassWindSummerWeak.wav`, `${AC_BASE}/Environment/Env_GrassWindSummerStrong.wav`, `${AC_BASE}/Environment/Env_PlantWind_FlowerMany_00.wav`], minMs: 10000, maxMs: 25000, vol: [0.1, 0.2] },
+  ],
+  evening: [
+    { files: [`${AC_BASE}/Environment/BbsBirdNightTwitterA00.wav`, `${AC_BASE}/Environment/BbsBirdNightTwitterA01.wav`], minMs: 6000, maxMs: 18000, vol: [0.12, 0.25] },
+    { files: [`${AC_BASE}/Environment/Env_PlantWind_Oak_Calm_00.wav`], minMs: 12000, maxMs: 30000, vol: [0.1, 0.2] },
+  ],
 };
 
 const AC_MATCH: (string | string[])[] = [
@@ -267,6 +239,23 @@ const AC_COMBO: (string | string[])[] = [
   ['Tree_Shake_Bamboo_DownLand4.wav', 'Tree_Shake_Cedar_DownLand4.wav'],
 ];
 
+const COMBO_UI_PATH = [
+  `${AC_BASE}/UI & System/UI_Decide_Small.wav`,
+  `${AC_BASE}/UI & System/UI_Decide.wav`,
+  `${AC_BASE}/UI & System/UI_CountUp.wav`,
+  `${AC_BASE}/UI & System/UI_Check.wav`,
+  `${AC_BASE}/UI & System/Event_Harvest_Bell00.wav`,
+];
+const COMBO_UI_VOL = [0.35, 0.40, 0.45, 0.50, 0.55];
+
+const AC_PRAISE: Record<number, string> = {
+  4: `${AC_BASE}/Rosie Emotes/RosiePleased.mp3`,
+  5: `${AC_BASE}/Rosie Emotes/RosieDelight.mp3`,
+  6: `${AC_BASE}/Rosie Emotes/RosieAmazed.mp3`,
+  7: `${AC_BASE}/Rosie Emotes/RosieInspiration.mp3`,
+  8: `${AC_BASE}/Rosie Emotes/RosieShowmanship.mp3`,
+};
+
 const AC_DROP = [
   'Tree_Shake_RandomRainDrop_00.wav',
   'Tree_Shake_RandomRainDrop_01.wav',
@@ -281,6 +270,13 @@ const AC_DROP = [
   'Env_Tree_AfterRain_Single_04.wav',
   'Env_Tree_AfterRain_Single_05.wav',
 ];
+
+type IntermittentGroup = {
+  files: string[];
+  minMs: number;
+  maxMs: number;
+  vol: [number, number];
+};
 
 type ChannelKind = 'bgm' | 'ambient';
 type MonsterEvent = 'spawn' | 'hit' | 'defeat';
@@ -337,34 +333,26 @@ const SFX_THROTTLE: Record<string, SFXThrottlePolicy> = {
   pig_idle:    { sameMs: 8000, group: 'pig', groupMs: 3000, priority: 1 },
   pig_sniff:   { sameMs: 4000, group: 'pig', groupMs: 2000, priority: 1 },
   pig_energy:     { sameMs: 5000, group: 'pig', groupMs: 1000, priority: 3 },
-  treasure_door_open: { sameMs: 300, group: 'reward', groupMs: 200, priority: 3 },
-  devil_door_appear:  { sameMs: 300, group: 'reward', groupMs: 200, priority: 3 },
-  treasure_item_pick: { sameMs: 400, group: 'reward', groupMs: 300, priority: 3 },
-  devil_item_pick:    { sameMs: 400, group: 'reward', groupMs: 300, priority: 3 },
-  item_power_up:      { sameMs: 600, group: 'reward', groupMs: 400, priority: 3 },
-  item_voiceover:     { sameMs: 3000, group: 'voiceover', groupMs: 2000, priority: 2 },
+  item_get:           { sameMs: 400, group: 'reward', groupMs: 200, priority: 3 },
   typewriter_key:     { sameMs: 24, group: 'typewriter', groupMs: 10, priority: 3 },
   typewriter_space:   { sameMs: 60, group: 'typewriter', groupMs: 18, priority: 2 },
   typewriter_enter:   { sameMs: 200, group: 'typewriter', groupMs: 100, priority: 3 },
   typewriter_backspace: { sameMs: 50, group: 'typewriter', groupMs: 15, priority: 2 },
-  brimstone_laser:    { sameMs: 800, group: 'itemfx', groupMs: 400, priority: 3 },
-  maw_void:           { sameMs: 1200, group: 'itemfx', groupMs: 600, priority: 3 },
-  pentagram_blast:    { sameMs: 600, group: 'itemfx', groupMs: 300, priority: 3 },
-  beggar_vamp:        { sameMs: 400, group: 'itemfx', groupMs: 200, priority: 2 },
-  beggar_vamp_double: { sameMs: 600, group: 'itemfx', groupMs: 300, priority: 3 },
-  holy_water_whip:    { sameMs: 400, group: 'itemfx', groupMs: 200, priority: 2 },
-  lucky_foot:         { sameMs: 400, group: 'itemfx', groupMs: 200, priority: 2 },
-  battery_energy:     { sameMs: 800, group: 'itemfx', groupMs: 400, priority: 3 },
-  battery_charge:     { sameMs: 400, group: 'itemfx', groupMs: 200, priority: 2 },
-  dog_bark:           { sameMs: 600, group: 'itemfx', groupMs: 300, priority: 2 },
-  dog_howell:         { sameMs: 2000, group: 'itemfx', groupMs: 1000, priority: 3 },
-  knife_pull:         { sameMs: 600, group: 'itemfx', groupMs: 300, priority: 2 },
-  pact_power:         { sameMs: 400, group: 'itemfx', groupMs: 200, priority: 2 },
-  xray_see:           { sameMs: 800, group: 'itemfx', groupMs: 400, priority: 3 },
-  xray_flashback:     { sameMs: 600, group: 'itemfx', groupMs: 300, priority: 2 },
-  stye_explosion:     { sameMs: 400, group: 'itemfx', groupMs: 200, priority: 2 },
-  lunch_health:       { sameMs: 400, group: 'itemfx', groupMs: 200, priority: 2 },
-  pennies_pickup:     { sameMs: 300, group: 'itemfx', groupMs: 150, priority: 2 },
+
+  daystart:        { sameMs: 2000, group: 'feedback', groupMs: 400, priority: 3 },
+  resourcegain:    { sameMs: 80, group: 'feedback', groupMs: 50, priority: 1 },
+  stepcost:        { sameMs: 120, group: 'feedback', groupMs: 80, priority: 2 },
+  taskcomplete:    { sameMs: 2500, group: 'feedback', groupMs: 300, priority: 3 },
+  repairtick:      { sameMs: 400, group: 'feedback', groupMs: 200, priority: 1 },
+  repairdone:      { sameMs: 3000, group: 'feedback', groupMs: 400, priority: 3 },
+  boardshuffle:    { sameMs: 2000, group: 'board', groupMs: 400, priority: 2 },
+  dialogopen:      { sameMs: 500, group: 'ui', groupMs: 200, priority: 3 },
+  dialogclose:     { sameMs: 400, group: 'ui', groupMs: 200, priority: 2 },
+  dayendopen:      { sameMs: 500, group: 'ui', groupMs: 200, priority: 3 },
+  itemhover:       { sameMs: 200, group: 'ui', groupMs: 100, priority: 1 },
+  tutorialstep:    { sameMs: 500, group: 'ui', groupMs: 200, priority: 2 },
+  scenetransition: { sameMs: 2000, group: 'ritual', groupMs: 400, priority: 3 },
+  bark:            { sameMs: 4000, group: 'pig', groupMs: 800, priority: 1 },
 };
 
 function pickOne<T>(entry: T | T[]): T {
@@ -413,6 +401,7 @@ export class AudioManager {
   private readonly listeners = new Set<() => void>();
   private readonly sfxLastPlayedAt = new Map<string, number>();
   private readonly sfxGroupLastPlayedAt = new Map<string, number>();
+  private ambientTimerIds: number[] = [];
 
   private constructor() {}
 
@@ -455,7 +444,6 @@ export class AudioManager {
     }
 
     const preloadAC = (p: string) => this.preload(`${AC_BASE}/${p}`);
-    const preloadISAAC = (p: string) => this.preload(`${ISAAC_BASE}/${p}`);
     await Promise.all([
       this.preload('bgm_dayplay.mp3'),
       this.preload('bgm_brithday.mp3'),
@@ -469,27 +457,23 @@ export class AudioManager {
       preloadAC(`Trees & Plants/${pickOne(AC_MATCH[7])}`),
       preloadAC(`Trees & Plants/${pickOne(AC_COMBO[0])}`),
       preloadAC(`Trees & Plants/${pickOne(AC_COMBO[4])}`),
-      preloadISAAC('chest open 1.wav'),
-      preloadISAAC('satan room appear.wav'),
-      preloadISAAC('holy!.wav'),
-      preloadISAAC('superholy.wav'),
-      preloadISAAC('unholy!.wav'),
-      preloadISAAC('power up1.wav'),
-      preloadISAAC('health up 1.wav'),
-      preloadISAAC('48 hr energy.wav'),
-      preloadISAAC('blood laser strong 1.wav'),
-      preloadISAAC('maw of the void.wav'),
-      preloadISAAC('redlightning_burst01.wav'),
-      preloadISAAC('vamp.wav'),
-      preloadISAAC('whip_02.wav'),
-      preloadISAAC('luck up.wav'),
-      preloadISAAC('battery charge.wav'),
-      preloadISAAC('dog howell.wav'),
-      preloadISAAC('dog bark.wav'),
-      preloadISAAC('knife_pull.wav'),
-      preloadISAAC('see 4ever 1.wav'),
-      preloadISAAC('explosion_weak1.wav'),
       preloadAC('UI & System/UI_Swkbd_Normal.wav'),
+      preloadAC('Rosie Emotes/RosiePleased.mp3'),
+      preloadAC('Rosie Emotes/RosieDelight.mp3'),
+      preloadAC('Rosie Emotes/RosieAmazed.mp3'),
+      preloadAC('Rosie Emotes/RosieInspiration.mp3'),
+      preloadAC('Rosie Emotes/RosieShowmanship.mp3'),
+      preloadAC('Environment/BbsBirdDay_TwitterAc00.wav'),
+      preloadAC('UI & System/UI_Count_Coin_Reapeat_01.wav'),
+      preloadAC('UI & System/Event_Quest_Finish.wav'),
+      preloadAC('UI & System/UI_Count_Mile_Repeat_01.wav'),
+      preloadAC('UI & System/Event_Harvest_Bell00.wav'),
+      preloadAC('UI & System/UI_MessageWindow_Open.wav'),
+      preloadAC('UI & System/UI_Cmn_Close.wav'),
+      preloadAC('UI & System/UI_Cmn_Open.wav'),
+      preloadAC('UI & System/UI_Select.wav'),
+      preloadAC('UI & System/UI_Check.wav'),
+      preloadAC('Rosie Emotes/RosieGreetings.mp3'),
     ]);
 
     this.initialized = true;
@@ -530,6 +514,19 @@ export class AudioManager {
 
   async playAmbient(name: string, opts: BGMOptions = {}) {
     if (!await this.ensureReady()) return;
+    this.clearAmbientTimers();
+
+    const groups = AMBIENT_INTERMITTENT[name];
+    if (groups) {
+      for (const group of groups) {
+        this.scheduleIntermittentGroup(group);
+      }
+      if (this.ambientChannel.audio) {
+        await this.fadeOutAndStop(this.ambientChannel, 0);
+      }
+      return;
+    }
+
     const pool = AC_AMBIENT_MULTI[name];
     const file = pool ? pool[Math.floor(Math.random() * pool.length)] : `amb_${name}.mp3`;
     return this.playLoopingChannel(this.ambientChannel, file, 'ambient', opts.fade ?? AMBIENT_FADE_MS, true);
@@ -537,7 +534,36 @@ export class AudioManager {
 
   async stopAmbient(fade = AMBIENT_FADE_MS) {
     if (!this.initialized) return;
+    this.clearAmbientTimers();
     await this.fadeOutAndStop(this.ambientChannel, fade);
+  }
+
+  private clearAmbientTimers() {
+    for (const id of this.ambientTimerIds) window.clearTimeout(id);
+    this.ambientTimerIds = [];
+  }
+
+  private scheduleIntermittentGroup(group: IntermittentGroup) {
+    const delay = group.minMs + Math.random() * (group.maxMs - group.minMs);
+    const id = window.setTimeout(() => {
+      this.playAmbientOneShot(group);
+      this.scheduleIntermittentGroup(group);
+    }, delay);
+    this.ambientTimerIds.push(id);
+  }
+
+  private async playAmbientOneShot(group: IntermittentGroup) {
+    if (this._isMuted) return;
+    if (!await this.ensureReady()) return;
+    const file = group.files[Math.floor(Math.random() * group.files.length)];
+    const vol = group.vol[0] + Math.random() * (group.vol[1] - group.vol[0]);
+    const audio = createAudio(`/audio/${file}`);
+    audio.volume = clamp(vol * this._ambientVolume, 0, 1);
+    this.activeSFXs.add(audio);
+    const cleanup = () => { audio.pause(); this.activeSFXs.delete(audio); };
+    audio.addEventListener('ended', cleanup, { once: true });
+    audio.addEventListener('error', cleanup, { once: true });
+    try { await audio.play(); } catch { cleanup(); }
   }
 
   async playSFX(name: string, opts: SFXOptions = {}) {
@@ -582,9 +608,23 @@ export class AudioManager {
     const index = clamp(Math.round(count), 1, 8) - 1;
     const entry = AC_MATCH[index];
     const file = entry ? pickOne(entry) : 'FieldPlant_WaterDrop_00.wav';
+    const base = 0.46 + (index + 1) * 0.045;
+    const extra = index >= 5 ? 0.05 + (index - 5) * 0.015 : 0;
     this.playLooseFile(`eliminate${index + 1}.mp3`, {
       actualPath: `${AC_BASE}/Trees & Plants/${file}`,
-      vol: clamp(0.46 + (index + 1) * 0.045, 0.5, 0.86),
+      vol: clamp(base + extra, 0.5, 0.90),
+      bypassThrottle: true
+    });
+  }
+
+  playMatchPraise(size: number) {
+    if (size < 4) return;
+    const clamped = clamp(Math.round(size), 4, 8);
+    const path = AC_PRAISE[clamped];
+    if (!path) return;
+    this.playLooseFile(`praise${clamped}.mp3`, {
+      actualPath: path,
+      vol: clamp(0.50 + (clamped - 4) * 0.075, 0.4, 0.85),
       bypassThrottle: true
     });
   }
@@ -592,12 +632,12 @@ export class AudioManager {
   playCombo(level: number) {
     if (level < 2) return;
     const comboCount = clamp(level, 3, 7);
-    const entry = AC_COMBO[comboCount - 3];
-    const file = entry ? pickOne(entry) : 'Tree_Shake_BambooNode_00.wav';
-    const fileName = `contnuousMatch${comboCount}.mp3`;
-    this.playLooseFile(fileName, {
-      actualPath: `${AC_BASE}/Trees & Plants/${file}`,
-      vol: clamp(0.4 + comboCount * 0.07, 0.52, 0.88),
+    const idx = comboCount - 3;
+    const path = COMBO_UI_PATH[idx];
+    const vol = COMBO_UI_VOL[idx];
+    this.playLooseFile(`combo${comboCount}.mp3`, {
+      actualPath: path,
+      vol: vol,
       bypassThrottle: true
     });
   }
@@ -666,7 +706,7 @@ export class AudioManager {
   }
 
   set sfxVolume(value: number) {
-    this._sfxVolume = clamp(value, 0, 2);
+    this._sfxVolume = clamp(value, 0, 1);
     this.emitState();
   }
 
@@ -856,6 +896,15 @@ export class AudioManager {
   }
 
   private shouldPlayLooseFile(fileName: string) {
+    if (/^praise\d+\.mp3$/.test(fileName)) {
+      return this.shouldPlayWithPolicy(`loose:${fileName}`, {
+        sameMs: 600,
+        group: 'praise',
+        groupMs: 400,
+        priority: 3
+      });
+    }
+
     if (/^eliminate\d+\.mp3$/.test(fileName)) {
       return this.shouldPlayWithPolicy(`loose:${fileName}`, {
         sameMs: 95,
