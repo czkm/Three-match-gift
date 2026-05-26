@@ -117,6 +117,12 @@ const glyph = computed(() => {
       return '🦅'
     case 'monster-wraith':
       return '👻'
+    case 'monster-tarantula':
+      return '🕷️'
+    case 'monster-crab':
+      return '🦀'
+    case 'monster-scallop':
+      return '🐚'
     default:
       return ''
   }

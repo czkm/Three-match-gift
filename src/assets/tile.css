@@ -257,3 +257,30 @@
     linear-gradient(158deg, rgba(160, 84, 52, 0.96) 0%, rgba(110, 48, 28, 1) 55%, rgba(72, 28, 14, 1) 100%),
     linear-gradient(180deg, rgba(255, 250, 240, 0.05) 0%, transparent 22%);
 }
+
+.tile.monster-tarantula {
+  background:
+    radial-gradient(circle at 14% 18%, rgba(255, 252, 248, 0.12) 0%, transparent 20%),
+    radial-gradient(circle at 30% 26%, rgba(140, 100, 180, 0.20), transparent 36%),
+    radial-gradient(circle at 72% 78%, rgba(8, 4, 16, 0.55) 0%, transparent 44%),
+    linear-gradient(158deg, rgba(36, 20, 44, 0.98) 0%, rgba(20, 8, 28, 1) 55%, rgba(10, 4, 16, 1) 100%),
+    linear-gradient(180deg, rgba(255, 250, 240, 0.04) 0%, transparent 22%);
+}
+
+.tile.monster-crab {
+  background:
+    radial-gradient(circle at 14% 18%, rgba(255, 252, 248, 0.14) 0%, transparent 20%),
+    radial-gradient(circle at 30% 26%, rgba(220, 160, 80, 0.22), transparent 36%),
+    radial-gradient(circle at 72% 78%, rgba(60, 32, 12, 0.48) 0%, transparent 44%),
+    linear-gradient(158deg, rgba(180, 100, 40, 0.96) 0%, rgba(130, 64, 24, 1) 55%, rgba(80, 36, 12, 1) 100%),
+    linear-gradient(180deg, rgba(255, 250, 240, 0.05) 0%, transparent 22%);
+}
+
+.tile.monster-scallop {
+  background:
+    radial-gradient(circle at 14% 18%, rgba(255, 252, 248, 0.16) 0%, transparent 20%),
+    radial-gradient(circle at 30% 26%, rgba(200, 180, 240, 0.20), transparent 36%),
+    radial-gradient(circle at 72% 78%, rgba(24, 18, 44, 0.45) 0%, transparent 44%),
+    linear-gradient(158deg, rgba(140, 120, 180, 0.95) 0%, rgba(90, 74, 130, 1) 55%, rgba(54, 42, 88, 1) 100%),
+    linear-gradient(180deg, rgba(255, 250, 240, 0.05) 0%, transparent 22%);
+}

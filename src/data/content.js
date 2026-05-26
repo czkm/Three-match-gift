@@ -8,12 +8,54 @@
 
 /* -------- Resources -------- */
 export const RESOURCES = [
-  { id: 'grape', char: 'g', label: '橙子', emoji: '🍊', cn: '橙子', chessImg: 'img/chessPiece/orange.png' },
-  { id: 'wood', char: 'w', label: '木材', emoji: '🪵', cn: '木材', chessImg: 'img/chessPiece/tree branch.png' },
-  { id: 'stone', char: 's', label: '石材', emoji: '🪨', cn: '石材', chessImg: 'img/chessPiece/stone.png' },
-  { id: 'clay', char: 'c', label: '黏土', emoji: '🧱', cn: '黏土', chessImg: 'img/chessPiece/clay.png' },
-  { id: 'herb', char: 'h', label: '花卉', emoji: '🌸', cn: '花卉', chessImg: 'img/chessPiece/cherry-blossom petal.png' },
-  { id: 'magic', char: 'm', label: '星星碎片', emoji: '⭐', cn: '星星碎片', chessImg: 'img/chessPiece/star fragment.png' }
+  {
+    id: 'grape',
+    char: 'g',
+    label: '橙子',
+    emoji: '🍊',
+    cn: '橙子',
+    chessImg: 'img/chessPiece/orange.png'
+  },
+  {
+    id: 'wood',
+    char: 'w',
+    label: '木材',
+    emoji: '🪵',
+    cn: '木材',
+    chessImg: 'img/chessPiece/tree branch.png'
+  },
+  {
+    id: 'stone',
+    char: 's',
+    label: '石材',
+    emoji: '🪨',
+    cn: '石材',
+    chessImg: 'img/chessPiece/stone.png'
+  },
+  {
+    id: 'clay',
+    char: 'c',
+    label: '黏土',
+    emoji: '🧱',
+    cn: '黏土',
+    chessImg: 'img/chessPiece/clay.png'
+  },
+  {
+    id: 'herb',
+    char: 'h',
+    label: '花卉',
+    emoji: '🌸',
+    cn: '花卉',
+    chessImg: 'img/chessPiece/cherry-blossom petal.png'
+  },
+  {
+    id: 'magic',
+    char: 'm',
+    label: '星星碎片',
+    emoji: '⭐',
+    cn: '星星碎片',
+    chessImg: 'img/chessPiece/star fragment.png'
+  }
 ]
 
 export const RESOURCE_BY_CHAR = Object.fromEntries(
@@ -29,7 +71,7 @@ export const MILK_TEA_IMAGES = {
   stone: '/img/milktea/ToolTapioca2.png',
   clay: '/img/milktea/ToolTapioca3.png',
   herb: '/img/milktea/ToolTapioca4.png',
-  magic: '/img/milktea/ToolTapioca5.png',
+  magic: '/img/milktea/ToolTapioca5.png'
 }
 
 /**
@@ -316,8 +358,7 @@ export const REWARD_ITEMS = {
     emoji: '💧',
     slot: 'float',
     tone: 'treasure',
-    description:
-      '每天第一次出错时返回 1 步狸~旁边两个格子翻成需要的资源狸！',
+    description: '每天第一次出错时返回 1 步狸~旁边两个格子翻成需要的资源狸！',
     effect: { type: 'firstInvalidSwapScatterConvert', count: 2 },
     reaction: '水滴落在一个方块上狸~四周泛起淡淡的光狸！'
   },
@@ -383,8 +424,7 @@ export const REWARD_ITEMS = {
     emoji: '📜',
     slot: 'side',
     tone: 'devil',
-    description:
-      '每天第一次四连狸~最少的那种资源全部变成最多的狸！',
+    description: '每天第一次四连狸~最少的那种资源全部变成最多的狸！',
     effect: { type: 'firstBigMatchResourceBalance' },
     penalty: { type: 'maxSteps', value: 2 },
     penaltyText: '以后每天步数上限少 1 狸~。',
@@ -430,23 +470,7 @@ export const REWARD_ITEMS = {
     penaltyText: '明天步数会少 3 步狸~。',
     reaction: '五芒星亮了狸~五个方块应声炸开了狸~小猪假装自己没参与狸！'
   },
-  mawOfTheVoid: {
-    id: 'mawOfTheVoid',
-    roomType: 'devil',
-    name: '虚空之喉',
-    enName: 'Maw of the Void',
-    titleText: '虚空之喉',
-    flavorText: '“连够两段狸~它就张嘴狸！”',
-    quality: 4,
-    emoji: '⚫',
-    slot: 'float',
-    tone: 'devil',
-    description: '每次连击狸~以打中的格子为中心吞掉一片狸！',
-    effect: { type: 'sweepAreaOnChain', minChain: 2, areaRows: 3, areaCols: 3 },
-    penalty: { type: 'nextDaySteps', value: 5 },
-    penaltyText: '明天步数会少 5 步狸~。',
-    reaction: '黑色裂口张开了狸~小猪自觉地往后退了一步狸！'
-  },
+
   xRayVision: {
     id: 'xRayVision',
     roomType: 'devil',
@@ -455,7 +479,7 @@ export const REWARD_ITEMS = {
     titleText: 'X光透视',
     flavorText: '“我已看清一切狸！”',
     quality: 4,
-    emoji: '👁️',
+    emoji: '👓',
     slot: 'back',
     tone: 'devil',
     description: '每天开始时，自动将非建筑需求的资源随机转为需求资源。',
@@ -473,7 +497,8 @@ export const DAYS = [
     building: { id: 'courtyard', cn: '前院', en: 'Courtyard', emoji: '🌿' },
     needs: { grape: 25, wood: 20, stone: 15 },
     ability: 'whiteWolfTidy',
-    intro: '豆狸&粒狸: 今天先修前院狸~！杂草都快长到腰了狸！ ( ……快长到腰了狸！）\n豆狸&粒狸: 白狼先生说先把石路和喷泉修出来狸！ ( ……修出来狸！）',
+    intro:
+      '豆狸&粒狸: 今天先修前院狸~！杂草都快长到腰了狸！ ( ……快长到腰了狸！）\n豆狸&粒狸: 白狼先生说先把石路和喷泉修出来狸！ ( ……修出来狸！）',
     completed:
       '石路重新露出来了狸~喷泉边的藤蔓也修剪整齐了狸！白鸦落在门柱上看了一会儿狸！',
     monologue: '白狼先生说先从院子开始狸~这里是庄园的脸面狸！',
@@ -484,7 +509,8 @@ export const DAYS = [
     building: { id: 'vineyard', cn: '果园', en: 'Vineyard', emoji: '🍊' },
     needs: { grape: 45, wood: 25 },
     ability: 'toussentHarvest',
-    intro: '豆狸&粒狸: 果树还活着狸~！虽然被荒草压弯了狸！ ( ……被荒草压弯了狸！）\n豆狸&粒狸: 小猪在帮忙照料狸~今天修果园狸！ ( ……修果园狸！）',
+    intro:
+      '豆狸&粒狸: 果树还活着狸~！虽然被荒草压弯了狸！ ( ……被荒草压弯了狸！）\n豆狸&粒狸: 小猪在帮忙照料狸~今天修果园狸！ ( ……修果园狸！）',
     completed:
       '果树重新精神起来了狸~嫩叶在风里发亮狸！远处的丘陵像一片金色的果园狸！',
     monologue: '白狼先生说这些果树比他爷爷还老狸~等结果就有自己的果子了狸！',
@@ -495,9 +521,9 @@ export const DAYS = [
     building: { id: 'cellar', cn: '储藏室', en: 'Wine Cellar', emoji: '🛢️' },
     needs: { wood: 28, clay: 28, grape: 19 },
     ability: 'agedBarrel',
-    intro: '豆狸&粒狸: 今天修储藏室狸~！全是灰尘和蜘蛛网狸！ ( ……蜘蛛网狸！）\n豆狸&粒狸: 小猪闻了闻木塞打了个喷嚏狸~不过有几桶好东西还留着狸！ ( ……还留着狸！）',
-    completed:
-      '石墙加固好了狸~架子排成一列狸！最深处留了一格特别的位置狸！',
+    intro:
+      '豆狸&粒狸: 今天修储藏室狸~！全是灰尘和蜘蛛网狸！ ( ……蜘蛛网狸！）\n豆狸&粒狸: 小猪闻了闻木塞打了个喷嚏狸~不过有几桶好东西还留着狸！ ( ……还留着狸！）',
+    completed: '石墙加固好了狸~架子排成一列狸！最深处留了一格特别的位置狸！',
     monologue: '白狼先生说这一桶不错狸~存起来等特别的日子再开狸！',
     completedBanner: '储藏室里重新有了架子和小灯狸~！'
   },
@@ -506,7 +532,8 @@ export const DAYS = [
     building: { id: 'stables', cn: '牧场', en: 'Stables', emoji: '🐎' },
     needs: { wood: 45, stone: 35 },
     ability: 'roachPath',
-    intro: '豆狸&粒狸: 牧场大门歪了狸~栅栏倒了半边狸！ ( ……倒了半边狸！）\n豆狸&粒狸: 萝卜站在门口审查工程质量狸~小猪也在旁边看着狸！ ( ……看着狸！）',
+    intro:
+      '豆狸&粒狸: 牧场大门歪了狸~栅栏倒了半边狸！ ( ……倒了半边狸！）\n豆狸&粒狸: 萝卜站在门口审查工程质量狸~小猪也在旁边看着狸！ ( ……看着狸！）',
     completed:
       '新栅栏围起来了狸~干草铺得厚厚暖暖的狸！萝卜进去转了一圈满意了狸！',
     monologue: '白狼先生对萝卜说修好了狸~以后下雨别再乱跑了狸！',
@@ -517,7 +544,8 @@ export const DAYS = [
     building: { id: 'garden', cn: '花圃', en: 'Garden', emoji: '🪻' },
     needs: { herb: 50, grape: 35 },
     ability: 'lilacReturn',
-    intro: '豆狸&粒狸: 今天修花圃狸~！花坛荒了很久狸！ ( ……荒了很久狸！）\n豆狸&粒狸: 小猪翻出一截枯枝狸~闻到了丁香和花香狸！ ( ……花香狸！）',
+    intro:
+      '豆狸&粒狸: 今天修花圃狸~！花坛荒了很久狸！ ( ……荒了很久狸！）\n豆狸&粒狸: 小猪翻出一截枯枝狸~闻到了丁香和花香狸！ ( ……花香狸！）',
     completed: '花圃重新有了边界狸~花卉和丁香沿着小径铺开了狸！',
     monologue: '白狼先生说丁香和花香像昨天做过的梦狸~',
     completedBanner: '花圃里又开了丁香狸~！'
@@ -527,7 +555,8 @@ export const DAYS = [
     building: { id: 'greenhouse', cn: '温室', en: 'Greenhouse', emoji: '🌱' },
     needs: { herb: 40, clay: 30, magic: 20 },
     ability: 'greenhouseNurture',
-    intro: '豆狸&粒狸: 今天修温室狸~！玻璃碎了几块藤蔓钻进窗缝了狸！ ( ……钻进窗缝了狸！）\n豆狸&粒狸: 有些不耐寒的花暂时搬进去狸~暖光一照就重新精神了狸！ ( ……精神了狸！）',
+    intro:
+      '豆狸&粒狸: 今天修温室狸~！玻璃碎了几块藤蔓钻进窗缝了狸！ ( ……钻进窗缝了狸！）\n豆狸&粒狸: 有些不耐寒的花暂时搬进去狸~暖光一照就重新精神了狸！ ( ……精神了狸！）',
     completed: '新玻璃映出晚霞了狸~温室里有了暖灯和细小的芽狸！',
     monologue: '花这东西说不准狸~但冷的时候门要关好狸！',
     completedBanner: '温室的灯重新亮了狸~！'
@@ -537,7 +566,8 @@ export const DAYS = [
     building: { id: 'gazebo', cn: '广场', en: 'Gazebo', emoji: '🌅' },
     needs: { stone: 45, wood: 35, magic: 15 },
     ability: 'toussentSunset',
-    intro: '豆狸&粒狸: 今天修广场狸~！朝着夕阳视野很好狸！ ( ……视野很好狸！）\n豆狸&粒狸: 地砖松了围栏也生锈了狸~小猪在这里看了很久狸！ ( ……看了很久狸！）',
+    intro:
+      '豆狸&粒狸: 今天修广场狸~！朝着夕阳视野很好狸！ ( ……视野很好狸！）\n豆狸&粒狸: 地砖松了围栏也生锈了狸~小猪在这里看了很久狸！ ( ……看了很久狸！）',
     completed:
       '广场铺上新石板了狸~围栏擦出暗金色的光狸！小圆桌旁放了一把椅子面朝落日狸！',
     monologue: '先放一把椅子狸~等有人来了再加一把狸！',
@@ -548,7 +578,8 @@ export const DAYS = [
     building: { id: 'kitchen', cn: '厨房', en: 'Kitchen', emoji: '🍲' },
     needs: { clay: 45, grape: 35, wood: 20 },
     ability: 'lilacSeed',
-    intro: '豆狸&粒狸: 今天修厨房狸~！炉子还能用但积了好多灰狸！ ( ……好多灰狸！）\n豆狸&粒狸: 小猪说炖汤应该不算太难狸~今天加把劲狸！ ( ……加把劲狸！）',
+    intro:
+      '豆狸&粒狸: 今天修厨房狸~！炉子还能用但积了好多灰狸！ ( ……好多灰狸！）\n豆狸&粒狸: 小猪说炖汤应该不算太难狸~今天加把劲狸！ ( ……加把劲狸！）',
     completed: '炉火重新亮起来了狸~木桌擦干净了狸！架子上放着果酱和花朵狸！',
     monologue: '炖汤只要不烧糊就行狸~加点花果暖暖的狸！',
     completedBanner: '厨房里又升起了炉火狸~！'
@@ -563,7 +594,8 @@ export const DAYS = [
     },
     needs: { wood: 30, herb: 22, magic: 18 },
     ability: 'hearthStew',
-    intro: '豆狸&粒狸: 最后一天狸~修星星客房狸！ ( ……星星客房狸！）\n豆狸&粒狸: 早晨有阳光晚上能看见星星狸~小猪在换新床板狸！ ( ……新床板狸！）',
+    intro:
+      '豆狸&粒狸: 最后一天狸~修星星客房狸！ ( ……星星客房狸！）\n豆狸&粒狸: 早晨有阳光晚上能看见星星狸~小猪在换新床板狸！ ( ……新床板狸！）',
     completed:
       '房间安静下来了狸~窗边有书桌床边有两只枕头狸！花瓶里插着丁香窗台上放着星星碎片狸！',
     monologue: '枕头放两个狸~床要软一点客人会喜欢的狸！',
@@ -659,7 +691,7 @@ export const MONSTERS = {
       hint: '它只是第二愿的角落烛火占位，不会参与消除，也不会被消掉。'
     },
     introLine: '四角的烛火已经就位了狸~',
-    removeLine: '烛火熄了狸~',
+    removeLine: '烛火熄了狸~'
   },
   nekkers: {
     id: 'nekkers',
@@ -796,6 +828,87 @@ export const MONSTERS = {
     introLine: '人面樁象背上的花纹在盯着你狸…',
     removeLine: '人面樁象逃走狸~'
   },
+  tarantula: {
+    id: 'tarantula',
+    char: 'T',
+    name: '狼蛛',
+    emoji: '🕷️',
+    img: '/img/monsters/狼蛛.png',
+    uiLabel: '狼蛛',
+    uiWeaknessShort: '在旁边凑三连狸~',
+    uiPressureShort: '它不会移动，只会一直占住这一格。',
+    hp: 6,
+    hits: 6,
+    reward: {},
+    clearReward: {},
+    damageRule: {
+      type: 'orthogonalAdjacent',
+      hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
+    },
+    pressureRule: { type: 'none' },
+    telegraph: '静止占位',
+    echoLabel: '击退后，空出这一格。',
+    clearRule: {
+      type: 'adjacentMatch',
+      hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
+    },
+    introLine: '狼蛛抖着八条腿爬过来狸…！',
+    removeLine: '狼蛛钻进草丛不见了狸~'
+  },
+  crab: {
+    id: 'crab',
+    char: 'R',
+    name: '螃蟹',
+    emoji: '🦀',
+    img: '/img/monsters/螃蟹.png',
+    uiLabel: '螃蟹',
+    uiWeaknessShort: '在旁边凑三连狸~',
+    uiPressureShort: '它不会移动，只会一直占住这一格。',
+    hp: 4,
+    hits: 4,
+    reward: {},
+    clearReward: {},
+    damageRule: {
+      type: 'orthogonalAdjacent',
+      hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
+    },
+    pressureRule: { type: 'none' },
+    telegraph: '静止占位',
+    echoLabel: '击退后，空出这一格。',
+    clearRule: {
+      type: 'adjacentMatch',
+      hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
+    },
+    introLine: '螃蟹横着走过来了狸~！',
+    removeLine: '螃蟹横着走开狸~'
+  },
+  scallop: {
+    id: 'scallop',
+    char: 'P',
+    name: '虾夷扇贝',
+    emoji: '🐚',
+    img: '/img/monsters/虾夷扇贝.png',
+    uiLabel: '虾夷扇贝',
+    uiWeaknessShort: '在旁边凑三连狸~',
+    uiPressureShort: '它不会移动，只会一直占住这一格。',
+    hp: 3,
+    hits: 3,
+    reward: {},
+    clearReward: {},
+    damageRule: {
+      type: 'orthogonalAdjacent',
+      hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
+    },
+    pressureRule: { type: 'none' },
+    telegraph: '静止占位',
+    echoLabel: '击退后，空出这一格。',
+    clearRule: {
+      type: 'adjacentMatch',
+      hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
+    },
+    introLine: '虾夷扇贝慢慢张开壳看了一眼狸~',
+    removeLine: '虾夷扇贝合上壳滚远了狸~'
+  },
   djinn: {
     id: 'djinn',
     name: '迪精',
@@ -837,86 +950,105 @@ export const MONSTER_CHARS = Object.keys(MONSTER_BY_CHAR)
 
 export const DAY_MONSTER_LAYOUTS = {
   0: [
-    { id: 'd1-nekkers-a', kind: 'nekkers', row: 2, col: 5 },
-    { id: 'd1-nekkers-b', kind: 'nekkers', row: 4, col: 2 }
+    { id: 'd1-nekkers-a', kind: 'nekkers', row: 1, col: 3 },
+    { id: 'd1-crab-a', kind: 'crab', row: 5, col: 4 }
   ],
-  1: [{ id: 'd2-nekkers-a', kind: 'nekkers', row: 3, col: 4 }],
-  2: [{ id: 'd3-drowner-a', kind: 'drowner', row: 2, col: 5 }],
+  1: [
+    { id: 'd2-crab-a', kind: 'crab', row: 2, col: 2 },
+    { id: 'd2-drowner-a', kind: 'drowner', row: 5, col: 5 }
+  ],
+  2: [
+    { id: 'd3-nekkers-a', kind: 'nekkers', row: 1, col: 2 },
+    { id: 'd3-drowner-a', kind: 'drowner', row: 4, col: 5 },
+    { id: 'd3-scallop-a', kind: 'scallop', row: 6, col: 3 }
+  ],
   3: [
-    { id: 'd4-drowner-a', kind: 'drowner', row: 1, col: 5 },
-    { id: 'd4-nekkers-a', kind: 'nekkers', row: 4, col: 2 }
+    { id: 'd4-crab-a', kind: 'crab', row: 1, col: 4 },
+    { id: 'd4-scallop-a', kind: 'scallop', row: 3, col: 2 },
+    { id: 'd4-ghoul-a', kind: 'ghoul', row: 5, col: 6 }
   ],
   4: [
-    { id: 'd5-ghoul-a', kind: 'ghoul', row: 2, col: 1 },
-    { id: 'd5-drowner-a', kind: 'drowner', row: 4, col: 5 }
+    { id: 'd5-drowner-a', kind: 'drowner', row: 2, col: 4 },
+    { id: 'd5-ghoul-a', kind: 'ghoul', row: 4, col: 1 },
+    { id: 'd5-griffinChick-a', kind: 'griffinChick', row: 6, col: 6 }
   ],
   5: [
-    { id: 'd6-wraith-a', kind: 'wraith', row: 1, col: 5 },
-    { id: 'd6-ghoul-a', kind: 'ghoul', row: 4, col: 2 }
+    { id: 'd6-ghoul-a', kind: 'ghoul', row: 1, col: 5 },
+    { id: 'd6-griffinChick-a', kind: 'griffinChick', row: 4, col: 2 },
+    { id: 'd6-wraith-a', kind: 'wraith', row: 6, col: 5 }
   ],
   6: [
-    { id: 'd7-griffinChick-a', kind: 'griffinChick', row: 2, col: 5 },
-    { id: 'd7-ghoul-a', kind: 'ghoul', row: 5, col: 2 }
+    { id: 'd7-tarantula-a', kind: 'tarantula', row: 2, col: 3 },
+    { id: 'd7-griffinChick-a', kind: 'griffinChick', row: 4, col: 5 },
+    { id: 'd7-wraith-a', kind: 'wraith', row: 6, col: 2 }
   ],
   7: [
-    { id: 'd8-griffinChick-a', kind: 'griffinChick', row: 2, col: 3 },
-    { id: 'd8-wraith-a', kind: 'wraith', row: 4, col: 5 }
+    { id: 'd8-tarantula-a', kind: 'tarantula', row: 1, col: 4 },
+    { id: 'd8-wraith-a', kind: 'wraith', row: 3, col: 6 },
+    { id: 'd8-griffinChick-a', kind: 'griffinChick', row: 6, col: 3 }
   ],
   8: [{ id: 'd9-djinn-a', kind: 'djinn', row: 3, col: 3, width: 2, height: 2 }]
 }
 
 // Early-board pacing curve tuned around the 8x8 board.
 // Graves only change between days now; there is no mid-day release.
-// Count curve by day 1-7: 25 / 20 / 18 / 15 / 10 / 6 / 0
+// Count curve by day 1-9: 28 / 24 / 20 / 16 / 12 / 8 / 4 / 2 / 0
 export const BARREN_GRAVE_LAYOUTS = {
   0: [
     { id: 'd1-barren-a', row: 0, col: 0 },
     { id: 'd1-barren-b', row: 0, col: 1 },
     { id: 'd1-barren-c', row: 0, col: 2 },
-    { id: 'd1-barren-d', row: 0, col: 4 },
-    { id: 'd1-barren-e', row: 0, col: 5 },
-    { id: 'd1-barren-f', row: 0, col: 6 },
-    { id: 'd1-barren-g', row: 0, col: 7 },
-    { id: 'd1-barren-h', row: 1, col: 0 },
-    { id: 'd1-barren-i', row: 1, col: 7 },
-    { id: 'd1-barren-j', row: 2, col: 0 },
-    { id: 'd1-barren-k', row: 2, col: 7 },
-    { id: 'd1-barren-l', row: 3, col: 0 },
-    { id: 'd1-barren-m', row: 3, col: 7 },
-    { id: 'd1-barren-n', row: 4, col: 0 },
-    { id: 'd1-barren-o', row: 4, col: 7 },
-    { id: 'd1-barren-p', row: 5, col: 0 },
-    { id: 'd1-barren-q', row: 5, col: 7 },
-    { id: 'd1-barren-r', row: 6, col: 0 },
-    { id: 'd1-barren-s', row: 6, col: 7 },
-    { id: 'd1-barren-t', row: 7, col: 0 },
-    { id: 'd1-barren-u', row: 7, col: 1 },
-    { id: 'd1-barren-v', row: 7, col: 2 },
-    { id: 'd1-barren-w', row: 7, col: 5 },
-    { id: 'd1-barren-x', row: 7, col: 6 },
-    { id: 'd1-barren-y', row: 7, col: 7 }
+    { id: 'd1-barren-d', row: 0, col: 3 },
+    { id: 'd1-barren-e', row: 0, col: 4 },
+    { id: 'd1-barren-f', row: 0, col: 5 },
+    { id: 'd1-barren-g', row: 0, col: 6 },
+    { id: 'd1-barren-h', row: 0, col: 7 },
+    { id: 'd1-barren-i', row: 1, col: 0 },
+    { id: 'd1-barren-j', row: 1, col: 7 },
+    { id: 'd1-barren-k', row: 2, col: 0 },
+    { id: 'd1-barren-l', row: 2, col: 7 },
+    { id: 'd1-barren-m', row: 3, col: 0 },
+    { id: 'd1-barren-n', row: 3, col: 7 },
+    { id: 'd1-barren-o', row: 4, col: 0 },
+    { id: 'd1-barren-p', row: 4, col: 7 },
+    { id: 'd1-barren-q', row: 5, col: 0 },
+    { id: 'd1-barren-r', row: 5, col: 7 },
+    { id: 'd1-barren-s', row: 6, col: 0 },
+    { id: 'd1-barren-t', row: 6, col: 7 },
+    { id: 'd1-barren-u', row: 7, col: 0 },
+    { id: 'd1-barren-v', row: 7, col: 1 },
+    { id: 'd1-barren-w', row: 7, col: 2 },
+    { id: 'd1-barren-x', row: 7, col: 3 },
+    { id: 'd1-barren-y', row: 7, col: 4 },
+    { id: 'd1-barren-z', row: 7, col: 5 },
+    { id: 'd1-barren-za', row: 7, col: 6 },
+    { id: 'd1-barren-zb', row: 7, col: 7 }
   ],
   1: [
     { id: 'd2-barren-a', row: 0, col: 0 },
     { id: 'd2-barren-b', row: 0, col: 1 },
     { id: 'd2-barren-c', row: 0, col: 2 },
-    { id: 'd2-barren-d', row: 0, col: 4 },
-    { id: 'd2-barren-e', row: 0, col: 5 },
-    { id: 'd2-barren-f', row: 0, col: 6 },
-    { id: 'd2-barren-g', row: 0, col: 7 },
-    { id: 'd2-barren-h', row: 1, col: 0 },
-    { id: 'd2-barren-i', row: 1, col: 7 },
-    { id: 'd2-barren-j', row: 2, col: 0 },
-    { id: 'd2-barren-k', row: 2, col: 7 },
-    { id: 'd2-barren-l', row: 3, col: 0 },
-    { id: 'd2-barren-m', row: 3, col: 7 },
-    { id: 'd2-barren-n', row: 5, col: 0 },
-    { id: 'd2-barren-o', row: 5, col: 7 },
-    { id: 'd2-barren-p', row: 6, col: 0 },
-    { id: 'd2-barren-q', row: 6, col: 7 },
-    { id: 'd2-barren-r', row: 7, col: 0 },
-    { id: 'd2-barren-s', row: 7, col: 1 },
-    { id: 'd2-barren-t', row: 7, col: 6 }
+    { id: 'd2-barren-d', row: 0, col: 5 },
+    { id: 'd2-barren-e', row: 0, col: 6 },
+    { id: 'd2-barren-f', row: 0, col: 7 },
+    { id: 'd2-barren-g', row: 1, col: 0 },
+    { id: 'd2-barren-h', row: 1, col: 7 },
+    { id: 'd2-barren-i', row: 2, col: 0 },
+    { id: 'd2-barren-j', row: 2, col: 7 },
+    { id: 'd2-barren-k', row: 3, col: 0 },
+    { id: 'd2-barren-l', row: 3, col: 7 },
+    { id: 'd2-barren-m', row: 4, col: 0 },
+    { id: 'd2-barren-n', row: 4, col: 7 },
+    { id: 'd2-barren-o', row: 5, col: 0 },
+    { id: 'd2-barren-p', row: 5, col: 7 },
+    { id: 'd2-barren-q', row: 6, col: 0 },
+    { id: 'd2-barren-r', row: 6, col: 7 },
+    { id: 'd2-barren-s', row: 7, col: 0 },
+    { id: 'd2-barren-t', row: 7, col: 1 },
+    { id: 'd2-barren-u', row: 7, col: 2 },
+    { id: 'd2-barren-v', row: 7, col: 5 },
+    { id: 'd2-barren-w', row: 7, col: 6 },
+    { id: 'd2-barren-x', row: 7, col: 7 }
   ],
   2: [
     { id: 'd3-barren-a', row: 0, col: 0 },
@@ -931,51 +1063,67 @@ export const BARREN_GRAVE_LAYOUTS = {
     { id: 'd3-barren-j', row: 2, col: 7 },
     { id: 'd3-barren-k', row: 3, col: 0 },
     { id: 'd3-barren-l', row: 3, col: 7 },
-    { id: 'd3-barren-m', row: 5, col: 0 },
-    { id: 'd3-barren-n', row: 5, col: 7 },
-    { id: 'd3-barren-o', row: 6, col: 0 },
-    { id: 'd3-barren-p', row: 6, col: 7 },
-    { id: 'd3-barren-q', row: 7, col: 0 },
-    { id: 'd3-barren-r', row: 7, col: 1 }
+    { id: 'd3-barren-m', row: 4, col: 0 },
+    { id: 'd3-barren-n', row: 4, col: 7 },
+    { id: 'd3-barren-o', row: 5, col: 0 },
+    { id: 'd3-barren-p', row: 5, col: 7 },
+    { id: 'd3-barren-q', row: 6, col: 0 },
+    { id: 'd3-barren-r', row: 6, col: 7 },
+    { id: 'd3-barren-s', row: 7, col: 0 },
+    { id: 'd3-barren-t', row: 7, col: 7 }
   ],
   3: [
     { id: 'd4-barren-a', row: 0, col: 0 },
     { id: 'd4-barren-b', row: 0, col: 1 },
-    { id: 'd4-barren-c', row: 0, col: 2 },
-    { id: 'd4-barren-d', row: 0, col: 6 },
-    { id: 'd4-barren-e', row: 0, col: 7 },
-    { id: 'd4-barren-f', row: 1, col: 0 },
+    { id: 'd4-barren-c', row: 0, col: 6 },
+    { id: 'd4-barren-d', row: 0, col: 7 },
+    { id: 'd4-barren-e', row: 1, col: 0 },
+    { id: 'd4-barren-f', row: 1, col: 7 },
     { id: 'd4-barren-g', row: 2, col: 0 },
     { id: 'd4-barren-h', row: 2, col: 7 },
     { id: 'd4-barren-i', row: 3, col: 0 },
     { id: 'd4-barren-j', row: 3, col: 7 },
-    { id: 'd4-barren-k', row: 5, col: 0 },
-    { id: 'd4-barren-l', row: 5, col: 7 },
-    { id: 'd4-barren-m', row: 6, col: 0 },
-    { id: 'd4-barren-n', row: 6, col: 7 },
-    { id: 'd4-barren-o', row: 7, col: 0 }
+    { id: 'd4-barren-k', row: 4, col: 0 },
+    { id: 'd4-barren-l', row: 4, col: 7 },
+    { id: 'd4-barren-m', row: 5, col: 0 },
+    { id: 'd4-barren-n', row: 5, col: 7 },
+    { id: 'd4-barren-o', row: 6, col: 0 },
+    { id: 'd4-barren-p', row: 6, col: 7 }
   ],
   4: [
     { id: 'd5-barren-a', row: 0, col: 0 },
     { id: 'd5-barren-b', row: 0, col: 1 },
     { id: 'd5-barren-c', row: 0, col: 6 },
     { id: 'd5-barren-d', row: 0, col: 7 },
-    { id: 'd5-barren-e', row: 1, col: 0 },
-    { id: 'd5-barren-f', row: 1, col: 7 },
-    { id: 'd5-barren-g', row: 6, col: 0 },
-    { id: 'd5-barren-h', row: 6, col: 7 },
+    { id: 'd5-barren-e', row: 3, col: 0 },
+    { id: 'd5-barren-f', row: 3, col: 7 },
+    { id: 'd5-barren-g', row: 4, col: 0 },
+    { id: 'd5-barren-h', row: 4, col: 7 },
     { id: 'd5-barren-i', row: 7, col: 0 },
-    { id: 'd5-barren-j', row: 7, col: 7 }
+    { id: 'd5-barren-j', row: 7, col: 1 },
+    { id: 'd5-barren-k', row: 7, col: 6 },
+    { id: 'd5-barren-l', row: 7, col: 7 }
   ],
   5: [
     { id: 'd6-barren-a', row: 0, col: 0 },
     { id: 'd6-barren-b', row: 0, col: 7 },
     { id: 'd6-barren-c', row: 3, col: 0 },
     { id: 'd6-barren-d', row: 3, col: 7 },
-    { id: 'd6-barren-e', row: 7, col: 0 },
-    { id: 'd6-barren-f', row: 7, col: 7 }
+    { id: 'd6-barren-e', row: 4, col: 0 },
+    { id: 'd6-barren-f', row: 4, col: 7 },
+    { id: 'd6-barren-g', row: 7, col: 0 },
+    { id: 'd6-barren-h', row: 7, col: 7 }
   ],
-  6: []
+  6: [
+    { id: 'd7-barren-a', row: 0, col: 0 },
+    { id: 'd7-barren-b', row: 0, col: 7 },
+    { id: 'd7-barren-c', row: 7, col: 0 },
+    { id: 'd7-barren-d', row: 7, col: 7 }
+  ],
+  7: [
+    { id: 'd8-barren-a', row: 0, col: 0 },
+    { id: 'd8-barren-b', row: 7, col: 7 }
+  ]
 }
 
 export const DJINN_WISHES = {
@@ -983,7 +1131,8 @@ export const DJINN_WISHES = {
   sleepHint: '迪精还在睡狸~先把星星客房准备好再唤醒仪式狸！',
   sleepLine: '迪精还在睡狸~头顶轻轻浮着 💤 狸！',
   wakeTitle: '迪精醒来',
-  wakeQuote: '豆狸&粒狸: 最后一盏灯亮起来时狸~那团沉睡已久的光也慢慢睁开了眼狸！ ( ……睁开了眼狸！）',
+  wakeQuote:
+    '豆狸&粒狸: 最后一盏灯亮起来时狸~那团沉睡已久的光也慢慢睁开了眼狸！ ( ……睁开了眼狸！）',
   wakeIntroLines: [
     '豆狸&粒狸: 客房里的风轻轻掀起窗帘狸~紫丁香的香气顺着门缝漫出来狸！ ( ……漫出来狸！）',
     '豆狸&粒狸: 迪精抬起头看向你狸~它终于等到了该说出口的祝福狸！ ( ……祝福狸！）'
@@ -992,12 +1141,14 @@ export const DJINN_WISHES = {
   readyHint: '资源已经备齐了狸~点击迪精开始最后的仪式狸！',
   readyLine: '星星客房已经准备好了狸~剩下的就是把祝福亲手送进去狸！',
   wakeLine: '星星客房已经准备好了狸~迪精醒了等你开始最后的仪式狸！',
-  ceremonyDoneLine: '豆狸&粒狸: 愿望已经说完狸~灯也亮起来了狸！ ( ……亮起来了狸！）',
+  ceremonyDoneLine:
+    '豆狸&粒狸: 愿望已经说完狸~灯也亮起来了狸！ ( ……亮起来了狸！）',
   stages: {
     1: {
       id: 'health',
       title: '第一愿 · 祛病',
-      quote: '豆狸&粒狸: 先把所有不该留下的阴影驱散狸~让身体安稳让病痛退场狸！ ( ……病痛退场狸！）',
+      quote:
+        '豆狸&粒狸: 先把所有不该留下的阴影驱散狸~让身体安稳让病痛退场狸！ ( ……病痛退场狸！）',
       introLines: [
         '豆狸&粒狸: 第一愿落下时狸~迪精周围浮起一圈病气印记狸！ ( ……病气印记狸！）',
         '豆狸&粒狸: 把它们一一清掉狸~愿小云身体健康狸！ ( ……身体健康狸！）'
@@ -1017,7 +1168,8 @@ export const DJINN_WISHES = {
     2: {
       id: 'joy',
       title: '第二愿 · 欢欣',
-      quote: '豆狸&粒狸: 愿日子不只平稳狸~还能发亮能热闹能笑出来狸！ ( ……笑出来狸！）',
+      quote:
+        '豆狸&粒狸: 愿日子不只平稳狸~还能发亮能热闹能笑出来狸！ ( ……笑出来狸！）',
       introLines: [
         '豆狸&粒狸: 第一圈封印暖下来了狸~四角点起细小的欢乐火花狸！ ( ……欢乐火花狸！）',
         '豆狸&粒狸: 愿小云生活快乐狸~每天都能乐趣多多狸！ ( ……乐趣多多狸！）'
@@ -1038,7 +1190,8 @@ export const DJINN_WISHES = {
     3: {
       id: 'cake',
       title: '第三愿 · 生日蛋糕',
-      quote: '豆狸&粒狸: 最后这一愿狸~是把以后的日子认真摆在桌上狸！ ( ……摆在桌上狸！）',
+      quote:
+        '豆狸&粒狸: 最后这一愿狸~是把以后的日子认真摆在桌上狸！ ( ……摆在桌上狸！）',
       introLines: [
         '豆狸&粒狸: 迪精抬起头狸~光从封印里一层层褪开狸！ ( ……褪开狸！）',
         '豆狸&粒狸: 最后一个愿望杰洛特先生偷偷帮你许了狸~！ ( ……偷偷许了狸！）',
@@ -1423,7 +1576,8 @@ export const ENDING = {
   ],
   defaultGift: '献给小云。',
   lockedGift: '献给小云。',
-  blessingLine: '豆狸&粒狸: 也愿小坤和小云平安幸福狸~长久相伴狸！ ( ……长久相伴狸！）',
+  blessingLine:
+    '豆狸&粒狸: 也愿小坤和小云平安幸福狸~长久相伴狸！ ( ……长久相伴狸！）',
   willScreen: {
     headerLine: '完成了~！',
     titleLine: '小岛的修复日记狸！',
@@ -1440,9 +1594,10 @@ export const ENDING = {
     itemsArrow: '一路收集的好东西',
     estateLine: '小岛，全部修复完成狸',
     farewellLine: '谢谢你的帮忙狸~！',
-    goodbyeLine: '欢迎再来狸~！',
+    goodbyeLine: '欢迎再来狸~！'
   },
-  interceptLine: '豆狸&粒狸: 等一下狸~你填的这个名字不太对狸！让豆狸帮你改改狸！ ( ……帮你改改狸！）',
+  interceptLine:
+    '豆狸&粒狸: 等一下狸~你填的这个名字不太对狸！让豆狸帮你改改狸！ ( ……帮你改改狸！）',
   giftPresets: [
     { id: 'friend', label: '朋友', text: '朋友' },
     { id: 'lover', label: '恋人', text: '恋人' },
@@ -1533,7 +1688,8 @@ export const ACHIEVEMENTS = [
   {
     id: 'day8_the_soup_will_hold',
     title: '湯還熱著呢',
-    description: '第 8 天完成厨房修复，而且当天从未进入步数耗尽的夜幕狸～完美！',
+    description:
+      '第 8 天完成厨房修复，而且当天从未进入步数耗尽的夜幕狸～完美！',
     icon: '🍲',
     iconFile: 'day8_the_soup_will_hold',
     rarity: 'rare',
