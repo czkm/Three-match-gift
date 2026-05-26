@@ -1,6 +1,6 @@
 <template>
   <transition name="panel-fade">
-    <div v-if="achievement.panelOpen" class="achievement-panel-overlay" @click="achievement.closePanel">
+    <div v-if="achievement.panelOpen" class="achievement-panel-overlay" @click="closePanel">
       <section class="achievement-panel" @click.stop>
         <header class="panel-head">
           <div class="panel-title-group">
@@ -10,7 +10,7 @@
               <h3 class="panel-title">{{ achievement.unlockedCount }} / {{ achievement.totalCount }}</h3>
             </div>
           </div>
-          <button class="panel-close" @click="achievement.closePanel">&times;</button>
+          <button class="panel-close" @click="closePanel">&times;</button>
         </header>
 
         <div class="achievement-grid">
@@ -54,6 +54,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useAchievementStore } from '@/stores/achievementStore';
+import { audioManager } from '@/audio/AudioManager';
 
 const achievement = useAchievementStore();
 const achievementImgErrors = ref({});
@@ -84,9 +85,14 @@ function rarityLabel(rarity) {
   }
 }
 
+function closePanel() {
+  audioManager.playSFX('dialogclose')
+  achievement.closePanel()
+}
+
 function onWindowKeydown(event) {
   if (event.key !== 'Escape') return;
-  achievement.closePanel();
+  closePanel();
 }
 
 onMounted(() => {

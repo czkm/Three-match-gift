@@ -348,6 +348,7 @@ import EstatePetPig from './EstatePetPig.vue'
 import { ESTATE_PIG_LINES, ESTATE_STRIP_STAGES } from '@/data/content'
 import { useGameStore } from '@/stores/gameStore'
 import { TIMING } from '@/utils/timing'
+import { audioManager } from '@/audio/AudioManager'
 
 const game = useGameStore()
 const stages = ESTATE_STRIP_STAGES
@@ -591,6 +592,7 @@ function burstGlyph(kind, index) {
 }
 
 function onSceneBurst(payload = {}) {
+  audioManager.playSFX('woosh')
   const kind = payload.kind ?? (displayStage.value >= 5 ? 'petal' : 'feather')
   const count = payload.count ?? 10
   spawnBurst(kind, count)
@@ -599,6 +601,7 @@ function onSceneBurst(payload = {}) {
 function onHotspot(id) {
   if (!interactive.value) return
 
+  audioManager.playSFX('trinket')
   activeHotspotId.value = id
   displayCaption.value = captionForHotspot(id)
   clearCaptionTimer()

@@ -14,7 +14,7 @@
     :style="style"
     @mouseenter="emit('monster-hover-enter', { kind: entity.kind, entityId: entity.id })"
     @mouseleave="emit('monster-hover-leave', { kind: entity.kind, entityId: entity.id })"
-    @click.stop="emit('monster-inspect', { kind: entity.kind, entityId: entity.id })"
+    @click.stop="onInspect"
   >
     <span class="slot-frame" />
     <img v-if="entity.kind === 'barrenGrave'" class="glyph gyroid-img" :src="gyroidImg" alt="陶俑" />
@@ -37,6 +37,7 @@
 <script setup>
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { MONSTERS } from '@/data/content';
+import { audioManager } from '@/audio/AudioManager';
 
 const props = defineProps({
   entity: { type: Object, required: true },
@@ -49,6 +50,11 @@ let hitFxTimer = null;
 
 const monster = computed(() => MONSTERS[props.entity.kind]);
 const djinnStage = computed(() => Math.max(0, Math.min(3, props.entity.hitsTaken || 0)));
+
+function onInspect() {
+  audioManager.playSFX('click')
+  emit('monster-inspect', { kind: props.entity.kind, entityId: props.entity.id })
+}
 
 const GYROID_POOL = [
   'img/chessPiece/FtrHaniwaCrash00.png',

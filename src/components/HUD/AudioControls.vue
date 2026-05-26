@@ -74,6 +74,7 @@ function syncState() {
 
 function toggleMute() {
   audioManager.toggleMute();
+  audioManager.playSFX('click');
   if (audioManager.isMuted) expanded.value = false;
 }
 

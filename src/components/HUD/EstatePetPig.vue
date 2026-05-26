@@ -225,12 +225,14 @@ function pauseForInspect() {
 
 function handleInspect() {
   if (!props.interactive) return
+  audioManager.playSFX('trinket')
   emit('inspect')
   pauseForInspect()
 }
 
 function handleTrinketInspect(itemId) {
   if (!props.interactive) return
+  audioManager.playSFX('trinket')
   emit('inspect-trinket', itemId)
   pauseForInspect()
 }

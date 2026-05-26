@@ -53,6 +53,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import { audioManager } from '@/audio/AudioManager'
 import DayHeader from './HUD/DayHeader.vue'
 import ResourceBar from './HUD/ResourceBar.vue'
 import AbilityBar from './HUD/AbilityBar.vue'
@@ -80,6 +81,7 @@ const showEstateStrip = computed(() =>
 )
 
 function onIntroDone() {
+  audioManager.playSFX('click')
   game.startPlay()
 }
 

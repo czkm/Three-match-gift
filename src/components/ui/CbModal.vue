@@ -48,7 +48,10 @@
 </template>
 
 <script setup>
-defineProps({
+import { watch } from 'vue';
+import { audioManager } from '@/audio/AudioManager';
+
+const props = defineProps({
   open: { type: Boolean, required: true },
   title: { type: String, default: '' },
   width: { type: [Number, String], default: 520 },
@@ -59,7 +62,11 @@ defineProps({
   cancelText: { type: String, default: 'Cancel' },
 });
 
-defineEmits(['close', 'ok']);
+const emit = defineEmits(['close', 'ok']);
+
+watch(() => props.open, (val) => {
+  audioManager.playSFX(val ? 'dialogopen' : 'dialogclose')
+});
 
 function onMaskClick() {
   // maskClosable check handled by CSS pointer-events
