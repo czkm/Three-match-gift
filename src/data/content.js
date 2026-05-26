@@ -1610,7 +1610,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'day1_clear_the_way',
     title: '路清出來啦！',
-    description: '第 1 天完成前院修复，而且没有使用狸狸整地能力狸！',
+    description: '第 1 天完成前院修复狸！',
     icon: '🌿',
     iconFile: 'day1_clear_the_way',
     rarity: 'common',
@@ -1643,7 +1643,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'day4_roach_approves',
     title: '蘿蔔點頭啦',
-    description: '第 4 天完成牧场修复，而且至少使用过一次萝卜快递狸！',
+    description: '第 4 天完成牧场修复狸——萝卜跑得飞快狸！',
     icon: '🐎',
     iconFile: 'day4_roach_approves',
     rarity: 'common',
@@ -1654,7 +1654,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'day5_lilac_in_the_wind',
     title: '風裡有花香',
-    description: '第 5 天完成花圃修复，而且完成时剩余步数至少 6 狸～從容！',
+    description: '第 5 天完成花圃修复，而且完成时剩余步数至少 3 狸～從容！',
     icon: '🪻',
     iconFile: 'day5_lilac_in_the_wind',
     rarity: 'rare',
@@ -1677,7 +1677,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'day7_a_chair_for_waiting',
     title: '椅子先擺好',
-    description: '第 7 天完成广场修复，而且至少使用过一次夕阳清扫狸！',
+    description: '第 7 天完成广场修复狸——夕阳真好看狸！',
     icon: '🌅',
     iconFile: 'day7_a_chair_for_waiting',
     rarity: 'rare',
@@ -1711,7 +1711,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'sunlit_margin',
     title: '天還早呢',
-    description: '任意一天完成修复时，剩余步数达到 10 或以上狸～高效！',
+    description: '任意一天完成修复时，剩余步数达到 6 或以上狸～高效！',
     icon: '☀️',
     iconFile: 'sunlit_margin',
     rarity: 'common',

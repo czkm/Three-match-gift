@@ -347,10 +347,12 @@ import EventBus from '@/core/eventBus'
 import EstatePetPig from './EstatePetPig.vue'
 import { ESTATE_PIG_LINES, ESTATE_STRIP_STAGES } from '@/data/content'
 import { useGameStore } from '@/stores/gameStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 import { TIMING } from '@/utils/timing'
 import { audioManager } from '@/audio/AudioManager'
 
 const game = useGameStore()
+const achievements = useAchievementStore()
 const stages = ESTATE_STRIP_STAGES
 const segments = stages.map(stage => ({
   id: stage.segmentId,
@@ -602,6 +604,7 @@ function onHotspot(id) {
   if (!interactive.value) return
 
   audioManager.playSFX('trinket')
+  achievements.track('hotspotClicked', { id })
   activeHotspotId.value = id
   displayCaption.value = captionForHotspot(id)
   clearCaptionTimer()
