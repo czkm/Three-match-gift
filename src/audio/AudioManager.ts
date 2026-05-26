@@ -9,82 +9,84 @@ const AC_BASE = 'animalcrossingnewhorizons';
 const ISAAC_BASE = 'isaac';
 
 const AC_SFX_MAP: Record<string, string> = {
-  click:       `${AC_BASE}/UI & System/UI_Decide.wav`,
-  pageflip:    `${AC_BASE}/UI & System/UI_Page_Next.wav`,
-  error:       `${AC_BASE}/UI & System/UI_Invalid.wav`,
-  swap:        `${AC_BASE}/UI & System/UI_DragStart.wav`,
-  land:        `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_01.wav`,
-  spawn:       `${AC_BASE}/Trees & Plants/Tree_Appear_Normal_00.wav`,
-  lineclear:   `${AC_BASE}/Trees & Plants/FieldPlant_WaterDrop_00.wav`,
-  hint:        `${AC_BASE}/UI & System/UI_Attention.wav`,
-  lowsteps:    `${AC_BASE}/UI & System/System_Timer_CountDown.wav`,
+  click: `${AC_BASE}/UI & System/UI_Decide.wav`,
+  pageflip: `${AC_BASE}/UI & System/UI_Page_Next.wav`,
+  error: `${AC_BASE}/UI & System/UI_Invalid.wav`,
+  swap: `${AC_BASE}/UI & System/UI_DragStart.wav`,
+  land: `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_01.wav`,
+  spawn: `${AC_BASE}/Trees & Plants/Tree_Appear_Normal_00.wav`,
+  lineclear: `${AC_BASE}/Trees & Plants/FieldPlant_WaterDrop_00.wav`,
+  hint: `${AC_BASE}/UI & System/UI_Attention.wav`,
+  lowsteps: `${AC_BASE}/UI & System/System_Timer_CountDown.wav`,
   steprestore: `${AC_BASE}/UI & System/UI_CountUp.wav`,
-  dayend:      `${AC_BASE}/Environment/BbsBirdNightTwitterB00.wav`,
+  dayend: `${AC_BASE}/Environment/BbsBirdNightTwitterB00.wav`,
   achievement: `${AC_BASE}/Rosie Emotes/RosieDelight.mp3`,
-  repair:      `${AC_BASE}/Environment/Env_FacilityConstruction00.wav`,
-  seal_break:  `${AC_BASE}/Environment/Env_BaseRainHard.wav`,
-  rune_hit:    `${AC_BASE}/Trees & Plants/Tree_Shake_Oak_HitAxe.wav`,
-  djinn_appear:`${AC_BASE}/Environment/Env_ThunderM00.wav`,
-  wish1:       `${AC_BASE}/UI & System/Event_TsunekichiChance00.wav`,
-  wish2:       `${AC_BASE}/Environment/Env_ShootingStarAppear00.wav`,
-  wish3:       `${AC_BASE}/Environment/Env_ShootingStar_Success.wav`,
-  ability_wolf:    `${AC_BASE}/UI & System/UI_WipeRemake_In.wav`,
+  repair: `${AC_BASE}/Environment/Env_FacilityConstruction00.wav`,
+  seal_break: `${AC_BASE}/Environment/Env_BaseRainHard.wav`,
+  rune_hit: `${AC_BASE}/Trees & Plants/Tree_Shake_Oak_HitAxe.wav`,
+  djinn_appear: `${AC_BASE}/Environment/Env_ThunderM00.wav`,
+  wish1: `${AC_BASE}/UI & System/Event_TsunekichiChance00.wav`,
+  wish2: `${AC_BASE}/Environment/Env_ShootingStarAppear00.wav`,
+  wish3: `${AC_BASE}/Environment/Env_ShootingStar_Success.wav`,
+  ability_wolf: `${AC_BASE}/UI & System/UI_WipeRemake_In.wav`,
   ability_harvest: `${AC_BASE}/Trees & Plants/Tree_Shake_Cedar_Down1.wav`,
-  ability_roach:   `${AC_BASE}/Insects/Insect_Cockroach_Move00.wav`,
-  ability_sunset:  `${AC_BASE}/UI & System/UI_WipeToIdrDream.wav`,
-  decoction:       `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_03.wav`,
-  lilac:           `${AC_BASE}/Trees & Plants/FieldPlant_FlowerSplash_00.wav`,
-  xray:            `${AC_BASE}/UI & System/System_Lumi_01.wav`,
-  pig_gentle:  `${AC_BASE}/Rosie Emotes/RosiePleased.mp3`,
-  pig_warm:    `${AC_BASE}/Rosie Emotes/RosieDelight.mp3`,
+  ability_roach: `${AC_BASE}/Insects/Insect_Cockroach_Move00.wav`,
+  ability_sunset: `${AC_BASE}/UI & System/UI_WipeToIdrDream.wav`,
+  decoction: `${AC_BASE}/Sea Creatures/DiveFish_Shadow_Bubble_03.wav`,
+  lilac: `${AC_BASE}/Trees & Plants/FieldPlant_FlowerSplash_00.wav`,
+  xray: `${AC_BASE}/UI & System/System_Lumi_01.wav`,
+  pig_gentle: `${AC_BASE}/Rosie Emotes/RosiePleased.mp3`,
+  pig_warm: `${AC_BASE}/Rosie Emotes/RosieDelight.mp3`,
   pig_warning: `${AC_BASE}/Rosie Emotes/RosieCuriosity.mp3`,
   pig_annoyed: `${AC_BASE}/Rosie Emotes/RosieResignation.mp3`,
-  pig_angry:   `${AC_BASE}/Rosie Emotes/RosieAggravation.mp3`,
-  pig_idle:    `${AC_BASE}/Rosie Emotes/RosieSleepy.mp3`,
-  pig_sniff:   `${AC_BASE}/Rosie Emotes/RosieCuriosity.mp3`,
-  pig_energy:  `${AC_BASE}/Rosie Emotes/RosieFlourish.mp3`,
-  typewriter_key:      `${AC_BASE}/UI & System/UI_Swkbd_Normal.wav`,
-  typewriter_space:    `${AC_BASE}/UI & System/UI_Swkbd_Space.wav`,
-  typewriter_enter:    `${AC_BASE}/UI & System/UI_Swkbd_Enter.wav`,
-  typewriter_backspace:`${AC_BASE}/UI & System/UI_Swkbd_BackSpace.wav`,
-  item_get:            `${AC_BASE}/UI & System/UI_Check.wav`,
-  daystart:        `${AC_BASE}/Environment/BbsBirdDay_TwitterAc00.wav`,
-  resourcegain:    `${AC_BASE}/UI & System/UI_Count_Coin_Reapeat_01.wav`,
-  stepcost:        `${AC_BASE}/UI & System/UI_Decide_Small.wav`,
-  taskcomplete:    `${AC_BASE}/UI & System/Event_Quest_Finish.wav`,
-  repairtick:      `${AC_BASE}/UI & System/UI_Count_Mile_Repeat_01.wav`,
-  repairdone:      `${AC_BASE}/UI & System/Event_Harvest_Bell00.wav`,
-  boardshuffle:    `${AC_BASE}/Trees & Plants/Tree_ChangeState_00.wav`,
-  dialogopen:      `${AC_BASE}/UI & System/UI_MessageWindow_Open.wav`,
-  dialogclose:     `${AC_BASE}/UI & System/UI_Cmn_Close.wav`,
-  dayendopen:      `${AC_BASE}/UI & System/UI_Cmn_Open.wav`,
-  itemhover:       `${AC_BASE}/UI & System/UI_Select.wav`,
-  tutorialstep:    `${AC_BASE}/UI & System/UI_Check.wav`,
+  pig_angry: `${AC_BASE}/Rosie Emotes/RosieAggravation.mp3`,
+  pig_idle: `${AC_BASE}/Rosie Emotes/RosieSleepy.mp3`,
+  pig_sniff: `${AC_BASE}/Rosie Emotes/RosieCuriosity.mp3`,
+  pig_energy: `${AC_BASE}/Rosie Emotes/RosieFlourish.mp3`,
+  typewriter_key: `${AC_BASE}/UI & System/UI_Swkbd_Normal.wav`,
+  typewriter_space: `${AC_BASE}/UI & System/UI_Swkbd_Space.wav`,
+  typewriter_enter: `${AC_BASE}/UI & System/UI_Swkbd_Enter.wav`,
+  typewriter_backspace: `${AC_BASE}/UI & System/UI_Swkbd_BackSpace.wav`,
+  item_get: `${AC_BASE}/UI & System/UI_Check.wav`,
+  daystart: `${AC_BASE}/Environment/BbsBirdDay_TwitterAc00.wav`,
+  resourcegain: `${AC_BASE}/UI & System/UI_Count_Coin_Reapeat_01.wav`,
+  stepcost: `${AC_BASE}/UI & System/UI_Decide_Small.wav`,
+  taskcomplete: `${AC_BASE}/UI & System/Event_Quest_Finish.wav`,
+  repairtick: `${AC_BASE}/UI & System/UI_Count_Mile_Repeat_01.wav`,
+  repairdone: `${AC_BASE}/UI & System/Event_Harvest_Bell00.wav`,
+  boardshuffle: `${AC_BASE}/Trees & Plants/Tree_ChangeState_00.wav`,
+  dialogopen: `${AC_BASE}/UI & System/UI_MessageWindow_Open.wav`,
+  dialogclose: `${AC_BASE}/UI & System/UI_Cmn_Close.wav`,
+  dayendopen: `${AC_BASE}/UI & System/UI_Cmn_Open.wav`,
+  itemhover: `${AC_BASE}/UI & System/UI_Select.wav`,
+  tutorialstep: `${AC_BASE}/UI & System/UI_Check.wav`,
   scenetransition: `${AC_BASE}/UI & System/UI_WipeToIdrDream.wav`,
   bark:            `${AC_BASE}/Rosie Emotes/RosieGreetings.mp3`,
   candle_light:    `${AC_BASE}/Bgm/candle_light.wav`,
+  woosh:           `${AC_BASE}/UI & System/UI_WipeStudy_OutputOut.wav`,
+  trinket:         `${AC_BASE}/UI & System/UI_Wrapping_Open_Basic.wav`,
 
   // Isaac items
-  item_power_up:       `${ISAAC_BASE}/power up1.wav`,
-  item_health_up:      `${ISAAC_BASE}/health up 1.wav`,
-  item_penny:          `${ISAAC_BASE}/penny pickup 1.wav`,
-  item_48hr_energy:    `${ISAAC_BASE}/48 hr energy.wav`,
+  item_power_up: `${ISAAC_BASE}/power up1.wav`,
+  item_health_up: `${ISAAC_BASE}/health up 1.wav`,
+  item_penny: `${ISAAC_BASE}/penny pickup 1.wav`,
+  item_48hr_energy: `${ISAAC_BASE}/48 hr energy.wav`,
   item_battery_charge: `${ISAAC_BASE}/battery charge.wav`,
-  item_holy:           `${ISAAC_BASE}/holy!.wav`,
-  item_whip:           `${ISAAC_BASE}/whip_02.wav`,
-  item_dog_howl:       `${ISAAC_BASE}/dog howell.wav`,
-  item_dog_bark:       `${ISAAC_BASE}/dog bark.wav`,
-  item_superholy:      `${ISAAC_BASE}/superholy.wav`,
-  item_blood_laser:    `${ISAAC_BASE}/blood laser strong 1.wav`,
-  item_knife_pull:     `${ISAAC_BASE}/knife_pull.wav`,
-  item_unholy:         `${ISAAC_BASE}/unholy!.wav`,
-  item_r_u_wiz:        `${ISAAC_BASE}/r u a wiz 2!.wav`,
-  item_vamp:           `${ISAAC_BASE}/vamp.wav`,
-  item_red_lightning:  `${ISAAC_BASE}/redlightning_burst01.wav`,
-  item_maw_void:       `${ISAAC_BASE}/maw of the void.wav`,
-  item_see_4ever:      `${ISAAC_BASE}/see 4ever 1.wav`,
-  item_luck_up:        `${ISAAC_BASE}/luck up.wav`,
-  item_explosion:      `${ISAAC_BASE}/explosion_weak1.wav`,
+  item_holy: `${ISAAC_BASE}/holy!.wav`,
+  item_whip: `${ISAAC_BASE}/whip_02.wav`,
+  item_dog_howl: `${ISAAC_BASE}/dog howell.wav`,
+  item_dog_bark: `${ISAAC_BASE}/dog bark.wav`,
+  item_superholy: `${ISAAC_BASE}/superholy.wav`,
+  item_blood_laser: `${ISAAC_BASE}/blood laser strong 1.wav`,
+  item_knife_pull: `${ISAAC_BASE}/knife_pull.wav`,
+  item_unholy: `${ISAAC_BASE}/unholy!.wav`,
+  item_r_u_wiz: `${ISAAC_BASE}/r u a wiz 2.wav`,
+  item_vamp: `${ISAAC_BASE}/vamp.wav`,
+  item_red_lightning: `${ISAAC_BASE}/redlightning_burst01.wav`,
+  item_maw_void: `${ISAAC_BASE}/maw of the void.wav`,
+  item_see_4ever: `${ISAAC_BASE}/see 4ever 1.wav`,
+  item_luck_up: `${ISAAC_BASE}/luck up.wav`,
+  item_explosion: `${ISAAC_BASE}/explosion_weak1.wav`,
 };
 
 const AC_SFX_MULTI: Record<string, string[]> = {
@@ -228,21 +230,21 @@ const AC_SFX_MULTI: Record<string, string[]> = {
  * Item → audio mapping: each item id maps to { pickup, effect } SFX keys.
  */
 const ITEM_SFX_MAP: Record<string, { pickup: string; effect: string | null }> = {
-  stye:         { pickup: 'item_power_up',   effect: 'item_explosion' },
-  stye_devil:   { pickup: 'item_power_up',   effect: 'item_explosion' },
-  luckyFoot:    { pickup: 'item_power_up',   effect: 'item_luck_up' },
-  lunch:        { pickup: 'item_health_up',   effect: null },
-  sackOfPennies:{ pickup: 'item_power_up',   effect: 'item_penny' },
-  battery:      { pickup: 'item_48hr_energy', effect: 'item_battery_charge' },
-  holyWater:    { pickup: 'item_holy',        effect: 'item_whip' },
-  dogTooth:     { pickup: 'item_dog_howl',    effect: 'item_dog_bark' },
-  brimstone:    { pickup: 'item_superholy',   effect: 'item_blood_laser' },
-  momsKnife:    { pickup: 'item_superholy',   effect: 'item_knife_pull' },
-  thePact:      { pickup: 'item_unholy',      effect: 'item_r_u_wiz' },
-  darkBeggar:   { pickup: 'item_unholy',      effect: 'item_vamp' },
-  pentagram:    { pickup: 'item_unholy',      effect: 'item_red_lightning' },
-  mawOfTheVoid: { pickup: 'item_unholy',      effect: 'item_maw_void' },
-  xRayVision:   { pickup: 'item_unholy',      effect: 'item_see_4ever' },
+  stye: { pickup: 'item_power_up', effect: 'item_explosion' },
+  stye_devil: { pickup: 'item_power_up', effect: 'item_explosion' },
+  luckyFoot: { pickup: 'item_power_up', effect: 'item_luck_up' },
+  lunch: { pickup: 'item_health_up', effect: null },
+  sackOfPennies: { pickup: 'item_power_up', effect: 'item_penny' },
+  battery: { pickup: 'item_48hr_energy', effect: 'item_battery_charge' },
+  holyWater: { pickup: 'item_holy', effect: 'item_whip' },
+  dogTooth: { pickup: 'item_dog_howl', effect: 'item_dog_bark' },
+  brimstone: { pickup: 'item_superholy', effect: 'item_blood_laser' },
+  momsKnife: { pickup: 'item_superholy', effect: 'item_knife_pull' },
+  thePact: { pickup: 'item_unholy', effect: 'item_r_u_wiz' },
+  darkBeggar: { pickup: 'item_unholy', effect: 'item_vamp' },
+  pentagram: { pickup: 'item_unholy', effect: 'item_red_lightning' },
+  mawOfTheVoid: { pickup: 'item_unholy', effect: 'item_maw_void' },
+  xRayVision: { pickup: 'item_unholy', effect: 'item_see_4ever' },
 };
 
 /**
@@ -297,8 +299,8 @@ export const NO_BOARD_AUDIO_ITEMS = new Set([
 
 const AC_AMBIENT_MULTI: Record<string, string[]> = {
   construction: [`${AC_BASE}/Environment/Env_FacilityConstruction00.wav`],
-  healing:      [`${AC_BASE}/Ambience/AmbPlace_Healing.wav`],
-  space:        [`${AC_BASE}/Ambience/AmbPlace_Space.wav`],
+  healing: [`${AC_BASE}/Ambience/AmbPlace_Healing.wav`],
+  space: [`${AC_BASE}/Ambience/AmbPlace_Space.wav`],
 };
 
 const AMBIENT_INTERMITTENT: Record<string, IntermittentGroup[]> = {
@@ -420,56 +422,56 @@ const SFX_THROTTLE: Record<string, SFXThrottlePolicy> = {
   decoction: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
   lilac: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
   xray: { sameMs: 600, group: 'ritual', groupMs: 300, priority: 3 },
-  pig_gentle:  { sameMs: 800,  group: 'pig', groupMs: 400, priority: 1 },
-  pig_warm:    { sameMs: 800,  group: 'pig', groupMs: 400, priority: 1 },
+  pig_gentle: { sameMs: 800, group: 'pig', groupMs: 400, priority: 1 },
+  pig_warm: { sameMs: 800, group: 'pig', groupMs: 400, priority: 1 },
   pig_warning: { sameMs: 1200, group: 'pig', groupMs: 500, priority: 2 },
   pig_annoyed: { sameMs: 1800, group: 'pig', groupMs: 600, priority: 2 },
-  pig_angry:   { sameMs: 3000, group: 'pig', groupMs: 900, priority: 3 },
-  pig_idle:    { sameMs: 8000, group: 'pig', groupMs: 3000, priority: 1 },
-  pig_sniff:   { sameMs: 4000, group: 'pig', groupMs: 2000, priority: 1 },
-  pig_energy:     { sameMs: 5000, group: 'pig', groupMs: 1000, priority: 3 },
-  item_get:           { sameMs: 400, group: 'reward', groupMs: 200, priority: 3 },
-  typewriter_key:     { sameMs: 24, group: 'typewriter', groupMs: 10, priority: 3 },
-  typewriter_space:   { sameMs: 60, group: 'typewriter', groupMs: 18, priority: 2 },
-  typewriter_enter:   { sameMs: 200, group: 'typewriter', groupMs: 100, priority: 3 },
+  pig_angry: { sameMs: 3000, group: 'pig', groupMs: 900, priority: 3 },
+  pig_idle: { sameMs: 8000, group: 'pig', groupMs: 3000, priority: 1 },
+  pig_sniff: { sameMs: 4000, group: 'pig', groupMs: 2000, priority: 1 },
+  pig_energy: { sameMs: 5000, group: 'pig', groupMs: 1000, priority: 3 },
+  item_get: { sameMs: 400, group: 'reward', groupMs: 200, priority: 3 },
+  typewriter_key: { sameMs: 24, group: 'typewriter', groupMs: 10, priority: 3 },
+  typewriter_space: { sameMs: 60, group: 'typewriter', groupMs: 18, priority: 2 },
+  typewriter_enter: { sameMs: 200, group: 'typewriter', groupMs: 100, priority: 3 },
   typewriter_backspace: { sameMs: 50, group: 'typewriter', groupMs: 15, priority: 2 },
 
-  daystart:        { sameMs: 2000, group: 'feedback', groupMs: 400, priority: 3 },
-  resourcegain:    { sameMs: 80, group: 'feedback', groupMs: 50, priority: 1 },
-  stepcost:        { sameMs: 120, group: 'feedback', groupMs: 80, priority: 2 },
-  taskcomplete:    { sameMs: 2500, group: 'feedback', groupMs: 300, priority: 3 },
-  repairtick:      { sameMs: 400, group: 'feedback', groupMs: 200, priority: 1 },
-  repairdone:      { sameMs: 3000, group: 'feedback', groupMs: 400, priority: 3 },
-  boardshuffle:    { sameMs: 2000, group: 'board', groupMs: 400, priority: 2 },
-  dialogopen:      { sameMs: 500, group: 'ui', groupMs: 200, priority: 3 },
-  dialogclose:     { sameMs: 400, group: 'ui', groupMs: 200, priority: 2 },
-  dayendopen:      { sameMs: 500, group: 'ui', groupMs: 200, priority: 3 },
-  itemhover:       { sameMs: 200, group: 'ui', groupMs: 100, priority: 1 },
-  tutorialstep:    { sameMs: 500, group: 'ui', groupMs: 200, priority: 2 },
+  daystart: { sameMs: 2000, group: 'feedback', groupMs: 400, priority: 3 },
+  resourcegain: { sameMs: 80, group: 'feedback', groupMs: 50, priority: 1 },
+  stepcost: { sameMs: 120, group: 'feedback', groupMs: 80, priority: 2 },
+  taskcomplete: { sameMs: 2500, group: 'feedback', groupMs: 300, priority: 3 },
+  repairtick: { sameMs: 400, group: 'feedback', groupMs: 200, priority: 1 },
+  repairdone: { sameMs: 3000, group: 'feedback', groupMs: 400, priority: 3 },
+  boardshuffle: { sameMs: 2000, group: 'board', groupMs: 400, priority: 2 },
+  dialogopen: { sameMs: 500, group: 'ui', groupMs: 200, priority: 3 },
+  dialogclose: { sameMs: 400, group: 'ui', groupMs: 200, priority: 2 },
+  dayendopen: { sameMs: 500, group: 'ui', groupMs: 200, priority: 3 },
+  itemhover: { sameMs: 200, group: 'ui', groupMs: 100, priority: 1 },
+  tutorialstep: { sameMs: 500, group: 'ui', groupMs: 200, priority: 2 },
   scenetransition: { sameMs: 2000, group: 'ritual', groupMs: 400, priority: 3 },
-  bark:            { sameMs: 4000, group: 'pig', groupMs: 800, priority: 1 },
+  bark: { sameMs: 4000, group: 'pig', groupMs: 800, priority: 1 },
 
   // Isaac items
-  item_power_up:       { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_health_up:      { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_penny:          { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_48hr_energy:    { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_power_up: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_health_up: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_penny: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_48hr_energy: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
   item_battery_charge: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_holy:           { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_whip:           { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_dog_howl:       { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_dog_bark:       { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_superholy:      { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_blood_laser:    { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_knife_pull:     { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_unholy:         { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_r_u_wiz:        { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_vamp:           { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_red_lightning:  { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_maw_void:       { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_see_4ever:      { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_luck_up:        { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
-  item_explosion:      { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_holy: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_whip: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_dog_howl: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_dog_bark: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_superholy: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_blood_laser: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_knife_pull: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_unholy: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_r_u_wiz: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_vamp: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_red_lightning: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_maw_void: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_see_4ever: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_luck_up: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_explosion: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
 };
 
 function pickOne<T>(entry: T | T[]): T {
@@ -520,7 +522,7 @@ export class AudioManager {
   private readonly sfxGroupLastPlayedAt = new Map<string, number>();
   private ambientTimerIds: number[] = [];
 
-  private constructor() {}
+  private constructor() { }
 
   static getInstance() {
     if (!AudioManager.instance) {
@@ -562,8 +564,6 @@ export class AudioManager {
 
     const preloadAC = (p: string) => this.preload(`${AC_BASE}/${p}`);
     await Promise.all([
-      this.preload('bgm_dayplay.mp3'),
-      this.preload('bgm_brithday.mp3'),
       preloadAC('UI & System/UI_Decide.wav'),
       preloadAC('UI & System/UI_WipeRemake_In.wav'),
       preloadAC('UI & System/UI_WipeToIdrDream.wav'),
@@ -792,8 +792,8 @@ export class AudioManager {
   playMonster(type: string, event: MonsterEvent) {
     void type;
     const map: Record<string, string> = {
-      spawn:  `${AC_BASE}/Trees & Plants/Tree_Appear_Normal_00.wav`,
-      hit:    `${AC_BASE}/Trees & Plants/Tree_Shake_Oak_HitAxe.wav`,
+      spawn: `${AC_BASE}/Trees & Plants/Tree_Appear_Normal_00.wav`,
+      hit: `${AC_BASE}/Trees & Plants/Tree_Shake_Oak_HitAxe.wav`,
       defeat: `${AC_BASE}/Trees & Plants/Tree_Disappear_Normal_00.wav`,
     };
     const path = map[event];
@@ -816,10 +816,10 @@ export class AudioManager {
   resumeAll() {
     if (this._isMuted) return;
     if (!this.initialized) return;
-    this.ensureReady().catch(() => {});
-    this.bgmChannel.audio?.play().catch(() => {});
-    this.ambientChannel.audio?.play().catch(() => {});
-    for (const audio of this.activeSFXs) audio.play().catch(() => {});
+    this.ensureReady().catch(() => { });
+    this.bgmChannel.audio?.play().catch(() => { });
+    this.ambientChannel.audio?.play().catch(() => { });
+    for (const audio of this.activeSFXs) audio.play().catch(() => { });
   }
 
   toggleMute() {
@@ -893,7 +893,7 @@ export class AudioManager {
       channel.audio.loop = loop;
       channel.audio.volume = this._isMuted ? 0 : this.getChannelTargetVolume(kind);
       if (channel.audio.paused && !this._isMuted) {
-        channel.audio.play().catch(() => {});
+        channel.audio.play().catch(() => { });
       }
       return;
     }
@@ -980,7 +980,7 @@ export class AudioManager {
     if (this._isMuted) return;
     if (!await this.ensureReady()) return;
     if (!opts.bypassThrottle && !this.shouldPlayLooseFile(fileName)) return;
-    await this.preload(fileName).catch(() => {});
+    await this.preload(fileName).catch(() => { });
 
     while (this.activeSFXs.size >= MAX_SFX) {
       const oldest = this.activeSFXs.values().next().value;
