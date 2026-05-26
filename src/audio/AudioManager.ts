@@ -228,6 +228,7 @@ const AC_SFX_MULTI: Record<string, string[]> = {
  */
 const ITEM_SFX_MAP: Record<string, { pickup: string; effect: string | null }> = {
   stye:         { pickup: 'item_power_up',   effect: 'item_explosion' },
+  stye_devil:   { pickup: 'item_power_up',   effect: 'item_explosion' },
   luckyFoot:    { pickup: 'item_power_up',   effect: 'item_luck_up' },
   lunch:        { pickup: 'item_health_up',   effect: null },
   sackOfPennies:{ pickup: 'item_power_up',   effect: 'item_penny' },

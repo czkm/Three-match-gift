@@ -228,6 +228,23 @@ export const REWARD_ITEMS = {
     effect: { type: 'firstBigMatchAdjacentPop' },
     reaction: '小猪用力眨了下右眼狸~旁边的一个格子应声炸开了狸💥！'
   },
+  stye_devil: {
+    id: 'stye_devil',
+    roomType: 'devil',
+    name: '超级麦粒肿',
+    enName: 'Super Stye',
+    titleText: '超级麦粒肿',
+    flavorText: '”肿得更大狸~看得更远狸！”',
+    quality: 3,
+    emoji: '👁️',
+    slot: 'head',
+    tone: 'devil',
+    description: '每天第一次四连狸~旁边两个格子跟着清掉狸！',
+    effect: { type: 'firstBigMatchAdjacentPop', count: 2 },
+    penalty: { type: 'nextDaySteps', value: 2 },
+    penaltyText: '明天步数会少 2 步狸~代价总是要付的狸。',
+    reaction: '小猪用力眨了下眼狸~旁边的两个格子应声炸开了狸💥！'
+  },
   luckyFoot: {
     id: 'luckyFoot',
     roomType: 'treasure',
@@ -1409,8 +1426,8 @@ export const ENDING = {
   blessingLine: '豆狸&粒狸: 也愿小坤和小云平安幸福狸~长久相伴狸！ ( ……长久相伴狸！）',
   willScreen: {
     headerLine: '完成了~！',
-    titleLine: '白鸦果园修复记狸！',
-    clearedLine: '你帮杰洛特先生修好了庄园狸~！',
+    titleLine: '小岛的修复日记狸！',
+    clearedLine: '小岛焕然一新了狸~！',
     gotGiftLine: '在 {{location}} 狸~豆狸&粒狸把报酬算好了狸！',
     giftPlaceholder: '🧾',
     giftHint: '报酬已付清狸～谢谢你的帮忙狸！',
@@ -1421,7 +1438,7 @@ export const ENDING = {
     // Card 4: Treasures
     itemsLabel: '收集的道具狸！',
     itemsArrow: '一路收集的好东西',
-    estateLine: '白鸦果园，全部修复完成狸',
+    estateLine: '小岛，全部修复完成狸',
     farewellLine: '谢谢你的帮忙狸~！',
     goodbyeLine: '欢迎再来狸~！',
   },

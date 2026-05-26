@@ -31,10 +31,9 @@
 
     <!-- Central logo card -->
     <div class="loading-card">
-      <p class="loading-emblem">🏰</p>
-      <h1 class="loading-title">Corvo Bianco</h1>
-      <h2 class="loading-subtitle">白鸦果园</h2>
-      <p class="loading-tagline">一个温柔的三连修复礼物游戏</p>
+      <p class="loading-emblem">🍃</p>
+      <h1 class="loading-title">小岛的修复日记</h1>
+      <p class="loading-tagline">豆狸&粒狸的小岛修复记 🍃</p>
 
       <!-- Progress bar -->
       <div class="loading-progress-wrap">
@@ -101,7 +100,7 @@ const resourceEmojis = ['🍊', '🪵', '🪨'];
 const statusText = computed(() => {
   if (displayProgress.value < 30) return '正在准备修复工具...';
   if (displayProgress.value < 60) return '正在召集精灵...';
-  if (displayProgress.value < 90) return '正在修缮庄园...';
+  if (displayProgress.value < 90) return '正在准备小岛狸...';
   return '即将开始冒险！';
 });
 

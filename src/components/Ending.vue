@@ -277,7 +277,7 @@ const timers = []
 const activeBeat = computed(() => ENDING.beats[currentAct.value] || null)
 const willScreen = computed(() => ENDING.willScreen)
 const willLocationText = computed(() => {
-  const location = game.today?.building?.cn || 'Corvo Bianco'
+  const location = game.today?.building?.cn || '小岛'
   return willScreen.value.gotGiftLine.replace('{{location}}', location)
 })
 const ownedWillItems = computed(() =>
@@ -409,7 +409,7 @@ async function onSaveReceipt() {
       logging: false
     })
     const link = document.createElement('a')
-    link.download = 'Corvo-Bianco-报酬收据.png'
+    link.download = '小岛的修复日记-报酬收据.png'
     link.href = canvas.toDataURL('image/png')
     link.click()
   } catch (e) {
@@ -525,7 +525,7 @@ async function onScreenshotWill() {
     document.body.removeChild(container)
 
     const link = document.createElement('a')
-    link.download = 'Corvo-Bianco-生日海报.png'
+    link.download = '小岛的修复日记-生日海报.png'
     link.href = canvas.toDataURL('image/png')
     link.click()
   } catch (e) {

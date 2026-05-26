@@ -1,19 +1,19 @@
 <template>
   <div class="title-screen">
     <div class="card">
-      <p class="emblem">⚜️</p>
-      <h1 class="ink-title">Corvo Bianco</h1>
-      <h2 class="ink-title sub">白鸦果园</h2>
-      <p class="byline ink-subtle">一份温柔的三连修复礼物 · 9 天</p>
+      <p class="emblem">🍃</p>
+      <h1 class="ink-title">小岛的修复日记</h1>
+      <h2 class="ink-title sub">豆狸&粒狸の島づくり</h2>
+      <p class="byline ink-subtle">豆狸&粒狸的小岛修复记 · 9日间 🍃</p>
 
       <blockquote class="quote">
-        "听说你有了一座果园。<br />
-        种点什么。<br />
-        等它好了，我也许会去看看。"
-        <footer>—— Y</footer>
+        "小岛在等它的故事狸。<br />
+        一点一点，<br />
+        把它修好吧狸。"
+        <footer>—— 狸克</footer>
       </blockquote>
 
-      <p class="ink-subtle gift-label">送给：</p>
+      <p class="ink-subtle gift-label">想写给谁狸：</p>
       <div class="gift-stage" :class="[`stage-${phase}`, { rewritten: phase !== 'choice' }]">
         <input
           ref="giftInput"
@@ -39,23 +39,13 @@
         </div>
       </div>
 
-      <div class="presets">
-        <button
-          v-for="p in presets"
-          :key="p.id"
-          class="preset"
-          :disabled="isLocked"
-          @click="gift = p.text"
-        >{{ p.label }}</button>
-      </div>
-
       <button class="achievement-entry" @click="openAchievements">
         <span class="entry-icon">🍃</span>
-        <span class="entry-text">哩程 {{ achievement.unlockedCount }} / {{ achievement.totalCount }}</span>
+        <span class="entry-text">成就 🍃 {{ achievement.unlockedCount }} / {{ achievement.totalCount }}</span>
       </button>
 
       <div class="intercept-shell" :class="{ visible: showIntercept }" @click="onInterceptClick">
-        <p class="speaker">白鸦</p>
+        <p class="speaker">豆狸&粒狸</p>
         <p class="intercept-line">
           {{ interceptDisplay }}
           <span v-if="showInterceptCursor" class="cursor">▍</span>
@@ -67,7 +57,7 @@
         :class="{ waiting: phase !== 'choice' }"
         :disabled="isStartDisabled"
         @click="onStart"
-      >{{ startLabel }}</button>
+      >{{ startLabel }} 🍃</button>
     </div>
   </div>
 </template>
@@ -88,12 +78,12 @@ const REWRITE_CHAR_MS = 84;
 const game = useGameStore();
 const achievement = useAchievementStore();
 const gift = ref('');
+const finalGiftText = ref(ENDING.lockedGift);
 const phase = ref('choice');
 const attemptedGift = ref('');
 const interceptDisplay = ref('');
 const rewriteDisplay = ref('');
 const giftInput = ref(null);
-const presets = ENDING.giftPresets;
 const timers = [];
 let interceptInterval = null;
 let rewriteInterval = null;
@@ -107,16 +97,17 @@ const showIntercept = computed(() => phase.value === 'intercept' || phase.value 
 const showAttemptStrike = computed(() => phase.value === 'rewrite' || phase.value === 'handoff');
 const showRewriteText = computed(() => phase.value === 'rewrite' || phase.value === 'handoff');
 const showInterceptCursor = computed(() => phase.value === 'intercept' && interceptDisplay.value.length < ENDING.interceptLine.length);
-const showRewriteCursor = computed(() => phase.value === 'rewrite' && rewriteDisplay.value.length < ENDING.lockedGift.length);
+const showRewriteCursor = computed(() => phase.value === 'rewrite' && rewriteDisplay.value.length < finalGiftText.value.length);
 const startLabel = computed(() => {
   if (phase.value === 'handoff') return '替你写好了';
-  if (phase.value === 'choice') return '开始修复';
+  if (phase.value === 'choice') return '开始狸';
   return '等一下';
 });
 
 function onStart() {
   if (phase.value !== 'choice' || !canStart.value) return;
   attemptedGift.value = gift.value.trim();
+  finalGiftText.value = gift.value.includes('小云') ? '献给小云☁️' : ENDING.lockedGift;
   phase.value = 'intercept';
   interceptDisplay.value = '';
   timers.push(setTimeout(startIntercept, PREPARE_MS));
@@ -173,8 +164,8 @@ function beginRewrite() {
   let index = 0;
   rewriteInterval = setInterval(() => {
     index++;
-    rewriteDisplay.value = ENDING.lockedGift.slice(0, index);
-    if (index >= ENDING.lockedGift.length) {
+    rewriteDisplay.value = finalGiftText.value.slice(0, index);
+    if (index >= finalGiftText.value.length) {
       clearIntervalIfNeeded('rewrite');
       completeFlow();
     }
@@ -193,7 +184,7 @@ function finishIntercept() {
 function finishRewrite() {
   clearTimers();
   clearIntervalIfNeeded('rewrite');
-  rewriteDisplay.value = ENDING.lockedGift;
+  rewriteDisplay.value = finalGiftText.value;
   if (phase.value === 'handoff') return;
   audioManager.playSFX('pageflip', { vol: 0.4 });
   completeFlow();
@@ -202,11 +193,11 @@ function finishRewrite() {
 function completeFlow() {
   if (phase.value === 'handoff') return;
   phase.value = 'handoff';
-  gift.value = ENDING.lockedGift;
+  gift.value = finalGiftText.value;
   game.setGiftDedication({
-    finalText: ENDING.lockedGift,
+    finalText: finalGiftText.value,
     attemptedText: attemptedGift.value,
-    overridden: attemptedGift.value !== ENDING.lockedGift
+    overridden: attemptedGift.value !== finalGiftText.value
   });
   timers.push(setTimeout(commitStart, REWRITE_FINISH_DELAY_MS));
 }
@@ -215,9 +206,9 @@ function commitStart() {
   audioManager.playSFX('scenetransition', { vol: 0.35 });
   game.start();
   game.setGiftDedication({
-    finalText: ENDING.lockedGift,
+    finalText: finalGiftText.value,
     attemptedText: attemptedGift.value,
-    overridden: attemptedGift.value !== ENDING.lockedGift
+    overridden: attemptedGift.value !== finalGiftText.value
   });
   emit('start');
 }
@@ -436,47 +427,6 @@ h2.sub {
 
 .rewrite-overlay.done {
   animation: rewrite-settle 360ms ease;
-}
-
-/* ── Presets — small 3D pills ── */
-.presets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  margin-bottom: 16px;
-}
-
-.preset {
-  font-size: 12px;
-  padding: 6px 14px;
-  border: 2px solid #d4c9b4;
-  border-radius: 50px;
-  color: #9f927d;
-  background: #f8f8f0;
-  box-shadow: 0 3px 0 0 #d4c9b4;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  font-weight: 600;
-  height: 32px;
-}
-
-.preset:hover:not(:disabled) {
-  background: #19c8b9;
-  color: #fff;
-  border-color: #50B9AB;
-  box-shadow: 0 4px 0 0 #50B9AB;
-  transform: translateY(-1px);
-}
-
-.preset:active:not(:disabled) {
-  box-shadow: 0 1px 0 0 #50B9AB;
-  transform: translateY(2px);
-}
-
-.preset:disabled {
-  opacity: 0.45;
-  cursor: default;
-  box-shadow: none;
 }
 
 /* ── Achievement entry — 3D pill ── */

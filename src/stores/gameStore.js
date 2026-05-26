@@ -52,12 +52,12 @@ const MAX_STEPS = 20
 const BOARD_ROWS = 8
 const BOARD_COLS = 8
 const FIXED_REWARD_OFFERS = {
-  1: { treasure: ['stye'], devil: ['brimstone'] },
-  2: { treasure: ['dogTooth'], devil: ['momsKnife'] },
-  3: { treasure: ['lunch'], devil: ['thePact'] },
-  4: { treasure: ['sackOfPennies'], devil: ['darkBeggar'] },
-  5: { treasure: ['battery'], devil: ['pentagram'] },
-  6: { treasure: ['holyWater'], devil: ['mawOfTheVoid'] },
+  1: { treasure: ['stye'], devil: ['stye_devil'] },
+  2: { treasure: ['dogTooth'], devil: ['brimstone'] },
+  3: { treasure: ['lunch'], devil: ['momsKnife'] },
+  4: { treasure: ['sackOfPennies'], devil: ['thePact'] },
+  5: { treasure: ['battery'], devil: ['darkBeggar'] },
+  6: { treasure: ['holyWater'], devil: ['pentagram'] },
   7: { treasure: ['luckyFoot'], devil: ['xRayVision'] }
 }
 
@@ -1398,7 +1398,7 @@ export const useGameStore = defineStore('game', {
           hasBig &&
           !this._hasItemFlag(item)
         ) {
-          const cells = this._pickAdjacentPopCells(matchGroups)
+          const cells = this._pickAdjacentPopCells(matchGroups, effect.count ?? 1)
           if (cells.length) {
             this._markItemFlag(item)
             queue.push({
@@ -1550,7 +1550,7 @@ export const useGameStore = defineStore('game', {
     /**
      * 麦粒肿辅助：从 matchGroups 中心取 1 个随机有效相邻格（十字方向）。
      */
-    _pickAdjacentPopCells(matchGroups) {
+    _pickAdjacentPopCells(matchGroups, count = 1) {
       const center = this._pickSweepCenter(matchGroups)
       if (!center) return []
       const dirs = [
@@ -1560,13 +1560,15 @@ export const useGameStore = defineStore('game', {
         [0, 1]
       ]
       const shuffled = [...dirs].sort(() => Math.random() - 0.5)
+      const cells = []
       for (const [dr, dc] of shuffled) {
+        if (cells.length >= count) break
         const r = center.row + dr
         const c = center.col + dc
         if (r >= 0 && r < BOARD_ROWS && c >= 0 && c < BOARD_COLS)
-          return [{ row: r, col: c }]
+          cells.push({ row: r, col: c })
       }
-      return []
+      return cells
     },
 
     /**
