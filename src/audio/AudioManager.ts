@@ -6,6 +6,7 @@ const BGM_FADE_MS = 1200;
 const AMBIENT_FADE_MS = 1800;
 
 const AC_BASE = 'animalcrossingnewhorizons';
+const ISAAC_BASE = 'isaac';
 
 const AC_SFX_MAP: Record<string, string> = {
   click:       `${AC_BASE}/UI & System/UI_Decide.wav`,
@@ -61,6 +62,28 @@ const AC_SFX_MAP: Record<string, string> = {
   tutorialstep:    `${AC_BASE}/UI & System/UI_Check.wav`,
   scenetransition: `${AC_BASE}/UI & System/UI_WipeToIdrDream.wav`,
   bark:            `${AC_BASE}/Rosie Emotes/RosieGreetings.mp3`,
+
+  // Isaac items
+  item_power_up:       `${ISAAC_BASE}/power up1.wav`,
+  item_health_up:      `${ISAAC_BASE}/health up 1.wav`,
+  item_penny:          `${ISAAC_BASE}/penny pickup 1.wav`,
+  item_48hr_energy:    `${ISAAC_BASE}/48 hr energy.wav`,
+  item_battery_charge: `${ISAAC_BASE}/battery charge.wav`,
+  item_holy:           `${ISAAC_BASE}/holy!.wav`,
+  item_whip:           `${ISAAC_BASE}/whip_02.wav`,
+  item_dog_howl:       `${ISAAC_BASE}/dog howell.wav`,
+  item_dog_bark:       `${ISAAC_BASE}/dog bark.wav`,
+  item_superholy:      `${ISAAC_BASE}/superholy.wav`,
+  item_blood_laser:    `${ISAAC_BASE}/blood laser strong 1.wav`,
+  item_knife_pull:     `${ISAAC_BASE}/knife_pull.wav`,
+  item_unholy:         `${ISAAC_BASE}/unholy!.wav`,
+  item_r_u_wiz:        `${ISAAC_BASE}/r u a wiz 2!.wav`,
+  item_vamp:           `${ISAAC_BASE}/vamp.wav`,
+  item_red_lightning:  `${ISAAC_BASE}/redlightning_burst01.wav`,
+  item_maw_void:       `${ISAAC_BASE}/maw of the void.wav`,
+  item_see_4ever:      `${ISAAC_BASE}/see 4ever 1.wav`,
+  item_luck_up:        `${ISAAC_BASE}/luck up.wav`,
+  item_explosion:      `${ISAAC_BASE}/explosion_weak1.wav`,
 };
 
 const AC_SFX_MULTI: Record<string, string[]> = {
@@ -199,6 +222,76 @@ const AC_SFX_MULTI: Record<string, string[]> = {
     `${AC_BASE}/Trees & Plants/Tree_Shake_Bamboo_Down1.wav`,
   ],
 };
+
+/**
+ * Item → audio mapping: each item id maps to { pickup, effect } SFX keys.
+ */
+const ITEM_SFX_MAP: Record<string, { pickup: string; effect: string | null }> = {
+  stye:         { pickup: 'item_power_up',   effect: 'item_explosion' },
+  luckyFoot:    { pickup: 'item_power_up',   effect: 'item_luck_up' },
+  lunch:        { pickup: 'item_health_up',   effect: null },
+  sackOfPennies:{ pickup: 'item_power_up',   effect: 'item_penny' },
+  battery:      { pickup: 'item_48hr_energy', effect: 'item_battery_charge' },
+  holyWater:    { pickup: 'item_holy',        effect: 'item_whip' },
+  dogTooth:     { pickup: 'item_dog_howl',    effect: 'item_dog_bark' },
+  brimstone:    { pickup: 'item_superholy',   effect: 'item_blood_laser' },
+  momsKnife:    { pickup: 'item_superholy',   effect: 'item_knife_pull' },
+  thePact:      { pickup: 'item_unholy',      effect: 'item_r_u_wiz' },
+  darkBeggar:   { pickup: 'item_unholy',      effect: 'item_vamp' },
+  pentagram:    { pickup: 'item_unholy',      effect: 'item_red_lightning' },
+  mawOfTheVoid: { pickup: 'item_unholy',      effect: 'item_maw_void' },
+  xRayVision:   { pickup: 'item_unholy',      effect: 'item_see_4ever' },
+};
+
+/**
+ * Isaac 音效基础音量表 — 相比 AC 音源，Isaac 动态范围更大，整体降低 50% 左右。
+ */
+const ITEM_SFX_VOL: Record<string, number> = {
+  item_power_up: 0.20,
+  item_health_up: 0.22,
+  item_penny: 0.22,
+  item_48hr_energy: 0.22,
+  item_battery_charge: 0.20,
+  item_holy: 0.20,
+  item_whip: 0.22,
+  item_dog_howl: 0.20,
+  item_dog_bark: 0.22,
+  item_superholy: 0.18,
+  item_blood_laser: 0.20,
+  item_knife_pull: 0.22,
+  item_unholy: 0.18,
+  item_r_u_wiz: 0.18,
+  item_vamp: 0.22,
+  item_red_lightning: 0.22,
+  item_maw_void: 0.20,
+  item_see_4ever: 0.22,
+  item_luck_up: 0.20,
+  item_explosion: 0.25,
+};
+
+/**
+ * 根据 item id 获取道具获取音效 key，找不到则返回默认值。
+ */
+export function getItemPickupSFX(itemId: string, fallback = 'item_get'): string {
+  return ITEM_SFX_MAP[itemId]?.pickup || fallback;
+}
+
+/**
+ * 根据 item id 获取道具生效音效 key，找不到则返回默认值。
+ */
+export function getItemEffectSFX(itemId: string, fallback = 'seal_break'): string {
+  const key = ITEM_SFX_MAP[itemId]?.effect
+  return key || fallback;
+}
+
+export function getItemSFXVol(sfxKey: string): number | null {
+  return ITEM_SFX_VOL[sfxKey] ?? null;
+}
+
+/** 没有 board event handler 播放音效的道具 id（由 onItemEffectTriggered 补播）。 */
+export const NO_BOARD_AUDIO_ITEMS = new Set([
+  'sackOfPennies', 'battery', 'dogTooth', 'darkBeggar'
+])
 
 const AC_AMBIENT_MULTI: Record<string, string[]> = {
   construction: [`${AC_BASE}/Environment/Env_FacilityConstruction00.wav`],
@@ -353,6 +446,28 @@ const SFX_THROTTLE: Record<string, SFXThrottlePolicy> = {
   tutorialstep:    { sameMs: 500, group: 'ui', groupMs: 200, priority: 2 },
   scenetransition: { sameMs: 2000, group: 'ritual', groupMs: 400, priority: 3 },
   bark:            { sameMs: 4000, group: 'pig', groupMs: 800, priority: 1 },
+
+  // Isaac items
+  item_power_up:       { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_health_up:      { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_penny:          { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_48hr_energy:    { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_battery_charge: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_holy:           { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_whip:           { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_dog_howl:       { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_dog_bark:       { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_superholy:      { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_blood_laser:    { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_knife_pull:     { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_unholy:         { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_r_u_wiz:        { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_vamp:           { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_red_lightning:  { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_maw_void:       { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_see_4ever:      { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_luck_up:        { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+  item_explosion:      { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
 };
 
 function pickOne<T>(entry: T | T[]): T {
@@ -474,6 +589,12 @@ export class AudioManager {
       preloadAC('UI & System/UI_Select.wav'),
       preloadAC('UI & System/UI_Check.wav'),
       preloadAC('Rosie Emotes/RosieGreetings.mp3'),
+
+      // Isaac item sounds
+      this.preload(`${ISAAC_BASE}/power up1.wav`),
+      this.preload(`${ISAAC_BASE}/health up 1.wav`),
+      this.preload(`${ISAAC_BASE}/unholy!.wav`),
+      this.preload(`${ISAAC_BASE}/superholy.wav`),
     ]);
 
     this.initialized = true;
@@ -564,6 +685,22 @@ export class AudioManager {
     audio.addEventListener('ended', cleanup, { once: true });
     audio.addEventListener('error', cleanup, { once: true });
     try { await audio.play(); } catch { cleanup(); }
+  }
+
+  /** 播放道具获取音效 — 自动查 ITEM_SFX_MAP + ITEM_SFX_VOL。 */
+  playItemPickupSFX(itemId: string) {
+    const entry = ITEM_SFX_MAP[itemId]
+    const key = entry?.pickup || 'item_get'
+    const vol = ITEM_SFX_VOL[key] ?? 0.35
+    this.playSFX(key, { vol })
+  }
+
+  /** 播放道具生效音效 — 无 effect 映射时静默跳过。 */
+  playItemEffectSFX(itemId: string, defaultVol = 0.3) {
+    const entry = ITEM_SFX_MAP[itemId]
+    if (!entry?.effect) return
+    const vol = ITEM_SFX_VOL[entry.effect] ?? defaultVol
+    this.playSFX(entry.effect, { vol })
   }
 
   async playSFX(name: string, opts: SFXOptions = {}) {

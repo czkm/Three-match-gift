@@ -113,97 +113,97 @@
           <!-- ═══ Act 3: Animal Island Birthday Poster ═══ -->
           <template v-if="currentAct === 3">
             <div class="will-poster">
-              <!-- Header -->
-              <div class="will-section will-header">
-                <span class="will-sparkle will-sparkle-l">✦</span>
-                <span class="will-sparkle will-sparkle-r">✧</span>
-                <p class="will-header-text">{{ willScreen.headerLine }}</p>
-                <p class="will-title-text">{{ willScreen.titleLine }}</p>
-                <div class="will-deco-row">
-                  <span class="will-deco-emoji">🎂</span>
-                  <span class="will-deco-emoji">🎉</span>
-                  <span class="will-deco-emoji">🎈</span>
+              <div class="will-poster-main">
+                <!-- Header -->
+                <div class="will-section will-header">
+                  <span class="will-sparkle will-sparkle-l">✦</span>
+                  <span class="will-sparkle will-sparkle-r">✧</span>
+                  <p class="will-header-text">{{ willScreen.headerLine }}</p>
+                  <p class="will-title-text">{{ willScreen.titleLine }}</p>
+                  <div class="will-deco-row">
+                    <span class="will-deco-emoji">🎂</span>
+                    <span class="will-deco-emoji">🎉</span>
+                    <span class="will-deco-emoji">🎈</span>
+                  </div>
+                  <p class="will-sub-text">{{ willScreen.clearedLine }}</p>
+                  <p class="will-sub-text will-sub-loc">
+                    {{ willLocationText }}
+                  </p>
                 </div>
-                <p class="will-sub-text">{{ willScreen.clearedLine }}</p>
-                <p class="will-sub-text will-sub-loc">{{ willLocationText }}</p>
-              </div>
 
-              <!-- Divider -->
-              <div class="will-divider" />
+                <!-- Divider -->
+                <div class="will-divider" />
 
-              <!-- Gift Box -->
-              <div class="will-section will-gift-section">
-                <div class="will-gift-box">
-                  <div class="will-gift-glow" />
-                  <img
-                    src="/img/animal_icon_couple1.png"
-                    class="will-gift-piggy"
-                    alt="粒狸"
-                  />
-                  <img
-                    src="/img/nook-receipt.png"
-                    class="will-gift-receipt"
-                    alt="报酬收据"
-                  />
-                  <span class="will-gift-hint">{{ willScreen.giftHint }}</span>
-                </div>
-                <p class="will-gift-label">↑ 报酬收据狸 ↑</p>
-              </div>
-
-              <!-- Divider -->
-              <div class="will-divider" />
-
-              <!-- Pig Companion -->
-              <div class="will-section will-pig-section">
-                <span class="will-pig-icon">🐷</span>
-                <p class="will-pig-line will-pig-main">
-                  {{ willScreen.pigCompanionLine2 }}
-                </p>
-                <p class="will-pig-line will-pig-sub-1">
-                  {{ willScreen.pigCompanionLine1 }}
-                </p>
-                <p class="will-pig-line will-pig-sub-2">
-                  {{ willScreen.pigCompanionLine3 }}
-                </p>
-              </div>
-
-              <!-- Divider -->
-              <div class="will-divider" />
-
-              <!-- Items -->
-              <div class="will-section will-items-section">
-                <p class="will-items-label">{{ willScreen.itemsArrow }}</p>
-                <div class="will-items-grid">
-                  <span
-                    v-for="(item, idx) in ownedWillItems"
-                    :key="idx"
-                    class="will-item-chip"
-                    :style="{ animationDelay: idx * 55 + 'ms' }"
-                    :title="item.name"
+                <!-- Gift Box — interactive reveal -->
+                <div class="will-section will-gift-section">
+                  <div
+                    v-if="!giftOpened"
+                    class="will-gift-closed"
+                    @click.stop="onOpenGift"
                   >
-                    {{ item.emoji }}
-                  </span>
+                    <span class="will-gift-emoji">🎁</span>
+                    <span class="will-gift-tap-hint">点一下打开狸~</span>
+                  </div>
+                  <div v-else class="will-gift-opened">
+                    <img src="/img/gift.jpg" class="will-gift-img" alt="礼物" />
+                  </div>
                 </div>
-                <p class="will-items-tag">{{ willScreen.itemsLabel }}</p>
-              </div>
 
-              <!-- Divider -->
-              <div class="will-divider" />
+                <!-- Divider -->
+                <div class="will-divider" />
 
-              <!-- Closing -->
-              <div class="will-section will-closing">
-                <p class="will-estate">🪻 {{ willScreen.estateLine }}</p>
-                <p class="will-farewell">{{ willScreen.farewellLine }}</p>
-                <p class="will-xoxo">{{ willScreen.goodbyeLine }}</p>
-                <div class="will-closing-icons">
-                  <span>🗝️</span>
-                  <span>💗</span>
-                  <span>🏠</span>
+                <!-- Pig Companion -->
+                <div class="will-section will-pig-section">
+                  <span class="will-pig-icon">🐷</span>
+                  <p class="will-pig-line will-pig-main">
+                    {{ willScreen.pigCompanionLine2 }}
+                  </p>
+                  <p class="will-pig-line will-pig-sub-1">
+                    {{ willScreen.pigCompanionLine1 }}
+                  </p>
+                  <p class="will-pig-line will-pig-sub-2">
+                    {{ willScreen.pigCompanionLine3 }}
+                  </p>
                 </div>
-              </div>
 
-              <!-- Bottom sparkle -->
-              <span class="will-sparkle will-sparkle-bl">○</span>
+                <!-- Divider -->
+                <div class="will-divider" />
+
+                <!-- Items -->
+                <div class="will-section will-items-section">
+                  <p class="will-items-label">{{ willScreen.itemsArrow }}</p>
+                  <div class="will-items-grid">
+                    <span
+                      v-for="(item, idx) in ownedWillItems"
+                      :key="idx"
+                      class="will-item-chip"
+                      :style="{ animationDelay: idx * 55 + 'ms' }"
+                      :title="item.name"
+                    >
+                      {{ item.emoji }}
+                    </span>
+                  </div>
+                  <p class="will-items-tag">{{ willScreen.itemsLabel }}</p>
+                </div>
+
+                <!-- Divider -->
+                <div class="will-divider" />
+
+                <!-- Closing -->
+                <div class="will-section will-closing">
+                  <p class="will-estate">🪻 {{ willScreen.estateLine }}</p>
+                  <p class="will-farewell">{{ willScreen.farewellLine }}</p>
+                  <p class="will-xoxo">{{ willScreen.goodbyeLine }}</p>
+                  <div class="will-closing-icons">
+                    <span>🗝️</span>
+                    <span>💗</span>
+                    <span>🏠</span>
+                  </div>
+                </div>
+
+                <!-- Bottom sparkle -->
+                <span class="will-sparkle will-sparkle-bl">○</span>
+              </div>
             </div>
 
             <!-- Action buttons -->
@@ -223,6 +223,32 @@
           </template>
         </div>
       </div>
+    </div>
+
+    <!-- Receipt machine — fixed right side -->
+    <div v-if="receiptVisible" class="receipt-machine" @click.stop>
+      <div class="receipt-machine-top">
+        <img
+          src="/img/background/FtrCashier.png"
+          class="receipt-machine-bg"
+          alt="收银机"
+        />
+      </div>
+      <div class="receipt-paper">
+        <div
+          class="receipt-card"
+          :style="{ backgroundImage: 'url(/img/background/board_bg_04.webp)' }"
+        >
+          <img
+            src="/img/nook-receipt.png"
+            class="receipt-image"
+            alt="报酬收据"
+          />
+        </div>
+      </div>
+      <button class="receipt-save-btn" @click.stop="onSaveReceipt">
+        🧾 保存收据
+      </button>
     </div>
   </div>
 </template>
@@ -244,6 +270,8 @@ const linesRevealed = ref(0)
 const allLinesShown = ref(false)
 const burstActive = ref(false)
 const particlesReady = ref(false)
+const giftOpened = ref(false)
+const receiptVisible = ref(false)
 const timers = []
 
 const activeBeat = computed(() => ENDING.beats[currentAct.value] || null)
@@ -359,6 +387,33 @@ function revealNextLine() {
   }
   if (linesRevealed.value >= totalLines.value) {
     allLinesShown.value = true
+  }
+}
+
+function onOpenGift() {
+  if (giftOpened.value) return
+  giftOpened.value = true
+  receiptVisible.value = true
+  audioManager.playSFX('item_get', { vol: 0.5 })
+}
+
+async function onSaveReceipt() {
+  audioManager.playSFX('item_get', { vol: 0.3 })
+  const el = document.querySelector('.receipt-card')
+  if (!el) return
+  try {
+    const canvas = await html2canvas(el, {
+      backgroundColor: null,
+      scale: 4,
+      useCORS: true,
+      logging: false
+    })
+    const link = document.createElement('a')
+    link.download = 'Corvo-Bianco-报酬收据.png'
+    link.href = canvas.toDataURL('image/png')
+    link.click()
+  } catch (e) {
+    console.warn('Receipt save failed:', e)
   }
 }
 
@@ -1202,144 +1257,195 @@ function onRestart() {
     center / contain no-repeat;
 }
 
-/* ── Gift Box ── */
+/* ── Gift interactive ── */
 .will-gift-section {
   padding: 4px 0;
 }
 
-.will-gift-box {
+/* Phase 1: unopened */
+.will-gift-closed {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 190px;
-  height: 190px;
-  border: 2.5px solid rgba(180, 155, 120, 0.32);
-  border-radius: 20px;
-  background: radial-gradient(
-    ellipse at 50% 35%,
-    rgba(255, 248, 235, 0.7),
-    rgba(235, 222, 195, 0.38)
-  );
-  box-shadow:
-    inset 0 0 24px rgba(200, 170, 130, 0.24),
-    0 3px 12px rgba(107, 92, 67, 0.12);
-  position: relative;
-  transition: box-shadow 3s ease-in-out;
-  animation: gift-box-pulse 3.2s ease-in-out infinite;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform 0.2s;
 }
-
-@keyframes gift-box-pulse {
-  0%,
-  100% {
-    box-shadow:
-      inset 0 0 24px rgba(200, 170, 130, 0.24),
-      0 3px 12px rgba(107, 92, 67, 0.12);
-  }
-  50% {
-    box-shadow:
-      inset 0 0 36px rgba(220, 185, 140, 0.38),
-      0 3px 18px rgba(107, 92, 67, 0.18);
-  }
+.will-gift-closed:hover {
+  transform: scale(1.08);
 }
-
-.will-gift-glow {
-  position: absolute;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(220, 185, 130, 0.14),
-    transparent 70%
-  );
-  animation: gift-glow-breathe 2.8s ease-in-out infinite;
-  pointer-events: none;
-}
-
-@keyframes gift-glow-breathe {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scale(1.35);
-    opacity: 0.85;
-  }
-}
-
-.will-gift-piggy {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 2.5px solid #f5c31c;
-  box-shadow: 0 2px 0 0 #dba90e;
-  object-fit: cover;
-  background: #f0e8d8;
-  animation: gift-icon-float 3s ease-in-out infinite;
-  position: relative;
-  z-index: 1;
-  margin-bottom: 2px;
-}
-
-.will-gift-receipt {
-  width: 120px;
-  height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 2px 6px rgba(130, 105, 65, 0.2));
-  position: relative;
-  z-index: 1;
-  animation: receipt-sway 3.6s ease-in-out infinite;
-}
-
-@keyframes receipt-sway {
-  0%,
-  100% {
-    transform: rotate(-1deg) scale(1);
-  }
-  50% {
-    transform: rotate(1deg) scale(1.03);
-  }
-}
-
-.will-gift-icon {
-  font-size: 68px;
+.will-gift-emoji {
+  font-size: 64px;
   line-height: 1;
-  filter: drop-shadow(0 2px 4px rgba(130, 105, 65, 0.18));
-  animation: gift-icon-float 3s ease-in-out infinite;
-  position: relative;
-  z-index: 1;
+  animation: gift-emoji-bounce 2s ease-in-out infinite;
+  filter: drop-shadow(0 3px 6px rgba(107, 92, 67, 0.2));
 }
 
-@keyframes gift-icon-float {
+@keyframes gift-emoji-bounce {
   0%,
   100% {
     transform: translateY(0) scale(1);
   }
   50% {
-    transform: translateY(-6px) scale(1.05);
+    transform: translateY(-8px) scale(1.06);
   }
 }
 
-.will-gift-hint {
-  font-size: 12px;
-  color: var(--ink-soft);
+.will-gift-tap-hint {
+  font-size: 13px;
+  color: #a09078;
   font-weight: 600;
   letter-spacing: 0.06em;
-  font-family: 'Nunito', 'Noto Sans SC', sans-serif;
-  margin-top: 5px;
-  position: relative;
-  z-index: 1;
+  animation: gift-tap-pulse 1.6s ease-in-out infinite;
 }
 
-.will-gift-label {
-  margin: 8px 0 0;
-  font-size: 14px;
-  color: #8a6b44;
+@keyframes gift-tap-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Phase 2: opened */
+.will-gift-opened {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.will-gift-img {
+  width: 140px;
+  height: auto;
+  object-fit: contain;
+  animation: gift-img-pop 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 3px 8px rgba(107, 92, 67, 0.18));
+}
+
+@keyframes gift-img-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+/* ── Receipt machine — fixed right side ── */
+.receipt-machine {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: machine-slide-in 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: auto;
+  /* width: 200px; */
+}
+
+.receipt-machine-top {
+  width: 128px;
+  height: 128px;
+  flex-shrink: 0;
+}
+
+.receipt-machine-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.receipt-paper {
+  overflow: hidden;
+  animation: receipt-print 600ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 300ms;
+  margin-top: -8px;
+}
+
+.receipt-card {
+  width: 180px;
+  border-radius: 16px;
+  background-size: cover;
+  background-position: center;
+  padding: 16px 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
+  box-shadow:
+    inset 0 0 20px rgba(107, 92, 67, 0.08),
+    0 4px 0 0 rgba(107, 92, 67, 0.12);
+}
+
+.receipt-image {
+  width: 150px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(130, 105, 65, 0.2));
+}
+
+@keyframes machine-slide-in {
+  from {
+    transform: translate(220px, -50%);
+  }
+  to {
+    transform: translate(0, -50%);
+  }
+}
+
+@keyframes receipt-print {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.receipt-save-btn {
+  padding: 10px 20px;
+  border-radius: 50px;
+  background: #f5c31c;
+  border: 2px solid #dba90e;
+  box-shadow: 0 3px 0 0 #dba90e;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  color: #725d42;
+  cursor: pointer;
+  transition: all 0.15s;
   font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+  letter-spacing: 0.04em;
+  animation: btn-fade-in 400ms ease forwards;
+  animation-delay: 1000ms;
+  opacity: 0;
+  margin-top: 8px;
+}
+.receipt-save-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 0 #dba90e;
+}
+.receipt-save-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #dba90e;
+}
+
+@keyframes btn-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── Pig Companion ── */

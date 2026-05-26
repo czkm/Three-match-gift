@@ -242,7 +242,7 @@ function pickItem(item) {
   phase.value = 'acquired'
   launchStarted.value = false
   flightFx.value = null
-  audioManager.playSFX('item_get', { vol: 0.45 })
+  audioManager.playItemPickupSFX(item.id)
   void startRewardFlight(item)
   acquireTimer = setTimeout(() => {
     emit('choose', item.id)
@@ -280,7 +280,7 @@ async function startRewardFlight(item) {
   }
 
   audioManager.playSFX('achievement', { vol: 0.56 })
-  audioManager.playSFX('item_get', { vol: 0.42, bypassThrottle: true })
+  audioManager.playItemEffectSFX(item.id, 0.25)
   flightLaunchTimer = setTimeout(() => {
     launchStarted.value = true
   }, 120)

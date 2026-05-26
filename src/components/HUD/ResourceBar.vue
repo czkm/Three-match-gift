@@ -101,6 +101,7 @@ import { GAMEPLAY_COPY, HUD_COPY, TARGETING_COPY } from '@/data/copy';
 import { ABILITIES, DJINN_WISHES, RESOURCE_BY_ID } from '@/data/content';
 import { useGameStore } from '@/stores/gameStore';
 import IsaacCollectibleIcon from '@/components/common/IsaacCollectibleIcon.vue';
+import { audioManager, NO_BOARD_AUDIO_ITEMS } from '@/audio/AudioManager';
 const game = useGameStore();
 const messageFresh = ref(false);
 const trinketFlash = ref(false);
@@ -338,6 +339,11 @@ function onItemEffectTriggered(payload = {}) {
       stolenResourceIds.value = new Set();
       stolenResourceTimer = null;
     }, 1800);
+  }
+
+  // Play effect sfx for items without board animation audio
+  if (payload.itemId && NO_BOARD_AUDIO_ITEMS.has(payload.itemId)) {
+    audioManager.playItemEffectSFX(payload.itemId, 0.2)
   }
 
   if (effectNoticeTimer) clearTimeout(effectNoticeTimer);

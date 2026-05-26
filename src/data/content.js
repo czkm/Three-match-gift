@@ -1411,9 +1411,9 @@ export const ENDING = {
     headerLine: '完成了~！',
     titleLine: '白鸦果园修复记狸！',
     clearedLine: '你帮杰洛特先生修好了庄园狸~！',
-    gotGiftLine: '在 {{location}}，获得了报酬收据狸——',
+    gotGiftLine: '在 {{location}} 狸~豆狸&粒狸把报酬算好了狸！',
     giftPlaceholder: '🧾',
-    giftHint: '粒狸送来的报酬收据狸！',
+    giftHint: '报酬已付清狸～谢谢你的帮忙狸！',
     // Card 3: Pig companion
     pigCompanionLine1: '豆狸和粒狸也一直陪着你狸！',
     pigCompanionLine2: '大家一起努力的结果狸~！',

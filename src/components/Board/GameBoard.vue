@@ -333,7 +333,7 @@
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import BoardTile from './BoardTile.vue'
 import BoardEntity from './BoardEntity.vue'
-import { audioManager } from '@/audio/AudioManager'
+import { audioManager, getItemSFXVol } from '@/audio/AudioManager'
 import { COMMON_COPY, TARGETING_COPY } from '@/data/copy'
 import EventBus from '@/core/eventBus'
 import { getBoard, resetBoard, SEP, HOLE } from '@/core/board'
@@ -1861,7 +1861,7 @@ function onItemCellsPop(payload = {}) {
     flashCellGroup(cells, variant)
     setTimeout(() => {
       if (!board.value) return
-      audioManager.playSFX('seal_break', { vol: 0.5 })
+      audioManager.playItemEffectSFX(payload.itemId, 0.35)
       board.value.collapseAt(cells)
     }, 500)
   }
@@ -2022,6 +2022,8 @@ function onItemResourceBalance(_payload = {}) {
   if (!targetResource) return
 
   animateTileFlip(cells, targetResource.char, 25)
+  const pactVol = getItemSFXVol('item_r_u_wiz')
+  if (pactVol != null) audioManager.playSFX('item_r_u_wiz', { vol: pactVol })
 }
 
 function triggerMilkTeaBarrageFx(resourceId) {
@@ -2119,7 +2121,7 @@ function onItemLineSweep(payload = {}) {
   const index = Number.isInteger(payload.index) ? payload.index : null
   if (index == null) return
   const variant = payload.variant || 'devil-red'
-  audioManager.playSFX('ability_sunset', { vol: 0.7 })
+  audioManager.playItemEffectSFX(payload.itemId, 0.5)
   triggerSunsetRake(variant, axis, index)
   setTimeout(() => {
     if (!board.value) return
@@ -2384,7 +2386,8 @@ function onXrayScan(payload = {}) {
   const needsChars = payload.needsChars || []
   if (!needsChars.length) return
 
-  audioManager.playSFX('xray', { vol: 0.7 })
+  const see4everVol = getItemSFXVol('item_see_4ever')
+  audioManager.playSFX('item_see_4ever', { vol: see4everVol ?? 0.22 })
   xrayScanning.value = true
 
   // Build reverse type→char map for resource tiles only
