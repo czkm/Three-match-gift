@@ -62,6 +62,7 @@ const AC_SFX_MAP: Record<string, string> = {
   tutorialstep:    `${AC_BASE}/UI & System/UI_Check.wav`,
   scenetransition: `${AC_BASE}/UI & System/UI_WipeToIdrDream.wav`,
   bark:            `${AC_BASE}/Rosie Emotes/RosieGreetings.mp3`,
+  candle_light:    `${AC_BASE}/Bgm/candle_light.wav`,
 
   // Isaac items
   item_power_up:       `${ISAAC_BASE}/power up1.wav`,

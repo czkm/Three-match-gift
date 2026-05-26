@@ -11,17 +11,17 @@ type PhaseConfig = {
 const AC_BGM = 'animalcrossingnewhorizons/Bgm';
 
 const PHASE_AUDIO_MAP: Record<string, PhaseConfig> = {
-  title:   { bgm: `${AC_BGM}/3-01 Main Theme - Welcome Horizons.mp3`,              ambient: null,        bgmVolume: 0.34 },
-  intro:   { bgm: `${AC_BGM}/1-05 500 a.m. (~Sunny Weather~).mp3`,                 ambient: 'daytime',   bgmVolume: 0.32 },
-  targeting:     { bgm: `${AC_BGM}/2-03 300 p.m. (~Sunny Weather~).mp3`,           ambient: 'daytime',   bgmVolume: 0.24 },
-  dayEnd:        { bgm: `${AC_BGM}/2-06 600 p.m. (~Sunny Weather~).mp3`,           ambient: 'evening',   bgmVolume: 0.30 },
-  repairing:     { bgm: `${AC_BGM}/3-07 Completion Fanfare.mp3`,                           ambient: 'construction', bgmVolume: 0.34 },
-  rewardChoice:  { bgm: `${AC_BGM}/3-50 Able Sisters - Welcome To The Able Sisters!.mp3`, ambient: null, bgmVolume: 0.32 },
-  awakening:     { bgm: `${AC_BGM}/3-11 Into Dreams....mp3`,                       ambient: 'space',     bgmVolume: 0.32 },
-  djinnTransition: { bgm: `${AC_BGM}/2-12 Midnight (~Sunny Weather~).mp3`,         ambient: 'space',     bgmVolume: 0.36 },
-  wish:          { bgm: `${AC_BGM}/3-43 Ceremony.mp3`,                             ambient: 'healing',   bgmVolume: 0.34 },
-  ending:        { bgm: `${AC_BGM}/3-21 Thank You for Using Dodo Air Lines.mp3`,   ambient: 'healing',   bgmVolume: 0.32 },
-  final:         { bgm: `${AC_BGM}/4-01 Release Day Update 1.1.0 ~ Bunny Day - Bunny Day with Zipper T. Bunny.mp3`, ambient: 'healing', bgmVolume: 0.28 }
+  title: { bgm: `${AC_BGM}/3-01 Main Theme - Welcome Horizons.mp3`, ambient: null, bgmVolume: 0.34 },
+  intro: { bgm: `${AC_BGM}/1-05 500 a.m. (~Sunny Weather~).mp3`, ambient: 'daytime', bgmVolume: 0.32 },
+  targeting: { bgm: `${AC_BGM}/2-03 300 p.m. (~Sunny Weather~).mp3`, ambient: 'daytime', bgmVolume: 0.24 },
+  dayEnd: { bgm: `${AC_BGM}/2-06 600 p.m. (~Sunny Weather~).mp3`, ambient: 'evening', bgmVolume: 0.30 },
+  repairing: { bgm: `${AC_BGM}/3-07 Completion Fanfare.mp3`, ambient: 'construction', bgmVolume: 0.34 },
+  rewardChoice: { bgm: `${AC_BGM}/3-50 Able Sisters - Welcome To The Able Sisters!.mp3`, ambient: null, bgmVolume: 0.32 },
+  awakening: { bgm: `${AC_BGM}/3-11 Into Dreams....mp3`, ambient: 'space', bgmVolume: 0.32 },
+  djinnTransition: { bgm: `${AC_BGM}/2-12 Midnight (~Sunny Weather~).mp3`, ambient: 'space', bgmVolume: 0.36 },
+  wish: { bgm: `${AC_BGM}/3-43 Ceremony.mp3`, ambient: 'healing', bgmVolume: 0.34 },
+  ending: { bgm: `${AC_BGM}/1-05 500 a.m. (~Sunny Weather~).mp3`, ambient: 'healing', bgmVolume: 0.32 },
+  final: { bgm: `${AC_BGM}/4-01 Release Day Update 1.1.0 ~ Bunny Day - Bunny Day with Zipper T. Bunny.mp3`, ambient: 'healing', bgmVolume: 0.28 }
 };
 
 function getPlayingBGM(day: number): string {
@@ -62,13 +62,13 @@ async function syncSceneAudio(game: ReturnType<typeof useGameStore>) {
   }
 
   if (config.bgm && shouldStartBGM) {
-    audioManager.playBGM(config.bgm).catch(() => {});
+    audioManager.playBGM(config.bgm).catch(() => { });
   }
 
   if (config.ambient) {
-    audioManager.playAmbient(config.ambient).catch(() => {});
+    audioManager.playAmbient(config.ambient).catch(() => { });
   } else {
-    audioManager.stopAmbient().catch(() => {});
+    audioManager.stopAmbient().catch(() => { });
   }
 }
 
@@ -76,7 +76,7 @@ function handleGlobalButtonClick(event: MouseEvent) {
   const target = event.target instanceof Element ? event.target.closest('button') : null;
   if (!target) return;
   if (target.closest('.audio-controls')) return;
-  audioManager.playSFX('click', { vol: 0.35 }).catch(() => {});
+  audioManager.playSFX('click', { vol: 0.35 }).catch(() => { });
 }
 
 function handleVisibility() {
@@ -91,7 +91,7 @@ export function useAudio() {
     () => [game.phase, game.currentDay, game.djinnState, game.djinnBoardStage],
     () => {
       if (!initialized) return;
-      syncSceneAudio(game).catch(() => {});
+      syncSceneAudio(game).catch(() => { });
     },
     { immediate: true }
   );
@@ -109,7 +109,7 @@ export function useAudio() {
       }
       if (!lowStepsWarned) {
         lowStepsWarned = true;
-        audioManager.playSFX('lowsteps', { vol: 0.5 }).catch(() => {});
+        audioManager.playSFX('lowsteps', { vol: 0.5 }).catch(() => { });
       }
     }
   );
@@ -121,8 +121,8 @@ export function useAudio() {
     const initOnInteract = async () => {
       if (initialized) return;
       initialized = true;
-      await audioManager.init().catch(() => {});
-      await syncSceneAudio(game).catch(() => {});
+      await audioManager.init().catch(() => { });
+      await syncSceneAudio(game).catch(() => { });
       document.removeEventListener('pointerdown', initOnInteract);
       document.removeEventListener('keydown', initOnInteract);
     };

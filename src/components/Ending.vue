@@ -378,6 +378,7 @@ function revealNextLine() {
   if (linesRevealed.value >= totalLines.value) return
   linesRevealed.value++
   if (currentAct.value === 2) {
+    audioManager.playSFX('candle_light', { vol: 0.4 })
     burstActive.value = true
     timers.push(
       setTimeout(() => {
