@@ -31,7 +31,9 @@
         >
           <span class="trinket-emoji">
             <span v-if="isItemConsumedToday(item)" class="trinket-consumed-icon">🚫</span>
-            <span v-else>{{ item.emoji }}</span>
+            <span v-else>
+        <IsaacCollectibleIcon :reward-item-id="item.id" :size="22" :fallback-emoji="item.emoji" />
+      </span>
           </span>
         </button>
         <span

@@ -794,14 +794,13 @@ onBeforeUnmount(() => {
 /* ── Item Card — compact collectible card ── */
 .item-card {
   width: 180px;
-  height: 200px;
+  min-height: 180px;
   padding: 18px 14px 14px;
   border-radius: 20px;
   text-align: center;
   position: relative;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  overflow: hidden;
   font-family: 'Nunito', 'Noto Sans SC', sans-serif;
   background: #f8f8f0;
   border: 2px solid #e8e2d6;

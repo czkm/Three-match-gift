@@ -30,7 +30,7 @@
           :alt="ab.name"
           class="ab-icon-img"
           @error="failedSkillIcons[ab.id] = true"
-        >
+        />
         <span v-else class="ab-icon">{{ ab.icon }}</span>
         <span class="ab-name">{{ ab.name }}</span>
         <span class="ab-uses">
@@ -55,12 +55,14 @@
             :alt="hoverAbility.name"
             class="msg-icon-img"
             @error="failedSkillIcons[hoverAbility.id] = true"
-          >
+          />
           <span v-else class="msg-icon">{{ hoverAbility.icon }}</span>
           {{ hoverAbility.name }}
         </p>
         <p class="msg-desc">{{ hoverAbility.desc }}</p>
-        <p v-if="hoverAbility.quote" class="msg-quote">{{ hoverAbility.quote }}</p>
+        <p v-if="hoverAbility.quote" class="msg-quote">
+          {{ hoverAbility.quote }}
+        </p>
       </div>
     </Transition>
 
@@ -157,7 +159,11 @@
           :class="{ active: milkTeaTarget === r.id }"
           @click="milkTeaTarget = r.id"
         >
-          {{ r.emoji }} {{ r.cn }}
+          <img
+            :src="r.chessImg"
+            class="milk-tea-chip-img"
+            :alt="r.cn"
+          />
         </button>
       </div>
       <div class="actions">
@@ -185,7 +191,7 @@
           :alt="ab.name"
           class="ab-icon-img small"
           @error="failedSkillIcons[ab.id] = true"
-        >
+        />
         <span v-else class="ab-icon small">{{ ab.icon }}</span>
         <span class="ab-name small">{{ ab.name }}</span>
       </div>
@@ -801,6 +807,15 @@ h3 {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
+  align-items: center;
+}
+
+.milk-tea-chip-img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-right: 3px;
 }
 
 .chip {
@@ -905,7 +920,7 @@ h3 {
   margin: 0 0 4px;
   font-size: 12px;
   font-weight: 700;
-  color: #50B9AB;
+  color: #50b9ab;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -959,7 +974,11 @@ h3 {
 }
 
 @keyframes msg-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 </style>
