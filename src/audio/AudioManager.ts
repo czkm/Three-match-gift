@@ -224,6 +224,13 @@ const AC_SFX_MULTI: Record<string, string[]> = {
     `${AC_BASE}/Trees & Plants/Tree_Shake_Palm_Down1.wav`,
     `${AC_BASE}/Trees & Plants/Tree_Shake_Bamboo_Down1.wav`,
   ],
+
+  gfuel: [
+    `${ISAAC_BASE}/gfuel 1.wav`,
+    `${ISAAC_BASE}/gfuel 2.wav`,
+    `${ISAAC_BASE}/gfuel 3.wav`,
+    `${ISAAC_BASE}/gfuel 4.wav`,
+  ],
 };
 
 /**
@@ -417,6 +424,7 @@ const SFX_THROTTLE: Record<string, SFXThrottlePolicy> = {
   wish3: { sameMs: 320, group: 'ritual', groupMs: 220, priority: 3 },
   ability_wolf: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
   ability_harvest: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
+  gfuel:          { sameMs: 3000, group: 'ability', groupMs: 1500, priority: 3 },
   ability_roach: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
   ability_sunset: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },
   decoction: { sameMs: 180, group: 'ability', groupMs: 90, priority: 3 },

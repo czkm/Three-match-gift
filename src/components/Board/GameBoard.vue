@@ -2078,6 +2078,7 @@ function triggerMilkTeaBarrageFx(resourceId) {
     milkTeaResult.value = MILK_TEA_IMAGES[resourceId] || null
     milkTeaResultTimer = setTimeout(() => {
       milkTeaResult.value = null
+      audioManager.playSFX('gfuel', { vol: 0.5 })
       milkTeaResultTimer = null
     }, 2000)
   }, 1200)
