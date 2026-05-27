@@ -244,6 +244,15 @@
             class="transition-ring"
             :style="ring.style"
           />
+          <span
+            v-for="ember in transitionEmbers"
+            :key="ember.id"
+            class="transition-ember"
+            :style="ember.style"
+          >
+            {{ ember.glyph }}
+          </span>
+          <span v-if="transitionFlash" class="transition-flash" />
         </div>
       </div>
 
@@ -402,6 +411,8 @@ const transitionShards = ref([])
 const transitionTraces = ref([])
 const transitionFlares = ref([])
 const transitionRings = ref([])
+const transitionEmbers = ref([])
+const transitionFlash = ref(false)
 const milkTeaFlares = ref([])
 const milkTeaSigil = ref(null)
 const milkTeaCasting = ref(false)
@@ -2231,13 +2242,47 @@ function startDjinnTransitionFx() {
   if (!transition) return
   audioManager.playSFX('rune_hit', { vol: 0.6 })
 
+  const isBlightToJoy = transition.id === 'blightToJoy'
+  const isJoyToCake = transition.id === 'joyToCake'
   const sources = transition.sourceCells || []
   const targets = transition.targetCells || []
   const traces = []
   const shards = []
   const flares = []
   const rings = []
-  const durationMs = transition.durationMs || 2000
+  const embers = []
+  const durationMs = transition.durationMs || 2800
+
+  // Screen flash at start
+  transitionFlash.value = true
+  setTimeout(() => { transitionFlash.value = false }, 400)
+
+  // SFX sequence
+  setTimeout(() => {
+    audioManager.playSFX('candle_light', { vol: 0.3 })
+  }, 600)
+
+  // Ember particles rising from source cells
+  const emberGlyphs = isBlightToJoy
+    ? ['✦', '✧', '·', '·']
+    : ['🕯️', '·', '✦', '✧']
+  sources.forEach((cell, index) => {
+    for (let e = 0; e < 3; e++) {
+      embers.push({
+        id: `ember-${++_transitionCounter}`,
+        glyph: emberGlyphs[(index + e) % emberGlyphs.length],
+        style: {
+          left: `${cell.col * TILE_SIZE + TILE_SIZE / 2 + (Math.random() - 0.5) * 20}px`,
+          top: `${cell.row * TILE_SIZE + TILE_SIZE / 2 + (Math.random() - 0.5) * 20}px`,
+          '--dx': `${(Math.random() - 0.5) * 100}px`,
+          '--dy': `${-(60 + Math.random() * 100)}px`,
+          '--delay': `${(0.3 + index * 0.12 + e * 0.2).toFixed(3)}s`,
+          '--dur': `${(1.6 + Math.random()).toFixed(2)}s`,
+          fontSize: `${14 + Math.random() * 10}px`
+        }
+      })
+    }
+  })
 
   sources.forEach((cell, index) => {
     const target = targets[index % Math.max(1, targets.length)] || targets[0]
@@ -2250,7 +2295,7 @@ function startDjinnTransitionFx() {
     const dy = endY - startY
     const len = Math.sqrt(dx * dx + dy * dy)
     const angle = (Math.atan2(dy, dx) * 180) / Math.PI
-    const delay = (0.18 + index * 0.08).toFixed(3)
+    const delay = (0.3 + index * 0.1).toFixed(3)
 
     traces.push({
       id: `trace-${++_transitionCounter}`,
@@ -2265,15 +2310,15 @@ function startDjinnTransitionFx() {
 
     shards.push({
       id: `shard-${++_transitionCounter}`,
-      glyph: transition.id === 'blightToJoy' ? '✦' : '🕯️',
+      glyph: isBlightToJoy ? '✦' : '🕯️',
       style: {
         left: `${startX}px`,
         top: `${startY}px`,
         '--dx': `${dx}px`,
         '--dy': `${dy}px`,
         '--delay': `${delay}s`,
-        '--dur': `${(1.2 + index * 0.06).toFixed(2)}s`,
-        '--curve': `${Math.round((index % 2 === 0 ? 1 : -1) * (28 + index * 4))}px`
+        '--dur': `${(1.4 + index * 0.06).toFixed(2)}s`,
+        '--curve': `${Math.round((index % 2 === 0 ? 1 : -1) * (32 + index * 4))}px`
       }
     })
   })
@@ -2283,17 +2328,17 @@ function startDjinnTransitionFx() {
     const centerY = cell.row * TILE_SIZE + TILE_SIZE / 2
     flares.push({
       id: `flare-${++_transitionCounter}`,
-      glyph: transition.id === 'blightToJoy' ? '🕯️' : '✦',
+      glyph: isBlightToJoy ? '🕯️' : '✦',
       style: {
         left: `${centerX}px`,
         top: `${centerY}px`,
-        '--delay': `${(1.12 + index * 0.1).toFixed(3)}s`
+        '--delay': `${(1.3 + index * 0.1).toFixed(3)}s`
       }
     })
   })
 
-  if (transition.id === 'joyToCake') {
-    ;[96, 136, 176].forEach((size, index) => {
+  if (isJoyToCake) {
+    ;[96, 140, 184].forEach((size, index) => {
       rings.push({
         id: `ring-${++_transitionCounter}`,
         style: {
@@ -2301,8 +2346,35 @@ function startDjinnTransitionFx() {
           top: `${3.5 * TILE_SIZE + TILE_SIZE / 2}px`,
           width: `${size}px`,
           height: `${size}px`,
-          '--delay': `${(0.74 + index * 0.16).toFixed(3)}s`
+          '--delay': `${(0.7 + index * 0.18).toFixed(3)}s`
         }
+      })
+    })
+    // Extra ring burst at end
+    rings.push({
+      id: `ring-${++_transitionCounter}`,
+      style: {
+        left: `${3.5 * TILE_SIZE + TILE_SIZE / 2}px`,
+        top: `${3.5 * TILE_SIZE + TILE_SIZE / 2}px`,
+        width: '240px',
+        height: '240px',
+        '--delay': '1.6s'
+      }
+    })
+  } else {
+    // blightToJoy extra rings at each target corner
+    targets.forEach((cell, index) => {
+      ;[60, 90].forEach((size, si) => {
+        rings.push({
+          id: `ring-${++_transitionCounter}`,
+          style: {
+            left: `${cell.col * TILE_SIZE + TILE_SIZE / 2}px`,
+            top: `${cell.row * TILE_SIZE + TILE_SIZE / 2}px`,
+            width: `${size}px`,
+            height: `${size}px`,
+            '--delay': `${(1.0 + index * 0.12 + si * 0.2).toFixed(3)}s`
+          }
+        })
       })
     })
   }
@@ -2311,7 +2383,8 @@ function startDjinnTransitionFx() {
   transitionShards.value = shards
   transitionFlares.value = flares
   transitionRings.value = rings
-  EventBus.trigger('sceneBurst', [{ kind: 'gold', count: 10 }])
+  transitionEmbers.value = embers
+  EventBus.trigger('sceneBurst', [{ kind: 'gold', count: 12 }])
 
   djinnTransitionTimer = setTimeout(() => {
     game.finishDjinnTransition()
@@ -2321,6 +2394,7 @@ function startDjinnTransitionFx() {
     transitionShards.value = []
     transitionFlares.value = []
     transitionRings.value = []
+    transitionEmbers.value = []
   }, durationMs + 80)
 }
 
@@ -2378,6 +2452,8 @@ function stopDjinnTransitionFx() {
   transitionShards.value = []
   transitionFlares.value = []
   transitionRings.value = []
+  transitionEmbers.value = []
+  transitionFlash.value = false
 }
 
 /* ---------- X-Ray Vision scan ---------- */
@@ -3830,6 +3906,32 @@ function onXrayScan(payload = {}) {
   animation: djinn-transition-ring 0.9s ease-out var(--delay) forwards;
 }
 
+.transition-ember {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  line-height: 1;
+  color: var(--transition-glow);
+  text-shadow:
+    0 0 6px color-mix(in srgb, var(--transition-glow) 40%, transparent),
+    0 0 14px color-mix(in srgb, var(--transition-secondary) 20%, transparent);
+  opacity: 0;
+  animation: djinn-transition-ember var(--dur) ease-out var(--delay) forwards;
+  will-change: transform, opacity;
+}
+
+.transition-flash {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse at 50% 50%,
+      rgba(255, 248, 230, 0.48),
+      rgba(255, 242, 214, 0.28) 36%,
+      transparent 68%
+    );
+  animation: djinn-transition-flash 0.4s ease-out forwards;
+}
+
 @keyframes awakening-flash {
   0% {
     opacity: 0;
@@ -3981,6 +4083,35 @@ function onXrayScan(payload = {}) {
   100% {
     opacity: 0;
     transform: translate(-50%, -50%) scale(1.06);
+  }
+}
+
+@keyframes djinn-transition-ember {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(0) scale(0.6);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateY(calc(var(--dy) * 0.3))
+      translateX(calc(var(--dx) * 0.3)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(var(--dy))
+      translateX(var(--dx)) scale(0.3);
+  }
+}
+
+@keyframes djinn-transition-flash {
+  0% {
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
 

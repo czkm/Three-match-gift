@@ -626,7 +626,7 @@ export class AudioManager {
     if (this.preloadCache.has(fileName)) return this.preloadCache.get(fileName)!;
 
     const promise = new Promise<void>((resolve) => {
-      const audio = createAudio(`/audio/${fileName}`);
+      const audio = createAudio(`${import.meta.env.BASE_URL}audio/${fileName}`);
       const finish = () => resolve();
       audio.addEventListener('canplaythrough', finish, { once: true });
       audio.addEventListener('error', finish, { once: true });
@@ -688,7 +688,7 @@ export class AudioManager {
     if (!await this.ensureReady()) return;
     const file = group.files[Math.floor(Math.random() * group.files.length)];
     const vol = group.vol[0] + Math.random() * (group.vol[1] - group.vol[0]);
-    const audio = createAudio(`/audio/${file}`);
+    const audio = createAudio(`${import.meta.env.BASE_URL}audio/${file}`);
     audio.volume = clamp(vol * this._ambientVolume, 0, 1);
     this.activeSFXs.add(audio);
     const cleanup = () => { audio.pause(); this.activeSFXs.delete(audio); };
@@ -729,7 +729,7 @@ export class AudioManager {
     const multi = AC_SFX_MULTI[name];
     const pool = multi ?? (AC_SFX_MAP[name] ? [AC_SFX_MAP[name]] : []);
     const acPath = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : null;
-    const src = acPath ? `/audio/${acPath}` : `/audio/sfx_${name}.mp3`;
+    const src = acPath ? `${import.meta.env.BASE_URL}audio/${acPath}` : `${import.meta.env.BASE_URL}audio/sfx_${name}.mp3`;
     const audio = createAudio(src);
     const baseVolume = clamp((opts.vol ?? 1) * this._sfxVolume, 0, 1);
     audio.volume = baseVolume;
@@ -806,7 +806,7 @@ export class AudioManager {
     };
     const path = map[event];
     if (!path) return;
-    const audio = createAudio(`/audio/${path}`);
+    const audio = createAudio(`${import.meta.env.BASE_URL}audio/${path}`);
     audio.volume = clamp(0.5 * this._sfxVolume, 0, 1);
     this.activeSFXs.add(audio);
     const cleanup = () => { audio.pause(); this.activeSFXs.delete(audio); };
@@ -896,7 +896,7 @@ export class AudioManager {
     loop: boolean
   ) {
     await this.preload(fileName);
-    const src = `/audio/${fileName}`;
+    const src = `${import.meta.env.BASE_URL}audio/${fileName}`;
     if (channel.name === src && channel.audio) {
       channel.audio.loop = loop;
       channel.audio.volume = this._isMuted ? 0 : this.getChannelTargetVolume(kind);
@@ -1012,7 +1012,7 @@ export class AudioManager {
     } else if (fileName === 'drop.mp3') {
       actualFile = `${AC_BASE}/Trees & Plants/${pickOne(AC_DROP)}`;
     }
-    const audio = createAudio(`/audio/${actualFile}`);
+    const audio = createAudio(`${import.meta.env.BASE_URL}audio/${actualFile}`);
     const baseVolume = clamp((opts.vol ?? 1) * this._sfxVolume, 0, 1);
     audio.volume = baseVolume;
     audio.playbackRate = clamp(opts.rate ?? 1, 0.5, 2);

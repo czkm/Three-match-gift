@@ -38,12 +38,13 @@ let lowStepsWarned = false;
 let teardownHandlers: Array<() => void> = [];
 
 function getSceneConfig(game: ReturnType<typeof useGameStore>): PhaseConfig | null {
-  if (game.phase === 'playing') {
+  if (game.phase === 'playing' || game.phase === 'targeting') {
     const bgm = getPlayingBGM(game.currentDay)
+    const vol = game.phase === 'targeting' ? 0.24 : 0.36
     if (game.currentDay === 8 && (game.djinnState === 'ready' || game.djinnBoardStage)) {
-      return { bgm, ambient: 'space', bgmVolume: 0.38 }
+      return { bgm, ambient: 'space', bgmVolume: vol }
     }
-    return { bgm, ambient: 'daytime', bgmVolume: 0.36 }
+    return { bgm, ambient: 'daytime', bgmVolume: vol }
   }
   return PHASE_AUDIO_MAP[game.phase] || null;
 }
@@ -53,7 +54,7 @@ async function syncSceneAudio(game: ReturnType<typeof useGameStore>) {
   if (!config) return;
 
   const targetBGMName = config.bgm
-    ? `/audio/${config.bgm.includes('/') ? config.bgm : `bgm_${config.bgm}.mp3`}`
+    ? `${import.meta.env.BASE_URL}audio/${config.bgm.includes('/') ? config.bgm : `bgm_${config.bgm}.mp3`}`
     : '';
   const shouldStartBGM = Boolean(config.bgm) && audioManager.currentBGMName !== targetBGMName;
 

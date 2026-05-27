@@ -30,11 +30,7 @@
     <DayEndOverlay v-if="game.phase === 'dayEnd'" @advance="onDayEndAdvance" />
 
     <DjinnCeremonyOverlay
-      v-if="
-        game.phase === 'wish' ||
-        (game.phase === 'djinnTransition' &&
-          game.djinnCardMode === 'transition')
-      "
+      v-if="game.phase === 'wish'"
       :board-ref="boardEl"
     />
 

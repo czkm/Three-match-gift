@@ -1,6 +1,42 @@
 <template>
   <!-- ── Transition mode: floating narrative card ── -->
   <div v-if="isTransition" class="transition-overlay" @click="onOverlayClick">
+    <!-- Dynamic transition particles -->
+    <div class="transition-particles">
+      <span
+        v-for="p in transitionParticles"
+        :key="p.id"
+        class="t-particle"
+        :style="{
+          left: p.x + '%',
+          top: p.y + '%',
+          width: p.size + 'px',
+          height: p.size + 'px',
+          animationDuration: p.dur + 's',
+          animationDelay: p.delay + 's',
+          '--dx': p.dx + 'px',
+          '--dy': p.dy + 'px',
+          backgroundColor: p.color
+        }"
+      />
+    </div>
+    <!-- Light streaks across the overlay -->
+    <div class="transition-streaks">
+      <span
+        v-for="s in transitionStreaks"
+        :key="s.id"
+        class="t-streak"
+        :style="{
+          left: s.x + '%',
+          top: s.y + '%',
+          width: s.len + 'px',
+          animationDuration: s.dur + 's',
+          animationDelay: s.delay + 's',
+          transform: 'rotate(' + s.rot + 'deg)',
+          background: s.gradient
+        }"
+      />
+    </div>
     <div class="transition-card" @click.stop>
       <div class="transition-card-inner">
         <p class="transition-title">{{ card.title }}</p>
@@ -30,7 +66,9 @@
   </div>
 
   <!-- ── Intro / Resolve mode: bottom-aligned card ── -->
-  <div v-else class="wish-overlay" @click="onOverlayClick">
+  <div v-else class="wish-overlay" :class="`wish-stage-${game.djinnStage}`" @click="onOverlayClick">
+    <!-- Stage-tinted ambient glow -->
+    <div class="wish-ambient-glow" :style="{ background: stageGlowColor }" />
     <div class="card" @click.stop>
       <div class="portrait-panel">
         <div class="dual-portrait">
@@ -86,6 +124,51 @@ const isTransition = computed(() => game.djinnCardMode === 'transition');
 const card = computed(() => game.currentDjinnCard || { title: '', quote: '', lines: [] });
 const activeLine = computed(() => card.value.lines?.[lineIndex.value] || '');
 const readyForAdvance = computed(() => lineReady.value && lineIndex.value >= (card.value.lines?.length || 0));
+
+// Transition palette colors
+const transitionPalette = computed(() => {
+  const t = game.currentDjinnTransition
+  if (!t?.palette) return { primary: 'rgba(168, 214, 156, 0.6)', secondary: 'rgba(176, 148, 201, 0.5)', glow: 'rgba(255, 220, 136, 0.7)' }
+  return {
+    primary: t.palette.primary || 'rgba(168, 214, 156, 0.6)',
+    secondary: t.palette.secondary || 'rgba(176, 148, 201, 0.5)',
+    glow: t.palette.glow || 'rgba(255, 220, 136, 0.7)'
+  }
+})
+
+// Floating particles for transition animations
+const transitionParticles = computed(() => {
+  if (!isTransition.value) return []
+  const palette = transitionPalette.value
+  const colors = [palette.primary, palette.secondary, palette.glow]
+  return Array.from({ length: 36 }, (_, i) => ({
+    id: `tp-${i}`,
+    x: Math.random() * 100,
+    y: 60 + Math.random() * 40,
+    size: 3 + Math.random() * 6,
+    dur: 2 + Math.random() * 4,
+    delay: Math.random() * 2,
+    dx: (Math.random() - 0.5) * 160,
+    dy: -(60 + Math.random() * 140),
+    color: colors[i % colors.length]
+  }))
+})
+
+// Light streaks
+const transitionStreaks = computed(() => {
+  if (!isTransition.value) return []
+  const palette = transitionPalette.value
+  return Array.from({ length: 8 }, (_, i) => ({
+    id: `ts-${i}`,
+    x: Math.random() * 100,
+    y: Math.random() * 80,
+    len: 80 + Math.random() * 200,
+    rot: -30 + Math.random() * 60,
+    dur: 3 + Math.random() * 4,
+    delay: Math.random() * 3,
+    gradient: `linear-gradient(90deg, transparent, ${palette.glow.replace('0.7', '0.15')}, transparent)`
+  }))
+})
 const actionLabel = computed(() => (
   game.djinnCardMode === 'intro'
     ? GAMEPLAY_COPY.djinn.actionLabels.enterBoard
@@ -94,6 +177,16 @@ const actionLabel = computed(() => (
 const actionHint = computed(() => (
   game.djinnCardMode === 'intro' ? GAMEPLAY_COPY.djinn.actionHints.enterBoard : COMMON_COPY.continueHint
 ));
+
+// Stage-specific ambient glow for intro/resolve screen
+const stageGlowColor = computed(() => {
+  const stageColors = {
+    1: 'radial-gradient(ellipse at 50% 80%, rgba(140, 210, 160, 0.12), transparent 55%)',
+    2: 'radial-gradient(ellipse at 50% 80%, rgba(240, 200, 100, 0.14), transparent 55%)',
+    3: 'radial-gradient(ellipse at 50% 80%, rgba(240, 160, 180, 0.12), transparent 55%)'
+  }
+  return stageColors[game.djinnStage] || 'none'
+})
 
 watch(() => game.djinnCardNonce, () => {
   lineIndex.value = 0;
@@ -153,9 +246,57 @@ function onOverlayClick() {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(114, 93, 66, 0.35);
-  backdrop-filter: blur(4px);
+  background: transparent;
   animation: fade-in 500ms var(--ease-out-expo);
+  overflow: hidden;
+}
+
+/* ── Transition particles ── */
+.transition-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.t-particle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  animation: t-particle-rise var(--ease-out-expo) infinite;
+  filter: blur(1px);
+}
+
+@keyframes t-particle-rise {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.5); }
+  15%  { opacity: 0.8; transform: translate(calc(var(--dx) * 0.2), calc(var(--dy) * 0.3)) scale(1); }
+  70%  { opacity: 0.3; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3); }
+}
+
+/* ── Light streaks ── */
+.transition-streaks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.t-streak {
+  position: absolute;
+  height: 1.5px;
+  border-radius: 1px;
+  opacity: 0;
+  animation: t-streak-drift var(--ease-in-out-sine) infinite;
+}
+
+@keyframes t-streak-drift {
+  0%   { opacity: 0; transform: translateX(-20px); }
+  20%  { opacity: 0.4; }
+  60%  { opacity: 0.15; }
+  100% { opacity: 0; transform: translateX(40px); }
 }
 
 .transition-card {
@@ -168,6 +309,9 @@ function onOverlayClick() {
     0 4px 12px rgba(107, 92, 67, 0.45),
     0 0 0 1px rgba(255, 242, 214, 0.2);
   animation: card-in 600ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  pointer-events: auto;
+  position: relative;
+  z-index: 2;
 }
 
 .transition-card-inner {
@@ -238,6 +382,21 @@ function onOverlayClick() {
     rgba(114, 93, 66, 0.28);
   backdrop-filter: blur(2px);
   animation: fade-in 400ms var(--ease-out-expo);
+}
+
+/* Stage-tinted ambient glow */
+.wish-ambient-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  transition: background 1s var(--ease-out-expo);
+  animation: ambient-glow-in 800ms var(--ease-out-expo) forwards;
+}
+
+@keyframes ambient-glow-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .card {

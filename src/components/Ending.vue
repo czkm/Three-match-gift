@@ -8,6 +8,13 @@
     <div class="bg-base" />
     <div class="bg-glow" :class="`glow-${currentAct}`" />
 
+    <!-- Candle-specific aura (Act 2) -->
+    <div
+      v-if="currentAct === 2 && candleGlowColor"
+      class="candle-aura"
+      :style="{ '--aura-color': candleGlowColor, '--aura-opacity': candleGlowOpacity }"
+    />
+
     <!-- Starfield -->
     <div class="starfield" :class="{ intense: currentAct >= 2 }">
       <span
@@ -52,21 +59,23 @@
     <div v-if="burstActive" class="burst-ring" :class="`burst-${currentAct}`" />
     <!-- Heart burst for third wish -->
     <div v-if="heartBurstActive" class="heart-burst">
+      <div class="heart-burst-ring" />
       <span
-        v-for="h in 30"
+        v-for="h in 50"
         :key="`h-${h}`"
         class="heart-particle"
         :style="{
-          left: 40 + Math.random() * 20 + '%',
-          top: 30 + Math.random() * 20 + '%',
-          fontSize: 12 + Math.random() * 18 + 'px',
-          animationDuration: 1.2 + Math.random() * 0.8 + 's',
-          animationDelay: Math.random() * 0.3 + 's',
-          '--dx': (Math.random() - 0.5) * 200 + 'px',
-          '--dy': -(80 + Math.random() * 120) + 'px'
+          left: 35 + Math.random() * 30 + '%',
+          top: 28 + Math.random() * 24 + '%',
+          fontSize: 14 + Math.random() * 24 + 'px',
+          animationDuration: 1 + Math.random() * 1.2 + 's',
+          animationDelay: Math.random() * 0.4 + 's',
+          '--dx': (Math.random() - 0.5) * 280 + 'px',
+          '--dy': -(60 + Math.random() * 160) + 'px',
+          '--rot': (Math.random() - 0.5) * 720 + 'deg'
         }"
       >
-        {{ ['💗', '❤️', '💛', '✨'][h % 4] }}
+        {{ ['💗', '❤️', '💛', '✨', '🌟', '💕'][h % 6] }}
       </span>
     </div>
 
@@ -166,13 +175,16 @@
                   <div
                     v-if="!giftOpened"
                     class="will-gift-closed"
+                    :class="{ shaking: giftShaking }"
                     @click.stop="onOpenGift"
                   >
+                    <div class="will-gift-glow-ring" />
                     <span class="will-gift-emoji">🎁</span>
                     <span class="will-gift-tap-hint">点一下打开狸~</span>
                   </div>
                   <div v-else class="will-gift-opened">
-                    <img src="/img/gift.jpg" class="will-gift-img" alt="礼物" />
+                    <div class="will-gift-reveal-flash" />
+                    <img :src="`${baseUrl}img/gift.jpg`" class="will-gift-img" alt="礼物" />
                   </div>
                 </div>
 
@@ -239,10 +251,6 @@
 
             <!-- Action buttons -->
             <div class="will-actions">
-              <button class="will-btn will-btn-card" @click.stop="onSaveCard">
-                <span class="will-btn-icon">💌</span>
-                保存贺卡
-              </button>
               <button
                 class="will-btn will-btn-poster"
                 @click.stop="onScreenshotWill"
@@ -264,7 +272,7 @@
     <div v-if="receiptVisible" class="receipt-machine" @click.stop>
       <div class="receipt-machine-top">
         <img
-          src="/img/background/FtrCashier.png"
+          :src="`${baseUrl}img/background/FtrCashier.png`"
           class="receipt-machine-bg"
           alt="收银机"
         />
@@ -272,10 +280,10 @@
       <div class="receipt-paper">
         <div
           class="receipt-card"
-          :style="{ backgroundImage: 'url(/img/background/board_bg_04.webp)' }"
+          :style="{ backgroundImage: `url(${baseUrl}img/background/board_bg_04.webp)` }"
         >
           <img
-            src="/img/nook-receipt.png"
+            :src="`${baseUrl}img/nook-receipt.png`"
             class="receipt-image"
             alt="报酬收据"
           />
@@ -299,6 +307,7 @@ import { ENDING } from '@/data/content'
 const achievement = useAchievementStore()
 const game = useGameStore()
 const emit = defineEmits(['restart'])
+const baseUrl = import.meta.env.BASE_URL
 
 const currentAct = ref(0)
 const linesRevealed = ref(0)
@@ -307,6 +316,7 @@ const burstActive = ref(false)
 const heartBurstActive = ref(false)
 const particlesReady = ref(false)
 const giftOpened = ref(false)
+const giftShaking = ref(false)
 const receiptVisible = ref(false)
 const timers = []
 
@@ -327,6 +337,20 @@ const shownLines = computed(
 const advanceLabel = computed(() => {
   const labels = ['走进生日夜', '点亮蜡烛', '留下祝福']
   return labels[currentAct.value] || '继续'
+})
+
+// Candle-specific aura colors for Act 2
+const candleGlowColor = computed(() => {
+  if (currentAct.value !== 2) return null
+  const lit = linesRevealed.value
+  if (lit === 1) return 'rgba(140, 210, 160, 0.25)' // 健康: soft green
+  if (lit === 2) return 'rgba(240, 200, 100, 0.3)'  // 快乐: warm gold
+  if (lit === 3) return 'rgba(240, 160, 170, 0.28)' // 平安: gentle rose
+  return null
+})
+const candleGlowOpacity = computed(() => {
+  if (currentAct.value !== 2 || linesRevealed.value === 0) return '0'
+  return '1'
 })
 
 // Stars
@@ -443,10 +467,20 @@ function revealNextLine() {
 }
 
 function onOpenGift() {
-  if (giftOpened.value) return
-  giftOpened.value = true
-  receiptVisible.value = true
-  audioManager.playSFX('item_get', { vol: 0.5 })
+  if (giftOpened.value || giftShaking.value) return
+  // Phase 1: shake the gift
+  giftShaking.value = true
+  audioManager.playSFX('rune_hit', { vol: 0.3, rate: 0.8 })
+  timers.push(setTimeout(() => {
+    // Phase 2: reveal the gift
+    giftShaking.value = false
+    giftOpened.value = true
+    audioManager.playSFX('item_get', { vol: 0.5 })
+    // Phase 3: delayed receipt machine
+    timers.push(setTimeout(() => {
+      receiptVisible.value = true
+    }, 900))
+  }, 800))
 }
 
 async function onSaveReceipt() {
@@ -492,7 +526,7 @@ function buildPosterHTML() {
   const itemIcons = items
     .map(i => `<span class="pi">${i.emoji}</span>`)
     .join('')
-  const base = window.location.origin
+  const base = window.location.origin + baseUrl
 
   return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -512,10 +546,7 @@ body{display:flex;align-items:center;justify-content:center;min-height:100vh;bac
 .gift-stage{display:flex;flex-direction:column;align-items:center;margin:6px 0;gap:8px}
 .gift-box{width:210px;height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2.5px solid rgba(180,155,120,.3);border-radius:20px;background:radial-gradient(ellipse at 50% 35%,rgba(255,248,235,.75),rgba(232,218,192,.35));box-shadow:inset 0 0 26px rgba(200,170,130,.22),0 3px 12px rgba(107,92,67,.1);position:relative}
 .gift-glow{position:absolute;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(220,185,130,.15),transparent 70%);pointer-events:none}
-.gift-piggy{width:44px;height:44px;border-radius:50%;border:2.5px solid #f5c31c;object-fit:cover;background:#f0e8d8;position:relative;z-index:1;margin-bottom:2px}
-.gift-receipt{width:120px;height:auto;object-fit:contain;position:relative;z-index:1}
-.gift-hint{font-size:12px;color:#a09078;font-weight:600;letter-spacing:.06em;margin-top:5px;position:relative;z-index:1}
-.gift-label{font-size:14px;color:#8a6b44;font-weight:700;letter-spacing:.08em}
+.gift-img{width:180px;height:auto;object-fit:contain;position:relative;z-index:1;filter:drop-shadow(0 3px 8px rgba(107,92,67,.18))}
 /* pig */
 .pig-stage{display:flex;flex-direction:column;align-items:center;gap:4px;margin:4px 0}
 .pig-icon{font-size:42px;line-height:1;margin-bottom:4px}
@@ -540,7 +571,7 @@ body{display:flex;align-items:center;justify-content:center;min-height:100vh;bac
 <div class="deco-row"><span>🎂</span><span>🎉</span><span>🎈</span></div>
 <p class="sub">${ws.clearedLine}<br>${location}</p>
 <div class="svg-divider"></div>
-<div class="gift-stage"><div class="gift-box"><div class="gift-glow"></div><img class="gift-piggy" src="${base}/img/animal_icon2.png" /><img class="gift-receipt" src="${base}/img/nook-receipt.png" /><span class="gift-hint">${ws.giftHint}</span></div><p class="gift-label">↑ 报酬收据狸 ↑</p></div>
+<div class="gift-stage"><div class="gift-box"><div class="gift-glow"></div><img class="gift-img" src="${base}img/gift.jpg" /></div></div>
 <div class="svg-divider"></div>
 <div class="pig-stage"><span class="pig-icon">🐷</span><p class="pig-line pig-line-em">${ws.pigCompanionLine2}</p><p class="pig-line">${ws.pigCompanionLine1}</p><p class="pig-line pig-line-sub">${ws.pigCompanionLine3}</p></div>
 <div class="svg-divider"></div>
@@ -583,85 +614,6 @@ async function onScreenshotWill() {
   } catch (e) {
     console.warn('Screenshot failed:', e)
   }
-}
-
-async function onSaveCard() {
-  audioManager.playSFX('item_get', { vol: 0.3 })
-  try {
-    const wishes = ENDING.beats[2].lines || []
-    const html = buildCardHTML(wishes)
-    const container = document.createElement('div')
-    container.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;'
-    container.innerHTML = html
-    document.body.appendChild(container)
-
-    await new Promise(r => setTimeout(r, 300))
-
-    const cardDiv = container.querySelector('.card')
-    if (!cardDiv) throw new Error('Card element not found')
-
-    const canvas = await html2canvas(cardDiv, {
-      backgroundColor: '#f5efe6',
-      scale: 3,
-      useCORS: true,
-      logging: false
-    })
-
-    document.body.removeChild(container)
-
-    const link = document.createElement('a')
-    link.download = '小岛的修复日记-生日贺卡.png'
-    link.href = canvas.toDataURL('image/png')
-    link.click()
-  } catch (e) {
-    console.warn('Card save failed:', e)
-  }
-}
-
-function buildCardHTML(wishes) {
-  const w1 = wishes[0] || ''
-  const w2 = wishes[1] || ''
-  const w3 = wishes[2] || ''
-  return `
-<div class="card" style="
-  width:420px; padding:40px; background:#f5efe6; font-family:'Nunito','Noto Sans SC',sans-serif;
-  border-radius:12px; text-align:center; position:relative;
-  box-shadow:0 4px 20px rgba(0,0,0,0.08);
-">
-  <div style="font-size:48px; margin-bottom:8px;">🎂</div>
-  <h1 style="font-size:22px; color:#5a3e2b; margin:12px 0 4px; letter-spacing:0.05em;">小岛的修复日记</h1>
-  <p style="font-size:13px; color:#9a8a7a; margin:0 0 20px;">献给小云☁️</p>
-
-  <div style="width:100%; height:1px; background:linear-gradient(90deg,transparent,#c8a87c,transparent); margin:16px 0;"></div>
-
-  <div style="display:flex; justify-content:center; gap:18px; margin:16px 0;">
-    <div style="text-align:center;">
-      <div style="font-size:28px; filter:drop-shadow(0 0 6px rgba(240,180,80,0.5));">🔥</div>
-      <p style="font-size:11px; color:#8b6914; font-weight:700; margin:4px 0 0;">健康</p>
-    </div>
-    <div style="text-align:center;">
-      <div style="font-size:28px; filter:drop-shadow(0 0 6px rgba(240,180,80,0.5));">🔥</div>
-      <p style="font-size:11px; color:#8b6914; font-weight:700; margin:4px 0 0;">快乐</p>
-    </div>
-    <div style="text-align:center;">
-      <div style="font-size:28px; filter:drop-shadow(0 0 6px rgba(240,180,80,0.5));">🔥</div>
-      <p style="font-size:11px; color:#8b6914; font-weight:700; margin:4px 0 0;">平安</p>
-    </div>
-  </div>
-
-  <div style="width:100%; height:1px; background:linear-gradient(90deg,transparent,#c8a87c,transparent); margin:16px 0;"></div>
-
-  <div style="font-size:14px; color:#5a3e2b; line-height:1.8;">
-    ${w1 ? `<p style="margin:6px 0;">🕯️ ${w1}</p>` : ''}
-    ${w2 ? `<p style="margin:6px 0;">🕯️ ${w2}</p>` : ''}
-    ${w3 ? `<p style="margin:6px 0;">🕯️ ${w3}</p>` : ''}
-  </div>
-
-  <div style="width:100%; height:1px; background:linear-gradient(90deg,transparent,#c8a87c,transparent); margin:16px 0;"></div>
-
-  <p style="font-size:14px; color:#7a6a5a; font-style:italic; margin:12px 0 4px;">——小坤</p>
-  <p style="font-size:11px; color:#9a8a7a; margin:0;">💛</p>
-</div>`
 }
 
 function onRestart() {
@@ -808,6 +760,34 @@ function onRestart() {
     );
 }
 
+/* ── Candle-specific aura (Act 2) ── */
+.candle-aura {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition:
+    opacity 1s var(--ease-out-expo),
+    background 1.2s var(--ease-out-expo);
+  background:
+    radial-gradient(
+      ellipse at 50% 40%,
+      var(--aura-color, rgba(240, 200, 100, 0.3)),
+      transparent 60%
+    );
+}
+
+.candle-aura[style*="--aura-opacity: 1"] {
+  opacity: var(--aura-opacity, 1);
+  animation: aura-breathe 3s ease-in-out infinite;
+}
+
+@keyframes aura-breathe {
+  0%, 100% { opacity: 0.6; }
+  50%      { opacity: 1; }
+}
+
 /* ── Starfield ── */
 .starfield {
   position: absolute;
@@ -927,6 +907,24 @@ function onRestart() {
   z-index: 4;
 }
 
+.heart-burst-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(240, 140, 160, 0.6);
+  box-shadow: 0 0 30px rgba(240, 150, 170, 0.3);
+  animation: heart-ring-expand 1.8s var(--ease-out-expo) forwards;
+}
+
+@keyframes heart-ring-expand {
+  0%   { width: 10px; height: 10px; opacity: 1; border-width: 3px; }
+  100% { width: 600px; height: 600px; opacity: 0; border-width: 0.5px; }
+}
+
 .heart-particle {
   position: absolute;
   opacity: 0;
@@ -936,16 +934,16 @@ function onRestart() {
 @keyframes heart-fly {
   0% {
     opacity: 1;
-    transform: translate(0, 0) scale(0.5);
+    transform: translate(0, 0) scale(0.3) rotate(0deg);
   }
   30% {
     opacity: 1;
     transform: translate(calc(var(--dx) * 0.4), calc(var(--dy) * 0.4))
-      scale(1.2);
+      scale(1.3) rotate(calc(var(--rot) * 0.3));
   }
   100% {
     opacity: 0;
-    transform: translate(var(--dx), var(--dy)) scale(0.3);
+    transform: translate(var(--dx), var(--dy)) scale(0.2) rotate(var(--rot));
   }
 }
 
@@ -1490,12 +1488,74 @@ function onRestart() {
   }
 }
 
+/* Shake animation before opening */
+.will-gift-closed.shaking {
+  animation: gift-shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  cursor: default;
+}
+
+.will-gift-closed.shaking .will-gift-emoji {
+  animation: gift-shake-emoji 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes gift-shake {
+  0%, 100% { transform: translateX(0) scale(1); }
+  10% { transform: translateX(-6px) scale(1.04); }
+  20% { transform: translateX(6px) scale(1.06); }
+  30% { transform: translateX(-6px) scale(1.04); }
+  40% { transform: translateX(6px) scale(1.06); }
+  50% { transform: translateX(-4px) scale(1.03); }
+  60% { transform: translateX(4px) scale(1.05); }
+  70% { transform: translateX(-2px) scale(1.02); }
+  80% { transform: translateX(2px) scale(1.03); }
+  90% { transform: translateX(0) scale(1.01); }
+}
+
+@keyframes gift-shake-emoji {
+  0%, 100% { filter: drop-shadow(0 3px 6px rgba(107, 92, 67, 0.2)); }
+  50% { filter: drop-shadow(0 3px 14px rgba(245, 195, 28, 0.5)); }
+}
+
+/* Glow ring around gift box */
+.will-gift-glow-ring {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 195, 28, 0.12) 0%, rgba(245, 195, 28, 0.04) 50%, transparent 70%);
+  pointer-events: none;
+  animation: glow-ring-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes glow-ring-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50%      { transform: scale(1.4); opacity: 1; }
+}
+
 /* Phase 2: opened */
 .will-gift-opened {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  position: relative;
+}
+
+/* Reveal flash */
+.will-gift-reveal-flash {
+  position: absolute;
+  inset: -30px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 248, 220, 0.6) 0%, rgba(245, 195, 28, 0.2) 30%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  animation: reveal-flash-burst 700ms var(--ease-out-expo) forwards;
+}
+
+@keyframes reveal-flash-burst {
+  0%   { opacity: 1; transform: scale(0.6); }
+  50%  { opacity: 0.5; transform: scale(1.4); }
+  100% { opacity: 0; transform: scale(1.8); }
 }
 
 .will-gift-img {
@@ -1504,6 +1564,8 @@ function onRestart() {
   object-fit: contain;
   animation: gift-img-pop 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
   filter: drop-shadow(0 3px 8px rgba(107, 92, 67, 0.18));
+  position: relative;
+  z-index: 2;
 }
 
 @keyframes gift-img-pop {

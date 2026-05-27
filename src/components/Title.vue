@@ -15,6 +15,25 @@
 
       <p class="ink-subtle gift-label">想写给谁狸：</p>
       <div class="gift-stage" :class="[`stage-${phase}`, { rewritten: phase !== 'choice' }]">
+        <!-- Flash burst on intercept -->
+        <div v-if="showFlash" class="intercept-flash" />
+        <!-- Sparkle particles during rewrite -->
+        <div v-if="sparklesActive" class="sparkle-layer">
+          <span
+            v-for="s in sparkles"
+            :key="s.id"
+            class="sparkle"
+            :style="{
+              left: s.x + '%',
+              top: s.y + '%',
+              fontSize: s.size + 'px',
+              animationDuration: s.dur + 's',
+              animationDelay: s.delay + 's',
+              '--dx': s.dx + 'px',
+              '--dy': s.dy + 'px'
+            }"
+          >{{ s.glyph }}</span>
+        </div>
         <input
           ref="giftInput"
           v-model="gift"
@@ -27,6 +46,7 @@
         <div v-if="showAttemptStrike" class="attempt-overlay" aria-hidden="true">
           <span class="attempt-text">{{ attemptedGift }}</span>
           <span class="attempt-strike" />
+          <span v-if="showStamp" class="intercept-stamp">✗</span>
         </div>
         <div
           v-if="showRewriteText"
@@ -74,6 +94,8 @@ const REWRITE_START_MS = 220;
 const REWRITE_FINISH_DELAY_MS = 2800;
 const INTERCEPT_CHAR_MS = 34;
 const REWRITE_CHAR_MS = 84;
+const FLASH_DURATION_MS = 400;
+const SPARKLE_DURATION_MS = 2400;
 
 const game = useGameStore();
 const achievement = useAchievementStore();
@@ -84,9 +106,25 @@ const attemptedGift = ref('');
 const interceptDisplay = ref('');
 const rewriteDisplay = ref('');
 const giftInput = ref(null);
+const showFlash = ref(false);
+const showStamp = ref(false);
+const sparklesActive = ref(false);
 const timers = [];
 let interceptInterval = null;
 let rewriteInterval = null;
+
+// Sparkle particles for the rewrite moment
+const sparkles = Array.from({ length: 18 }, (_, i) => ({
+  id: `sp-${i}`,
+  glyph: ['✨', '🌟', '💫', '⭐', '💛', '🪻'][i % 6],
+  x: 10 + Math.random() * 80,
+  y: 10 + Math.random() * 80,
+  size: 12 + Math.random() * 14,
+  dur: 1.2 + Math.random() * 1.6,
+  delay: Math.random() * 0.6,
+  dx: (Math.random() - 0.5) * 120,
+  dy: -(40 + Math.random() * 80)
+}));
 
 const emit = defineEmits(['start']);
 
@@ -110,6 +148,9 @@ function onStart() {
   finalGiftText.value = gift.value.includes('小云') ? '献给小云☁️' : ENDING.lockedGift;
   phase.value = 'intercept';
   interceptDisplay.value = '';
+  // Trigger flash burst
+  showFlash.value = true;
+  timers.push(setTimeout(() => { showFlash.value = false }, FLASH_DURATION_MS));
   timers.push(setTimeout(startIntercept, PREPARE_MS));
 }
 
@@ -159,6 +200,10 @@ function startIntercept() {
 function beginRewrite() {
   if (phase.value === 'handoff' || phase.value === 'rewrite') return;
   phase.value = 'rewrite';
+  // Show stamp and sparkles
+  showStamp.value = true;
+  sparklesActive.value = true;
+  timers.push(setTimeout(() => { sparklesActive.value = false }, SPARKLE_DURATION_MS));
   clearIntervalIfNeeded('rewrite');
   rewriteDisplay.value = '';
   let index = 0;
@@ -545,6 +590,91 @@ h2.sub {
   border-color: #c4b89e;
   box-shadow: 0 5px 0 0 #bdaea0;
   color: #9f927d;
+}
+
+/* ── Intercept flash burst ── */
+.intercept-flash {
+  position: absolute;
+  inset: -20px;
+  border-radius: 60px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(255, 248, 220, 0.3) 30%, transparent 70%);
+  pointer-events: none;
+  z-index: 10;
+  animation: flash-burst 400ms var(--ease-out-expo) forwards;
+}
+
+@keyframes flash-burst {
+  0%   { opacity: 1; transform: scale(0.8); }
+  50%  { opacity: 0.6; transform: scale(1.1); }
+  100% { opacity: 0; transform: scale(1.3); }
+}
+
+/* ── Sparkle particles ── */
+.sparkle-layer {
+  position: absolute;
+  inset: -30px;
+  pointer-events: none;
+  z-index: 11;
+  overflow: hidden;
+}
+
+.sparkle {
+  position: absolute;
+  opacity: 0;
+  animation: sparkle-rise var(--ease-out-expo) forwards;
+}
+
+@keyframes sparkle-rise {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.3); }
+  20%  { opacity: 1; transform: translate(calc(var(--dx) * 0.2), calc(var(--dy) * 0.3)) scale(1); }
+  80%  { opacity: 0.5; transform: translate(calc(var(--dx) * 0.7), calc(var(--dy) * 0.8)) scale(0.7); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.2); }
+}
+
+/* ── Intercept stamp (red ✗ seal) ── */
+.intercept-stamp {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-15deg);
+  font-size: 28px;
+  color: rgba(200, 70, 70, 0.7);
+  font-weight: 900;
+  z-index: 2;
+  pointer-events: none;
+  animation: stamp-down 420ms cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+  text-shadow: 0 2px 4px rgba(200, 70, 70, 0.15);
+}
+
+@keyframes stamp-down {
+  0%   { opacity: 0; transform: translateY(-50%) rotate(-15deg) scale(2.5); }
+  60%  { opacity: 0.8; transform: translateY(-50%) rotate(-15deg) scale(0.9); }
+  80%  { opacity: 0.7; transform: translateY(-50%) rotate(-15deg) scale(1.05); }
+  100% { opacity: 0.65; transform: translateY(-50%) rotate(-15deg) scale(1); }
+}
+
+/* ── Enhanced strike-through (brush stroke) ── */
+.attempt-strike {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 50%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(200, 70, 70, 0.15) 6%,
+    rgba(200, 70, 70, 0.55) 15%,
+    rgba(200, 70, 70, 0.7) 50%,
+    rgba(200, 70, 70, 0.55) 85%,
+    rgba(200, 70, 70, 0.15) 94%,
+    transparent 100%
+  );
+  border-radius: 2px;
+  transform: scaleX(0.1);
+  transform-origin: left center;
+  animation: strike-draw 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  box-shadow: 0 1px 3px rgba(200, 70, 70, 0.12);
 }
 
 /* ── Keyframes ── */
