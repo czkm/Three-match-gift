@@ -320,6 +320,7 @@
         :repairing="repairing"
         :active="activeHotspotId === 'pet-pig'"
         :mood="pigMoodGlyph"
+        :pig-intimacy="game.pigIntimacy"
         :trinkets="game.ownedItems"
         @inspect="onPigInspect"
         @inspect-trinket="onPigTrinketInspect"
@@ -660,7 +661,12 @@ function onPigInspect() {
 
   activeHotspotId.value = 'pet-pig'
   pigMoodGlyph.value = reaction.emoji || ''
-  displayCaption.value = reaction.caption || captionForHotspot('pet-pig')
+  let caption = reaction.caption || captionForHotspot('pet-pig')
+  if (reaction.fed) {
+    const bar = '❤️'.repeat(Math.min(5, Math.ceil(reaction.intimacy / 2))) + '🤍'.repeat(Math.max(0, 5 - Math.ceil(reaction.intimacy / 2)))
+    caption += ` （亲密度 ${reaction.intimacy}/10 ${bar}）`
+  }
+  displayCaption.value = caption
   clearCaptionTimer()
   captionTimer = setTimeout(() => {
     restoreDefaultCaption()

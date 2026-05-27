@@ -1,5 +1,9 @@
 <template>
-  <div class="ending" :class="`act-${currentAct}`" @click="onStageClick">
+  <div
+    class="ending"
+    :class="`act-${currentAct}`"
+    @click="currentAct !== 2 ? onStageClick() : null"
+  >
     <!-- Dynamic background -->
     <div class="bg-base" />
     <div class="bg-glow" :class="`glow-${currentAct}`" />
@@ -46,6 +50,25 @@
 
     <!-- Burst ring -->
     <div v-if="burstActive" class="burst-ring" :class="`burst-${currentAct}`" />
+    <!-- Heart burst for third wish -->
+    <div v-if="heartBurstActive" class="heart-burst">
+      <span
+        v-for="h in 30"
+        :key="`h-${h}`"
+        class="heart-particle"
+        :style="{
+          left: 40 + Math.random() * 20 + '%',
+          top: 30 + Math.random() * 20 + '%',
+          fontSize: 12 + Math.random() * 18 + 'px',
+          animationDuration: 1.2 + Math.random() * 0.8 + 's',
+          animationDelay: Math.random() * 0.3 + 's',
+          '--dx': (Math.random() - 0.5) * 200 + 'px',
+          '--dy': -(80 + Math.random() * 120) + 'px'
+        }"
+      >
+        {{ ['💗', '❤️', '💛', '✨'][h % 4] }}
+      </span>
+    </div>
 
     <!-- Center content -->
     <div class="stage">
@@ -79,7 +102,11 @@
                   v-for="n in 3"
                   :key="`c-${n}`"
                   class="candle-unit"
-                  :class="{ lit: n <= linesRevealed }"
+                  :class="{
+                    lit: n <= linesRevealed,
+                    clickable: n === linesRevealed + 1 && !allLinesShown
+                  }"
+                  @click.stop="onCandleClick(n)"
                 >
                   <span class="candle-flame">
                     {{ n <= linesRevealed ? '🔥' : '🕯️' }}
@@ -90,7 +117,7 @@
                 </div>
               </div>
             </div>
-            <div v-if="currentAct === 2 && allLinesShown" class="candle-lines">
+            <!-- <div v-if="currentAct === 2 && allLinesShown" class="candle-lines">
               <p
                 v-for="(line, idx) in ENDING.candleLines"
                 :key="`candle-${idx}`"
@@ -99,7 +126,7 @@
                 <span class="candle-marker">{{ ['🕯️', '🕯️', '🕯️'][idx] }}</span>
                 {{ line }}
               </p>
-            </div>
+            </div> -->
             <button
               v-if="allLinesShown"
               class="continue-btn"
@@ -156,7 +183,11 @@
                 <div class="will-section will-pig-section">
                   <span class="will-pig-icon">🐷</span>
                   <p class="will-pig-line will-pig-main">
-                    {{ willScreen.pigCompanionLine2 }}
+                    {{
+                      game.pigIntimacy >= 8
+                        ? willScreen.pigIntimateLine
+                        : willScreen.pigCompanionLine2
+                    }}
                   </p>
                   <p class="will-pig-line will-pig-sub-1">
                     {{ willScreen.pigCompanionLine1 }}
@@ -208,6 +239,10 @@
 
             <!-- Action buttons -->
             <div class="will-actions">
+              <button class="will-btn will-btn-card" @click.stop="onSaveCard">
+                <span class="will-btn-icon">💌</span>
+                保存贺卡
+              </button>
               <button
                 class="will-btn will-btn-poster"
                 @click.stop="onScreenshotWill"
@@ -269,6 +304,7 @@ const currentAct = ref(0)
 const linesRevealed = ref(0)
 const allLinesShown = ref(false)
 const burstActive = ref(false)
+const heartBurstActive = ref(false)
 const particlesReady = ref(false)
 const giftOpened = ref(false)
 const receiptVisible = ref(false)
@@ -328,9 +364,9 @@ const actParticles = {
       rot: Math.random() * 360
     })),
   2: () =>
-    Array.from({ length: 36 }, (_, i) => ({
+    Array.from({ length: 40 }, (_, i) => ({
       id: `p2-${i}`,
-      glyph: ['✨', '🌟', '💛', '💫', '⭐'][i % 5],
+      glyph: ['✨', '🌟', '💛', '💗', '💫', '⭐', '❤️'][i % 7],
       x: 5 + Math.random() * 90,
       size: 14 + Math.random() * 18,
       dur: 4 + Math.random() * 3,
@@ -371,6 +407,13 @@ onBeforeUnmount(() => {
 function onStageClick() {
   if (currentAct.value === 3) return
   if (allLinesShown.value) return
+  if (currentAct.value === 2) return
+  revealNextLine()
+}
+
+function onCandleClick(n) {
+  if (allLinesShown.value) return
+  if (n !== linesRevealed.value + 1) return
   revealNextLine()
 }
 
@@ -385,6 +428,14 @@ function revealNextLine() {
         burstActive.value = false
       }, 800)
     )
+    if (linesRevealed.value === 3) {
+      heartBurstActive.value = true
+      timers.push(
+        setTimeout(() => {
+          heartBurstActive.value = false
+        }, 2000)
+      )
+    }
   }
   if (linesRevealed.value >= totalLines.value) {
     allLinesShown.value = true
@@ -532,6 +583,85 @@ async function onScreenshotWill() {
   } catch (e) {
     console.warn('Screenshot failed:', e)
   }
+}
+
+async function onSaveCard() {
+  audioManager.playSFX('item_get', { vol: 0.3 })
+  try {
+    const wishes = ENDING.beats[2].lines || []
+    const html = buildCardHTML(wishes)
+    const container = document.createElement('div')
+    container.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;'
+    container.innerHTML = html
+    document.body.appendChild(container)
+
+    await new Promise(r => setTimeout(r, 300))
+
+    const cardDiv = container.querySelector('.card')
+    if (!cardDiv) throw new Error('Card element not found')
+
+    const canvas = await html2canvas(cardDiv, {
+      backgroundColor: '#f5efe6',
+      scale: 3,
+      useCORS: true,
+      logging: false
+    })
+
+    document.body.removeChild(container)
+
+    const link = document.createElement('a')
+    link.download = '小岛的修复日记-生日贺卡.png'
+    link.href = canvas.toDataURL('image/png')
+    link.click()
+  } catch (e) {
+    console.warn('Card save failed:', e)
+  }
+}
+
+function buildCardHTML(wishes) {
+  const w1 = wishes[0] || ''
+  const w2 = wishes[1] || ''
+  const w3 = wishes[2] || ''
+  return `
+<div class="card" style="
+  width:420px; padding:40px; background:#f5efe6; font-family:'Nunito','Noto Sans SC',sans-serif;
+  border-radius:12px; text-align:center; position:relative;
+  box-shadow:0 4px 20px rgba(0,0,0,0.08);
+">
+  <div style="font-size:48px; margin-bottom:8px;">🎂</div>
+  <h1 style="font-size:22px; color:#5a3e2b; margin:12px 0 4px; letter-spacing:0.05em;">小岛的修复日记</h1>
+  <p style="font-size:13px; color:#9a8a7a; margin:0 0 20px;">献给小云☁️</p>
+
+  <div style="width:100%; height:1px; background:linear-gradient(90deg,transparent,#c8a87c,transparent); margin:16px 0;"></div>
+
+  <div style="display:flex; justify-content:center; gap:18px; margin:16px 0;">
+    <div style="text-align:center;">
+      <div style="font-size:28px; filter:drop-shadow(0 0 6px rgba(240,180,80,0.5));">🔥</div>
+      <p style="font-size:11px; color:#8b6914; font-weight:700; margin:4px 0 0;">健康</p>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:28px; filter:drop-shadow(0 0 6px rgba(240,180,80,0.5));">🔥</div>
+      <p style="font-size:11px; color:#8b6914; font-weight:700; margin:4px 0 0;">快乐</p>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:28px; filter:drop-shadow(0 0 6px rgba(240,180,80,0.5));">🔥</div>
+      <p style="font-size:11px; color:#8b6914; font-weight:700; margin:4px 0 0;">平安</p>
+    </div>
+  </div>
+
+  <div style="width:100%; height:1px; background:linear-gradient(90deg,transparent,#c8a87c,transparent); margin:16px 0;"></div>
+
+  <div style="font-size:14px; color:#5a3e2b; line-height:1.8;">
+    ${w1 ? `<p style="margin:6px 0;">🕯️ ${w1}</p>` : ''}
+    ${w2 ? `<p style="margin:6px 0;">🕯️ ${w2}</p>` : ''}
+    ${w3 ? `<p style="margin:6px 0;">🕯️ ${w3}</p>` : ''}
+  </div>
+
+  <div style="width:100%; height:1px; background:linear-gradient(90deg,transparent,#c8a87c,transparent); margin:16px 0;"></div>
+
+  <p style="font-size:14px; color:#7a6a5a; font-style:italic; margin:12px 0 4px;">——小坤</p>
+  <p style="font-size:11px; color:#9a8a7a; margin:0;">💛</p>
+</div>`
 }
 
 function onRestart() {
@@ -789,6 +919,36 @@ function onRestart() {
   }
 }
 
+/* ── Heart burst ── */
+.heart-burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.heart-particle {
+  position: absolute;
+  opacity: 0;
+  animation: heart-fly var(--ease-out-expo) forwards;
+}
+
+@keyframes heart-fly {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(0.5);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(calc(var(--dx) * 0.4), calc(var(--dy) * 0.4))
+      scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(0.3);
+  }
+}
+
 /* ── Stage layout ── */
 .stage {
   position: relative;
@@ -980,6 +1140,26 @@ function onRestart() {
   align-items: center;
   gap: 6px;
   transition: all 0.6s var(--ease-out-expo);
+}
+
+.candle-unit.clickable {
+  cursor: pointer;
+}
+
+.candle-unit.clickable .candle-flame {
+  animation: candle-hint 1.2s ease-in-out infinite;
+}
+
+@keyframes candle-hint {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 1px 2px rgba(114, 93, 66, 0.1));
+  }
+  50% {
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 10px rgba(240, 180, 80, 0.35));
+  }
 }
 
 .candle-flame {
@@ -1341,7 +1521,7 @@ function onRestart() {
 .receipt-machine {
   position: fixed;
   top: 50%;
-  right: 0;
+  right: 40px;
   transform: translateY(-50%);
   z-index: 100;
   display: flex;

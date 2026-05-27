@@ -133,6 +133,9 @@ export const useGameStore = defineStore('game', {
     pigClickCount: 0,
     pigAngryThreshold: 6,
     pigAngryUsedDay: null,
+    pigIntimacy: 0,
+    pigLastFedDay: -1,
+    dayRetryCount: 0,
 
     // Day 9 djinn / wish state
     djinnHintVisible: false,
@@ -162,9 +165,10 @@ export const useGameStore = defineStore('game', {
       return DAYS.length
     },
     effectiveMaxSteps(state) {
+      const retryBonus = state.dayRetryCount >= 3 ? 5 : 0
       return Math.max(
         14,
-        MAX_STEPS - state.maxStepPenalty + state.maxStepsBonus
+        MAX_STEPS - state.maxStepPenalty + state.maxStepsBonus + retryBonus
       )
     },
     ownedItemIds(state) {
@@ -702,6 +706,8 @@ export const useGameStore = defineStore('game', {
       this.pigClickCount = 0
       this.pigAngryThreshold = this._rollPigAngryThreshold()
       this.pigAngryUsedDay = null
+      this.pigLastFedDay = -1
+      this.dayRetryCount = 0
       this.introShown = false
       this.hintMove = null
       this.pendingRewardOffer = null
@@ -883,6 +889,7 @@ export const useGameStore = defineStore('game', {
       if (this.djinnUnlimitedSteps) return 'continue'
       if (this.stepsLeft <= 0) {
         if (this._tryZeroStepRecovery()) return 'continue'
+        this.dayRetryCount++
         this.dayEndLine =
           DAY_END_LINES[Math.floor(Math.random() * DAY_END_LINES.length)]
         this.phase = 'dayEnd'
@@ -1857,6 +1864,9 @@ export const useGameStore = defineStore('game', {
     },
 
     inspectPig() {
+      if (this.pigLastFedDay !== this.currentDay) {
+        return this._feedPig()
+      }
       this.pigClickCount += 1
       if (this.pigAngryUsedDay === this.currentDay) {
         audioManager.playSFX('pig_annoyed', { vol: 0.4 }).catch(() => {})
@@ -1896,6 +1906,30 @@ export const useGameStore = defineStore('game', {
         ...PIG_REACTIONS.angry,
         angry: true,
         penalized: true
+      }
+    },
+
+    _feedPig() {
+      this.pigLastFedDay = this.currentDay
+      this.pigIntimacy = Math.min(10, this.pigIntimacy + 1)
+      const intimacy = this.pigIntimacy
+      let reaction
+      if (intimacy >= 8) {
+        reaction = PIG_REACTIONS.intimateHigh
+      } else if (intimacy >= 5) {
+        reaction = PIG_REACTIONS.intimateMid
+      } else if (intimacy >= 3) {
+        reaction = PIG_REACTIONS.intimateLow
+      } else {
+        reaction = PIG_REACTIONS.fed[this.pigIntimacy % PIG_REACTIONS.fed.length]
+      }
+      audioManager.playSFX('pig_gentle', { vol: 0.45 }).catch(() => {})
+      return {
+        ...reaction,
+        fed: true,
+        angry: false,
+        penalized: false,
+        intimacy: this.pigIntimacy
       }
     },
 

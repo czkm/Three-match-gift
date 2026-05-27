@@ -34,6 +34,7 @@
         <span class="pig-trinket-emoji">{{ trinket.emoji }}</span>
       </button>
       <span v-if="moodGlyph" class="pig-mood">{{ moodGlyph }}</span>
+      <span v-if="pigIntimacy >= 6" class="pig-intimacy-heart">💕</span>
     </div>
   </div>
 </template>
@@ -48,6 +49,7 @@ const props = defineProps({
   repairing: { type: Boolean, default: false },
   active: { type: Boolean, default: false },
   mood: { type: String, default: '' },
+  pigIntimacy: { type: Number, default: 0 },
   trinkets: { type: Array, default: () => [] }
 })
 
@@ -480,6 +482,28 @@ onBeforeUnmount(() => {
   transform: translateX(-50%);
   filter: drop-shadow(0 1px 3px rgba(30, 18, 12, 0.28));
   animation: pig-mood-bob 1.8s ease-in-out infinite;
+}
+
+.pig-intimacy-heart {
+  position: absolute;
+  left: 50%;
+  bottom: 48px;
+  font-size: 14px;
+  line-height: 1;
+  transform: translateX(-50%);
+  animation: pig-heart-float 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pig-heart-float {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-4px) scale(1.12);
+  }
 }
 
 .pig-anchor.is-walking .pig-glyph {
