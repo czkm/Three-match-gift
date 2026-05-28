@@ -12,7 +12,7 @@ git init
 git checkout -b main
 git add .
 git commit -m "deploy: $(date '+%m-%d %H:%M')"
-git remote add origin https://github.com/czkm/three-match-gift.git
+git remote add origin git@github.com:czkm/three-match-gift.git
 git push origin main --force
 cd -
 rm -rf "$TMP"
