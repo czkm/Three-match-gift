@@ -1,9 +1,9 @@
-import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
-import { fileURLToPath, URL } from 'node:url';
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
-  base: '/Three-match-gift/',
+  base: '/three-match-gift/',
   plugins: [vue()],
   resolve: {
     alias: {
@@ -15,4 +15,4 @@ export default defineConfig({
     strictPort: false,
     open: true
   }
-});
+})
