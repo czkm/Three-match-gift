@@ -306,8 +306,8 @@ export const NO_BOARD_AUDIO_ITEMS = new Set([
 
 const AC_AMBIENT_MULTI: Record<string, string[]> = {
   construction: [`${AC_BASE}/Environment/Env_FacilityConstruction00.wav`],
-  healing: [`${AC_BASE}/Ambience/AmbPlace_Healing.wav`],
-  space: [`${AC_BASE}/Ambience/AmbPlace_Space.wav`],
+  healing: [`${AC_BASE}/Environment/Env_SeaWaterWave00.wav`],
+  space: [`${AC_BASE}/Environment/Env_SeaWaterWave01.wav`],
 };
 
 const AMBIENT_INTERMITTENT: Record<string, IntermittentGroup[]> = {
