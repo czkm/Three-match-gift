@@ -912,6 +912,8 @@ onBeforeUnmount(() => {
   width: 100%;
   text-align: left;
   padding: 0 2px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* ── Devil penalty / cost ── */
@@ -925,6 +927,8 @@ onBeforeUnmount(() => {
   padding: 6px 2px 0;
   margin-top: 2px;
   border-top: 1px solid rgba(180, 60, 60, 0.12);
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* ── Card footer: quality badge + slot icon ── */

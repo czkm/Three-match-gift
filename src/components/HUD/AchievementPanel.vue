@@ -68,7 +68,7 @@ const renderedItems = computed(() => achievement.orderedAchievements.map((item) 
     unlocked,
     masked,
     title: masked ? '？？？' : item.title,
-    description: masked ? '繼續在果園裡探索狸～' : item.description,
+    description: masked ? '继续在果园里探索狸～' : item.description,
     flavor: item.flavor,
     iconFile: item.iconFile || null,
     tag: dayMatch ? `第 ${dayMatch[1]} 天` : '通用',

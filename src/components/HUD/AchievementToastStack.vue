@@ -19,12 +19,12 @@
           <span v-else class="toast-icon-emoji">{{ definition(entry.id)?.icon || '🏆' }}</span>
         </div>
         <div class="toast-copy">
-          <p class="toast-label">哩程達成！</p>
+          <p class="toast-label">哩程达成！</p>
           <p class="toast-title">{{ definition(entry.id)?.title }}</p>
           <p class="toast-flavor">{{ definition(entry.id)?.flavor }}</p>
           <div class="toast-foot">
             <p class="toast-rarity">{{ rarityLabel(definition(entry.id)?.rarity) }}</p>
-            <p class="toast-hint">點擊查看詳情</p>
+            <p class="toast-hint">点击查看详情</p>
           </div>
         </div>
       </button>

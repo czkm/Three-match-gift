@@ -15,6 +15,12 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 
+const BASE = import.meta.env.BASE_URL
+
+const IMAGE_MAP = {
+  stye_devil: 'stye',
+}
+
 const props = defineProps({
   rewardItemId: { type: String, required: true },
   size: { type: Number, default: 32 },
@@ -29,7 +35,8 @@ watch(() => props.rewardItemId, () => {
   imgFailed.value = false;
 });
 
-const imgSrc = computed(() => `/img/isaac/${props.rewardItemId}.png`);
+const imgId = computed(() => IMAGE_MAP[props.rewardItemId] || props.rewardItemId)
+const imgSrc = computed(() => `${BASE}img/isaac/${imgId.value}.png`);
 
 const effectiveSize = computed(() => props.size * props.scale);
 

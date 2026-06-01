@@ -168,7 +168,7 @@
         <Transition name="milk-tea-pop">
           <div v-if="milkTeaResult" class="milk-tea-image-overlay">
             <div class="milk-tea-image-card">
-              <img :src="milkTeaResult" alt="" class="milk-tea-image">
+              <img :src="milkTeaResult" alt="" class="milk-tea-image" />
             </div>
             <p class="milk-tea-image-label">果汁特调完成狸~</p>
           </div>
@@ -959,7 +959,10 @@ onBeforeUnmount(() => {
   if (milkTeaSweepTimer) clearTimeout(milkTeaSweepTimer)
   if (milkTeaPulseTimer) clearTimeout(milkTeaPulseTimer)
   if (milkTeaResolveTimer) clearTimeout(milkTeaResolveTimer)
-  if (milkTeaResultTimer) { clearTimeout(milkTeaResultTimer); milkTeaResultTimer = null }
+  if (milkTeaResultTimer) {
+    clearTimeout(milkTeaResultTimer)
+    milkTeaResultTimer = null
+  }
   if (pigPenaltyShakeTimer) clearTimeout(pigPenaltyShakeTimer)
   if (djinnTransitionTimer) clearTimeout(djinnTransitionTimer)
   if (djinnTransitionSettleTimer) clearTimeout(djinnTransitionSettleTimer)
@@ -1402,7 +1405,7 @@ function onTilesCleared(
   const safeChain = chain || 1
   const totalCleared = safeGroupSizes.reduce((sum, size) => sum + size, 0)
   if (totalCleared > 0) audioManager.playMatch(totalCleared)
-  const biggest = Math.max(0, ...(safeGroupSizes))
+  const biggest = Math.max(0, ...safeGroupSizes)
   if (biggest >= 4) audioManager.playMatchPraise(biggest)
   if (safeChain >= 2) {
     pendingComboAudioLevel.value = Math.max(
@@ -1416,7 +1419,8 @@ function onTilesCleared(
     chain || 1,
     matchGroups || []
   )
-  if (gained) audioManager.playSFX('resourcegain', { vol: 0.30, bypassThrottle: true })
+  if (gained)
+    audioManager.playSFX('resourcegain', { vol: 0.3, bypassThrottle: true })
   game.recordDjinnBoardProgress({
     clearedPositions: collectClearedPositions(),
     groupSizes: groupSizes || [],
@@ -1547,7 +1551,7 @@ function buildComboPraise(biggest, chain) {
     chainDepth >= 2
       ? {
           prefix: '连击狸！',
-          comboText: `${chainDepth} CHAIN`,
+          comboText: `${chainDepth} 连锁！`,
           subline:
             chainDepth >= 3
               ? `第 ${chainDepth} 段好狸！`
@@ -1568,7 +1572,7 @@ function buildComboPraise(biggest, chain) {
   if (biggest >= 8) {
     return {
       ...cascadeBits,
-      label: '神迹降临狸！！！！',
+      label: '神迹狸！！！！',
       tone: 'ultimate',
       giant: true,
       flash: true,
@@ -2255,7 +2259,9 @@ function startDjinnTransitionFx() {
 
   // Screen flash at start
   transitionFlash.value = true
-  setTimeout(() => { transitionFlash.value = false }, 400)
+  setTimeout(() => {
+    transitionFlash.value = false
+  }, 400)
 
   // SFX sequence
   setTimeout(() => {
@@ -2531,7 +2537,9 @@ function onXrayScan(payload = {}) {
         game.suppressItemCascade = true
         board.value.checkMatches()
         // Reset after the checkMatches chain settles (it processes synchronously)
-        setTimeout(() => { game.suppressItemCascade = false }, 100)
+        setTimeout(() => {
+          game.suppressItemCascade = false
+        }, 100)
       }
     }, 800)
   }
@@ -3468,7 +3476,8 @@ function onXrayScan(payload = {}) {
 }
 
 @keyframes combo-ultimate-pulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow:
       0 8px 24px rgba(114, 93, 66, 0.3),
       0 0 40px rgba(255, 215, 100, 0.4),
@@ -3922,13 +3931,12 @@ function onXrayScan(payload = {}) {
 .transition-flash {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(
-      ellipse at 50% 50%,
-      rgba(255, 248, 230, 0.48),
-      rgba(255, 242, 214, 0.28) 36%,
-      transparent 68%
-    );
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    rgba(255, 248, 230, 0.48),
+    rgba(255, 242, 214, 0.28) 36%,
+    transparent 68%
+  );
   animation: djinn-transition-flash 0.4s ease-out forwards;
 }
 
@@ -4098,8 +4106,8 @@ function onXrayScan(payload = {}) {
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -50%) translateY(var(--dy))
-      translateX(var(--dx)) scale(0.3);
+    transform: translate(-50%, -50%) translateY(var(--dy)) translateX(var(--dx))
+      scale(0.3);
   }
 }
 

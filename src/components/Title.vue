@@ -4,17 +4,22 @@
       <p class="emblem">🍃</p>
       <h1 class="ink-title">小岛的修复日记</h1>
       <h2 class="ink-title sub">豆狸&粒狸の島づくり</h2>
-      <p class="byline ink-subtle">豆狸&粒狸的小岛修复记 · 9日间 🍃</p>
+      <p class="byline ink-subtle">🍃</p>
 
       <blockquote class="quote">
-        "小岛在等它的故事狸。<br />
-        一点一点，<br />
-        把它修好吧狸。"
+        "小岛在现在一片废墟狸。
+        <br />
+        一点一点，
+        <br />
+        把它修好吧狸！"
         <footer>—— 狸克</footer>
       </blockquote>
 
-      <p class="ink-subtle gift-label">想写给谁狸：</p>
-      <div class="gift-stage" :class="[`stage-${phase}`, { rewritten: phase !== 'choice' }]">
+      <p class="ink-subtle gift-label">你叫什么名字狸：</p>
+      <div
+        class="gift-stage"
+        :class="[`stage-${phase}`, { rewritten: phase !== 'choice' }]"
+      >
         <!-- Flash burst on intercept -->
         <div v-if="showFlash" class="intercept-flash" />
         <!-- Sparkle particles during rewrite -->
@@ -32,7 +37,9 @@
               '--dx': s.dx + 'px',
               '--dy': s.dy + 'px'
             }"
-          >{{ s.glyph }}</span>
+          >
+            {{ s.glyph }}
+          </span>
         </div>
         <input
           ref="giftInput"
@@ -43,7 +50,11 @@
           maxlength="40"
           :disabled="isLocked"
         />
-        <div v-if="showAttemptStrike" class="attempt-overlay" aria-hidden="true">
+        <div
+          v-if="showAttemptStrike"
+          class="attempt-overlay"
+          aria-hidden="true"
+        >
           <span class="attempt-text">{{ attemptedGift }}</span>
           <span class="attempt-strike" />
           <span v-if="showStamp" class="intercept-stamp">✗</span>
@@ -61,10 +72,16 @@
 
       <button class="achievement-entry" @click="openAchievements">
         <span class="entry-icon">🍃</span>
-        <span class="entry-text">成就 🍃 {{ achievement.unlockedCount }} / {{ achievement.totalCount }}</span>
+        <span class="entry-text">
+          成就 🍃 {{ achievement.unlockedCount }} / {{ achievement.totalCount }}
+        </span>
       </button>
 
-      <div class="intercept-shell" :class="{ visible: showIntercept }" @click="onInterceptClick">
+      <div
+        class="intercept-shell"
+        :class="{ visible: showIntercept }"
+        @click="onInterceptClick"
+      >
         <p class="speaker">豆狸&粒狸</p>
         <p class="intercept-line">
           {{ interceptDisplay }}
@@ -77,41 +94,43 @@
         :class="{ waiting: phase !== 'choice' }"
         :disabled="isStartDisabled"
         @click="onStart"
-      >{{ startLabel }} 🍃</button>
+      >
+        {{ startLabel }} 🍃
+      </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { audioManager } from '@/audio/AudioManager';
-import { useAchievementStore } from '@/stores/achievementStore';
-import { useGameStore } from '@/stores/gameStore';
-import { ENDING } from '@/data/content';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { audioManager } from '@/audio/AudioManager'
+import { useAchievementStore } from '@/stores/achievementStore'
+import { useGameStore } from '@/stores/gameStore'
+import { ENDING } from '@/data/content'
 
-const PREPARE_MS = 300;
-const REWRITE_START_MS = 220;
-const REWRITE_FINISH_DELAY_MS = 2800;
-const INTERCEPT_CHAR_MS = 34;
-const REWRITE_CHAR_MS = 84;
-const FLASH_DURATION_MS = 400;
-const SPARKLE_DURATION_MS = 2400;
+const PREPARE_MS = 300
+const REWRITE_START_MS = 220
+const REWRITE_FINISH_DELAY_MS = 2800
+const INTERCEPT_CHAR_MS = 34
+const REWRITE_CHAR_MS = 84
+const FLASH_DURATION_MS = 400
+const SPARKLE_DURATION_MS = 2400
 
-const game = useGameStore();
-const achievement = useAchievementStore();
-const gift = ref('');
-const finalGiftText = ref(ENDING.lockedGift);
-const phase = ref('choice');
-const attemptedGift = ref('');
-const interceptDisplay = ref('');
-const rewriteDisplay = ref('');
-const giftInput = ref(null);
-const showFlash = ref(false);
-const showStamp = ref(false);
-const sparklesActive = ref(false);
-const timers = [];
-let interceptInterval = null;
-let rewriteInterval = null;
+const game = useGameStore()
+const achievement = useAchievementStore()
+const gift = ref('')
+const finalGiftText = ref(ENDING.lockedGift)
+const phase = ref('choice')
+const attemptedGift = ref('')
+const interceptDisplay = ref('')
+const rewriteDisplay = ref('')
+const giftInput = ref(null)
+const showFlash = ref(false)
+const showStamp = ref(false)
+const sparklesActive = ref(false)
+const timers = []
+let interceptInterval = null
+let rewriteInterval = null
 
 // Sparkle particles for the rewrite moment
 const sparkles = Array.from({ length: 18 }, (_, i) => ({
@@ -124,167 +143,196 @@ const sparkles = Array.from({ length: 18 }, (_, i) => ({
   delay: Math.random() * 0.6,
   dx: (Math.random() - 0.5) * 120,
   dy: -(40 + Math.random() * 80)
-}));
+}))
 
-const emit = defineEmits(['start']);
+const emit = defineEmits(['start'])
 
-const isLocked = computed(() => phase.value !== 'choice');
-const canStart = computed(() => gift.value.trim().length > 0);
-const isStartDisabled = computed(() => phase.value === 'choice' ? !canStart.value : true);
-const showIntercept = computed(() => phase.value === 'intercept' || phase.value === 'rewrite' || phase.value === 'handoff');
-const showAttemptStrike = computed(() => phase.value === 'rewrite' || phase.value === 'handoff');
-const showRewriteText = computed(() => phase.value === 'rewrite' || phase.value === 'handoff');
-const showInterceptCursor = computed(() => phase.value === 'intercept' && interceptDisplay.value.length < ENDING.interceptLine.length);
-const showRewriteCursor = computed(() => phase.value === 'rewrite' && rewriteDisplay.value.length < finalGiftText.value.length);
+const isLocked = computed(() => phase.value !== 'choice')
+const canStart = computed(() => gift.value.trim().length > 0)
+const isStartDisabled = computed(() =>
+  phase.value === 'choice' ? !canStart.value : true
+)
+const showIntercept = computed(
+  () =>
+    phase.value === 'intercept' ||
+    phase.value === 'rewrite' ||
+    phase.value === 'handoff'
+)
+const showAttemptStrike = computed(
+  () => phase.value === 'rewrite' || phase.value === 'handoff'
+)
+const showRewriteText = computed(
+  () => phase.value === 'rewrite' || phase.value === 'handoff'
+)
+const showInterceptCursor = computed(
+  () =>
+    phase.value === 'intercept' &&
+    interceptDisplay.value.length < ENDING.interceptLine.length
+)
+const showRewriteCursor = computed(
+  () =>
+    phase.value === 'rewrite' &&
+    rewriteDisplay.value.length < finalGiftText.value.length
+)
 const startLabel = computed(() => {
-  if (phase.value === 'handoff') return '替你写好了';
-  if (phase.value === 'choice') return '开始狸';
-  return '等一下';
-});
+  if (phase.value === 'handoff') return '替你写好了'
+  if (phase.value === 'choice') return '开始狸'
+  return '等一下'
+})
 
 function onStart() {
-  if (phase.value !== 'choice' || !canStart.value) return;
-  attemptedGift.value = gift.value.trim();
-  finalGiftText.value = gift.value.includes('小云') ? '献给小云☁️' : ENDING.lockedGift;
-  phase.value = 'intercept';
-  interceptDisplay.value = '';
+  if (phase.value !== 'choice' || !canStart.value) return
+  attemptedGift.value = gift.value.trim()
+  finalGiftText.value = gift.value.includes('小云')
+    ? '献给小云☁️'
+    : ENDING.lockedGift
+  phase.value = 'intercept'
+  interceptDisplay.value = ''
   // Trigger flash burst
-  showFlash.value = true;
-  timers.push(setTimeout(() => { showFlash.value = false }, FLASH_DURATION_MS));
-  timers.push(setTimeout(startIntercept, PREPARE_MS));
+  showFlash.value = true
+  timers.push(
+    setTimeout(() => {
+      showFlash.value = false
+    }, FLASH_DURATION_MS)
+  )
+  timers.push(setTimeout(startIntercept, PREPARE_MS))
 }
 
 function openAchievements() {
-  achievement.openPanel();
+  achievement.openPanel()
 }
 
 function onEnter() {
   if (phase.value === 'choice') {
-    onStart();
-    return;
+    onStart()
+    return
   }
   if (phase.value === 'intercept') {
-    finishIntercept();
-    return;
+    finishIntercept()
+    return
   }
   if (phase.value === 'rewrite') {
-    finishRewrite();
+    finishRewrite()
   }
 }
 
 function onWindowKeydown(event) {
-  if (event.key !== 'Enter') return;
-  event.preventDefault();
-  onEnter();
+  if (event.key !== 'Enter') return
+  event.preventDefault()
+  onEnter()
 }
 
 function onInterceptClick() {
-  if (phase.value === 'intercept') finishIntercept();
+  if (phase.value === 'intercept') finishIntercept()
 }
 
 function startIntercept() {
-  if (phase.value !== 'intercept') return;
-  clearIntervalIfNeeded('intercept');
-  interceptDisplay.value = '';
-  let index = 0;
+  if (phase.value !== 'intercept') return
+  clearIntervalIfNeeded('intercept')
+  interceptDisplay.value = ''
+  let index = 0
   interceptInterval = setInterval(() => {
-    index++;
-    interceptDisplay.value = ENDING.interceptLine.slice(0, index);
+    index++
+    interceptDisplay.value = ENDING.interceptLine.slice(0, index)
     if (index >= ENDING.interceptLine.length) {
-      clearIntervalIfNeeded('intercept');
-      timers.push(setTimeout(beginRewrite, REWRITE_START_MS));
+      clearIntervalIfNeeded('intercept')
+      timers.push(setTimeout(beginRewrite, REWRITE_START_MS))
     }
-  }, INTERCEPT_CHAR_MS);
+  }, INTERCEPT_CHAR_MS)
 }
 
 function beginRewrite() {
-  if (phase.value === 'handoff' || phase.value === 'rewrite') return;
-  phase.value = 'rewrite';
+  if (phase.value === 'handoff' || phase.value === 'rewrite') return
+  phase.value = 'rewrite'
   // Show stamp and sparkles
-  showStamp.value = true;
-  sparklesActive.value = true;
-  timers.push(setTimeout(() => { sparklesActive.value = false }, SPARKLE_DURATION_MS));
-  clearIntervalIfNeeded('rewrite');
-  rewriteDisplay.value = '';
-  let index = 0;
+  showStamp.value = true
+  sparklesActive.value = true
+  timers.push(
+    setTimeout(() => {
+      sparklesActive.value = false
+    }, SPARKLE_DURATION_MS)
+  )
+  clearIntervalIfNeeded('rewrite')
+  rewriteDisplay.value = ''
+  let index = 0
   rewriteInterval = setInterval(() => {
-    index++;
-    rewriteDisplay.value = finalGiftText.value.slice(0, index);
+    index++
+    rewriteDisplay.value = finalGiftText.value.slice(0, index)
     if (index >= finalGiftText.value.length) {
-      clearIntervalIfNeeded('rewrite');
-      completeFlow();
+      clearIntervalIfNeeded('rewrite')
+      completeFlow()
     }
-  }, REWRITE_CHAR_MS);
+  }, REWRITE_CHAR_MS)
 }
 
 function finishIntercept() {
-  clearTimers();
-  clearIntervalIfNeeded('intercept');
-  interceptDisplay.value = ENDING.interceptLine;
-  if (phase.value !== 'intercept') return;
-  audioManager.playSFX('pageflip', { vol: 0.4 });
-  beginRewrite();
+  clearTimers()
+  clearIntervalIfNeeded('intercept')
+  interceptDisplay.value = ENDING.interceptLine
+  if (phase.value !== 'intercept') return
+  audioManager.playSFX('pageflip', { vol: 0.4 })
+  beginRewrite()
 }
 
 function finishRewrite() {
-  clearTimers();
-  clearIntervalIfNeeded('rewrite');
-  rewriteDisplay.value = finalGiftText.value;
-  if (phase.value === 'handoff') return;
-  audioManager.playSFX('pageflip', { vol: 0.4 });
-  completeFlow();
+  clearTimers()
+  clearIntervalIfNeeded('rewrite')
+  rewriteDisplay.value = finalGiftText.value
+  if (phase.value === 'handoff') return
+  audioManager.playSFX('pageflip', { vol: 0.4 })
+  completeFlow()
 }
 
 function completeFlow() {
-  if (phase.value === 'handoff') return;
-  phase.value = 'handoff';
-  gift.value = finalGiftText.value;
+  if (phase.value === 'handoff') return
+  phase.value = 'handoff'
+  gift.value = finalGiftText.value
   game.setGiftDedication({
     finalText: finalGiftText.value,
     attemptedText: attemptedGift.value,
     overridden: attemptedGift.value !== finalGiftText.value
-  });
-  timers.push(setTimeout(commitStart, REWRITE_FINISH_DELAY_MS));
+  })
+  timers.push(setTimeout(commitStart, REWRITE_FINISH_DELAY_MS))
 }
 
 function commitStart() {
-  audioManager.playSFX('scenetransition', { vol: 0.35 });
-  game.start();
+  audioManager.playSFX('scenetransition', { vol: 0.35 })
+  game.start()
   game.setGiftDedication({
     finalText: finalGiftText.value,
     attemptedText: attemptedGift.value,
     overridden: attemptedGift.value !== finalGiftText.value
-  });
-  emit('start');
+  })
+  emit('start')
 }
 
 function clearIntervalIfNeeded(kind) {
   if (kind === 'intercept' && interceptInterval) {
-    clearInterval(interceptInterval);
-    interceptInterval = null;
+    clearInterval(interceptInterval)
+    interceptInterval = null
   }
   if (kind === 'rewrite' && rewriteInterval) {
-    clearInterval(rewriteInterval);
-    rewriteInterval = null;
+    clearInterval(rewriteInterval)
+    rewriteInterval = null
   }
 }
 
 function clearTimers() {
-  while (timers.length) clearTimeout(timers.pop());
+  while (timers.length) clearTimeout(timers.pop())
 }
 
 onMounted(() => {
-  audioManager.playSFX('scenetransition', { vol: 0.3 });
-  giftInput.value?.focus();
-  window.addEventListener('keydown', onWindowKeydown);
-});
+  audioManager.playSFX('scenetransition', { vol: 0.3 })
+  giftInput.value?.focus()
+  window.addEventListener('keydown', onWindowKeydown)
+})
 
 onBeforeUnmount(() => {
-  clearTimers();
-  clearIntervalIfNeeded('intercept');
-  clearIntervalIfNeeded('rewrite');
-  window.removeEventListener('keydown', onWindowKeydown);
-});
+  clearTimers()
+  clearIntervalIfNeeded('intercept')
+  clearIntervalIfNeeded('rewrite')
+  window.removeEventListener('keydown', onWindowKeydown)
+})
 </script>
 
 <style scoped>
@@ -298,9 +346,22 @@ onBeforeUnmount(() => {
   padding: 20px;
   background:
     url('/img/background/title_bg.webp') center/cover no-repeat,
-    radial-gradient(circle at 30% 30%, rgba(25, 200, 185, 0.04) 0%, transparent 40%),
-    radial-gradient(circle at 70% 20%, rgba(247, 205, 103, 0.06) 0%, transparent 35%),
-    linear-gradient(180deg, rgba(248, 248, 240, 0.55) 0%, rgba(247, 243, 223, 0.6) 50%, rgba(232, 223, 200, 0.7) 100%);
+    radial-gradient(
+      circle at 30% 30%,
+      rgba(25, 200, 185, 0.04) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 70% 20%,
+      rgba(247, 205, 103, 0.06) 0%,
+      transparent 35%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(248, 248, 240, 0.55) 0%,
+      rgba(247, 243, 223, 0.6) 50%,
+      rgba(232, 223, 200, 0.7) 100%
+    );
 }
 
 .card {
@@ -316,9 +377,18 @@ onBeforeUnmount(() => {
 }
 
 @keyframes card-in {
-  from { opacity: 0; transform: translateY(16px) scale(0.92); }
-  60%  { opacity: 1; transform: translateY(-4px) scale(1.02); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.92);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .emblem {
@@ -329,8 +399,13 @@ onBeforeUnmount(() => {
 }
 
 @keyframes emblem-float {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-4px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
 }
 
 h1 {
@@ -382,7 +457,11 @@ h2.sub {
 }
 
 /* ── Gift input — pill shape + 3D shadow ── */
-.gift-label { margin: 18px 0 6px; font-size: 13px; font-weight: 500; }
+.gift-label {
+  margin: 18px 0 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
 
 .gift-stage {
   position: relative;
@@ -417,7 +496,9 @@ h2.sub {
 .gift-input:focus {
   outline: none;
   border-color: #f5c31c;
-  box-shadow: 0 3px 0 0 #dba90e, 0 0 0 3px rgba(245, 195, 28, 0.15);
+  box-shadow:
+    0 3px 0 0 #dba90e,
+    0 0 0 3px rgba(245, 195, 28, 0.15);
   background: #fff;
 }
 
@@ -449,7 +530,10 @@ h2.sub {
   animation: attempt-in 240ms ease;
 }
 
-.attempt-text { position: relative; z-index: 1; }
+.attempt-text {
+  position: relative;
+  z-index: 1;
+}
 
 .attempt-strike {
   position: absolute;
@@ -457,7 +541,13 @@ h2.sub {
   right: 16px;
   top: 50%;
   height: 2px;
-  background: linear-gradient(90deg, transparent 0%, #19c8b9 12%, #19c8b9 88%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #19c8b9 12%,
+    #19c8b9 88%,
+    transparent 100%
+  );
   transform: scaleX(0.1);
   transform-origin: left center;
   animation: strike-draw 340ms ease forwards;
@@ -500,7 +590,9 @@ h2.sub {
   box-shadow: 0 1px 0 0 #d4c9b4;
 }
 
-.entry-icon { font-size: 18px; }
+.entry-icon {
+  font-size: 18px;
+}
 
 .entry-text {
   font-size: 12px;
@@ -519,7 +611,9 @@ h2.sub {
   text-align: left;
   opacity: 0;
   transform: translateY(6px) scale(0.96);
-  transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1), transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition:
+    opacity 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
   color: #725d42;
   box-shadow: 0 4px 10px rgba(107, 92, 67, 0.42);
 }
@@ -563,20 +657,20 @@ h2.sub {
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  border: 2px solid #50B9AB;
-  box-shadow: 0 5px 0 0 #50B9AB;
+  border: 2px solid #50b9ab;
+  box-shadow: 0 5px 0 0 #50b9ab;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .start:hover:not(:disabled) {
   background: #3dd4c6;
   transform: translateY(-1px);
-  box-shadow: 0 6px 0 0 #50B9AB;
+  box-shadow: 0 6px 0 0 #50b9ab;
 }
 
 .start:active:not(:disabled) {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 0 #50B9AB;
+  box-shadow: 0 1px 0 0 #50b9ab;
 }
 
 .start:disabled {
@@ -597,16 +691,30 @@ h2.sub {
   position: absolute;
   inset: -20px;
   border-radius: 60px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(255, 248, 220, 0.3) 30%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.7) 0%,
+    rgba(255, 248, 220, 0.3) 30%,
+    transparent 70%
+  );
   pointer-events: none;
   z-index: 10;
   animation: flash-burst 400ms var(--ease-out-expo) forwards;
 }
 
 @keyframes flash-burst {
-  0%   { opacity: 1; transform: scale(0.8); }
-  50%  { opacity: 0.6; transform: scale(1.1); }
-  100% { opacity: 0; transform: scale(1.3); }
+  0% {
+    opacity: 1;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.3);
+  }
 }
 
 /* ── Sparkle particles ── */
@@ -625,10 +733,23 @@ h2.sub {
 }
 
 @keyframes sparkle-rise {
-  0%   { opacity: 0; transform: translate(0, 0) scale(0.3); }
-  20%  { opacity: 1; transform: translate(calc(var(--dx) * 0.2), calc(var(--dy) * 0.3)) scale(1); }
-  80%  { opacity: 0.5; transform: translate(calc(var(--dx) * 0.7), calc(var(--dy) * 0.8)) scale(0.7); }
-  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.2); }
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.3);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(calc(var(--dx) * 0.2), calc(var(--dy) * 0.3)) scale(1);
+  }
+  80% {
+    opacity: 0.5;
+    transform: translate(calc(var(--dx) * 0.7), calc(var(--dy) * 0.8))
+      scale(0.7);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(0.2);
+  }
 }
 
 /* ── Intercept stamp (red ✗ seal) ── */
@@ -647,10 +768,22 @@ h2.sub {
 }
 
 @keyframes stamp-down {
-  0%   { opacity: 0; transform: translateY(-50%) rotate(-15deg) scale(2.5); }
-  60%  { opacity: 0.8; transform: translateY(-50%) rotate(-15deg) scale(0.9); }
-  80%  { opacity: 0.7; transform: translateY(-50%) rotate(-15deg) scale(1.05); }
-  100% { opacity: 0.65; transform: translateY(-50%) rotate(-15deg) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) rotate(-15deg) scale(2.5);
+  }
+  60% {
+    opacity: 0.8;
+    transform: translateY(-50%) rotate(-15deg) scale(0.9);
+  }
+  80% {
+    opacity: 0.7;
+    transform: translateY(-50%) rotate(-15deg) scale(1.05);
+  }
+  100% {
+    opacity: 0.65;
+    transform: translateY(-50%) rotate(-15deg) scale(1);
+  }
 }
 
 /* ── Enhanced strike-through (brush stroke) ── */
@@ -678,27 +811,57 @@ h2.sub {
 }
 
 /* ── Keyframes ── */
-@keyframes blink { 50% { opacity: 0; } }
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
 
 @keyframes attempt-in {
-  from { opacity: 0; transform: rotate(-2.2deg) translateY(2px); }
-  to   { opacity: 1; transform: rotate(-2.2deg) translateY(0); }
+  from {
+    opacity: 0;
+    transform: rotate(-2.2deg) translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-2.2deg) translateY(0);
+  }
 }
 
 @keyframes strike-draw {
-  from { transform: scaleX(0.1); opacity: 0; }
-  to   { transform: scaleX(1); opacity: 1; }
+  from {
+    transform: scaleX(0.1);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
 }
 
 @keyframes rewrite-settle {
-  0%   { opacity: 0.85; transform: translateY(1px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0.85;
+    transform: translateY(1px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 560px) {
-  .card { padding: 36px 24px 28px; }
-  h1 { font-size: 28px; }
-  h2.sub { letter-spacing: 0.04em; }
-  .rewrite-overlay { font-size: 16px; }
+  .card {
+    padding: 36px 24px 28px;
+  }
+  h1 {
+    font-size: 28px;
+  }
+  h2.sub {
+    letter-spacing: 0.04em;
+  }
+  .rewrite-overlay {
+    font-size: 16px;
+  }
 }
 </style>

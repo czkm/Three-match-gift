@@ -251,33 +251,17 @@ export const useAchievementStore = defineStore('achievements', {
       if (!day) return;
       const dayStats = ensureDayStats(this.stats, day);
 
-      if (day === 1) {
-        this.unlock('day1_clear_the_way');
-      }
-      if (day === 2 && dayStats.hadBigMatch) {
-        this.unlock('day2_vines_remember');
-      }
-      if (day === 3 && dayStats.clearedMonsterKinds.includes('drowner')) {
-        this.unlock('day3_one_bottle_saved');
-      }
-      if (day === 4) {
-        this.unlock('day4_roach_approves');
-      }
-      if (day === 5 && stepsLeft >= 3) {
-        this.unlock('day5_lilac_in_the_wind');
-      }
-      if (day === 6 && (dayStats.hadCombo2Plus || dayStats.hadBigMatch)) {
-        this.unlock('day6_keep_the_lamp_warm');
-      }
-      if (day === 7) {
-        this.unlock('day7_a_chair_for_waiting');
-      }
-      if (day === 8 && !dayStats.reachedZeroSteps) {
-        this.unlock('day8_the_soup_will_hold');
-      }
+      if (day === 1) this.unlock('day1_clear_the_way');
+      if (day === 2) this.unlock('day2_vines_remember');
+      if (day === 3) this.unlock('day3_one_bottle_saved');
+      if (day === 4) this.unlock('day4_roach_approves');
+      if (day === 5) this.unlock('day5_lilac_in_the_wind');
+      if (day === 6) this.unlock('day6_keep_the_lamp_warm');
+      if (day === 7) this.unlock('day7_a_chair_for_waiting');
+      if (day === 8) this.unlock('day8_the_soup_will_hold');
 
       if (stepsLeft >= 6) this.unlock('sunlit_margin');
-      if (stepsLeft <= 5) this.unlock('clutch_finish');
+      if (dayStats.usedAbilities.length === 0) this.unlock('clutch_finish');
       this.persist();
     },
 
