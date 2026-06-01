@@ -53,6 +53,11 @@
                 小猪本关评价 {{ game.pigLastRating || 0 }} 星
               </span>
             </div>
+            <transition name="intimacy-up">
+              <div v-if="showIntimacyUp" class="intimacy-up-text">
+                +1 亲密度 ❤️
+              </div>
+            </transition>
 
             <div class="ability-stack">
               <div class="seal" :class="{ stamped: phase >= 2 }">
@@ -135,6 +140,7 @@ const phase = ref(0) // 0 = init, 1 = motif playing, 2 = banner revealed
 const showMono = ref(false)
 const showAdvance = ref(false)
 const petals = ref([])
+const showIntimacyUp = ref(false)
 const monoDialogRef = ref(null)
 let timers = []
 
@@ -179,6 +185,15 @@ onMounted(() => {
         setTimeout(() => {
           showMono.value = true
         }, 800)
+      )
+      timers.push(
+        setTimeout(() => {
+          if (game.pigIntimacyJustGained) {
+            showIntimacyUp.value = true
+            game.pigIntimacyJustGained = false
+            setTimeout(() => { showIntimacyUp.value = false }, 2200)
+          }
+        }, 1400)
       )
     }, 280 + motifMs)
   )
@@ -555,6 +570,42 @@ function onOverlayClick() {
   color: #9f927d;
   letter-spacing: 0.02em;
   font-weight: 600;
+}
+
+.intimacy-up-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e8734a;
+  margin-top: 6px;
+  text-shadow: 0 1px 3px rgba(232, 115, 74, 0.3);
+}
+
+.intimacy-up-enter-active {
+  animation: intimacy-up-in 400ms ease-out;
+}
+.intimacy-up-leave-active {
+  animation: intimacy-up-out 400ms ease-in;
+}
+
+@keyframes intimacy-up-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes intimacy-up-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.9);
+  }
 }
 
 /* Wax-seal stamp around the building emoji */

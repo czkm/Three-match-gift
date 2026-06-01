@@ -664,7 +664,7 @@ function onPigInspect() {
   let caption = reaction.caption || captionForHotspot('pet-pig')
   if (reaction.fed) {
     const bar = '❤️'.repeat(Math.min(5, Math.ceil(reaction.intimacy / 2))) + '🤍'.repeat(Math.max(0, 5 - Math.ceil(reaction.intimacy / 2)))
-    caption += ` （亲密度 ${reaction.intimacy}/10 ${bar}）`
+    caption += ` （亲密度 ${reaction.intimacy}/8 ${bar}）`
   }
   displayCaption.value = caption
   clearCaptionTimer()
@@ -816,6 +816,15 @@ watch(
 onMounted(() => {
   pigMoodGlyph.value = ''
   EventBus.bind('sceneBurst', onSceneBurst)
+  if (game.pigEnergyFromLastRating > 0) {
+    const gained = game.pigEnergyFromLastRating
+    displayCaption.value = gained >= 3
+      ? `小猪获得了 ${gained} 点能量狸~干劲十足狸！`
+      : `小猪获得了 ${gained} 点能量狸~`
+    spawnBurst('gold', gained * 2)
+    setTimeout(restoreDefaultCaption, 2500)
+    game.pigEnergyFromLastRating = 0
+  }
 })
 
 onBeforeUnmount(() => {

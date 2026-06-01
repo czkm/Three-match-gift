@@ -1,9 +1,7 @@
-.DS_STORE
+.DS_Store
 *.log
 
 node_modules
-
-dist
 
 *.timestamp-*.mjs
 

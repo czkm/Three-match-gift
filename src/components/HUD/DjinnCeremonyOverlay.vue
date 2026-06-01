@@ -100,6 +100,9 @@
             {{ actionLabel }}
           </button>
         </div>
+        <div v-else-if="dialogRef?.isDone?.value && game.djinnCardMode === 'intro' && !boardReady" class="action-row">
+          <span class="loading-text">棋盘正在重置...</span>
+        </div>
         <div v-else-if="dialogRef?.isDone?.value" class="next-indicator">
           <span class="next-arrow">▶</span><span class="next-arrow">▶</span>
         </div>
@@ -109,8 +112,9 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { audioManager } from '@/audio/AudioManager';
+import EventBus from '@/core/eventBus';
 import { COMMON_COPY, GAMEPLAY_COPY } from '@/data/copy';
 import Dialog from './Dialog.vue';
 import { useGameStore } from '@/stores/gameStore';
@@ -119,11 +123,25 @@ const game = useGameStore();
 const lineIndex = ref(0);
 const lineReady = ref(false);
 const dialogRef = ref(null);
+const boardReady = ref(game.djinnCardMode !== 'intro');
 
 const isTransition = computed(() => game.djinnCardMode === 'transition');
 const card = computed(() => game.currentDjinnCard || { title: '', quote: '', lines: [] });
 const activeLine = computed(() => card.value.lines?.[lineIndex.value] || '');
-const readyForAdvance = computed(() => lineReady.value && lineIndex.value >= (card.value.lines?.length || 0));
+const readyForAdvance = computed(() =>
+  lineReady.value && lineIndex.value >= (card.value.lines?.length || 0) &&
+  boardReady.value
+);
+
+onMounted(() => {
+  if (game.djinnCardMode === 'intro') {
+    boardReady.value = false
+    EventBus.bind('ceremonyBoardReady', () => { boardReady.value = true })
+  }
+})
+onBeforeUnmount(() => {
+  EventBus.unbind('ceremonyBoardReady')
+})
 
 // Transition palette colors
 const transitionPalette = computed(() => {
@@ -559,6 +577,17 @@ function onOverlayClick() {
 
 @keyframes arrow-pop {
   0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.loading-text {
+  font-size: 12px;
+  color: #9f927d;
+  animation: loading-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes loading-pulse {
+  0%, 100% { opacity: 0.5; }
   50% { opacity: 1; }
 }
 

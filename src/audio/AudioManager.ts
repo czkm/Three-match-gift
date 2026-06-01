@@ -2,6 +2,7 @@ const BGM_DEFAULT_VOLUME = 0.36;
 const SFX_DEFAULT_VOLUME = 0.7;
 const AMBIENT_DEFAULT_VOLUME = 0.3;
 const MAX_SFX = 4;
+const DEFAULT_SFX_PRIORITY = 2;
 const BGM_FADE_MS = 1200;
 const AMBIENT_FADE_MS = 1800;
 
@@ -389,6 +390,8 @@ type SFXOptions = {
   rate?: number;
   bypassThrottle?: boolean;
   actualPath?: string;
+  priority?: number;
+  interrupt?: boolean;
 };
 type BGMOptions = {
   fade?: number;
@@ -480,6 +483,57 @@ const SFX_THROTTLE: Record<string, SFXThrottlePolicy> = {
   item_see_4ever: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
   item_luck_up: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
   item_explosion: { sameMs: 500, group: 'item', groupMs: 200, priority: 3 },
+};
+
+const SFX_CHANNEL_PRIORITY: Record<string, number> = {
+  click: 1,
+  itemhover: 1,
+  hint: 1,
+  land: 1,
+  spawn: 1,
+  resourcegain: 1,
+  swap: 2,
+  lineclear: 2,
+  pageflip: 2,
+  dialogopen: 2,
+  dialogclose: 2,
+  ability_wolf: 4,
+  ability_harvest: 4,
+  ability_roach: 4,
+  ability_sunset: 4,
+  decoction: 4,
+  gfuel: 4,
+  lilac: 4,
+  xray: 4,
+  seal_break: 4,
+  djinn_appear: 4,
+  wish1: 4,
+  wish2: 4,
+  wish3: 4,
+  taskcomplete: 4,
+  repairdone: 4,
+  achievement: 4,
+  item_get: 3,
+  item_power_up: 3,
+  item_health_up: 3,
+  item_penny: 3,
+  item_48hr_energy: 3,
+  item_battery_charge: 3,
+  item_holy: 3,
+  item_whip: 3,
+  item_dog_howl: 3,
+  item_dog_bark: 3,
+  item_superholy: 3,
+  item_blood_laser: 3,
+  item_knife_pull: 3,
+  item_unholy: 3,
+  item_r_u_wiz: 3,
+  item_vamp: 3,
+  item_red_lightning: 3,
+  item_maw_void: 3,
+  item_see_4ever: 3,
+  item_luck_up: 3,
+  item_explosion: 3,
 };
 
 function pickOne<T>(entry: T | T[]): T {
@@ -688,8 +742,11 @@ export class AudioManager {
     if (!await this.ensureReady()) return;
     const file = group.files[Math.floor(Math.random() * group.files.length)];
     const vol = group.vol[0] + Math.random() * (group.vol[1] - group.vol[0]);
+    if (!this.reserveSFXSlot(1, false)) return;
     const audio = createAudio(`${import.meta.env.BASE_URL}audio/${file}`);
     audio.volume = clamp(vol * this._ambientVolume, 0, 1);
+    audio.dataset.baseVolume = String(audio.volume);
+    audio.dataset.priority = '1';
     this.activeSFXs.add(audio);
     const cleanup = () => { audio.pause(); this.activeSFXs.delete(audio); };
     audio.addEventListener('ended', cleanup, { once: true });
@@ -718,23 +775,18 @@ export class AudioManager {
     if (!await this.ensureReady()) return;
     if (!opts.bypassThrottle && !this.shouldPlaySFX(name)) return;
 
-    while (this.activeSFXs.size >= MAX_SFX) {
-      const oldest = this.activeSFXs.values().next().value;
-      if (!oldest) break;
-      oldest.pause();
-      oldest.currentTime = 0;
-      this.activeSFXs.delete(oldest);
-    }
-
     const multi = AC_SFX_MULTI[name];
     const pool = multi ?? (AC_SFX_MAP[name] ? [AC_SFX_MAP[name]] : []);
     const acPath = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : null;
     const src = acPath ? `${import.meta.env.BASE_URL}audio/${acPath}` : `${import.meta.env.BASE_URL}audio/sfx_${name}.mp3`;
+    const priority = opts.priority ?? SFX_CHANNEL_PRIORITY[name] ?? DEFAULT_SFX_PRIORITY;
+    if (!this.reserveSFXSlot(priority, opts.interrupt ?? priority >= 3)) return;
     const audio = createAudio(src);
     const baseVolume = clamp((opts.vol ?? 1) * this._sfxVolume, 0, 1);
     audio.volume = baseVolume;
     audio.playbackRate = clamp(opts.rate ?? 1, 0.5, 2);
     audio.dataset.baseVolume = String(baseVolume);
+    audio.dataset.priority = String(priority);
 
     this.activeSFXs.add(audio);
     const cleanup = () => {
@@ -760,7 +812,7 @@ export class AudioManager {
     this.playLooseFile(`eliminate${index + 1}.mp3`, {
       actualPath: `${AC_BASE}/Trees & Plants/${file}`,
       vol: clamp(base + extra, 0.5, 0.90),
-      bypassThrottle: true
+      priority: 2
     });
   }
 
@@ -772,7 +824,8 @@ export class AudioManager {
     this.playLooseFile(`praise${clamped}.mp3`, {
       actualPath: path,
       vol: clamp(0.50 + (clamped - 4) * 0.075, 0.4, 0.85),
-      bypassThrottle: true
+      priority: 3,
+      interrupt: true
     });
   }
 
@@ -785,7 +838,8 @@ export class AudioManager {
     this.playLooseFile(`combo${comboCount}.mp3`, {
       actualPath: path,
       vol: vol,
-      bypassThrottle: true
+      priority: 4,
+      interrupt: true
     });
   }
 
@@ -806,8 +860,11 @@ export class AudioManager {
     };
     const path = map[event];
     if (!path) return;
+    if (!this.reserveSFXSlot(2, false)) return;
     const audio = createAudio(`${import.meta.env.BASE_URL}audio/${path}`);
     audio.volume = clamp(0.5 * this._sfxVolume, 0, 1);
+    audio.dataset.baseVolume = String(audio.volume);
+    audio.dataset.priority = '2';
     this.activeSFXs.add(audio);
     const cleanup = () => { audio.pause(); this.activeSFXs.delete(audio); };
     audio.addEventListener('ended', cleanup, { once: true });
@@ -984,19 +1041,33 @@ export class AudioManager {
     return kind === 'bgm' ? this._bgmVolume : this._ambientVolume;
   }
 
+  private reserveSFXSlot(priority = DEFAULT_SFX_PRIORITY, interrupt = false) {
+    if (this.activeSFXs.size < MAX_SFX) return true;
+
+    let lowestAudio: HTMLAudioElement | null = null;
+    let lowestPriority = Infinity;
+    for (const audio of this.activeSFXs) {
+      const activePriority = Number(audio.dataset.priority || DEFAULT_SFX_PRIORITY);
+      if (activePriority < lowestPriority) {
+        lowestPriority = activePriority;
+        lowestAudio = audio;
+      }
+    }
+
+    if (!lowestAudio) return false;
+    if (!interrupt || lowestPriority > priority) return false;
+
+    lowestAudio.pause();
+    lowestAudio.currentTime = 0;
+    this.activeSFXs.delete(lowestAudio);
+    return true;
+  }
+
   private async playLooseFile(fileName: string, opts: SFXOptions = {}) {
     if (this._isMuted) return;
     if (!await this.ensureReady()) return;
     if (!opts.bypassThrottle && !this.shouldPlayLooseFile(fileName)) return;
     await this.preload(fileName).catch(() => { });
-
-    while (this.activeSFXs.size >= MAX_SFX) {
-      const oldest = this.activeSFXs.values().next().value;
-      if (!oldest) break;
-      oldest.pause();
-      oldest.currentTime = 0;
-      this.activeSFXs.delete(oldest);
-    }
 
     let actualFile = fileName;
     if (opts.actualPath) {
@@ -1005,18 +1076,21 @@ export class AudioManager {
       const i = parseInt(fileName.match(/\d+/)![0]) - 1;
       const entry = AC_MATCH[i];
       actualFile = `${AC_BASE}/Trees & Plants/${entry ? pickOne(entry) : 'FieldPlant_WaterDrop_00.wav'}`;
-    } else if (/^contnuousMatch(\d+)\.mp3$/.test(fileName)) {
+    } else if (/^(?:contnuousMatch|combo)(\d+)\.mp3$/.test(fileName)) {
       const lvl = parseInt(fileName.match(/\d+/)![0]);
       const entry = AC_COMBO[lvl - 3];
       actualFile = `${AC_BASE}/Trees & Plants/${entry ? pickOne(entry) : 'Tree_Shake_BambooNode_00.wav'}`;
     } else if (fileName === 'drop.mp3') {
       actualFile = `${AC_BASE}/Trees & Plants/${pickOne(AC_DROP)}`;
     }
+    const priority = opts.priority ?? DEFAULT_SFX_PRIORITY;
+    if (!this.reserveSFXSlot(priority, opts.interrupt ?? priority >= 3)) return;
     const audio = createAudio(`${import.meta.env.BASE_URL}audio/${actualFile}`);
     const baseVolume = clamp((opts.vol ?? 1) * this._sfxVolume, 0, 1);
     audio.volume = baseVolume;
     audio.playbackRate = clamp(opts.rate ?? 1, 0.5, 2);
     audio.dataset.baseVolume = String(baseVolume);
+    audio.dataset.priority = String(priority);
 
     this.activeSFXs.add(audio);
     const cleanup = () => {
@@ -1061,7 +1135,7 @@ export class AudioManager {
       });
     }
 
-    if (/^contnuousMatch\d+\.mp3$/.test(fileName)) {
+    if (/^(?:contnuousMatch|combo)\d+\.mp3$/.test(fileName)) {
       return this.shouldPlayWithPolicy(`loose:${fileName}`, {
         sameMs: 130,
         group: 'combo',

@@ -1053,6 +1053,9 @@ watch(
     tapBuffer.value = []
     hintIds.value = new Set()
     reloadDjinnBoard()
+    setTimeout(() => {
+      EventBus.trigger('ceremonyBoardReady')
+    }, 2100)
   }
 )
 

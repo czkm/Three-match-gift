@@ -80,13 +80,15 @@
           <p class="room-flavor">{{ REWARD_ROOM_COPY.devil.flavor }}</p>
         </template>
 
-        <button
-          type="button"
-          class="back-to-doors"
-          @click="goBackToDoors"
-        >
+        <button type="button" class="back-to-doors" @click="goBackToDoors">
           ← 返回房门
         </button>
+
+        <transition name="intimacy-down-fade">
+          <div v-if="intimacyDownText" class="intimacy-down-text">
+            {{ intimacyDownText }}
+          </div>
+        </transition>
 
         <div class="divider-zig-teal" />
 
@@ -164,6 +166,7 @@
 
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import EventBus from '@/core/eventBus'
 import { audioManager } from '@/audio/AudioManager'
 import { REWARD_ROOM_COPY } from '@/data/copy'
 import { useGameStore } from '@/stores/gameStore'
@@ -180,6 +183,7 @@ const acquiredItem = ref(null)
 const geraltQuote = ref('')
 const launchStarted = ref(false)
 const flightFx = ref(null)
+const intimacyDownText = ref('')
 
 let enterTimer = null
 let acquireTimer = null
@@ -303,10 +307,15 @@ function slotEmoji(slot) {
 
 onMounted(() => {
   game.clearRewardItemInfo()
+  EventBus.bind('pigIntimacyDown', ([{ amount }]) => {
+    intimacyDownText.value = `亲密度 -${amount} 💔`
+    setTimeout(() => { intimacyDownText.value = '' }, 1800)
+  })
 })
 
 onBeforeUnmount(() => {
   clearTimers()
+  EventBus.unbind('pigIntimacyDown')
 })
 </script>
 
@@ -794,7 +803,7 @@ onBeforeUnmount(() => {
 /* ── Item Card — compact collectible card ── */
 .item-card {
   width: 180px;
-  min-height: 180px;
+  height: 220px;
   padding: 18px 14px 14px;
   border-radius: 20px;
   text-align: center;

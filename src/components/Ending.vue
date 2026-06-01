@@ -12,7 +12,10 @@
     <div
       v-if="currentAct === 2 && candleGlowColor"
       class="candle-aura"
-      :style="{ '--aura-color': candleGlowColor, '--aura-opacity': candleGlowOpacity }"
+      :style="{
+        '--aura-color': candleGlowColor,
+        '--aura-opacity': candleGlowOpacity
+      }"
     />
 
     <!-- Starfield -->
@@ -184,7 +187,23 @@
                   </div>
                   <div v-else class="will-gift-opened">
                     <div class="will-gift-reveal-flash" />
-                    <img :src="`${baseUrl}img/gift.jpg`" class="will-gift-img" alt="礼物" />
+                    <div class="will-gift-pair">
+                      <figure
+                        v-for="(gift, idx) in revealedGifts"
+                        :key="gift.src"
+                        class="will-gift-card"
+                        :class="`gift-card-${idx + 1}`"
+                      >
+                        <img
+                          :src="gift.src"
+                          class="will-gift-img"
+                          :alt="gift.alt"
+                        />
+                        <figcaption class="will-gift-caption">
+                          {{ gift.label }}
+                        </figcaption>
+                      </figure>
+                    </div>
                   </div>
                 </div>
 
@@ -193,10 +212,21 @@
 
                 <!-- Pig Companion -->
                 <div class="will-section will-pig-section">
-                  <span class="will-pig-icon">🐷</span>
+                  <div class="will-pig-status">
+                    <span class="will-pig-icon">🐷</span>
+                    <span class="will-pig-intimacy">
+                      <span class="will-pig-intimacy-label">好感度</span>
+                      <span class="will-pig-intimacy-value">
+                        {{ pigIntimacyScore }}/8
+                      </span>
+                      <span class="will-pig-hearts">
+                        {{ pigIntimacyHearts }}
+                      </span>
+                    </span>
+                  </div>
                   <p class="will-pig-line will-pig-main">
                     {{
-                      game.pigIntimacy >= 8
+                      pigIntimacyScore >= 8
                         ? willScreen.pigIntimateLine
                         : willScreen.pigCompanionLine2
                     }}
@@ -218,12 +248,16 @@
                   <div class="will-items-grid">
                     <span
                       v-for="(item, idx) in ownedWillItems"
-                      :key="idx"
+                      :key="`${item.id}-${idx}`"
                       class="will-item-chip"
                       :style="{ animationDelay: idx * 55 + 'ms' }"
                       :title="item.name"
                     >
-                      {{ item.emoji }}
+                      <IsaacCollectibleIcon
+                        :reward-item-id="item.id"
+                        :size="32"
+                        :fallback-emoji="item.emoji"
+                      />
                     </span>
                   </div>
                   <p class="will-items-tag">{{ willScreen.itemsLabel }}</p>
@@ -280,7 +314,12 @@
       <div class="receipt-paper">
         <div
           class="receipt-card"
-          :style="{ backgroundImage: `url(${baseUrl}img/background/board_bg_04.webp)` }"
+          role="button"
+          tabindex="0"
+          :style="{ backgroundImage: `url(${receiptBgUrl})` }"
+          @click.stop="openReceiptZoom"
+          @keydown.enter.stop.prevent="openReceiptZoom"
+          @keydown.space.stop.prevent="openReceiptZoom"
         >
           <img
             :src="`${baseUrl}img/nook-receipt.png`"
@@ -293,12 +332,41 @@
         🧾 保存收据
       </button>
     </div>
+
+    <transition name="receipt-zoom-fade">
+      <div
+        v-if="receiptZoomed"
+        class="receipt-zoom-overlay"
+        @click.stop="closeReceiptZoom"
+      >
+        <button
+          class="receipt-zoom-close"
+          type="button"
+          aria-label="关闭收据预览"
+          @click.stop="closeReceiptZoom"
+        >
+          ×
+        </button>
+        <div
+          class="receipt-zoom-card"
+          :style="{ backgroundImage: `url(${receiptBgUrl})` }"
+          @click.stop
+        >
+          <img
+            :src="`${baseUrl}img/nook-receipt.png`"
+            class="receipt-zoom-image"
+            alt="放大的报酬收据"
+          />
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup>
 import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import { audioManager } from '@/audio/AudioManager'
+import IsaacCollectibleIcon from '@/components/common/IsaacCollectibleIcon.vue'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { useGameStore } from '@/stores/gameStore'
 import html2canvas from 'html2canvas'
@@ -318,6 +386,7 @@ const particlesReady = ref(false)
 const giftOpened = ref(false)
 const giftShaking = ref(false)
 const receiptVisible = ref(false)
+const receiptZoomed = ref(false)
 const timers = []
 
 const activeBeat = computed(() => ENDING.beats[currentAct.value] || null)
@@ -327,8 +396,28 @@ const willLocationText = computed(() => {
   return willScreen.value.gotGiftLine.replace('{{location}}', location)
 })
 const ownedWillItems = computed(() =>
-  (game.ownedItems || []).filter(item => item?.emoji).slice(0, 12)
+  (game.ownedItems || []).filter(item => item?.id).slice(0, 12)
 )
+const revealedGifts = computed(() => [
+  {
+    src: `${baseUrl}img/gift.jpg`,
+    alt: '第一份礼物',
+    label: '第一份礼物'
+  },
+  {
+    src: `${baseUrl}img/gift2.jpg`,
+    alt: '第二份礼物',
+    label: '第二份礼物'
+  }
+])
+const receiptBgUrl = computed(() => `${baseUrl}img/background/reciveBg.jpg`)
+const pigIntimacyScore = computed(() =>
+  Math.max(0, Math.min(8, Number(game.pigIntimacy) || 0))
+)
+const pigIntimacyHearts = computed(() => {
+  const filled = Math.min(4, Math.ceil(pigIntimacyScore.value / 2))
+  return '♥'.repeat(filled) + '♡'.repeat(Math.max(0, 4 - filled))
+})
 const totalLines = computed(() => activeBeat.value?.lines?.length || 0)
 const shownLines = computed(
   () => activeBeat.value?.lines?.slice(0, linesRevealed.value) || []
@@ -344,7 +433,7 @@ const candleGlowColor = computed(() => {
   if (currentAct.value !== 2) return null
   const lit = linesRevealed.value
   if (lit === 1) return 'rgba(140, 210, 160, 0.25)' // 健康: soft green
-  if (lit === 2) return 'rgba(240, 200, 100, 0.3)'  // 快乐: warm gold
+  if (lit === 2) return 'rgba(240, 200, 100, 0.3)' // 快乐: warm gold
   if (lit === 3) return 'rgba(240, 160, 170, 0.28)' // 平安: gentle rose
   return null
 })
@@ -426,6 +515,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   for (const t of timers) clearTimeout(t)
+  receiptZoomed.value = false
 })
 
 function onStageClick() {
@@ -471,16 +561,30 @@ function onOpenGift() {
   // Phase 1: shake the gift
   giftShaking.value = true
   audioManager.playSFX('rune_hit', { vol: 0.3, rate: 0.8 })
-  timers.push(setTimeout(() => {
-    // Phase 2: reveal the gift
-    giftShaking.value = false
-    giftOpened.value = true
-    audioManager.playSFX('item_get', { vol: 0.5 })
-    // Phase 3: delayed receipt machine
-    timers.push(setTimeout(() => {
-      receiptVisible.value = true
-    }, 900))
-  }, 800))
+  timers.push(
+    setTimeout(() => {
+      // Phase 2: reveal the gift
+      giftShaking.value = false
+      giftOpened.value = true
+      audioManager.playSFX('item_get', { vol: 0.5 })
+      // Phase 3: delayed receipt machine
+      timers.push(
+        setTimeout(() => {
+          receiptVisible.value = true
+        }, 900)
+      )
+    }, 800)
+  )
+}
+
+function openReceiptZoom() {
+  receiptZoomed.value = true
+  audioManager.playSFX('pageflip', { vol: 0.3, rate: 1.12 })
+}
+
+function closeReceiptZoom() {
+  receiptZoomed.value = false
+  audioManager.playSFX('dialogclose', { vol: 0.24 })
 }
 
 async function onSaveReceipt() {
@@ -489,10 +593,20 @@ async function onSaveReceipt() {
   if (!el) return
   try {
     const canvas = await html2canvas(el, {
-      backgroundColor: null,
+      backgroundColor: '#fffaf0',
       scale: 4,
       useCORS: true,
-      logging: false
+      logging: false,
+      onclone: (doc) => {
+        const clone = doc.querySelector('.receipt-card')
+        if (!clone) return
+        clone.style.boxShadow = 'none'
+        clone.style.borderRadius = '0'
+        clone.style.padding = '0'
+        clone.style.width = '150px'
+        const img = clone.querySelector('.receipt-image')
+        if (img) img.style.width = '150px'
+      }
     })
     const link = document.createElement('a')
     link.download = '小岛的修复日记-报酬收据.png'
@@ -523,10 +637,15 @@ function buildPosterHTML() {
   const ws = willScreen.value
   const items = ownedWillItems.value
   const location = willLocationText.value
-  const itemIcons = items
-    .map(i => `<span class="pi">${i.emoji}</span>`)
-    .join('')
   const base = window.location.origin + baseUrl
+  const intimacy = pigIntimacyScore.value
+  const hearts = pigIntimacyHearts.value
+  const itemIcons = items
+    .map(i => {
+      const imgId = i.id === 'stye_devil' ? 'stye' : i.id
+      return `<span class="pi"><img src="${base}img/isaac/${imgId}.png" alt="${i.name || i.id}" /></span>`
+    })
+    .join('')
 
   return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -543,19 +662,26 @@ body{display:flex;align-items:center;justify-content:center;min-height:100vh;bac
 /* divider - Animal Island wave */
 .svg-divider{width:100%;height:14px;margin:18px 0;background:url("data:image/svg+xml,%3Csvg width='297' height='14' viewBox='0 0 297 14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 10.42L33 11 28.002 0zM10 6.97L0 3l.858 9zM43 1l.613 11L53 5.585zm89 13l11-5.867L133.507 1zm67-3.58l13 .58-4.998-11zm-10-3.45L179 3l.858 9zM90.634 1L88 13l12-4.39zM155 13l12-2.4-8.47-9.6zM110 3l2.057 9L118 6.292zm-47 8.215L76 14 71.048 1zM222 1l.613 11L232 5.585zm47.634 0L267 13l12-4.39zM289 3l2.057 9L297 6.292zm-48 8.215L254 14l-4.952-13z' fill='%23D8D0C3' fill-rule='evenodd'/%3E%3C/svg%3E") center/contain no-repeat}
 /* gift */
-.gift-stage{display:flex;flex-direction:column;align-items:center;margin:6px 0;gap:8px}
-.gift-box{width:210px;height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2.5px solid rgba(180,155,120,.3);border-radius:20px;background:radial-gradient(ellipse at 50% 35%,rgba(255,248,235,.75),rgba(232,218,192,.35));box-shadow:inset 0 0 26px rgba(200,170,130,.22),0 3px 12px rgba(107,92,67,.1);position:relative}
+.gift-stage{display:flex;align-items:center;justify-content:center;margin:6px 0;gap:18px}
+.gift-box{width:180px;min-height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2.5px solid rgba(180,155,120,.3);border-radius:20px;background:radial-gradient(ellipse at 50% 35%,rgba(255,248,235,.75),rgba(232,218,192,.35));box-shadow:inset 0 0 26px rgba(200,170,130,.22),0 3px 12px rgba(107,92,67,.1);position:relative;padding:16px 12px 12px}
 .gift-glow{position:absolute;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(220,185,130,.15),transparent 70%);pointer-events:none}
-.gift-img{width:180px;height:auto;object-fit:contain;position:relative;z-index:1;filter:drop-shadow(0 3px 8px rgba(107,92,67,.18))}
+.gift-img{width:148px;height:132px;object-fit:contain;position:relative;z-index:1;filter:drop-shadow(0 3px 8px rgba(107,92,67,.18))}
+.gift-caption{position:relative;z-index:1;margin-top:8px;font-size:12px;color:#8a6a4a;font-weight:800;letter-spacing:.08em}
 /* pig */
 .pig-stage{display:flex;flex-direction:column;align-items:center;gap:4px;margin:4px 0}
-.pig-icon{font-size:42px;line-height:1;margin-bottom:4px}
+.pig-top{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:4px}
+.pig-icon{font-size:42px;line-height:1}
+.pig-badge{display:flex;flex-direction:column;align-items:flex-start;padding:6px 10px;border:1.5px solid rgba(180,155,120,.28);border-radius:12px;background:rgba(255,248,232,.72);box-shadow:0 2px 6px rgba(100,80,55,.08)}
+.pig-badge-k{font-size:10px;color:#9a8268;font-weight:800;letter-spacing:.12em}
+.pig-badge-v{font-size:14px;color:#4a2e18;font-weight:900;line-height:1.2}
+.pig-badge-h{font-size:12px;color:#b75b6a;letter-spacing:.05em}
 .pig-line{font-size:15px;color:#5a3e22;font-weight:500;letter-spacing:.04em}.pig-line-em{font-weight:700;font-size:17px;color:#3a2210}.pig-line-sub{font-size:14px;color:#8a7260;font-style:italic}
 /* items */
 .items-section{display:flex;flex-direction:column;align-items:center;gap:8px;margin:4px 0}
 .items-label{font-size:14px;color:#7a5a3a;font-weight:700;letter-spacing:.08em}
 .items-grid{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:440px}
-.pi{display:flex;align-items:center;justify-content:center;width:44px;height:44px;font-size:24px;border:1.5px solid rgba(180,155,120,.3);border-radius:12px;background:rgba(245,235,215,.5);box-shadow:inset 0 0 6px rgba(180,155,120,.12)}
+.pi{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border:1.5px solid rgba(180,155,120,.3);border-radius:12px;background:rgba(245,235,215,.5);box-shadow:inset 0 0 6px rgba(180,155,120,.12)}
+.pi img{width:34px;height:34px;object-fit:contain;image-rendering:pixelated}
 .items-tag{font-size:13px;color:#8b6a4a;font-weight:600;letter-spacing:.06em}
 /* closing */
 .estate{font-size:14px;color:#8a7260;font-weight:600;letter-spacing:.06em;font-style:italic;margin-bottom:8px}
@@ -571,9 +697,9 @@ body{display:flex;align-items:center;justify-content:center;min-height:100vh;bac
 <div class="deco-row"><span>🎂</span><span>🎉</span><span>🎈</span></div>
 <p class="sub">${ws.clearedLine}<br>${location}</p>
 <div class="svg-divider"></div>
-<div class="gift-stage"><div class="gift-box"><div class="gift-glow"></div><img class="gift-img" src="${base}img/gift.jpg" /></div></div>
+<div class="gift-stage"><div class="gift-box"><div class="gift-glow"></div><img class="gift-img" src="${base}img/gift.jpg" /><p class="gift-caption">第一份礼物</p></div><div class="gift-box"><div class="gift-glow"></div><img class="gift-img" src="${base}img/gift2.jpg" /><p class="gift-caption">第二份礼物</p></div></div>
 <div class="svg-divider"></div>
-<div class="pig-stage"><span class="pig-icon">🐷</span><p class="pig-line pig-line-em">${ws.pigCompanionLine2}</p><p class="pig-line">${ws.pigCompanionLine1}</p><p class="pig-line pig-line-sub">${ws.pigCompanionLine3}</p></div>
+<div class="pig-stage"><div class="pig-top"><span class="pig-icon">🐷</span><span class="pig-badge"><span class="pig-badge-k">好感度</span><span class="pig-badge-v">${intimacy}/8</span><span class="pig-badge-h">${hearts}</span></span></div><p class="pig-line pig-line-em">${intimacy >= 8 ? ws.pigIntimateLine : ws.pigCompanionLine2}</p><p class="pig-line">${ws.pigCompanionLine1}</p><p class="pig-line pig-line-sub">${ws.pigCompanionLine3}</p></div>
 <div class="svg-divider"></div>
 <div class="items-section"><p class="items-label">${ws.itemsArrow}</p><div class="items-grid">${itemIcons}</div><p class="items-tag">${ws.itemsLabel}</p></div>
 <div class="svg-divider"></div>
@@ -598,6 +724,8 @@ async function onScreenshotWill() {
     const posterDiv = container.querySelector('.poster')
     if (!posterDiv) throw new Error('Poster element not found')
 
+    await waitForImages(posterDiv)
+
     const canvas = await html2canvas(posterDiv, {
       backgroundColor: '#e8dfd2',
       scale: 2,
@@ -614,6 +742,19 @@ async function onScreenshotWill() {
   } catch (e) {
     console.warn('Screenshot failed:', e)
   }
+}
+
+function waitForImages(root) {
+  const images = [...root.querySelectorAll('img')]
+  return Promise.all(
+    images.map(img => {
+      if (img.complete) return Promise.resolve()
+      return new Promise(resolve => {
+        img.addEventListener('load', resolve, { once: true })
+        img.addEventListener('error', resolve, { once: true })
+      })
+    })
+  )
 }
 
 function onRestart() {
@@ -770,22 +911,26 @@ function onRestart() {
   transition:
     opacity 1s var(--ease-out-expo),
     background 1.2s var(--ease-out-expo);
-  background:
-    radial-gradient(
-      ellipse at 50% 40%,
-      var(--aura-color, rgba(240, 200, 100, 0.3)),
-      transparent 60%
-    );
+  background: radial-gradient(
+    ellipse at 50% 40%,
+    var(--aura-color, rgba(240, 200, 100, 0.3)),
+    transparent 60%
+  );
 }
 
-.candle-aura[style*="--aura-opacity: 1"] {
+.candle-aura[style*='--aura-opacity: 1'] {
   opacity: var(--aura-opacity, 1);
   animation: aura-breathe 3s ease-in-out infinite;
 }
 
 @keyframes aura-breathe {
-  0%, 100% { opacity: 0.6; }
-  50%      { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 /* ── Starfield ── */
@@ -921,8 +1066,18 @@ function onRestart() {
 }
 
 @keyframes heart-ring-expand {
-  0%   { width: 10px; height: 10px; opacity: 1; border-width: 3px; }
-  100% { width: 600px; height: 600px; opacity: 0; border-width: 0.5px; }
+  0% {
+    width: 10px;
+    height: 10px;
+    opacity: 1;
+    border-width: 3px;
+  }
+  100% {
+    width: 600px;
+    height: 600px;
+    opacity: 0;
+    border-width: 0.5px;
+  }
 }
 
 .heart-particle {
@@ -1499,21 +1654,47 @@ function onRestart() {
 }
 
 @keyframes gift-shake {
-  0%, 100% { transform: translateX(0) scale(1); }
-  10% { transform: translateX(-6px) scale(1.04); }
-  20% { transform: translateX(6px) scale(1.06); }
-  30% { transform: translateX(-6px) scale(1.04); }
-  40% { transform: translateX(6px) scale(1.06); }
-  50% { transform: translateX(-4px) scale(1.03); }
-  60% { transform: translateX(4px) scale(1.05); }
-  70% { transform: translateX(-2px) scale(1.02); }
-  80% { transform: translateX(2px) scale(1.03); }
-  90% { transform: translateX(0) scale(1.01); }
+  0%,
+  100% {
+    transform: translateX(0) scale(1);
+  }
+  10% {
+    transform: translateX(-6px) scale(1.04);
+  }
+  20% {
+    transform: translateX(6px) scale(1.06);
+  }
+  30% {
+    transform: translateX(-6px) scale(1.04);
+  }
+  40% {
+    transform: translateX(6px) scale(1.06);
+  }
+  50% {
+    transform: translateX(-4px) scale(1.03);
+  }
+  60% {
+    transform: translateX(4px) scale(1.05);
+  }
+  70% {
+    transform: translateX(-2px) scale(1.02);
+  }
+  80% {
+    transform: translateX(2px) scale(1.03);
+  }
+  90% {
+    transform: translateX(0) scale(1.01);
+  }
 }
 
 @keyframes gift-shake-emoji {
-  0%, 100% { filter: drop-shadow(0 3px 6px rgba(107, 92, 67, 0.2)); }
-  50% { filter: drop-shadow(0 3px 14px rgba(245, 195, 28, 0.5)); }
+  0%,
+  100% {
+    filter: drop-shadow(0 3px 6px rgba(107, 92, 67, 0.2));
+  }
+  50% {
+    filter: drop-shadow(0 3px 14px rgba(245, 195, 28, 0.5));
+  }
 }
 
 /* Glow ring around gift box */
@@ -1522,14 +1703,26 @@ function onRestart() {
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(245, 195, 28, 0.12) 0%, rgba(245, 195, 28, 0.04) 50%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(245, 195, 28, 0.12) 0%,
+    rgba(245, 195, 28, 0.04) 50%,
+    transparent 70%
+  );
   pointer-events: none;
   animation: glow-ring-pulse 2.4s ease-in-out infinite;
 }
 
 @keyframes glow-ring-pulse {
-  0%, 100% { transform: scale(1); opacity: 0.5; }
-  50%      { transform: scale(1.4); opacity: 1; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
 }
 
 /* Phase 2: opened */
@@ -1541,37 +1734,95 @@ function onRestart() {
   position: relative;
 }
 
+.will-gift-pair {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.will-gift-card {
+  width: 132px;
+  min-height: 152px;
+  margin: 0;
+  padding: 12px 10px 10px;
+  border: 1.5px solid rgba(180, 155, 120, 0.3);
+  border-radius: 16px;
+  background: radial-gradient(
+    ellipse at 50% 28%,
+    rgba(255, 248, 226, 0.92),
+    rgba(245, 235, 215, 0.66)
+  );
+  box-shadow:
+    inset 0 0 16px rgba(180, 155, 120, 0.12),
+    0 3px 10px rgba(107, 92, 67, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 2;
+  animation: gift-card-pop 560ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.gift-card-2 {
+  animation-delay: 150ms;
+}
+
 /* Reveal flash */
 .will-gift-reveal-flash {
   position: absolute;
   inset: -30px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 248, 220, 0.6) 0%, rgba(245, 195, 28, 0.2) 30%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 248, 220, 0.6) 0%,
+    rgba(245, 195, 28, 0.2) 30%,
+    transparent 70%
+  );
   pointer-events: none;
   z-index: 1;
   animation: reveal-flash-burst 700ms var(--ease-out-expo) forwards;
 }
 
 @keyframes reveal-flash-burst {
-  0%   { opacity: 1; transform: scale(0.6); }
-  50%  { opacity: 0.5; transform: scale(1.4); }
-  100% { opacity: 0; transform: scale(1.8); }
+  0% {
+    opacity: 1;
+    transform: scale(0.6);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.4);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.8);
+  }
 }
 
 .will-gift-img {
-  width: 140px;
-  height: auto;
+  width: 104px;
+  height: 104px;
   object-fit: contain;
-  animation: gift-img-pop 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
   filter: drop-shadow(0 3px 8px rgba(107, 92, 67, 0.18));
   position: relative;
-  z-index: 2;
+  z-index: 1;
 }
 
-@keyframes gift-img-pop {
+.will-gift-caption {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.2;
+  color: #8a6a4a;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+@keyframes gift-card-pop {
   0% {
     opacity: 0;
-    transform: scale(0.3) rotate(-10deg);
+    transform: translateY(10px) scale(0.72) rotate(-5deg);
   }
   100% {
     opacity: 1;
@@ -1618,7 +1869,7 @@ function onRestart() {
   border-radius: 16px;
   background-size: cover;
   background-position: center;
-  padding: 16px 12px;
+  /* padding: 16px 12px; */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1626,13 +1877,27 @@ function onRestart() {
   box-shadow:
     inset 0 0 20px rgba(107, 92, 67, 0.08),
     0 4px 0 0 rgba(107, 92, 67, 0.12);
+  cursor: zoom-in;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.receipt-card:hover,
+.receipt-card:focus-visible {
+  transform: translateY(-3px) scale(1.03);
+  outline: none;
+  box-shadow:
+    inset 0 0 20px rgba(107, 92, 67, 0.08),
+    0 7px 0 0 rgba(107, 92, 67, 0.14),
+    0 10px 24px rgba(90, 65, 35, 0.18);
 }
 
 .receipt-image {
   width: 150px;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 2px 6px rgba(130, 105, 65, 0.2));
+  /* filter: drop-shadow(0 2px 6px rgba(130, 105, 65, 0.2)); */
 }
 
 @keyframes machine-slide-in {
@@ -1680,6 +1945,81 @@ function onRestart() {
   box-shadow: 0 1px 0 0 #dba90e;
 }
 
+.receipt-zoom-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: rgba(64, 46, 28, 0.52);
+  backdrop-filter: blur(5px);
+  cursor: zoom-out;
+}
+
+.receipt-zoom-card {
+  width: min(520px, calc(100vw - 64px));
+  max-height: calc(100vh - 80px);
+  padding: 30px 24px;
+  border-radius: 22px;
+  background-size: cover;
+  background-position: center;
+  background-color: #fffaf0;
+  box-shadow:
+    inset 0 0 26px rgba(107, 92, 67, 0.1),
+    0 18px 54px rgba(34, 22, 12, 0.34);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: receipt-zoom-in 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: default;
+}
+
+.receipt-zoom-image {
+  width: min(430px, 100%);
+  max-height: calc(100vh - 150px);
+  object-fit: contain;
+  filter: drop-shadow(0 3px 12px rgba(80, 55, 28, 0.2));
+}
+
+.receipt-zoom-close {
+  position: fixed;
+  top: 24px;
+  right: 28px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 246, 226, 0.8);
+  background: rgba(80, 55, 32, 0.68);
+  color: #fff8e6;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(34, 22, 12, 0.24);
+}
+
+.receipt-zoom-fade-enter-active,
+.receipt-zoom-fade-leave-active {
+  transition: opacity 180ms ease;
+}
+
+.receipt-zoom-fade-enter-from,
+.receipt-zoom-fade-leave-to {
+  opacity: 0;
+}
+
+@keyframes receipt-zoom-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @keyframes btn-fade-in {
   from {
     opacity: 0;
@@ -1697,12 +2037,57 @@ function onRestart() {
   gap: 4px;
 }
 
+.will-pig-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
 .will-pig-icon {
   font-size: 42px;
   line-height: 1;
-  margin-bottom: 4px;
   animation: pig-bounce 3.2s ease-in-out infinite;
   filter: drop-shadow(0 2px 3px rgba(150, 120, 80, 0.1));
+}
+
+.will-pig-intimacy {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 7px;
+  row-gap: 1px;
+  align-items: center;
+  padding: 6px 10px;
+  min-width: 104px;
+  border: 1.5px solid rgba(180, 155, 120, 0.28);
+  border-radius: 12px;
+  background: rgba(255, 248, 232, 0.74);
+  box-shadow:
+    inset 0 0 8px rgba(180, 155, 120, 0.1),
+    0 2px 6px rgba(100, 80, 55, 0.08);
+}
+
+.will-pig-intimacy-label {
+  font-size: 10px;
+  color: #9a8268;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.will-pig-intimacy-value {
+  font-size: 14px;
+  color: #4a2e18;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+}
+
+.will-pig-hearts {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  line-height: 1;
+  color: #b75b6a;
+  letter-spacing: 0.08em;
 }
 
 @keyframes pig-bounce {
@@ -1766,7 +2151,6 @@ function onRestart() {
   justify-content: center;
   width: 42px;
   height: 42px;
-  font-size: 22px;
   border: 1.5px solid rgba(180, 155, 120, 0.32);
   border-radius: 12px;
   background: rgba(245, 235, 215, 0.5);

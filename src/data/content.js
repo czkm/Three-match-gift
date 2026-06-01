@@ -231,13 +231,12 @@ export const PIG_RATING = {
 }
 
 export const PIG_INTIMACY = {
-  max: 10,
+  max: 8,
   flavor: {
     2: '小猪开始主动靠近你走狸~',
     4: '它会在你脚边蹭来蹭去狸~',
     6: '小猪有时候会望着门口发呆狸~像是在等谁来狸！',
-    8: '它学会了一个新动作狸~用鼻子轻轻顶你的手心狸！',
-    10: '小猪蹭着你的腿哼哼狸~像是在说最喜欢你了狸！'
+    8: '它学会了一个新动作狸~用鼻子轻轻顶你的手心狸！'
   }
 }
 
@@ -420,8 +419,8 @@ export const REWARD_ITEMS = {
     tone: 'devil',
     description: '每天第一次三连狸~整列被清空狸！',
     effect: { type: 'firstThreeColSweep' },
-    penalty: { type: 'maxSteps', value: 2 },
-    penaltyText: '以后每天步数上限少 2 狸~。',
+    penalty: { type: 'maxSteps', value: 1 },
+    penaltyText: '以后每天步数上限少 1 狸~。',
     reaction: '小猪嘴角喷出一道火光狸~自己也被烤得往后一跳狸！'
   },
   momsKnife: {
@@ -437,8 +436,8 @@ export const REWARD_ITEMS = {
     tone: 'devil',
     description: '每天第一次无效交换时狸~所在列被清空狸！',
     effect: { type: 'invalidSwapLineSweep' },
-    penalty: { type: 'maxSteps', value: 2 },
-    penaltyText: '以后每天步数上限少 2 狸~。',
+    penalty: { type: 'maxSteps', value: 1 },
+    penaltyText: '以后每天步数上限少 1 狸~。',
     reaction: '刀刃贴着棋盘划过狸~小猪一动不动狸。'
   },
   thePact: {
@@ -454,8 +453,8 @@ export const REWARD_ITEMS = {
     tone: 'devil',
     description: '每天第一次四连狸~最少的那种资源全部变成最多的狸！',
     effect: { type: 'firstBigMatchResourceBalance' },
-    penalty: { type: 'maxSteps', value: 2 },
-    penaltyText: '以后每天步数上限少 2 狸~。',
+    penalty: { type: 'maxSteps', value: 1 },
+    penaltyText: '以后每天步数上限少 1 狸~。',
     reaction: '羊皮纸上的字迹扭动起来狸~小猪瞪着棋盘上的方块自动变色狸！'
   },
   darkBeggar: {
@@ -477,8 +476,8 @@ export const REWARD_ITEMS = {
       maxTriggers: 4,
       energyAmount: 5
     },
-    penalty: { type: 'maxSteps', value: 2 },
-    penaltyText: '以后每天步数上限少 2 狸~。',
+    penalty: { type: 'nextDaySteps', value: 2 },
+    penaltyText: '明天步数会少 2 步狸~。',
     reaction: '黑暗乞丐在棋盘边晃了一圈狸~少了几块砖小猪却精神了一点狸！'
   },
   pentagram: {
@@ -1583,16 +1582,16 @@ export const ENDING = {
       id: 'wishes',
       title: '三条愿望',
       lines: [
-        '豆狸&粒狸: 愿小云身体健康狸~所有疾病都远离她狸！ ( ……远离她狸！）',
-        '豆狸&粒狸: 愿小云生活快乐狸~每天都能乐趣多多狸！ ( ……乐趣多多狸！）',
-        '豆狸&粒狸: 愿小云平安幸福狸~永远和小坤生活在一起狸！ ( ……在一起狸！）'
+        '豆狸&粒狸: 愿小云身体健康狸~疾病都远离她狸！ ( ……远离她狸！）',
+        '豆狸&粒狸: 愿小云生活快乐狸~！ ( ……乐趣多多狸！）',
+        '豆狸&粒狸: 愿小云永远和小坤生活在一起狸！ ( ……在一起狸！）'
       ]
     },
     {
       id: 'blessing',
       title: '留灯',
       lines: [
-        '豆狸&粒狸: Corvo Bianco 的灯终于都亮起来了狸~！ ( ……亮起来了狸！）',
+        '豆狸&粒狸:建筑物都好起来了狸~！ ( ……亮起来了狸！）',
         '豆狸&粒狸: 今夜的祝福会留在这里狸~陪他们把以后的日子慢慢过完狸！ ( ……慢慢过完狸！）'
       ]
     }

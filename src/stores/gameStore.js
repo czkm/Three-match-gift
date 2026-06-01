@@ -89,6 +89,8 @@ export const useGameStore = defineStore('game', {
     roomHistory: [],
     pendingInvalidSwapReward: null,
     pigMoodPenalty: 0,
+    pigEnergyFromLastRating: 0,
+    pigIntimacyJustGained: false,
 
     // Narrative
     introShown: false,
@@ -652,6 +654,9 @@ export const useGameStore = defineStore('game', {
       this.pigClickCount = 0
       this.pigAngryThreshold = this._rollPigAngryThreshold()
       this.pigAngryUsedDay = null
+      this.pigIntimacy = 0
+      this.pigEnergyFromLastRating = 0
+      this.pigIntimacyJustGained = false
       this.introShown = false
       this.monologue = ''
       this.completedBanner = ''
@@ -907,6 +912,11 @@ export const useGameStore = defineStore('game', {
       this.pigEnergyBeforeAward = this.pigEnergy
       this.pigLastRating = Math.max(0, rating - this.pigMoodPenalty)
       this.pigEnergy = Math.min(PIG_RATING.energyMax, this.pigEnergy + rating)
+      this.pigEnergyFromLastRating = this.pigEnergy - this.pigEnergyBeforeAward
+      if (this.pigLastRating >= 3 && this.pigIntimacy < 8) {
+        this.pigIntimacy++
+        this.pigIntimacyJustGained = true
+      }
       this.pigMoodVisible = false
       this.pigMoodShownDay = null
       if (day.ending && this.djinnRepairCommitted) {
@@ -992,6 +1002,10 @@ export const useGameStore = defineStore('game', {
         itemId: item.id,
         quality: item.quality
       })
+      if (item.roomType === 'devil' && this.pigIntimacy > 0) {
+        this.pigIntimacy--
+        EventBus.trigger('pigIntimacyDown', [{ amount: 1 }])
+      }
       this._applyRewardPenalty(item.penalty)
       if (item.reaction) this.queueAmbientBark(item.reaction)
       EventBus.trigger('rewardHudFlash')
@@ -1911,7 +1925,7 @@ export const useGameStore = defineStore('game', {
 
     _feedPig() {
       this.pigLastFedDay = this.currentDay
-      this.pigIntimacy = Math.min(10, this.pigIntimacy + 1)
+      this.pigIntimacy = Math.min(8, this.pigIntimacy + 1)
       const intimacy = this.pigIntimacy
       let reaction
       if (intimacy >= 8) {

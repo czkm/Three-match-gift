@@ -27,7 +27,7 @@ const PHASE_AUDIO_MAP: Record<string, PhaseConfig> = {
 function getPlayingBGM(day: number): string {
   if (day >= 9) return `${AC_BGM}/3-01 Main Theme - Welcome Horizons.mp3`
   if (day >= 8) return `${AC_BGM}/2-12 Midnight (~Sunny Weather~).mp3`
-  if (day >= 6) return `${AC_BGM}/3-07 Completion Fanfare.mp3`
+  if (day >= 6) return `${AC_BGM}/2-06 600 p.m. (~Sunny Weather~).mp3`
   if (day >= 3) return `${AC_BGM}/2-03 300 p.m. (~Sunny Weather~).mp3`
   return `${AC_BGM}/1-10 1000 a.m. (~Sunny Weather~).mp3`
 }
