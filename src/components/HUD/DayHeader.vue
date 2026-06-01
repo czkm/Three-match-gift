@@ -3,7 +3,7 @@
     <div class="left">
       <!-- <span class="brand">Corvo Bianco · 白鸦葡萄园</span> -->
       <span class="ink-subtle">
-        第 {{ game.currentDay + 1 }} 天 / {{ game.dayCount }}
+        第 {{ game.currentDay + 1 }} 天 / {{ game.dayCount }}天
       </span>
     </div>
     <div class="middle">

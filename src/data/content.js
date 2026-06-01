@@ -312,7 +312,7 @@ export const REWARD_ITEMS = {
     description: '每天第一次四连狸~旁边两个格子跟着清掉狸！',
     effect: { type: 'firstBigMatchAdjacentPop', count: 2 },
     penalty: { type: 'nextDaySteps', value: 2 },
-    penaltyText: '明天步数会少 2 步狸~代价总是要付的狸。',
+    penaltyText: '明天步数会少 2 步狸~。',
     reaction: '小猪用力眨了下眼狸~旁边的两个格子应声炸开了狸💥！'
   },
   luckyFoot: {
@@ -421,7 +421,7 @@ export const REWARD_ITEMS = {
     description: '每天第一次三连狸~整列被清空狸！',
     effect: { type: 'firstThreeColSweep' },
     penalty: { type: 'maxSteps', value: 2 },
-    penaltyText: '明天步数会少 4 步狸~。',
+    penaltyText: '以后每天步数上限少 2 狸~。',
     reaction: '小猪嘴角喷出一道火光狸~自己也被烤得往后一跳狸！'
   },
   momsKnife: {
@@ -438,7 +438,7 @@ export const REWARD_ITEMS = {
     description: '每天第一次无效交换时狸~所在列被清空狸！',
     effect: { type: 'invalidSwapLineSweep' },
     penalty: { type: 'maxSteps', value: 2 },
-    penaltyText: '明天步数会少 4 步狸~。',
+    penaltyText: '以后每天步数上限少 2 狸~。',
     reaction: '刀刃贴着棋盘划过狸~小猪一动不动狸。'
   },
   thePact: {
@@ -455,7 +455,7 @@ export const REWARD_ITEMS = {
     description: '每天第一次四连狸~最少的那种资源全部变成最多的狸！',
     effect: { type: 'firstBigMatchResourceBalance' },
     penalty: { type: 'maxSteps', value: 2 },
-    penaltyText: '以后每天步数上限少 1 狸~。',
+    penaltyText: '以后每天步数上限少 2 狸~。',
     reaction: '羊皮纸上的字迹扭动起来狸~小猪瞪着棋盘上的方块自动变色狸！'
   },
   darkBeggar: {
@@ -1694,8 +1694,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'day6_keep_the_lamp_warm',
     title: '灯还亮着唷',
-    description:
-      '第 6 天完成了温室修复，暖灯一亮小芽都精神了狸！',
+    description: '第 6 天完成了温室修复，暖灯一亮小芽都精神了狸！',
     icon: '🌱',
     iconFile: 'day6_keep_the_lamp_warm',
     rarity: 'rare',
@@ -1717,8 +1716,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'day8_the_soup_will_hold',
     title: '汤还热着呢',
-    description:
-      '第 8 天完成了厨房修复，炉火一燃整间屋子都暖了狸！',
+    description: '第 8 天完成了厨房修复，炉火一燃整间屋子都暖了狸！',
     icon: '🍲',
     iconFile: 'day8_the_soup_will_hold',
     rarity: 'rare',

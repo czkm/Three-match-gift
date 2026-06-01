@@ -422,11 +422,36 @@ let milkTeaPulseTimer = null
 let milkTeaResolveTimer = null
 const milkTeaResult = ref(null)
 let milkTeaResultTimer = null
+let milkTeaCascadeAudioQuietUntil = 0
+let milkTeaCascadeReleaseTimer = null
 let djinnTransitionTimer = null
 let djinnTransitionSettleTimer = null
 const xrayScanning = ref(false)
 let xrayScanTimer = null
 let pigPenaltyShakeTimer = null
+
+function isMilkTeaCascadeAudioQuiet() {
+  return performance.now() < milkTeaCascadeAudioQuietUntil
+}
+
+function quietMilkTeaCascadeAudio(durationMs = 6000) {
+  milkTeaCascadeAudioQuietUntil = Math.max(
+    milkTeaCascadeAudioQuietUntil,
+    performance.now() + durationMs
+  )
+  game.suppressItemCascade = true
+  if (milkTeaCascadeReleaseTimer) clearTimeout(milkTeaCascadeReleaseTimer)
+  milkTeaCascadeReleaseTimer = setTimeout(releaseMilkTeaCascadeAudio, durationMs)
+}
+
+function releaseMilkTeaCascadeAudio() {
+  if (milkTeaCascadeReleaseTimer) {
+    clearTimeout(milkTeaCascadeReleaseTimer)
+    milkTeaCascadeReleaseTimer = null
+  }
+  milkTeaCascadeAudioQuietUntil = 0
+  game.suppressItemCascade = false
+}
 
 const rowsCount = computed(() => ROWS)
 const colsCount = computed(() => COLS)
@@ -864,6 +889,7 @@ defineExpose({
     if (!hasAny) return false
     bumpIdle()
     milkTeaCasting.value = true
+    quietMilkTeaCascadeAudio()
     audioManager.playSFX('decoction', { vol: 0.72 })
     triggerMilkTeaBarrageFx(resourceId)
 
@@ -963,6 +989,7 @@ onBeforeUnmount(() => {
     clearTimeout(milkTeaResultTimer)
     milkTeaResultTimer = null
   }
+  releaseMilkTeaCascadeAudio()
   if (pigPenaltyShakeTimer) clearTimeout(pigPenaltyShakeTimer)
   if (djinnTransitionTimer) clearTimeout(djinnTransitionTimer)
   if (djinnTransitionSettleTimer) clearTimeout(djinnTransitionSettleTimer)
@@ -1307,22 +1334,30 @@ function reconcileTilesToBoardState(addedTiles = []) {
   }
 
   if (fallingCount > 0) {
-    audioManager.playBoardDrop(fallingCount + Math.max(0, maxFallDistance - 1))
+    if (!isMilkTeaCascadeAudioQuiet()) {
+      audioManager.playBoardDrop(
+        fallingCount + Math.max(0, maxFallDistance - 1)
+      )
+    }
     setTimeout(
       () => {
-        audioManager.playSFX('land', {
-          vol: Math.min(
-            0.22 + Math.max(fallingCount, maxFallDistance) * 0.02,
-            0.38
-          )
-        })
+        if (!isMilkTeaCascadeAudioQuiet()) {
+          audioManager.playSFX('land', {
+            vol: Math.min(
+              0.22 + Math.max(fallingCount, maxFallDistance) * 0.02,
+              0.38
+            )
+          })
+        }
       },
       Math.max(120, TIMING.TILE_FALL_MS - 30)
     )
   }
 
   if (spawnedCount > 0) {
-    audioManager.playSFX('spawn', { vol: 0.2 })
+    if (!isMilkTeaCascadeAudioQuiet()) {
+      audioManager.playSFX('spawn', { vol: 0.2 })
+    }
   }
 }
 
@@ -1404,9 +1439,14 @@ function onTilesCleared(
   const safeGroupSizes = groupSizes || []
   const safeChain = chain || 1
   const totalCleared = safeGroupSizes.reduce((sum, size) => sum + size, 0)
-  if (totalCleared > 0) audioManager.playMatch(totalCleared)
+  const quietMilkTeaAudio = isMilkTeaCascadeAudioQuiet()
+  if (totalCleared > 0 && !quietMilkTeaAudio) {
+    audioManager.playMatch(totalCleared)
+  }
   const biggest = Math.max(0, ...safeGroupSizes)
-  if (biggest >= 4) audioManager.playMatchPraise(biggest)
+  if (biggest >= 4 && !quietMilkTeaAudio) {
+    audioManager.playMatchPraise(biggest)
+  }
   if (safeChain >= 2) {
     pendingComboAudioLevel.value = Math.max(
       pendingComboAudioLevel.value,
@@ -1419,7 +1459,7 @@ function onTilesCleared(
     chain || 1,
     matchGroups || []
   )
-  if (gained)
+  if (gained && !quietMilkTeaAudio)
     audioManager.playSFX('resourcegain', { vol: 0.3, bypassThrottle: true })
   game.recordDjinnBoardProgress({
     clearedPositions: collectClearedPositions(),
@@ -1711,6 +1751,9 @@ function maybeCommitTurn() {
   if (pendingComboAudioLevel.value >= 2) {
     audioManager.playCombo(pendingComboAudioLevel.value)
     pendingComboAudioLevel.value = 0
+  }
+  if (isMilkTeaCascadeAudioQuiet()) {
+    releaseMilkTeaCascadeAudio()
   }
 
   bumpIdle()

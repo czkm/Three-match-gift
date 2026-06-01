@@ -810,6 +810,8 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .item-card:hover {
@@ -901,6 +903,9 @@ onBeforeUnmount(() => {
   color: #794f27;
   line-height: 1.3;
   width: 100%;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 /* ── Effect description ── */
@@ -912,8 +917,10 @@ onBeforeUnmount(() => {
   width: 100%;
   text-align: left;
   padding: 0 2px;
-  word-break: break-word;
-  overflow-wrap: break-word;
+  min-width: 0;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: anywhere;
 }
 
 /* ── Devil penalty / cost ── */
@@ -927,8 +934,10 @@ onBeforeUnmount(() => {
   padding: 6px 2px 0;
   margin-top: 2px;
   border-top: 1px solid rgba(180, 60, 60, 0.12);
-  word-break: break-word;
-  overflow-wrap: break-word;
+  min-width: 0;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: anywhere;
 }
 
 /* ── Card footer: quality badge + slot icon ── */
