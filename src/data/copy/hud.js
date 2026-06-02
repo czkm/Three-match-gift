@@ -51,12 +51,12 @@ export const REWARD_ROOM_COPY = {
   intro: '门开了。',
   treasure: {
     sign: '宝箱房',
-    label: '稳妥',
+    label: '稳一手👍',
     flavor: '温暖的金色光芒充满整个房间。'
   },
   devil: {
     sign: '恶魔房',
-    label: '危险',
+    label: '贪一手✌️',
     flavor: '黑暗中有红色的光。'
   },
   devilWarning: '恶魔房需要付出代价：降低明日步数，或永久压低步数上限',

@@ -42,7 +42,7 @@
             >
               <span class="door-icon">🔥</span>
               <span class="door-sign">{{ REWARD_ROOM_COPY.devil.sign }}</span>
-              <span class="pentagram">✦</span>
+              <span class="pentagram">👿</span>
               <span class="dark-pulse" />
               <span
                 v-if="enteringRoom === 'devil'"
@@ -66,7 +66,7 @@
 
         <template v-if="currentRoomType === 'treasure'">
           <div class="room-icon-block treasure-icon-block">
-            <span class="room-main-icon">🎁</span>
+            <span class="room-main-icon">🎊</span>
             <div class="treasure-chest" />
           </div>
           <p class="room-flavor">{{ REWARD_ROOM_COPY.treasure.flavor }}</p>
@@ -309,7 +309,9 @@ onMounted(() => {
   game.clearRewardItemInfo()
   EventBus.bind('pigIntimacyDown', ([{ amount }]) => {
     intimacyDownText.value = `亲密度 -${amount} 💔`
-    setTimeout(() => { intimacyDownText.value = '' }, 1800)
+    setTimeout(() => {
+      intimacyDownText.value = ''
+    }, 1800)
   })
 })
 
@@ -479,8 +481,8 @@ onBeforeUnmount(() => {
 /* ── Treasure Door ── */
 .treasure-door {
   background: linear-gradient(180deg, #fdf5e6 0%, #f5e6c8 40%, #e8d5a3 100%);
-  border: 2px solid #c9a84c;
-  box-shadow: 0 5px #bdaea0;
+  /* border: 2px solid #c9a84c; */
+  /* box-shadow: 0 5px #bdaea0; */
 }
 
 .treasure-door:hover {
