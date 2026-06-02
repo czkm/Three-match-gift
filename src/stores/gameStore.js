@@ -718,6 +718,8 @@ export const useGameStore = defineStore('game', {
       this.pendingRewardOffer = null
       this.inspectedRewardItem = null
       this.pendingInvalidSwapReward = null
+      this.darkBeggarTriggerCount = 0
+      this.darkBeggarTargetCount = 0
       this._resetDaySpecialState()
       this._resetDailyItemFlags()
       this._applyDayStartItemEffects()
@@ -1644,6 +1646,7 @@ export const useGameStore = defineStore('game', {
         i => i.effect?.type === 'chaoticSabotage'
       )
       if (!item) return
+      if (this._hasItemFlag(item, 'chaos')) return
 
       const effect = item.effect
       if (this.darkBeggarTargetCount === 0) {
@@ -1688,14 +1691,12 @@ export const useGameStore = defineStore('game', {
           amount: Math.max(0, this.pigEnergy - beforeEnergy),
           source: 'darkBeggar'
         }])
+        this._markItemFlag(item, 'chaos')
         this._emitItemEffectTriggered(item, {
           trigger: 'resourceGain',
           pigEnergyGained: Math.max(0, this.pigEnergy - beforeEnergy),
-          summaryText: `黑暗乞丐已完成 ${this.darkBeggarTriggerCount} 次破坏，补充小猪能量 +${energyGain}`
+          summaryText: `黑暗乞丐已完成 ${this.darkBeggarTriggerCount} 次破坏，补充小猪能量 +${energyGain}。今天不会再来了狸！`
         })
-        // Reset for next cycle
-        this.darkBeggarTriggerCount = 0
-        this.darkBeggarTargetCount = 0
       } else {
         this._emitItemEffectTriggered(item, {
           trigger: 'resourceGain',

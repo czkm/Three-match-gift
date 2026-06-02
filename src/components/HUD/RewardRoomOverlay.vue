@@ -514,8 +514,8 @@ onBeforeUnmount(() => {
 /* ── Devil Door ── */
 .devil-door {
   background: linear-gradient(180deg, #faf5f5 0%, #f0e0e0 40%, #e5c8c8 100%);
-  border: 2px solid #b87070;
-  box-shadow: 0 5px #bdaea0;
+  /* border: 2px solid #b87070; */
+  /* box-shadow: 0 5px #bdaea0; */
 }
 
 .devil-door:hover {
