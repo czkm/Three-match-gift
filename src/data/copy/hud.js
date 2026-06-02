@@ -59,6 +59,6 @@ export const REWARD_ROOM_COPY = {
     label: '贪一手✌️',
     flavor: '黑暗中有红色的光。'
   },
-  devilWarning: '恶魔房需要付出代价：降低明日步数，或永久压低步数上限',
+  devilWarning: '恶魔房需要付出代价',
   formatAcquiredText
 }
