@@ -385,6 +385,17 @@ const typeFromChar = ch => {
   if (monster) return `monster-${monster.id}`
   return charMap[ch] ?? 'grape'
 }
+const feelFromType = type => RESOURCE_BY_ID[type]?.feel || null
+const feelTierFromType = type =>
+  feelFromType(type)?.tier || (type === 'rot' ? 'heavy' : 'neutral')
+
+function setTileType(tile, type) {
+  const feel = feelFromType(type)
+  tile.type = type
+  tile.feel = feel
+  tile.feelTier = feel?.tier || (type === 'rot' ? 'heavy' : 'neutral')
+  tile.spark = feel?.spark || (type === 'rot' ? 'dust' : 'neutral')
+}
 
 const board = ref(null)
 const tiles = ref([])
@@ -429,6 +440,8 @@ let djinnTransitionSettleTimer = null
 const xrayScanning = ref(false)
 let xrayScanTimer = null
 let pigPenaltyShakeTimer = null
+const tileLandingTimers = new WeakMap()
+const tileSwapTimers = new WeakMap()
 
 function isMilkTeaCascadeAudioQuiet() {
   return performance.now() < milkTeaCascadeAudioQuietUntil
@@ -441,7 +454,10 @@ function quietMilkTeaCascadeAudio(durationMs = 6000) {
   )
   game.suppressItemCascade = true
   if (milkTeaCascadeReleaseTimer) clearTimeout(milkTeaCascadeReleaseTimer)
-  milkTeaCascadeReleaseTimer = setTimeout(releaseMilkTeaCascadeAudio, durationMs)
+  milkTeaCascadeReleaseTimer = setTimeout(
+    releaseMilkTeaCascadeAudio,
+    durationMs
+  )
 }
 
 function releaseMilkTeaCascadeAudio() {
@@ -1066,11 +1082,15 @@ function newTile({ type, row, col }) {
   if (tilePool.length) {
     t = tilePool.pop()
     t.id = makeGuid()
-    t.type = type
     t.row = row
     t.col = col
     t.hidden = false
     t.pooled = true
+    t.clearing = false
+    t.landing = false
+    t.swapping = false
+    t.fallDistance = 1
+    setTileType(t, type)
   } else {
     t = reactive({
       id: makeGuid(),
@@ -1078,7 +1098,14 @@ function newTile({ type, row, col }) {
       row,
       col,
       hidden: false,
-      pooled: true
+      pooled: true,
+      clearing: false,
+      landing: false,
+      swapping: false,
+      fallDistance: 1,
+      feel: feelFromType(type),
+      feelTier: feelTierFromType(type),
+      spark: feelFromType(type)?.spark || (type === 'rot' ? 'dust' : 'neutral')
     })
     tiles.value.push(t)
   }
@@ -1087,12 +1114,60 @@ function newTile({ type, row, col }) {
 }
 
 function poolTile(tile) {
+  const clearMs = tile.feel?.clearMs || TIMING.TILE_TRANSFORM_MS
+  tile.clearing = true
+  tile.landing = false
+  tile.swapping = false
   tile.hidden = true
   setTimeout(() => {
     tile.pooled = true
+    tile.clearing = false
+    tile.landing = false
+    tile.swapping = false
+    tile.fallDistance = 1
     tile.row = -ROWS
     tilePool.push(tile)
-  }, TIMING.TILE_TRANSFORM_MS)
+  }, clearMs)
+}
+
+function markTileLanding(tile, distance = 1, delayMs = TIMING.TILE_FALL_MS) {
+  if (!tile) return
+  const existing = tileLandingTimers.get(tile)
+  if (existing) clearTimeout(existing)
+  const landMs = tile.feel?.landMs || 380
+  tile.fallDistance = Math.max(1, Math.min(8, distance || 1))
+  tile.landing = false
+  const timer = setTimeout(
+    () => {
+      if (tile.pooled || tile.hidden) return
+      requestAnimationFrame(() => {
+        tile.landing = true
+        const clearTimer = setTimeout(() => {
+          tile.landing = false
+          tileLandingTimers.delete(tile)
+        }, landMs + 40)
+        tileLandingTimers.set(tile, clearTimer)
+      })
+    },
+    Math.max(0, delayMs)
+  )
+  tileLandingTimers.set(tile, timer)
+}
+
+function markTileSwapping(tile) {
+  if (!tile) return
+  const existing = tileSwapTimers.get(tile)
+  if (existing) clearTimeout(existing)
+  const swapMs = tile.feel?.swapMs || TIMING.SWAP_RETURN_MS
+  tile.swapping = false
+  requestAnimationFrame(() => {
+    tile.swapping = true
+    const timer = setTimeout(() => {
+      tile.swapping = false
+      tileSwapTimers.delete(tile)
+    }, swapMs + 90)
+    tileSwapTimers.set(tile, timer)
+  })
 }
 
 /* ---------- draw event handlers ---------- */
@@ -1163,6 +1238,11 @@ function drawFill(tileString) {
       requestAnimationFrame(() => {
         t.row = targetRow
         t.col = targetCol
+        markTileLanding(
+          t,
+          Math.max(1, targetRow - startRow),
+          TIMING.TILE_FALL_MS + 20
+        )
       })
     }, delay)
     row++
@@ -1185,6 +1265,8 @@ function drawSwap(opts) {
   if (!a || !b) return TIMING.SWAP_RETURN_MS
   const ar = a.row,
     ac = a.col
+  markTileSwapping(a)
+  markTileSwapping(b)
   a.row = b.row
   a.col = b.col
   b.row = ar
@@ -1304,6 +1386,11 @@ function reconcileTilesToBoardState(addedTiles = []) {
           requestAnimationFrame(() => {
             fresh.row = target.row
             fresh.col = target.col
+            markTileLanding(
+              fresh,
+              Math.max(1, target.row - (added.row - ROWS)),
+              TIMING.TILE_FALL_MS + 20
+            )
           })
         })
         continue
@@ -1312,13 +1399,23 @@ function reconcileTilesToBoardState(addedTiles = []) {
       const tile = survivors[survivorIndex]
       survivorIndex--
       if (!tile) continue
-      if (target.row > tile.row) {
+      const previousRow = tile.row
+      const fallDistance =
+        target.row > previousRow ? target.row - previousRow : 0
+      if (fallDistance > 0) {
         fallingCount++
-        maxFallDistance = Math.max(maxFallDistance, target.row - tile.row)
+        maxFallDistance = Math.max(maxFallDistance, fallDistance)
       }
-      tile.type = typeFromChar(target.char)
+      setTileType(tile, typeFromChar(target.char))
       tile.col = target.col
       tile.row = target.row
+      if (fallDistance > 0) {
+        markTileLanding(
+          tile,
+          fallDistance,
+          TIMING.TILE_FALL_MS + fallDistance * 12
+        )
+      }
     }
 
     for (let i = 0; i <= survivorIndex; i++) {
@@ -1333,7 +1430,7 @@ function reconcileTilesToBoardState(addedTiles = []) {
       poolTile(tile)
       continue
     }
-    tile.type = typeFromChar(target.char)
+    setTileType(tile, typeFromChar(target.char))
   }
 
   if (fallingCount > 0) {
@@ -1409,7 +1506,11 @@ function hardSyncTilesFromBoardState() {
       })
     tile.hidden = false
     tile.pooled = false
-    tile.type = typeFromChar(target.char)
+    tile.clearing = false
+    tile.landing = false
+    tile.swapping = false
+    tile.fallDistance = 1
+    setTileType(tile, typeFromChar(target.char))
     tile.row = target.row
     tile.col = target.col
   }
@@ -1695,7 +1796,7 @@ function buildComboPraise(biggest, chain) {
   if (chainDepth >= 2) {
     return {
       ...cascadeBits,
-      label: '连击命中狸！',
+      label: '连击狸！',
       tone: chainDepth >= 3 ? 'inferno' : 'cascade',
       giant: chainDepth >= 3,
       flash: chainDepth >= 3,

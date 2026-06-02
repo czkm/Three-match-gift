@@ -7,6 +7,108 @@
  */
 
 /* -------- Resources -------- */
+export const RESOURCE_FEEL_PRESETS = {
+  light: {
+    tier: 'light',
+    weight: 0.72,
+    pressX: 1.025,
+    pressY: 0.975,
+    pressDrop: 2,
+    pressRotate: -0.8,
+    pressMs: 145,
+    swapScale: 1.055,
+    swapRotate: 7,
+    swapShift: 2,
+    swapMs: 245,
+    landStart: -8,
+    landDrop: 2,
+    landX: 1.018,
+    landY: 0.984,
+    landRotate: 0.9,
+    landRebound: -2,
+    landReboundX: 0.997,
+    landReboundY: 1.006,
+    landReboundRotate: -0.35,
+    landMs: 280,
+    glyphLandStart: -5,
+    clearX: 1.045,
+    clearY: 0.978,
+    clearRise: -16,
+    clearFloatScale: 1.06,
+    clearEndScale: 0.5,
+    clearGlyphScale: 1.1,
+    clearMs: 230,
+    sparkSize: 1.38,
+    highlightOpacity: 0.76
+  },
+  medium: {
+    tier: 'medium',
+    weight: 1,
+    pressX: 1.014,
+    pressY: 0.986,
+    pressDrop: 2,
+    pressRotate: 0.55,
+    pressMs: 150,
+    swapScale: 1.035,
+    swapRotate: -5,
+    swapShift: -2,
+    swapMs: 265,
+    landStart: -5,
+    landDrop: 2,
+    landX: 1.01,
+    landY: 0.99,
+    landRotate: -1.1,
+    landRebound: -1,
+    landReboundX: 0.999,
+    landReboundY: 1.003,
+    landReboundRotate: 0.55,
+    landMs: 330,
+    glyphLandStart: -3,
+    clearX: 1.03,
+    clearY: 0.986,
+    clearRise: -10,
+    clearFloatScale: 1.035,
+    clearEndScale: 0.62,
+    clearGlyphScale: 1.07,
+    clearMs: 265,
+    sparkSize: 1.08,
+    highlightOpacity: 0.62
+  },
+  heavy: {
+    tier: 'heavy',
+    weight: 1.45,
+    pressX: 1.006,
+    pressY: 0.994,
+    pressDrop: 1,
+    pressRotate: 0.2,
+    pressMs: 125,
+    swapScale: 1.014,
+    swapRotate: 2,
+    swapShift: 0,
+    swapMs: 230,
+    landStart: -3,
+    landDrop: 1,
+    landX: 1.004,
+    landY: 0.997,
+    landRotate: 0.25,
+    landRebound: 0,
+    landReboundX: 1,
+    landReboundY: 1.001,
+    landReboundRotate: 0,
+    landMs: 255,
+    glyphLandStart: -1,
+    clearX: 1.014,
+    clearY: 0.995,
+    clearRise: -6,
+    clearFloatScale: 1.012,
+    clearEndScale: 0.72,
+    clearGlyphScale: 1.035,
+    clearMs: 290,
+    sparkSize: 0.86,
+    highlightOpacity: 0.5
+  }
+}
+
 export const RESOURCES = [
   {
     id: 'grape',
@@ -14,7 +116,14 @@ export const RESOURCES = [
     label: '橙子',
     emoji: '🍊',
     cn: '橙子',
-    chessImg: 'img/chessPiece/orange.png'
+    chessImg: 'img/chessPiece/orange.png',
+    feel: {
+      ...RESOURCE_FEEL_PRESETS.light,
+      spark: 'citrus',
+      sparkColor: 'rgba(255, 224, 96, 0.78)',
+      glowColor: 'rgba(255, 212, 72, 0.34)',
+      clearSpin: 12
+    }
   },
   {
     id: 'wood',
@@ -22,7 +131,14 @@ export const RESOURCES = [
     label: '木材',
     emoji: '🪵',
     cn: '木材',
-    chessImg: 'img/chessPiece/tree branch.png'
+    chessImg: 'img/chessPiece/tree branch.png',
+    feel: {
+      ...RESOURCE_FEEL_PRESETS.medium,
+      spark: 'leaf',
+      sparkColor: 'rgba(124, 184, 92, 0.68)',
+      glowColor: 'rgba(126, 180, 92, 0.26)',
+      clearSpin: -8
+    }
   },
   {
     id: 'stone',
@@ -30,7 +146,14 @@ export const RESOURCES = [
     label: '石材',
     emoji: '🪨',
     cn: '石材',
-    chessImg: 'img/chessPiece/stone.png'
+    chessImg: 'img/chessPiece/stone.png',
+    feel: {
+      ...RESOURCE_FEEL_PRESETS.heavy,
+      spark: 'pebble',
+      sparkColor: 'rgba(158, 178, 190, 0.7)',
+      glowColor: 'rgba(160, 184, 198, 0.22)',
+      clearSpin: 2
+    }
   },
   {
     id: 'clay',
@@ -38,7 +161,14 @@ export const RESOURCES = [
     label: '黏土',
     emoji: '🧱',
     cn: '黏土',
-    chessImg: 'img/chessPiece/clay.png'
+    chessImg: 'img/chessPiece/clay.png',
+    feel: {
+      ...RESOURCE_FEEL_PRESETS.medium,
+      spark: 'dust',
+      sparkColor: 'rgba(224, 144, 104, 0.68)',
+      glowColor: 'rgba(224, 144, 104, 0.24)',
+      clearSpin: 6
+    }
   },
   {
     id: 'herb',
@@ -46,7 +176,14 @@ export const RESOURCES = [
     label: '花卉',
     emoji: '🌸',
     cn: '花卉',
-    chessImg: 'img/chessPiece/cherry-blossom petal.png'
+    chessImg: 'img/chessPiece/cherry-blossom petal.png',
+    feel: {
+      ...RESOURCE_FEEL_PRESETS.light,
+      spark: 'petal',
+      sparkColor: 'rgba(248, 180, 204, 0.76)',
+      glowColor: 'rgba(248, 180, 204, 0.32)',
+      clearSpin: -16
+    }
   },
   {
     id: 'magic',
@@ -54,7 +191,14 @@ export const RESOURCES = [
     label: '星星碎片',
     emoji: '⭐',
     cn: '星星碎片',
-    chessImg: 'img/chessPiece/star fragment.png'
+    chessImg: 'img/chessPiece/star fragment.png',
+    feel: {
+      ...RESOURCE_FEEL_PRESETS.light,
+      spark: 'star',
+      sparkColor: 'rgba(200, 176, 255, 0.82)',
+      glowColor: 'rgba(184, 156, 255, 0.38)',
+      clearSpin: 18
+    }
   }
 ]
 

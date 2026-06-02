@@ -3,12 +3,18 @@
     class="tile"
     :class="[
       tile.type,
+      tile.feelTier ? `feel-${tile.feelTier}` : '',
+      tile.spark ? `spark-${tile.spark}` : '',
       {
         selected,
         hidden: tile.hidden,
         pooled: tile.pooled,
         hint: hint,
         struck: showHitFx,
+        pressed,
+        clearing: tile.clearing,
+        landing: tile.landing,
+        swapping: tile.swapping,
         'preview-good': preview === 'good',
         'preview-bad': preview === 'bad',
         invalid: invalid,
@@ -21,8 +27,12 @@
     :data-tile-pos="`${tile.row},${tile.col}`"
     :data-tile-type="tile.type"
     :style="style"
-    @mousedown.prevent="onPick"
-    @touchstart.prevent="onPick"
+    @mousedown.prevent="pressTile"
+    @mouseup="releasePress"
+    @mouseleave="releasePress"
+    @touchstart.prevent="pressTile"
+    @touchend="releasePress"
+    @touchcancel="releasePress"
   >
     <img
       v-if="chessImg"
@@ -56,7 +66,9 @@ const props = defineProps({
 const emit = defineEmits(['pick'])
 const HIT_FX_MS = 420
 const showHitFx = ref(false)
+const pressed = ref(false)
 let hitFxTimer = null
+let pressTimer = null
 
 const TILE_SIZE = 60
 
@@ -75,9 +87,48 @@ const style = computed(() => {
   const x = props.tile.col * TILE_SIZE
   const y = props.tile.row * TILE_SIZE
   const xform = `translate3d(${x}px, ${y}px, 0)`
+  const feel = props.tile.feel || {}
+  const fallDistance = props.tile.fallDistance || 1
+  const landStart =
+    feel.landStart != null ? feel.landStart * Math.min(1.35, fallDistance / 4) : -2 * fallDistance
   return {
     transform: xform,
-    '--xform': xform
+    '--xform': xform,
+    '--fall-distance': String(fallDistance),
+    '--tile-weight': String(feel.weight || 1),
+    '--tile-press-x': String(feel.pressX || 1.014),
+    '--tile-press-y': String(feel.pressY || 0.986),
+    '--tile-press-drop': `${feel.pressDrop ?? 3}px`,
+    '--tile-press-rotate': `${feel.pressRotate ?? 0}deg`,
+    '--tile-press-ms': `${feel.pressMs || 180}ms`,
+    '--tile-swap-scale': String(feel.swapScale || 1.035),
+    '--tile-swap-rotate': `${feel.swapRotate ?? -5}deg`,
+    '--tile-swap-counter-rotate': `${-(feel.swapRotate ?? -5) * 0.55}deg`,
+    '--tile-swap-shift': `${feel.swapShift ?? 0}px`,
+    '--tile-swap-ms': `${feel.swapMs || 260}ms`,
+    '--tile-land-start': `${landStart}px`,
+    '--tile-land-drop': `${feel.landDrop ?? 3}px`,
+    '--tile-land-x': String(feel.landX || 1.01),
+    '--tile-land-y': String(feel.landY || 0.99),
+    '--tile-land-rotate': `${feel.landRotate ?? 0}deg`,
+    '--tile-land-rebound': `${feel.landRebound ?? -2}px`,
+    '--tile-land-rebound-x': String(feel.landReboundX || 0.999),
+    '--tile-land-rebound-y': String(feel.landReboundY || 1.003),
+    '--tile-land-rebound-rotate': `${feel.landReboundRotate ?? 0}deg`,
+    '--tile-land-ms': `${feel.landMs || 380}ms`,
+    '--tile-glyph-land-start': `${feel.glyphLandStart ?? -3}px`,
+    '--tile-clear-x': String(feel.clearX || 1.03),
+    '--tile-clear-y': String(feel.clearY || 0.986),
+    '--tile-clear-rise': `${feel.clearRise ?? -12}px`,
+    '--tile-clear-float-scale': String(feel.clearFloatScale || 1.08),
+    '--tile-clear-end-scale': String(feel.clearEndScale || 0.62),
+    '--tile-clear-glyph-scale': String(feel.clearGlyphScale || 1.07),
+    '--tile-clear-spin': `${feel.clearSpin ?? 8}deg`,
+    '--tile-clear-ms': `${feel.clearMs || 260}ms`,
+    '--tile-spark-size': String(feel.sparkSize || 1.2),
+    '--tile-spark-color': feel.sparkColor || 'rgba(245, 195, 28, 0.38)',
+    '--tile-glow-color': feel.glowColor || 'rgba(245, 195, 28, 0.22)',
+    '--tile-highlight-opacity': String(feel.highlightOpacity || 0.62)
   }
 })
 
@@ -151,6 +202,21 @@ function onPick(evt) {
   emit('pick', { row: props.tile.row, col: props.tile.col }, evt)
 }
 
+function pressTile(evt) {
+  pressed.value = true
+  if (pressTimer) clearTimeout(pressTimer)
+  pressTimer = setTimeout(releasePress, 180)
+  onPick(evt)
+}
+
+function releasePress() {
+  pressed.value = false
+  if (pressTimer) {
+    clearTimeout(pressTimer)
+    pressTimer = null
+  }
+}
+
 watch(hitSignature, (signature, previous) => {
   if (!signature || signature === previous) return
   showHitFx.value = false
@@ -166,6 +232,7 @@ watch(hitSignature, (signature, previous) => {
 
 onBeforeUnmount(() => {
   if (hitFxTimer) clearTimeout(hitFxTimer)
+  if (pressTimer) clearTimeout(pressTimer)
 })
 </script>
 
