@@ -133,10 +133,9 @@ export const useGameStore = defineStore('game', {
     pigMoodVisible: false,
     pigMoodShownDay: null,
     pigClickCount: 0,
-    pigAngryThreshold: 6,
     pigAngryUsedDay: null,
     pigIntimacy: 0,
-    pigLastFedDay: -1,
+    pigDailyQueue: [],
     dayRetryCount: 0,
 
     // Day 9 djinn / wish state
@@ -652,8 +651,8 @@ export const useGameStore = defineStore('game', {
       this.pigMoodVisible = false
       this.pigMoodShownDay = null
       this.pigClickCount = 0
-      this.pigAngryThreshold = this._rollPigAngryThreshold()
       this.pigAngryUsedDay = null
+      this.pigDailyQueue = []
       this.pigIntimacy = 0
       this.pigEnergyFromLastRating = 0
       this.pigIntimacyJustGained = false
@@ -709,9 +708,8 @@ export const useGameStore = defineStore('game', {
       this.pigLastRating = null
       this.pigMoodVisible = false
       this.pigClickCount = 0
-      this.pigAngryThreshold = this._rollPigAngryThreshold()
       this.pigAngryUsedDay = null
-      this.pigLastFedDay = -1
+      this.pigDailyQueue = []
       this.dayRetryCount = 0
       this.introShown = false
       this.hintMove = null
@@ -913,7 +911,7 @@ export const useGameStore = defineStore('game', {
       const rating = this._calcPigRating()
       this.pigEnergyBeforeAward = this.pigEnergy
       this.pigLastRating = Math.max(0, rating - this.pigMoodPenalty)
-      this.pigEnergy = Math.min(PIG_RATING.energyMax, this.pigEnergy + rating)
+      this.pigEnergy = Math.min(PIG_RATING.energyAccumulateCap, this.pigEnergy + rating)
       this.pigEnergyFromLastRating = this.pigEnergy - this.pigEnergyBeforeAward
       if (this.pigLastRating >= 3 && this.pigIntimacy < 8) {
         this.pigIntimacy++
@@ -1407,7 +1405,7 @@ export const useGameStore = defineStore('game', {
         ) {
           const beforeEnergy = this.pigEnergy
           this.pigEnergy = Math.min(
-            PIG_RATING.energyMax,
+            PIG_RATING.energyAccumulateCap,
             this.pigEnergy + (effect.amount || 0)
           )
           this._markItemFlag(item)
@@ -1683,7 +1681,7 @@ export const useGameStore = defineStore('game', {
         const energyGain = effect.energyAmount || 5
         const beforeEnergy = this.pigEnergy
         this.pigEnergy = Math.min(
-          PIG_RATING.energyMax,
+          PIG_RATING.energyAccumulateCap,
           this.pigEnergy + energyGain
         )
         // Enhanced visual notification for energy restore
@@ -1879,73 +1877,55 @@ export const useGameStore = defineStore('game', {
     },
 
     inspectPig() {
-      if (this.pigLastFedDay !== this.currentDay) {
-        return this._feedPig()
-      }
       this.pigClickCount += 1
-      if (this.pigAngryUsedDay === this.currentDay) {
-        audioManager.playSFX('pig_annoyed', { vol: 0.4 }).catch(() => {})
-        return {
-          ...PIG_REACTIONS.annoyed,
-          angry: false,
-          penalized: false
+      if (this.pigClickCount > 2) {
+        if (this.pigAngryUsedDay === this.currentDay) {
+          audioManager.playSFX('pig_annoyed', { vol: 0.4 }).catch(() => {})
+          return { ...PIG_REACTIONS.annoyed, angry: false, penalized: false }
+        }
+        if (this.phase === 'repairing' || this.phase === 'dayEnd') return false
+        if (this.stepsLeft <= 0 || this.djinnUnlimitedSteps) return false
+        this.stepsLeft = Math.max(0, this.stepsLeft - 1)
+        this.turnId++
+        this.pigAngryUsedDay = this.currentDay
+        audioManager.playSFX('pig_angry', { vol: 0.55 })
+        EventBus.trigger('pigPenalty', [{ stepsLost: 1 }])
+        this.queueBark(GAMEPLAY_COPY.pig.angryBark)
+        return { ...PIG_REACTIONS.angry, angry: true, penalized: true }
+      }
+      if (this.pigClickCount === 1) {
+        this.pigIntimacy = Math.min(8, this.pigIntimacy + 1)
+      }
+      if (this.pigDailyQueue.length === 0) {
+        const dayData = DAYS[this.currentDay]
+        if (dayData?.pigLines?.length) {
+          const pool = [...dayData.pigLines]
+          for (let i = pool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [pool[i], pool[j]] = [pool[j], pool[i]]
+          }
+          this.pigDailyQueue = pool.slice(0, 2)
         }
       }
-      if (this.pigClickCount <= this.pigAngryThreshold) {
-        const progress =
-          this.pigClickCount / Math.max(1, this.pigAngryThreshold)
-        const pool =
-          progress < 0.34
-            ? PIG_REACTIONS.gentle
-            : progress < 0.68
-              ? PIG_REACTIONS.warm
-              : PIG_REACTIONS.warning
-        const pick = pool[(this.pigClickCount - 1) % pool.length] || pool[0]
-        const pigSound = progress < 0.34 ? 'pig_gentle' : progress < 0.68 ? 'pig_warm' : 'pig_warning'
-        audioManager.playSFX(pigSound, { vol: 0.45 }).catch(() => {})
-        return {
-          ...pick,
-          angry: false,
-          penalized: false
+      if (this.pigClickCount === 1) {
+        if (this.pigIntimacy >= 8) {
+          audioManager.playSFX('pig_warm', { vol: 0.45 }).catch(() => {})
+          return { ...PIG_REACTIONS.intimateHigh, fed: true, angry: false, penalized: false, intimacy: this.pigIntimacy }
+        }
+        if (this.pigIntimacy >= 5) {
+          audioManager.playSFX('pig_warm', { vol: 0.45 }).catch(() => {})
+          return { ...PIG_REACTIONS.intimateMid, fed: true, angry: false, penalized: false, intimacy: this.pigIntimacy }
+        }
+        if (this.pigIntimacy >= 3) {
+          audioManager.playSFX('pig_warm', { vol: 0.45 }).catch(() => {})
+          return { ...PIG_REACTIONS.intimateLow, fed: true, angry: false, penalized: false, intimacy: this.pigIntimacy }
         }
       }
-      if (this.phase === 'repairing' || this.phase === 'dayEnd') return false
-      if (this.stepsLeft <= 0 || this.djinnUnlimitedSteps) return false
-      this.stepsLeft = Math.max(0, this.stepsLeft - 1)
-      this.turnId++
-      this.pigAngryUsedDay = this.currentDay
-      audioManager.playSFX('pig_angry', { vol: 0.55 })
-      EventBus.trigger('pigPenalty', [{ stepsLost: 1 }])
-      this.queueBark(GAMEPLAY_COPY.pig.angryBark)
-      return {
-        ...PIG_REACTIONS.angry,
-        angry: true,
-        penalized: true
-      }
-    },
-
-    _feedPig() {
-      this.pigLastFedDay = this.currentDay
-      this.pigIntimacy = Math.min(8, this.pigIntimacy + 1)
-      const intimacy = this.pigIntimacy
-      let reaction
-      if (intimacy >= 8) {
-        reaction = PIG_REACTIONS.intimateHigh
-      } else if (intimacy >= 5) {
-        reaction = PIG_REACTIONS.intimateMid
-      } else if (intimacy >= 3) {
-        reaction = PIG_REACTIONS.intimateLow
-      } else {
-        reaction = PIG_REACTIONS.fed[this.pigIntimacy % PIG_REACTIONS.fed.length]
-      }
+      const idx = this.pigClickCount === 1 ? 0 : 1
+      const pick = this.pigDailyQueue[idx]
+      if (!pick) return false
       audioManager.playSFX('pig_gentle', { vol: 0.45 }).catch(() => {})
-      return {
-        ...reaction,
-        fed: true,
-        angry: false,
-        penalized: false,
-        intimacy: this.pigIntimacy
-      }
+      return { ...pick, fed: this.pigClickCount === 1, angry: false, penalized: false, intimacy: this.pigIntimacy }
     },
 
     inspectOwnedItem(itemId) {
@@ -2969,10 +2949,6 @@ export const useGameStore = defineStore('game', {
       if (this.stepsLeft >= PIG_RATING.thresholds.twoStar) return 2
       if (this.stepsLeft >= 0) return 1
       return 0
-    },
-
-    _rollPigAngryThreshold() {
-      return 5 + Math.floor(Math.random() * 3)
     },
 
     _refreshAbilityUses() {

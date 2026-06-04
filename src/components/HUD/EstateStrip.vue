@@ -2,9 +2,7 @@
   <section class="estate-strip" :class="{ locked: !interactive }">
     <header class="strip-head">
       <div class="title-group">
-        <p class="eyebrow">
-          白鸦果园场景 {{ displayStage }}/{{ stages.length }}
-        </p>
+        <p class="eyebrow">小岛修复 {{ displayStage }}/{{ stages.length }}</p>
         <p class="caption">{{ displayCaption }}</p>
       </div>
 
@@ -527,10 +525,10 @@ function captionForHotspot(id) {
   switch (id) {
     case 'white-raven':
       if (displayStage.value >= 9)
-        return '白鸦落在星星客房的窗台边狸~没有再飞走狸。'
+        return '有只落在星星客房的窗台边狸~没有再飞走狸。'
       if (displayStage.value >= 7)
         return '它落在栏杆上狸~看了一眼那把椅子狸~又像是看见了别的什么狸。'
-      return '白鸦在门柱上歪头看了一会儿狸~像在默认这里终于能住人了狸。'
+      return '小猪在门柱上歪头看了一会儿狸~像在默认这里终于能住人了狸。'
     case 'vine-cluster':
       return nextLine('vine-cluster', stageHotspotLines('vineyard'))
     case 'cellar-bottle':
@@ -663,7 +661,9 @@ function onPigInspect() {
   pigMoodGlyph.value = reaction.emoji || ''
   let caption = reaction.caption || captionForHotspot('pet-pig')
   if (reaction.fed) {
-    const bar = '❤️'.repeat(Math.min(5, Math.ceil(reaction.intimacy / 2))) + '🤍'.repeat(Math.max(0, 5 - Math.ceil(reaction.intimacy / 2)))
+    const bar =
+      '❤️'.repeat(Math.min(5, Math.ceil(reaction.intimacy / 2))) +
+      '🤍'.repeat(Math.max(0, 5 - Math.ceil(reaction.intimacy / 2)))
     caption += ` （亲密度 ${reaction.intimacy}/8 ${bar}）`
   }
   displayCaption.value = caption
@@ -818,9 +818,10 @@ onMounted(() => {
   EventBus.bind('sceneBurst', onSceneBurst)
   if (game.pigEnergyFromLastRating > 0) {
     const gained = game.pigEnergyFromLastRating
-    displayCaption.value = gained >= 3
-      ? `小猪获得了 ${gained} 点能量狸~干劲十足狸！`
-      : `小猪获得了 ${gained} 点能量狸~`
+    displayCaption.value =
+      gained >= 3
+        ? `小猪获得了 ${gained} 点能量狸~干劲十足狸！`
+        : `小猪获得了 ${gained} 点能量狸~`
     spawnBurst('gold', gained * 2)
     setTimeout(restoreDefaultCaption, 2500)
     game.pigEnergyFromLastRating = 0
@@ -2182,7 +2183,11 @@ onBeforeUnmount(() => {
   justify-content: center;
   border-radius: 50%;
   border: 1px solid rgba(255, 247, 225, 0.86);
-  background: linear-gradient(180deg, rgba(248, 236, 208, 0.82), rgba(204, 180, 132, 0.76));
+  background: linear-gradient(
+    180deg,
+    rgba(248, 236, 208, 0.82),
+    rgba(204, 180, 132, 0.76)
+  );
   box-shadow: 0 0 0 0 rgba(255, 230, 170, 0.35);
   transition:
     transform 180ms ease,

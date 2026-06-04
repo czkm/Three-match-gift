@@ -385,6 +385,10 @@ onBeforeUnmount(() => {
   filter: drop-shadow(0 1px 2px rgba(30, 18, 12, 0.32))
     drop-shadow(0 0 5px rgba(255, 245, 214, 0.18));
   animation: pig-trinket-bob 2.4s ease-in-out infinite;
+  box-shadow: none;
+}
+.pig-trinket::after {
+  background: none;
 }
 
 .pig-trinket:hover,
@@ -496,7 +500,8 @@ onBeforeUnmount(() => {
 }
 
 @keyframes pig-heart-float {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.6;
     transform: translateX(-50%) translateY(0) scale(1);
   }

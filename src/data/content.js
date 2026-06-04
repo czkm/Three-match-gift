@@ -254,10 +254,10 @@ export const ABILITIES = {
     id: 'whiteWolfTidy',
     name: '狸狸整地',
     desc: '豆狸和粒狸一起动手，把棋盘重新摆整齐狸！',
-    quote: '粒狸说整整齐齐的看着真舒服狸！',
+    quote: '整整齐齐的看着真舒服狸！',
     type: 'active',
     usesPerDay: 1,
-    icon: '🐺'
+    icon: '⛏️'
   },
   toussentHarvest: {
     id: 'toussentHarvest',
@@ -350,6 +350,7 @@ export const PIG_RATING = {
     twoStar: 5
   },
   energyMax: 5,
+  energyAccumulateCap: 20,
   moods: {
     3: {
       emoji: '😄',
@@ -368,7 +369,7 @@ export const PIG_RATING = {
     },
     0: {
       emoji: '😵',
-      label: '没劲',
+      label: '疲惫',
       caption: '小猪看起来有点蔫狸~像是在说今天的发挥不太行狸！'
     }
   }
@@ -385,25 +386,13 @@ export const PIG_INTIMACY = {
 }
 
 export const PIG_REACTIONS = {
-  gentle: [
-    { emoji: '😊', caption: '它哼哼了两声狸~今天心情还不错狸！' },
-    { emoji: '😌', caption: '小猪满足地晃了晃耳朵狸~勉强算是给了你点面子狸！' }
-  ],
-  warm: [
-    { emoji: '🐽', caption: '小猪舔了舔鼻子狸~像是在想今天有没有加餐狸！' },
-    { emoji: '🥺', caption: '它抬头看了你一眼狸~像是在等一句夸奖狸！' }
-  ],
-  warning: [
-    { emoji: '🤨', caption: '它歪着脑袋看你狸~像是在判断你是不是又来烦它狸！' },
-    { emoji: '😤', caption: '它鼻子里重重喷了口气狸~已经开始有点不耐烦了狸！' }
-  ],
   angry: {
     emoji: '😠💢',
     caption: '小猪真的生气了狸~今日步数 -1 狸！'
   },
   annoyed: {
     emoji: '😤',
-    caption: '它鼻子里重重喷了口气狸~今天已经不太想搭理你了狸！'
+    caption: '今天已经不想再被摸了狸~再摸它该不高兴了狸！'
   },
   fed: [
     { emoji: '😋', caption: '小猪吧唧了一下嘴狸~像是在说味道还行狸！' },
@@ -432,12 +421,12 @@ export const REWARD_ITEMS = {
     name: '麦粒肿',
     enName: 'Stye',
     titleText: '麦粒肿',
-    flavorText: '”那只肿起来的眼睛狸~只能多看一格了狸！”',
+    flavorText: '”眼睛肿肿狸~云云看起来很喜欢狸！”',
     quality: 2,
     emoji: '👁️',
     slot: 'head',
     tone: 'treasure',
-    description: '每天第一次四连狸~旁边一个格子跟着清掉狸！',
+    description: '每天第一次四连狸~旁边一个格子会爆炸狸！',
     effect: { type: 'firstBigMatchAdjacentPop' },
     reaction: '小猪用力眨了下右眼狸~旁边的一个格子应声炸开了狸💥！'
   },
@@ -447,7 +436,7 @@ export const REWARD_ITEMS = {
     name: '超级麦粒肿',
     enName: 'Super Stye',
     titleText: '超级麦粒肿',
-    flavorText: '”肿得更大狸~看得更远狸！”',
+    flavorText: '”肿得更大狸~云云更是喜欢狸！”',
     quality: 3,
     emoji: '👁️',
     slot: 'head',
@@ -469,9 +458,9 @@ export const REWARD_ITEMS = {
     emoji: '🍀',
     slot: 'feet',
     tone: 'treasure',
-    description: '每天第一次连击狸~三个格子变成今天要的资源狸！',
-    effect: { type: 'firstChainScatterConvert', minChain: 2, count: 3 },
-    reaction: '小猪踩到一片幸运草狸~脚边的方块自己变了颜色狸！'
+    description: '每天第一次连击狸~六个格子变成今天要的资源狸！',
+    effect: { type: 'firstChainScatterConvert', minChain: 2, count: 6 },
+    reaction: '小猪踩到一片幸运草狸！'
   },
   lunch: {
     id: 'lunch',
@@ -499,8 +488,8 @@ export const REWARD_ITEMS = {
     emoji: '💰',
     slot: 'side',
     tone: 'treasure',
-    description: '每天首次资源结算时，随机一项当前目标资源 +4。',
-    effect: { type: 'firstTargetResourceBonus', amount: 4 },
+    description: '首次获得资源时，随机一项目标资源 +6。',
+    effect: { type: 'firstTargetResourceBonus', amount: 6 },
     reaction: '袋子里硬币在响狸~看着哪一项目标自动涨了一点狸！'
   },
   battery: {
@@ -509,7 +498,7 @@ export const REWARD_ITEMS = {
     name: '小电池',
     enName: 'The Battery',
     titleText: '小电池',
-    flavorText: '“再撑一小会儿狸！”',
+    flavorText: '“48h！再撑一小会儿狸！”',
     quality: 2,
     emoji: '🔋',
     slot: 'back',
@@ -524,13 +513,14 @@ export const REWARD_ITEMS = {
     name: '圣水',
     enName: 'Holy Water',
     titleText: '圣水',
-    flavorText: '“出错也会留点余地狸！”',
+    flavorText: '“是圣水狸！”',
     quality: 2,
     emoji: '💧',
     slot: 'float',
     tone: 'treasure',
-    description: '每天第一次出错时返回 1 步狸~旁边两个格子翻成需要的资源狸！',
-    effect: { type: 'firstInvalidSwapScatterConvert', count: 2 },
+    description:
+      '每天第一次无效交换时返回 1 步狸~随机四个格子翻成需要的资源狸！',
+    effect: { type: 'firstInvalidSwapScatterConvert', count: 4 },
     reaction: '水滴落在一个方块上狸~四周泛起淡淡的光狸！'
   },
   dogTooth: {
@@ -578,7 +568,7 @@ export const REWARD_ITEMS = {
     emoji: '🔪',
     slot: 'side',
     tone: 'devil',
-    description: '每天第一次无效交换时狸~所在列被清空狸！',
+    description: '每天第一次无效交换时~所在列被清空狸！',
     effect: { type: 'invalidSwapLineSweep' },
     penalty: { type: 'maxSteps', value: 1 },
     penaltyText: '以后每天步数上限少 1 狸~。',
@@ -607,7 +597,7 @@ export const REWARD_ITEMS = {
     name: '黑暗乞丐',
     enName: 'Dark Beggar',
     titleText: '黑暗乞丐',
-    flavorText: '“他伸手要的不是钱狸~是你今天的运气狸！”',
+    flavorText: '“黑爹来咯！”',
     quality: 3,
     emoji: '🧟',
     slot: 'back',
@@ -656,7 +646,7 @@ export const REWARD_ITEMS = {
     description: '每天开始时，自动将非建筑需求的资源随机转为需求资源。',
     effect: { type: 'xRayVision' },
     penalty: { type: 'maxSteps', value: 1 },
-    penaltyText: '以后每天步数上限少 1 狸~（看见真相是有代价的狸）。',
+    penaltyText: '以后每天步数上限少 1 狸~',
     reaction: '小猪看着棋盘上不属于今天的资源被一扫而空狸~满意地点了点头狸！'
   }
 }
@@ -668,6 +658,11 @@ export const DAYS = [
     building: { id: 'courtyard', cn: '前院', en: 'Courtyard', emoji: '🌿' },
     needs: { grape: 25, wood: 20, stone: 15 },
     ability: 'whiteWolfTidy',
+    pigLines: [
+      '小猪在石板路上拱了拱苔藓狸~好像在验收石缝修得够不够平整狸！',
+      '它绕着喷泉基座转了两圈狸~踩了踩新铺的土表示通过狸！',
+      '小猪用鼻子顶了顶歪倒的篱笆狸~像是在说这里也要修狸！'
+    ],
     intro:
       '豆狸&粒狸: 今天先修前院狸~！杂草都快长到腰了狸！ ( ……快长到腰了狸！）\n豆狸&粒狸: 白狼先生说先把石路和喷泉修出来狸！ ( ……修出来狸！）',
     completed:
@@ -680,6 +675,11 @@ export const DAYS = [
     building: { id: 'vineyard', cn: '果园', en: 'Vineyard', emoji: '🍊' },
     needs: { grape: 45, wood: 25 },
     ability: 'toussentHarvest',
+    pigLines: [
+      '小猪在果树下嗅了嗅落花狸~打了个喷嚏又装作很懂的样子走开了狸！',
+      '它抬头看了看晃动的树枝狸~好像在数今天结了多少果子狸！',
+      '小猪从果园叼了一根带叶的枝条跑回来狸~放在你脚边送你狸！'
+    ],
     intro:
       '豆狸&粒狸: 果树还活着狸~！虽然被荒草压弯了狸！ ( ……被荒草压弯了狸！）\n豆狸&粒狸: 小猪在帮忙照料狸~今天修果园狸！ ( ……修果园狸！）',
     completed:
@@ -692,6 +692,11 @@ export const DAYS = [
     building: { id: 'cellar', cn: '储藏室', en: 'Wine Cellar', emoji: '🛢️' },
     needs: { wood: 28, clay: 28, grape: 19 },
     ability: 'agedBarrel',
+    pigLines: [
+      '小猪从储藏室门口探进半个脑袋狸~闻了闻灰尘又缩回去了狸！',
+      '它耳朵抖了抖狸~像是听见了地下酒桶沉睡的声音狸！',
+      '小猪鼻子贴着地缝嗅了好一会儿狸~说下面有好东西只是还没到时候狸！'
+    ],
     intro:
       '豆狸&粒狸: 今天修储藏室狸~！全是灰尘和蜘蛛网狸！ ( ……蜘蛛网狸！）\n豆狸&粒狸: 小猪闻了闻木塞打了个喷嚏狸~不过有几桶好东西还留着狸！ ( ……还留着狸！）',
     completed: '石墙加固好了狸~架子排成一列狸！最深处留了一格给小云的位置狸！',
@@ -703,6 +708,11 @@ export const DAYS = [
     building: { id: 'stables', cn: '牧场', en: 'Stables', emoji: '🐎' },
     needs: { wood: 45, stone: 35 },
     ability: 'roachPath',
+    pigLines: [
+      '小猪和萝卜隔着栅栏碰了碰鼻子狸~好像在说什么只有它们懂的话狸！',
+      '它在干草堆上打了个滚狸~然后得意地甩了甩耳朵上的草屑狸！',
+      '小猪沿着新栅栏走了一遍狸~像是在做质量检查的工头狸！'
+    ],
     intro:
       '豆狸&粒狸: 牧场大门歪了狸~栅栏倒了半边狸！ ( ……倒了半边狸！）\n豆狸&粒狸: 萝卜站在门口审查工程质量狸~小猪也在旁边看着狸！ ( ……看着狸！）',
     completed:
@@ -715,6 +725,11 @@ export const DAYS = [
     building: { id: 'garden', cn: '花圃', en: 'Garden', emoji: '🪻' },
     needs: { herb: 50, grape: 35 },
     ability: 'lilacReturn',
+    pigLines: [
+      '小猪在丁香丛旁边坐下不动狸~像是在学花该怎么安安静静地开狸！',
+      '它鼻尖沾了一瓣丁香花狸~自己还不知道地到处晃来晃去狸！',
+      '小猪在花圃小径上走得很小心狸~怕踩到刚翻松的土狸！'
+    ],
     intro:
       '豆狸&粒狸: 今天修花圃狸~！花坛荒了很久狸！ ( ……荒了很久狸！）\n豆狸&粒狸: 小猪翻出一截枯枝狸~闻到了丁香和花香狸！ ( ……花香狸！）',
     completed: '花圃重新有了边界狸~丁香是小云喜欢的花狸~沿着小径铺开了狸！',
@@ -726,6 +741,11 @@ export const DAYS = [
     building: { id: 'greenhouse', cn: '温室', en: 'Greenhouse', emoji: '🌱' },
     needs: { herb: 40, clay: 30, magic: 20 },
     ability: 'greenhouseNurture',
+    pigLines: [
+      '小猪隔着温室玻璃往里看狸~鼻尖在玻璃上印了一个圈狸！',
+      '它走进温室后在暖灯下面站住不走了狸~像是找到了全庄园最舒服的地方狸！',
+      '小猪用鼻子拱了拱花盆狸~好像在建议这盆应该搬到那个位置狸！'
+    ],
     intro:
       '豆狸&粒狸: 今天修温室狸~！玻璃碎了几块藤蔓钻进窗缝了狸！ ( ……钻进窗缝了狸！）\n豆狸&粒狸: 有些不耐寒的花暂时搬进去狸~暖光一照就重新精神了狸！ ( ……精神了狸！）',
     completed: '新玻璃映出晚霞了狸~温室里有了暖灯和细小的芽狸！',
@@ -737,6 +757,11 @@ export const DAYS = [
     building: { id: 'gazebo', cn: '广场', en: 'Gazebo', emoji: '🌅' },
     needs: { stone: 45, wood: 35, magic: 15 },
     ability: 'toussentSunset',
+    pigLines: [
+      '小猪在广场中央坐下来面朝夕阳狸~尾巴安静地贴在石板上狸！',
+      '它看着空椅子歪了歪头狸~好像在问另一把椅子什么时候放上来狸！',
+      '夕阳把小猪的影子拉得很长狸~它哼了一声好像很满意今天的进度狸！'
+    ],
     intro:
       '豆狸&粒狸: 今天修广场狸~！朝着夕阳视野很好狸！ ( ……视野很好狸！）\n豆狸&粒狸: 地砖松了围栏也生锈了狸~小猪在这里看了很久狸~像是在等谁来一起看夕阳狸！ ( ……看夕阳狸！）',
     completed:
@@ -749,6 +774,11 @@ export const DAYS = [
     building: { id: 'kitchen', cn: '厨房', en: 'Kitchen', emoji: '🍲' },
     needs: { clay: 45, grape: 35, wood: 20 },
     ability: 'lilacSeed',
+    pigLines: [
+      '小猪蹲在厨房门口不走狸~尾巴摇得像一面小旗子狸！',
+      '它从门缝里探进鼻子吸了好几下狸~说今晚一定有好东西狸！',
+      '小猪在炉火前缩成一团狸~火光把它的耳朵映成了暖橘色狸！'
+    ],
     intro:
       '豆狸&粒狸: 今天修厨房狸~！炉子还能用但积了好多灰狸！ ( ……好多灰狸！）\n豆狸&粒狸: 小猪说炖汤应该不算太难狸~今天加把劲狸！ ( ……加把劲狸！）',
     completed: '炉火重新亮起来了狸~木桌擦干净了狸！架子上放着果酱和花朵狸！',
@@ -765,8 +795,13 @@ export const DAYS = [
     },
     needs: { wood: 30, herb: 22, magic: 18 },
     ability: 'hearthStew',
+    pigLines: [
+      '小猪在星星客房的窗台下趴着狸~像是在帮忙试住狸！',
+      '它抬头看了看窗台上的星星碎片狸~小声哼了一下表示满意狸！',
+      '小猪在床边绕了两圈狸~像是在检查枕头够不够软狸！'
+    ],
     intro:
-      '豆狸&粒狸: 最后一天狸~修星星客房狸！ ( ……星星客房狸！）\n豆狸&粒狸: 早晨有阳光晚上能看见星星狸~小猪在换新床板狸！ ( ……新床板狸！）',
+      '豆狸&粒狸: 最后一天狸~修星星客房狸！ ( ……星星客房狸！）\n豆狸&粒狸: 小猪在换新床板狸！ ( ……新床板狸！）',
     completed:
       '房间安静下来了狸~窗边有书桌床边有两只枕头狸！花瓶里插着丁香窗台上放着星星碎片狸！',
     monologue: '枕头放两个狸~床要软一点客人会喜欢的狸！',
@@ -777,11 +812,11 @@ export const DAYS = [
 
 /* -------- Day-end gentle reminders -------- */
 export const DAY_END_LINES = [
-  '太阳快落山了狸~今天先到这里狸！',
+  '太阳快落山了~今天先到这里狸！',
   '再修下去萝卜都要嫌吵了狸~',
-  '明天继续狸~果树不会一夜之间跑掉狸！',
-  '工具放好狸~明天接着干狸！',
-  '今天先这样狸~天黑得慢明天早点开工狸！'
+  '明天继续~果树不会一夜之间跑掉狸！',
+  '工具放好~明天接着干狸！',
+  '今天先这样明天早点开工狸！'
 ]
 
 export const MONSTERS = {
@@ -852,14 +887,14 @@ export const MONSTERS = {
     clearReward: {},
     damageRule: {
       type: 'none',
-      hint: '它只是第二愿的角落烛火占位，不会参与消除，也不会被消掉。'
+      hint: '它只是第二愿的角落烛火，不会参与消除，也不会被消掉。'
     },
     pressureRule: { type: 'none' },
     telegraph: '角落烛火',
     echoLabel: '四个角落的蜡烛会一直守在原位。',
     clearRule: {
       type: 'none',
-      hint: '它只是第二愿的角落烛火占位，不会参与消除，也不会被消掉。'
+      hint: '它只是第二愿的角落烛火，不会参与消除，也不会被消掉。'
     },
     introLine: '四角的烛火已经就位了狸~',
     removeLine: '烛火熄了狸~'
@@ -1555,7 +1590,7 @@ export const ESTATE_STRIP_STAGES = [
         unlockCount: 3,
         motion: 'cellarGlow',
         lines: [
-          '豆狸&粒狸: 灯火一亮狸~连旧木桶都像重新有了脾气狸！ ( ……有了脾气狸！）',
+          '豆狸&粒狸: 灯火亮起来狸~连旧木桶像新的一样狸！ ( ……新的一样狸！）',
           '豆狸&粒狸: 酒香还很浅狸~但已经足够让人想起某个喜欢花果酒的人狸！ ( ……想起某人狸！）'
         ],
         anchor: { x: 51, y: 48 }
