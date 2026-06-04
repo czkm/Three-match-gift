@@ -906,8 +906,8 @@ export const MONSTERS = {
     emoji: '🦗',
     img: '/img/monsters/mantis.png',
     uiLabel: '螳螂',
-    uiWeaknessShort: '在旁边凑三连狸~',
-    uiPressureShort: '它不会移动，只会一直占住这一格。',
+    uiWeaknessShort: '它举着镰刀手臂很威风狸~但旁边凑三个果子就能让它慌了阵脚狸！',
+    uiPressureShort: '',
     hp: 3,
     hits: 3,
     reward: {},
@@ -918,13 +918,13 @@ export const MONSTERS = {
     },
     pressureRule: { type: 'none' },
     telegraph: '静止占位',
-    echoLabel: '击退后，空出这一格。',
+    echoLabel: '',
     clearRule: {
       type: 'adjacentMatch',
       hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     introLine: '螳螂挥着镰刀手臂走过来狸！',
-    removeLine: '螳螂飞走去别处狸~'
+    removeLine: '螳螂抖了抖翅膀飞走了狸~地上留下了几颗亮闪闪的东西狸！'
   },
   drowner: {
     id: 'drowner',
@@ -933,8 +933,8 @@ export const MONSTERS = {
     emoji: '🪲',
     img: '/img/monsters/water-strider.png',
     uiLabel: '水黾',
-    uiWeaknessShort: '在旁边凑三连狸~',
-    uiPressureShort: '它不会移动，只会一直占住这一格。',
+    uiWeaknessShort: '水黾在水面上站得很稳狸~但旁边凑三个就能让它脚底打滑狸！',
+    uiPressureShort: '',
     hp: 4,
     hits: 4,
     reward: {},
@@ -945,13 +945,13 @@ export const MONSTERS = {
     },
     pressureRule: { type: 'none' },
     telegraph: '静止占位',
-    echoLabel: '击退后，空出这一格。',
+    echoLabel: '',
     clearRule: {
       type: 'adjacentMatch',
       hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     introLine: '水黾在水面上滑过来狸！',
-    removeLine: '水黾滑走狸~'
+    removeLine: '水黾在水面上划了一圈溜走了狸~水波里漾出了几样材料狸！'
   },
   ghoul: {
     id: 'ghoul',
@@ -960,8 +960,8 @@ export const MONSTERS = {
     emoji: '🪲',
     img: '/img/monsters/dung-beetle.png',
     uiLabel: '蜣螂',
-    uiWeaknessShort: '在旁边凑三连狸~',
-    uiPressureShort: '它不会移动，只会一直占住这一格。',
+    uiWeaknessShort: '蜣螂推着粪球很专注狸~旁边凑三个它就会分心出错狸！',
+    uiPressureShort: '',
     hp: 4,
     hits: 4,
     reward: {},
@@ -972,13 +972,13 @@ export const MONSTERS = {
     },
     pressureRule: { type: 'none' },
     telegraph: '静止占位',
-    echoLabel: '击退后，空出这一格。',
+    echoLabel: '',
     clearRule: {
       type: 'adjacentMatch',
       hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     introLine: '蜣螂推着粪球滚过来狸！',
-    removeLine: '蜣螂滚走狸~'
+    removeLine: '蜣螂推着粪球慌慌张张躲进了草丛狸~滚落的地方露出了好东西狸！'
   },
   griffinChick: {
     id: 'griffinChick',
@@ -987,8 +987,8 @@ export const MONSTERS = {
     emoji: '🦋',
     img: '/img/monsters/blue-morpho.png',
     uiLabel: '大蓝闪蝶',
-    uiWeaknessShort: '在旁边凑三连狸~',
-    uiPressureShort: '它不会移动，只会一直占住这一格。',
+    uiWeaknessShort: '闪蝶的翅膀太漂亮了狸~旁边凑三个它就会被吸引过来狸！',
+    uiPressureShort: '',
     hp: 5,
     hits: 5,
     reward: {},
@@ -999,13 +999,13 @@ export const MONSTERS = {
     },
     pressureRule: { type: 'none' },
     telegraph: '静止占位',
-    echoLabel: '击退后，空出这一格。',
+    echoLabel: '',
     clearRule: {
       type: 'adjacentMatch',
       hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     introLine: '大蓝闪蝶扇着翅膀飞过来狸！',
-    removeLine: '大蓝闪蝶飞走狸~'
+    removeLine: '大蓝闪蝶扇下一片磷光飞走了狸~光点落下的地方有什么在发光狸！'
   },
   wraith: {
     id: 'wraith',
@@ -1014,8 +1014,8 @@ export const MONSTERS = {
     emoji: '🪲',
     img: '/img/monsters/face-bug.png',
     uiLabel: '人面樁象',
-    uiWeaknessShort: '在旁边凑三连狸~',
-    uiPressureShort: '它不会移动，只会一直占住这一格。',
+    uiWeaknessShort: '它背上的花纹很吓人狸~但旁边凑三个它自己也会害怕狸！',
+    uiPressureShort: '',
     hp: 5,
     hits: 5,
     reward: {},
@@ -1026,13 +1026,13 @@ export const MONSTERS = {
     },
     pressureRule: { type: 'none' },
     telegraph: '静止占位',
-    echoLabel: '击退后，空出这一格。',
+    echoLabel: '',
     clearRule: {
       type: 'adjacentMatch',
       hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     introLine: '人面樁象背上的花纹在盯着你狸…',
-    removeLine: '人面樁象逃走狸~'
+    removeLine: '人面樁象背上的花纹暗了下去狸~它逃走之后留下了几样东西狸！'
   },
   tarantula: {
     id: 'tarantula',
@@ -1041,8 +1041,8 @@ export const MONSTERS = {
     emoji: '🕷️',
     img: '/img/monsters/狼蛛.png',
     uiLabel: '狼蛛',
-    uiWeaknessShort: '在旁边凑三连狸~',
-    uiPressureShort: '它不会移动，只会一直占住这一格。',
+    uiWeaknessShort: '狼蛛很凶狸~但旁边凑三个它也会心虚地缩起腿狸！',
+    uiPressureShort: '',
     hp: 6,
     hits: 6,
     reward: {},
@@ -1053,13 +1053,13 @@ export const MONSTERS = {
     },
     pressureRule: { type: 'none' },
     telegraph: '静止占位',
-    echoLabel: '击退后，空出这一格。',
+    echoLabel: '',
     clearRule: {
       type: 'adjacentMatch',
       hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     introLine: '狼蛛抖着八条腿爬过来狸…！',
-    removeLine: '狼蛛钻进草丛不见了狸~'
+    removeLine: '狼蛛飞快地钻进石缝里不见了狸~它待过的地方散落着亮闪闪的材料狸！'
   },
   crab: {
     id: 'crab',
@@ -1068,8 +1068,8 @@ export const MONSTERS = {
     emoji: '🦀',
     img: '/img/monsters/螃蟹.png',
     uiLabel: '螃蟹',
-    uiWeaknessShort: '在旁边凑三连狸~',
-    uiPressureShort: '它不会移动，只会一直占住这一格。',
+    uiWeaknessShort: '螃蟹横着走路很嚣张狸~但旁边凑三个它就会缩回壳里狸！',
+    uiPressureShort: '',
     hp: 4,
     hits: 4,
     reward: {},
@@ -1080,13 +1080,13 @@ export const MONSTERS = {
     },
     pressureRule: { type: 'none' },
     telegraph: '静止占位',
-    echoLabel: '击退后，空出这一格。',
+    echoLabel: '',
     clearRule: {
       type: 'adjacentMatch',
       hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     introLine: '螃蟹横着走过来了狸~！',
-    removeLine: '螃蟹横着走开狸~'
+    removeLine: '螃蟹横着爬进草丛里不见了狸~在它刚才的位置留下了材料狸！'
   },
   scallop: {
     id: 'scallop',
@@ -1095,8 +1095,8 @@ export const MONSTERS = {
     emoji: '🐚',
     img: '/img/monsters/虾夷扇贝.png',
     uiLabel: '虾夷扇贝',
-    uiWeaknessShort: '在旁边凑三连狸~',
-    uiPressureShort: '它不会移动，只会一直占住这一格。',
+    uiWeaknessShort: '扇贝的壳很硬狸~但旁边凑三个它就会忍不住打开看看狸！',
+    uiPressureShort: '',
     hp: 3,
     hits: 3,
     reward: {},
@@ -1107,13 +1107,13 @@ export const MONSTERS = {
     },
     pressureRule: { type: 'none' },
     telegraph: '静止占位',
-    echoLabel: '击退后，空出这一格。',
+    echoLabel: '',
     clearRule: {
       type: 'adjacentMatch',
       hint: '在旁边凑三个以上狸~一次打掉一格血狸！'
     },
     introLine: '虾夷扇贝慢慢张开壳看了一眼狸~',
-    removeLine: '虾夷扇贝合上壳滚远了狸~'
+    removeLine: '虾夷扇贝合上壳骨碌碌滚远了狸~壳缝里掉出了几块东西狸！'
   },
   djinn: {
     id: 'djinn',

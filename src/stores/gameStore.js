@@ -2661,10 +2661,24 @@ export const useGameStore = defineStore('game', {
     },
 
     _grantMonsterReward(kind) {
-      const reward = MONSTERS[kind]?.clearReward || MONSTERS[kind]?.reward || {}
-      for (const id of Object.keys(reward)) {
-        this.progress[id] = (this.progress[id] || 0) + reward[id]
+      const monster = MONSTERS[kind]
+      if (!monster) return
+      if (monster.category === 'ritual') return
+      const explicitReward = monster.clearReward || monster.reward || {}
+      if (Object.keys(explicitReward).length > 0) {
+        for (const id of Object.keys(explicitReward)) {
+          this.progress[id] = (this.progress[id] || 0) + explicitReward[id]
+        }
+        return
       }
+      const dayData = DAYS[this.currentDay]
+      if (!dayData?.needs) return
+      const needIds = Object.keys(dayData.needs)
+      if (needIds.length === 0) return
+      const picked = needIds[Math.floor(Math.random() * needIds.length)]
+      const hp = monster.hp || 3
+      const amount = Math.max(1, Math.min(3, Math.floor(hp / 2)))
+      this.progress[picked] = (this.progress[picked] || 0) + amount
     },
 
     _hasCurrentNeedsMet() {
