@@ -663,10 +663,10 @@ body{display:flex;align-items:center;justify-content:center;min-height:100vh;bac
 .svg-divider{width:100%;height:14px;margin:18px 0;background:url("data:image/svg+xml,%3Csvg width='297' height='14' viewBox='0 0 297 14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 10.42L33 11 28.002 0zM10 6.97L0 3l.858 9zM43 1l.613 11L53 5.585zm89 13l11-5.867L133.507 1zm67-3.58l13 .58-4.998-11zm-10-3.45L179 3l.858 9zM90.634 1L88 13l12-4.39zM155 13l12-2.4-8.47-9.6zM110 3l2.057 9L118 6.292zm-47 8.215L76 14 71.048 1zM222 1l.613 11L232 5.585zm47.634 0L267 13l12-4.39zM289 3l2.057 9L297 6.292zm-48 8.215L254 14l-4.952-13z' fill='%23D8D0C3' fill-rule='evenodd'/%3E%3C/svg%3E") center/contain no-repeat}
 /* gift */
 .gift-stage{display:flex;align-items:center;justify-content:center;margin:6px 0;gap:18px}
-.gift-box{width:180px;min-height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2.5px solid rgba(180,155,120,.3);border-radius:20px;background:radial-gradient(ellipse at 50% 35%,rgba(255,248,235,.75),rgba(232,218,192,.35));box-shadow:inset 0 0 26px rgba(200,170,130,.22),0 3px 12px rgba(107,92,67,.1);position:relative;padding:16px 12px 12px}
-.gift-glow{position:absolute;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(220,185,130,.15),transparent 70%);pointer-events:none}
-.gift-img{width:148px;height:132px;object-fit:contain;position:relative;z-index:1;filter:drop-shadow(0 3px 8px rgba(107,92,67,.18))}
-.gift-caption{position:relative;z-index:1;margin-top:8px;font-size:12px;color:#8a6a4a;font-weight:800;letter-spacing:.08em}
+.gift-box{width:120px;height:120px;display:flex;align-items:center;justify-content:center;border:2px solid rgba(180,155,120,.3);border-radius:16px;background:transparent;box-shadow:0 3px 12px rgba(107,92,67,.1);padding:0}
+
+.gift-img{width:104px;height:104px;object-fit:contain;border-radius:12px;filter:drop-shadow(0 3px 8px rgba(107,92,67,.18))}
+
 /* pig */
 .pig-stage{display:flex;flex-direction:column;align-items:center;gap:4px;margin:4px 0}
 .pig-top{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:4px}
@@ -680,8 +680,8 @@ body{display:flex;align-items:center;justify-content:center;min-height:100vh;bac
 .items-section{display:flex;flex-direction:column;align-items:center;gap:8px;margin:4px 0}
 .items-label{font-size:14px;color:#7a5a3a;font-weight:700;letter-spacing:.08em}
 .items-grid{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:440px}
-.pi{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border:1.5px solid rgba(180,155,120,.3);border-radius:12px;background:rgba(245,235,215,.5);box-shadow:inset 0 0 6px rgba(180,155,120,.12)}
-.pi img{width:34px;height:34px;object-fit:contain;image-rendering:pixelated}
+.pi{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border:1.5px solid rgba(180,155,120,.3);border-radius:12px;background:transparent;box-shadow:none}
+.pi img{width:40px;height:40px;object-fit:contain;image-rendering:pixelated}
 .items-tag{font-size:13px;color:#8b6a4a;font-weight:600;letter-spacing:.06em}
 /* closing */
 .estate{font-size:14px;color:#8a7260;font-weight:600;letter-spacing:.06em;font-style:italic;margin-bottom:8px}
@@ -697,7 +697,7 @@ body{display:flex;align-items:center;justify-content:center;min-height:100vh;bac
 <div class="deco-row"><span>🎂</span><span>🎉</span><span>🎈</span></div>
 <p class="sub">${ws.clearedLine}<br>${location}</p>
 <div class="svg-divider"></div>
-<div class="gift-stage"><div class="gift-box"><div class="gift-glow"></div><img class="gift-img" src="${base}img/gift.jpg" /><p class="gift-caption">第一份礼物</p></div><div class="gift-box"><div class="gift-glow"></div><img class="gift-img" src="${base}img/gift2.jpg" /><p class="gift-caption">第二份礼物</p></div></div>
+<div class="gift-stage"><div class="gift-box"><img class="gift-img" src="${base}img/gift.jpg" /></div><div class="gift-box"><img class="gift-img" src="${base}img/gift2.jpg" /></div></div>
 <div class="svg-divider"></div>
 <div class="pig-stage"><div class="pig-top"><span class="pig-icon">🐷</span><span class="pig-badge"><span class="pig-badge-k">好感度</span><span class="pig-badge-v">${intimacy}/8</span><span class="pig-badge-h">${hearts}</span></span></div><p class="pig-line pig-line-em">${intimacy >= 8 ? ws.pigIntimateLine : ws.pigCompanionLine2}</p><p class="pig-line">${ws.pigCompanionLine1}</p><p class="pig-line pig-line-sub">${ws.pigCompanionLine3}</p></div>
 <div class="svg-divider"></div>
