@@ -395,6 +395,7 @@ onBeforeUnmount(() => {
 .pig-trinket:focus-visible {
   filter: drop-shadow(0 1px 2px rgba(30, 18, 12, 0.32))
     drop-shadow(0 0 8px rgba(255, 224, 160, 0.36));
+  box-shadow: none;
 }
 
 .pig-trinket-emoji {

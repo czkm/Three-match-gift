@@ -827,7 +827,7 @@ export const MONSTERS = {
     category: 'terrain',
     uiLabel: '陶俑埋藏地',
     statusLabel: '今天还挖不出来狸~',
-    uiWeaknessShort: '地下好像埋着什么狸~再过几天就能挖出来狸！',
+    uiWeaknessShort: '',
     uiPressureShort: '土还有点硬狸~明天再来看看狸！',
     hp: 0,
     hits: 0,
@@ -835,14 +835,14 @@ export const MONSTERS = {
     clearReward: {},
     damageRule: {
       type: 'none',
-      hint: '埋得太深了狸~继续建设庄园，陶俑会慢慢露出来狸！'
+      hint: ''
     },
     pressureRule: { type: 'none' },
     telegraph: '陶俑探测点',
     echoLabel: '庄园越来越热闹狸~陶俑也会慢慢现身狸！',
     clearRule: {
       type: 'none',
-      hint: '埋得太深了狸~继续建设庄园，陶俑会慢慢露出来狸！'
+      hint: ''
     }
   },
   blightMark: {
