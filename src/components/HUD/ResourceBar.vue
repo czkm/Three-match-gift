@@ -104,6 +104,7 @@ import { ABILITIES, DJINN_WISHES, RESOURCE_BY_ID } from '@/data/content';
 import { useGameStore } from '@/stores/gameStore';
 import IsaacCollectibleIcon from '@/components/common/IsaacCollectibleIcon.vue';
 import { audioManager, NO_BOARD_AUDIO_ITEMS } from '@/audio/AudioManager';
+import { img } from '@/utils/assets'
 const game = useGameStore();
 const messageFresh = ref(false);
 const trinketFlash = ref(false);
@@ -173,7 +174,7 @@ const messageIcon = computed(() => {
 });
 
 const messageIconImg = computed(() => {
-  if (messageKind.value === 'geralt') return '/img/animal_icon_couple1.png'
+  if (messageKind.value === 'geralt') return img('img/animal_icon_couple1.png')
   return null
 })
 

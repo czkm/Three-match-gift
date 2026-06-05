@@ -132,7 +132,7 @@ function onRewardChoose(itemId) {
       rgba(20, 12, 8, 0.04) 0%,
       rgba(20, 12, 8, 0.2) 100%
     ),
-    url('/img/background/game_bg.jpg') center/cover no-repeat;
+    var(--game-bg-overlay) center/cover no-repeat;
   z-index: -2;
 }
 
@@ -147,12 +147,15 @@ function onRewardChoose(itemId) {
 }
 
 .game-main {
+  --game-main-scale: 1;
   width: 100%;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   gap: 24px;
   margin-top: 6px;
+  transform: scale(var(--game-main-scale));
+  transform-origin: top center;
 }
 .side {
   flex: none;
@@ -194,6 +197,39 @@ function onRewardChoose(itemId) {
   }
   .game-main {
     gap: 14px;
+  }
+}
+
+@media (max-height: 880px) {
+  .game-container {
+    padding-top: 12px;
+    padding-bottom: 18px;
+  }
+  .game-main {
+    --game-main-scale: 0.94;
+    margin-top: 2px;
+  }
+  .board-column {
+    gap: 10px;
+  }
+}
+
+@media (max-height: 820px) {
+  .game-container {
+    padding-top: 8px;
+    padding-bottom: 12px;
+  }
+  .game-main {
+    --game-main-scale: 0.86;
+  }
+  .board-column {
+    gap: 8px;
+  }
+}
+
+@media (max-height: 760px) {
+  .game-main {
+    --game-main-scale: 0.8;
   }
 }
 </style>

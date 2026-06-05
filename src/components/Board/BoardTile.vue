@@ -39,12 +39,14 @@
       class="glyph chess-glyph"
       :src="chessImg"
       :alt="glyph"
+      loading="lazy"
     />
     <img
       v-else-if="monsterImg"
       class="glyph monster-glyph"
       :src="monsterImg"
       :alt="glyph"
+      loading="lazy"
     />
     <!-- <span v-else class="glyph">{{ glyph }}</span> -->
     <span v-if="showHitFx" class="damage-float">-1</span>
@@ -72,13 +74,15 @@ let pressTimer = null
 
 const TILE_SIZE = 60
 
+import { img } from '@/utils/assets'
+
 const CHESS_IMG_MAP = {
-  grape: 'img/chessPiece/orange.png',
-  wood: 'img/chessPiece/tree branch.png',
-  stone: 'img/chessPiece/stone.png',
-  clay: 'img/chessPiece/clay.png',
-  herb: 'img/chessPiece/cherry-blossom petal.png',
-  magic: 'img/chessPiece/star fragment.png'
+  grape: img('img/chessPiece/orange.png'),
+  wood: img('img/chessPiece/tree branch.png'),
+  stone: img('img/chessPiece/stone.png'),
+  clay: img('img/chessPiece/clay.png'),
+  herb: img('img/chessPiece/cherry-blossom petal.png'),
+  magic: img('img/chessPiece/star fragment.png')
 }
 
 // The .tileContainer parent already starts at gameBoard's inner-padding edge,

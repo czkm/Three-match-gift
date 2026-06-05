@@ -4,8 +4,8 @@
       <div class="card-header">
         <div class="portrait-wrap">
           <div class="dual-portrait">
-            <img src="/img/animal_icon.png" class="portrait-img timmy" alt="豆狸" />
-            <img src="/img/animal_icon2.png" class="portrait-img tommy" alt="粒狸" />
+            <img :src="icon1" class="portrait-img timmy" alt="豆狸" />
+            <img :src="icon2" class="portrait-img tommy" alt="粒狸" />
           </div>
           <span class="name-badge">豆狸 & 粒狸</span>
         </div>
@@ -63,8 +63,11 @@ import { onBeforeUnmount, onMounted, ref, computed } from 'vue'
 import { useTypewriter } from '@/composables/useTypewriter'
 import { TUTORIAL_DIALOGUES } from '@/data/tutorial'
 import { audioManager } from '@/audio/AudioManager'
+import { img } from '@/utils/assets'
 
 const emit = defineEmits(['done'])
+const icon1 = img('img/animal_icon.png')
+const icon2 = img('img/animal_icon2.png')
 
 const dialogues = TUTORIAL_DIALOGUES
 const segmentIndex = ref(0)
@@ -139,7 +142,7 @@ function onFinish() {
   min-height: 320px;
   padding: 32px 40px 44px;
   background:
-    url('/img/background/overlay_card_tutorial.jpg') bottom center/100% 48px no-repeat,
+    var(--overlay-card-tutorial) bottom center/100% 48px no-repeat,
     rgb(247, 243, 223);
   display: flex;
   flex-direction: column;

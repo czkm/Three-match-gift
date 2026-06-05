@@ -345,7 +345,6 @@ onBeforeUnmount(() => {
   justify-content: center;
   padding: 20px;
   background:
-    url('/img/background/title_bg.webp') center/cover no-repeat,
     radial-gradient(
       circle at 30% 30%,
       rgba(25, 200, 185, 0.04) 0%,
@@ -361,7 +360,8 @@ onBeforeUnmount(() => {
       rgba(248, 248, 240, 0.55) 0%,
       rgba(247, 243, 223, 0.6) 50%,
       rgba(232, 223, 200, 0.7) 100%
-    );
+    ),
+    var(--title-bg) center/cover no-repeat;
 }
 
 .card {

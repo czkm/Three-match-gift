@@ -11,9 +11,10 @@
         <div class="toast-medal">
           <img
             v-if="definition(entry.id)?.iconFile && !toastImgErrors[entry.id]"
-            :src="`/img/achievements/${definition(entry.id).iconFile}.png`"
+            :src="img(`img/achievements/${definition(entry.id).iconFile}.png`)"
             alt=""
             class="toast-icon-img"
+            loading="lazy"
             @error="toastImgErrors[entry.id] = true"
           >
           <span v-else class="toast-icon-emoji">{{ definition(entry.id)?.icon || '🏆' }}</span>
@@ -37,6 +38,7 @@ import { computed, ref, watch } from 'vue';
 import { audioManager } from '@/audio/AudioManager';
 import { ACHIEVEMENTS } from '@/data/content';
 import { useAchievementStore } from '@/stores/achievementStore';
+import { img } from '@/utils/assets'
 
 const achievement = useAchievementStore();
 const defs = Object.fromEntries(ACHIEVEMENTS.map((item) => [item.id, item]));

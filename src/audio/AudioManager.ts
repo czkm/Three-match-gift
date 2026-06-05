@@ -50,7 +50,7 @@ const AC_SFX_MAP: Record<string, string> = {
   typewriter_backspace: `${AC_BASE}/UI & System/UI_Swkbd_BackSpace.wav`,
   item_get: `${AC_BASE}/UI & System/UI_Check.wav`,
   daystart: `${AC_BASE}/Environment/BbsBirdDay_TwitterAc00.wav`,
-  resourcegain: `${AC_BASE}/UI & System/UI_Count_Coin_Reapeat_01.wav`,
+  resourcegain: `${AC_BASE}/UI & System/UI_Count_Mile_Repeat_01.wav`,
   stepcost: `${AC_BASE}/UI & System/UI_Decide_Small.wav`,
   taskcomplete: `${AC_BASE}/UI & System/Event_Quest_Finish.wav`,
   repairtick: `${AC_BASE}/UI & System/UI_Count_Mile_Repeat_01.wav`,
@@ -136,8 +136,7 @@ const AC_SFX_MULTI: Record<string, string[]> = {
   ],
   steprestore: [
     `${AC_BASE}/UI & System/UI_CountUp.wav`,
-    `${AC_BASE}/UI & System/UI_Count_Coin_Reapeat_01.wav`,
-    `${AC_BASE}/UI & System/UI_Count_Coin_Reapeat_02.wav`,
+    `${AC_BASE}/UI & System/UI_Count_Mile_Repeat_01.wav`,
   ],
   repair: [
     `${AC_BASE}/Environment/Env_FacilityConstruction00.wav`,
@@ -319,7 +318,7 @@ const AMBIENT_INTERMITTENT: Record<string, IntermittentGroup[]> = {
   ],
   evening: [
     { files: [`${AC_BASE}/Environment/BbsBirdNightTwitterA00.wav`, `${AC_BASE}/Environment/BbsBirdNightTwitterA01.wav`], minMs: 6000, maxMs: 18000, vol: [0.12, 0.25] },
-    { files: [`${AC_BASE}/Environment/Env_PlantWind_Oak_Calm_00.wav`], minMs: 12000, maxMs: 30000, vol: [0.1, 0.2] },
+    { files: [`${AC_BASE}/Environment/Env_GrassWindSummerWeak.wav`], minMs: 12000, maxMs: 30000, vol: [0.1, 0.2] },
   ],
 };
 
@@ -327,21 +326,21 @@ const AC_MATCH: (string | string[])[] = [
   ['FieldPlant_WaterDrop_00.wav', 'FieldPlant_WaterDrop_01.wav'],
   ['FieldPlant_WaterDrop_02.wav', 'FieldPlant_Shake_Dash_00.wav'],
   ['FieldPlant_Shake_Dash_01.wav', 'FieldPlant_Shake_Dash_02.wav'],
-  ['FieldPlant_Shake_Run_00.wav', 'FieldPlant_Shake_Run_01.wav'],
-  ['Tree_Shake_Shrub_Small_00.wav', 'Tree_Shake_Shrub_Small_01.wav'],
-  ['Tree_Shake_Oak_Small.wav', 'Tree_Shake_Oak_Dry_Small.wav', 'Tree_Shake_Palm_Small.wav'],
-  ['Tree_Shake_Oak.wav', 'Tree_Shake_Sakura.wav', 'Tree_Shake_Cedar.wav'],
+  ['Tree_Shake_Oak_HitAxe.wav', 'Tree_Shake_Cedar_HitAxe.wav', 'Tree_Shake_Sakura_HitAxe.wav'],
   ['Tree_Shake_Cedar_Down1.wav', 'Tree_Shake_Oak_Down1.wav', 'Tree_Shake_Sakura_Down1.wav'],
+  ['Tree_Shake_Palm_Down1.wav', 'Tree_Shake_Bamboo_Down1.wav'],
+  ['Tree_ChangeState_00.wav', 'Tree_ChangeState_01.wav', 'Tree_ChangeState_02.wav'],
+  ['Tree_ChangeState_03.wav', 'Tree_ChangeState_04.wav', 'Tree_ChangeState_05.wav'],
 ];
 
 const AC_COMBO: (string | string[])[] = [
-  ['Tree_Shake_BambooNode_00.wav', 'Tree_Shake_BambooNode_01.wav'],
-  ['Tree_Shake_BambooNode_02.wav', 'Tree_Shake_Bamboo_Collid.wav'],
-  ['Tree_Shake_Bamboo_Down1.wav', 'Tree_Shake_Oak_Down2.wav'],
-  ['Tree_Shake_Cedar_Down2.wav', 'Tree_Shake_Oak_Dry_Down3.wav'],
-  ['Tree_Shake_Cedar.wav', 'Tree_Shake_Oak.wav', 'Tree_Shake_Sakura.wav'],
-  ['Tree_Shake_Cedar_Down4.wav', 'Tree_Shake_Oak_Down4.wav'],
-  ['Tree_Shake_Bamboo_DownLand4.wav', 'Tree_Shake_Cedar_DownLand4.wav'],
+  ['Tree_Shake_Bamboo_Down1.wav', 'Tree_Shake_Cedar_Down1.wav'],
+  ['Tree_Shake_Oak_Down1.wav', 'Tree_Shake_Sakura_Down1.wav'],
+  ['Tree_Shake_Palm_Down1.wav', 'Tree_ChangeState_00.wav'],
+  ['Tree_ChangeState_01.wav', 'Tree_ChangeState_02.wav'],
+  ['Tree_ChangeState_03.wav', 'Tree_ChangeState_04.wav'],
+  ['Tree_ChangeState_05.wav', 'Tree_Disappear_Normal_00.wav'],
+  ['Tree_Appear_Normal_00.wav', 'Tree_Shake_RandomRainDrop_00.wav'],
 ];
 
 const COMBO_UI_PATH = [
@@ -363,17 +362,6 @@ const AC_PRAISE: Record<number, string> = {
 
 const AC_DROP = [
   'Tree_Shake_RandomRainDrop_00.wav',
-  'Tree_Shake_RandomRainDrop_01.wav',
-  'Tree_Shake_RandomRainDrop_02.wav',
-  'Tree_Shake_RandomRainDrop_Shrub_00.wav',
-  'Tree_Shake_RandomRainDrop_Shrub_01.wav',
-  'Tree_Shake_RandomRainDrop_Shrub_02.wav',
-  'Env_Tree_AfterRain_Single_00.wav',
-  'Env_Tree_AfterRain_Single_01.wav',
-  'Env_Tree_AfterRain_Single_02.wav',
-  'Env_Tree_AfterRain_Single_03.wav',
-  'Env_Tree_AfterRain_Single_04.wav',
-  'Env_Tree_AfterRain_Single_05.wav',
 ];
 
 type IntermittentGroup = {
@@ -643,7 +631,7 @@ export class AudioManager {
       preloadAC('Rosie Emotes/RosieInspiration.mp3'),
       preloadAC('Rosie Emotes/RosieShowmanship.mp3'),
       preloadAC('Environment/BbsBirdDay_TwitterAc00.wav'),
-      preloadAC('UI & System/UI_Count_Coin_Reapeat_01.wav'),
+      preloadAC('UI & System/UI_Count_Mile_Repeat_01.wav'),
       preloadAC('UI & System/Event_Quest_Finish.wav'),
       preloadAC('UI & System/UI_Count_Mile_Repeat_01.wav'),
       preloadAC('UI & System/Event_Harvest_Bell00.wav'),
@@ -1079,7 +1067,7 @@ export class AudioManager {
     } else if (/^(?:contnuousMatch|combo)(\d+)\.mp3$/.test(fileName)) {
       const lvl = parseInt(fileName.match(/\d+/)![0]);
       const entry = AC_COMBO[lvl - 3];
-      actualFile = `${AC_BASE}/Trees & Plants/${entry ? pickOne(entry) : 'Tree_Shake_BambooNode_00.wav'}`;
+      actualFile = `${AC_BASE}/Trees & Plants/${entry ? pickOne(entry) : 'Tree_Shake_Bamboo_Down1.wav'}`;
     } else if (fileName === 'drop.mp3') {
       actualFile = `${AC_BASE}/Trees & Plants/${pickOne(AC_DROP)}`;
     }

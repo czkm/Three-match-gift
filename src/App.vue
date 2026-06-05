@@ -176,6 +176,8 @@ import Title from './components/Title.vue'
 import GameContainer from './components/GameContainer.vue'
 import Ending from './components/Ending.vue'
 import { useAudio } from '@/composables/useAudio'
+import { setCSSAssetVars } from '@/utils/assets'
+import { preloadImages, getCriticalImages } from '@/utils/preload'
 import { REWARD_ITEMS } from '@/data/content'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { useGameStore } from '@/stores/gameStore'
@@ -415,11 +417,15 @@ watchEffect(() => {
 
 onMounted(async () => {
   if (typeof document === 'undefined') return
+  setCSSAssetVars()
   achievement.init()
   game.initTutorial()
   document.body.dataset.day = '1'
   document.body.dataset.phase = 'title'
   window.addEventListener('keydown', onTesterKeydown)
+
+  // Preload critical images during loading sequence
+  preloadImages(getCriticalImages()).catch(() => {})
 
   // Loading sequence — minimum 1.5s display time
   const loadStart = performance.now()

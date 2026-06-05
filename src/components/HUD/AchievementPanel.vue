@@ -26,7 +26,8 @@
             <div class="card-icon-wrap">
               <img
                 v-if="item.unlocked && item.iconFile && !achievementImgErrors[item.id]"
-                :src="`/img/achievements/${item.iconFile}.png`"
+                :src="img(`img/achievements/${item.iconFile}.png`)"
+                loading="lazy"
                 :alt="item.title"
                 class="card-icon-img"
                 @error="achievementImgErrors[item.id] = true"
@@ -55,6 +56,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useAchievementStore } from '@/stores/achievementStore';
 import { audioManager } from '@/audio/AudioManager';
+import { img } from '@/utils/assets'
 
 const achievement = useAchievementStore();
 const achievementImgErrors = ref({});

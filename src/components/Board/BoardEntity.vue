@@ -17,8 +17,8 @@
     @click.stop="onInspect"
   >
     <span class="slot-frame" />
-    <img v-if="entity.kind === 'barrenGrave'" class="glyph gyroid-img" :src="gyroidImg" alt="陶俑" />
-    <img v-else-if="monster?.img" class="glyph monster-img" :src="monster.img" :alt="monster.name" />
+    <img v-if="entity.kind === 'barrenGrave'" class="glyph gyroid-img" :src="gyroidImg" alt="陶俑" loading="lazy" />
+    <img v-else-if="monster?.img" class="glyph monster-img" :src="img(monster.img)" :alt="monster.name" loading="lazy" />
     <span v-else class="glyph">{{ monster?.emoji || '' }}</span>
     <span v-if="showHitFx" class="damage-float">-1</span>
     <span v-if="entity.kind === 'djinn'" class="djinn-core" :class="`p${djinnStage}`" />
@@ -38,6 +38,7 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { MONSTERS } from '@/data/content';
 import { audioManager } from '@/audio/AudioManager';
+import { img } from '@/utils/assets'
 
 const props = defineProps({
   entity: { type: Object, required: true },
@@ -57,19 +58,19 @@ function onInspect() {
 }
 
 const GYROID_POOL = [
-  'img/chessPiece/FtrHaniwaCrash00.png',
-  'img/chessPiece/FtrHaniwaCrash01.png',
-  'img/chessPiece/FtrHaniwaCrash02.png',
-  'img/chessPiece/FtrHaniwaCrash03.png',
-  'img/chessPiece/FtrHaniwaCrash04.png',
-  'img/chessPiece/FtrHaniwaCrash05.png',
-  'img/chessPiece/FtrHaniwaCrash06.png',
-  'img/chessPiece/FtrHaniwaCrash07.png',
-  'img/chessPiece/FtrHaniwaCrash08.png',
-  'img/chessPiece/FtrHaniwaCrash09.png',
-  'img/chessPiece/FtrHaniwaCrash10.png',
-  'img/chessPiece/FtrHaniwaCrash11.png',
-  'img/chessPiece/FtrHaniwaCrash12.png',
+  img('img/chessPiece/FtrHaniwaCrash00.png'),
+  img('img/chessPiece/FtrHaniwaCrash01.png'),
+  img('img/chessPiece/FtrHaniwaCrash02.png'),
+  img('img/chessPiece/FtrHaniwaCrash03.png'),
+  img('img/chessPiece/FtrHaniwaCrash04.png'),
+  img('img/chessPiece/FtrHaniwaCrash05.png'),
+  img('img/chessPiece/FtrHaniwaCrash06.png'),
+  img('img/chessPiece/FtrHaniwaCrash07.png'),
+  img('img/chessPiece/FtrHaniwaCrash08.png'),
+  img('img/chessPiece/FtrHaniwaCrash09.png'),
+  img('img/chessPiece/FtrHaniwaCrash10.png'),
+  img('img/chessPiece/FtrHaniwaCrash11.png'),
+  img('img/chessPiece/FtrHaniwaCrash12.png'),
 ];
 
 const gyroidImg = computed(() => {

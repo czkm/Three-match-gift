@@ -26,7 +26,7 @@
       >
         <img
           v-if="!failedSkillIcons[ab.id]"
-          :src="`/img/skills/${ab.id}.png`"
+          :src="skillImg(ab.id)"
           :alt="ab.name"
           class="ab-icon-img"
           @error="failedSkillIcons[ab.id] = true"
@@ -51,7 +51,7 @@
         <p class="msg-name">
           <img
             v-if="hoverAbility && !failedSkillIcons[hoverAbility.id]"
-            :src="`/img/skills/${hoverAbility.id}.png`"
+            :src="skillImg(hoverAbility.id)"
             :alt="hoverAbility.name"
             class="msg-icon-img"
             @error="failedSkillIcons[hoverAbility.id] = true"
@@ -187,7 +187,7 @@
       >
         <img
           v-if="!failedSkillIcons[ab.id]"
-          :src="`/img/skills/${ab.id}.png`"
+          :src="skillImg(ab.id)"
           :alt="ab.name"
           class="ab-icon-img small"
           @error="failedSkillIcons[ab.id] = true"
@@ -202,10 +202,13 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { audioManager } from '@/audio/AudioManager'
+import { img } from '@/utils/assets'
 import { ABILITY_BAR_COPY, COMMON_COPY } from '@/data/copy'
 import EventBus from '@/core/eventBus'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { useGameStore } from '@/stores/gameStore'
+
+const skillImg = (id) => img(`img/skills/${id}.png`)
 import {
   ABILITIES,
   PIG_RATING,

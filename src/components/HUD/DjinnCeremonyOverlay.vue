@@ -72,8 +72,8 @@
     <div class="card" @click.stop>
       <div class="portrait-panel">
         <div class="dual-portrait">
-          <img src="/img/animal_icon.png" class="portrait-img timmy" alt="豆狸" />
-          <img src="/img/animal_icon2.png" class="portrait-img tommy" alt="粒狸" />
+          <img :src="icon1" class="portrait-img timmy" alt="豆狸" />
+          <img :src="icon2" class="portrait-img tommy" alt="粒狸" />
         </div>
         <div class="name-plate">豆狸 &amp; 粒狸</div>
       </div>
@@ -118,8 +118,11 @@ import EventBus from '@/core/eventBus';
 import { COMMON_COPY, GAMEPLAY_COPY } from '@/data/copy';
 import Dialog from './Dialog.vue';
 import { useGameStore } from '@/stores/gameStore';
+import { img } from '@/utils/assets'
 
 const game = useGameStore();
+const icon1 = img('img/animal_icon.png')
+const icon2 = img('img/animal_icon2.png')
 const lineIndex = ref(0);
 const lineReady = ref(false);
 const dialogRef = ref(null);
@@ -321,7 +324,7 @@ function onOverlayClick() {
   width: min(440px, 88vw);
   clip-path: url(#animal-modal-clip);
   background:
-    url('/img/background/overlay_card_ceremony.png') bottom center/auto 36px no-repeat,
+    var(--overlay-card-ceremony) bottom center/auto 36px no-repeat,
     rgb(247, 243, 223);
   box-shadow:
     0 4px 12px rgba(107, 92, 67, 0.45),

@@ -210,12 +210,12 @@ export const RESOURCE_CHARS = RESOURCES.map(r => r.char)
 export const ROT_CHAR = 'r'
 
 export const MILK_TEA_IMAGES = {
-  grape: '/img/milktea/ToolTapioca0.png',
-  wood: '/img/milktea/ToolTapioca1.png',
-  stone: '/img/milktea/ToolTapioca2.png',
-  clay: '/img/milktea/ToolTapioca3.png',
-  herb: '/img/milktea/ToolTapioca4.png',
-  magic: '/img/milktea/ToolTapioca5.png'
+  grape: 'img/milktea/ToolTapioca0.png',
+  wood: 'img/milktea/ToolTapioca1.png',
+  stone: 'img/milktea/ToolTapioca2.png',
+  clay: 'img/milktea/ToolTapioca3.png',
+  herb: 'img/milktea/ToolTapioca4.png',
+  magic: 'img/milktea/ToolTapioca5.png'
 }
 
 /**
@@ -904,7 +904,7 @@ export const MONSTERS = {
     char: 'N',
     name: '螳螂',
     emoji: '🦗',
-    img: '/img/monsters/mantis.png',
+    img: 'img/monsters/mantis.png',
     uiLabel: '螳螂',
     uiWeaknessShort:
       '它举着镰刀手臂很威风狸~但旁边凑三个果子就能让它慌了阵脚狸！',
@@ -932,7 +932,7 @@ export const MONSTERS = {
     char: 'D',
     name: '水黾',
     emoji: '🪲',
-    img: '/img/monsters/water-strider.png',
+    img: 'img/monsters/water-strider.png',
     uiLabel: '水黾',
     uiWeaknessShort: '水黾在水面上站得很稳狸~但旁边凑三个就能让它脚底打滑狸！',
     uiPressureShort: '',
@@ -959,7 +959,7 @@ export const MONSTERS = {
     char: 'G',
     name: '蜣螂',
     emoji: '🪲',
-    img: '/img/monsters/dung-beetle.png',
+    img: 'img/monsters/dung-beetle.png',
     uiLabel: '蜣螂',
     uiWeaknessShort: '蜣螂推着粪球很专注狸~旁边凑三个它就会分心出错狸！',
     uiPressureShort: '',
@@ -986,7 +986,7 @@ export const MONSTERS = {
     char: 'C',
     name: '大蓝闪蝶',
     emoji: '🦋',
-    img: '/img/monsters/blue-morpho.png',
+    img: 'img/monsters/blue-morpho.png',
     uiLabel: '大蓝闪蝶',
     uiWeaknessShort: '闪蝶的翅膀太漂亮了狸~旁边凑三个它就会被吸引过来狸！',
     uiPressureShort: '',
@@ -1013,7 +1013,7 @@ export const MONSTERS = {
     char: 'W',
     name: '人面樁象',
     emoji: '🪲',
-    img: '/img/monsters/face-bug.png',
+    img: 'img/monsters/face-bug.png',
     uiLabel: '人面樁象',
     uiWeaknessShort: '它背上的花纹很吓人狸~但旁边凑三个它自己也会害怕狸！',
     uiPressureShort: '',
@@ -1040,7 +1040,7 @@ export const MONSTERS = {
     char: 'T',
     name: '狼蛛',
     emoji: '🕷️',
-    img: '/img/monsters/狼蛛.png',
+    img: 'img/monsters/狼蛛.png',
     uiLabel: '狼蛛',
     uiWeaknessShort: '狼蛛很凶狸~但旁边凑三个它也会心虚地缩起腿狸！',
     uiPressureShort: '',
@@ -1068,7 +1068,7 @@ export const MONSTERS = {
     char: 'R',
     name: '螃蟹',
     emoji: '🦀',
-    img: '/img/monsters/螃蟹.png',
+    img: 'img/monsters/螃蟹.png',
     uiLabel: '螃蟹',
     uiWeaknessShort: '螃蟹横着走路很嚣张狸~但旁边凑三个它就会缩回壳里狸！',
     uiPressureShort: '',
@@ -1095,7 +1095,7 @@ export const MONSTERS = {
     char: 'P',
     name: '虾夷扇贝',
     emoji: '🐚',
-    img: '/img/monsters/虾夷扇贝.png',
+    img: 'img/monsters/虾夷扇贝.png',
     uiLabel: '虾夷扇贝',
     uiWeaknessShort: '扇贝的壳很硬狸~但旁边凑三个它就会忍不住打开看看狸！',
     uiPressureShort: '',

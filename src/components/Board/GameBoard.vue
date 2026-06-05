@@ -345,6 +345,7 @@ import BoardEntity from './BoardEntity.vue'
 import { audioManager, getItemSFXVol } from '@/audio/AudioManager'
 import { COMMON_COPY, TARGETING_COPY } from '@/data/copy'
 import EventBus from '@/core/eventBus'
+import { img } from '@/utils/assets'
 import { getBoard, resetBoard, SEP, HOLE } from '@/core/board'
 import { useTileDrag } from '@/composables/useTileDrag'
 import { useGameStore } from '@/stores/gameStore'
@@ -2237,7 +2238,7 @@ function triggerMilkTeaBarrageFx(resourceId) {
 
   if (milkTeaResultTimer) clearTimeout(milkTeaResultTimer)
   milkTeaResultTimer = setTimeout(() => {
-    milkTeaResult.value = MILK_TEA_IMAGES[resourceId] || null
+    milkTeaResult.value = MILK_TEA_IMAGES[resourceId] ? img(MILK_TEA_IMAGES[resourceId]) : null
     milkTeaResultTimer = setTimeout(() => {
       milkTeaResult.value = null
       audioManager.playSFX('gfuel', { vol: 0.5 })
@@ -2748,8 +2749,7 @@ function onXrayScan(payload = {}) {
       rgba(255, 248, 235, 0.5),
       rgba(200, 185, 160, 0.55)
     ),
-    var(--game-bg, url('/img/background/board_bg_01.webp')) center/cover
-      no-repeat;
+    var(--game-bg, none) center/cover no-repeat;
   box-shadow:
     inset 0 0 0 1px rgba(255, 245, 222, 0.08),
     inset 0 0 0 3px rgba(114, 93, 66, 0.18),
