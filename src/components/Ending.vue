@@ -306,7 +306,7 @@
     <div v-if="receiptVisible" class="receipt-machine" @click.stop>
       <div class="receipt-machine-top">
         <img
-          :src="`${baseUrl}img/background/FtrCashier.png`"
+          :src="img('img/background/FtrCashier.png')"
           class="receipt-machine-bg"
           alt="收银机"
         />
@@ -322,7 +322,7 @@
           @keydown.space.stop.prevent="openReceiptZoom"
         >
           <img
-            :src="`${baseUrl}img/nook-receipt.png`"
+            :src="img('img/nook-receipt.png')"
             class="receipt-image"
             alt="报酬收据"
           />
@@ -353,7 +353,7 @@
           @click.stop
         >
           <img
-            :src="`${baseUrl}img/nook-receipt.png`"
+            :src="img('img/nook-receipt.png')"
             class="receipt-zoom-image"
             alt="放大的报酬收据"
           />
@@ -371,11 +371,11 @@ import { useAchievementStore } from '@/stores/achievementStore'
 import { useGameStore } from '@/stores/gameStore'
 import html2canvas from 'html2canvas'
 import { ENDING } from '@/data/content'
+import { assetUrl, img } from '@/utils/assets'
 
 const achievement = useAchievementStore()
 const game = useGameStore()
 const emit = defineEmits(['restart'])
-const baseUrl = import.meta.env.BASE_URL
 
 const currentAct = ref(0)
 const linesRevealed = ref(0)
@@ -400,17 +400,17 @@ const ownedWillItems = computed(() =>
 )
 const revealedGifts = computed(() => [
   {
-    src: `${baseUrl}img/gift.jpg`,
+    src: img('img/gift.jpg'),
     alt: '第一份礼物',
     label: '第一份礼物'
   },
   {
-    src: `${baseUrl}img/gift2.jpg`,
+    src: img('img/gift2.jpg'),
     alt: '第二份礼物',
     label: '第二份礼物'
   }
 ])
-const receiptBgUrl = computed(() => `${baseUrl}img/background/reciveBg.jpg`)
+const receiptBgUrl = computed(() => img('img/background/reciveBg.jpg'))
 const pigIntimacyScore = computed(() =>
   Math.max(0, Math.min(8, Number(game.pigIntimacy) || 0))
 )
@@ -637,13 +637,12 @@ function buildPosterHTML() {
   const ws = willScreen.value
   const items = ownedWillItems.value
   const location = willLocationText.value
-  const base = window.location.origin + baseUrl
   const intimacy = pigIntimacyScore.value
   const hearts = pigIntimacyHearts.value
   const itemIcons = items
     .map(i => {
       const imgId = i.id === 'stye_devil' ? 'stye' : i.id
-      return `<span class="pi"><img src="${base}img/isaac/${imgId}.png" alt="${i.name || i.id}" /></span>`
+      return `<span class="pi"><img src="${assetUrl(`img/isaac/${imgId}.png`)}" alt="${i.name || i.id}" /></span>`
     })
     .join('')
 
@@ -697,7 +696,7 @@ body{display:flex;align-items:center;justify-content:center;min-height:100vh;bac
 <div class="deco-row"><span>🎂</span><span>🎉</span><span>🎈</span></div>
 <p class="sub">${ws.clearedLine}<br>${location}</p>
 <div class="svg-divider"></div>
-<div class="gift-stage"><div class="gift-box"><img class="gift-img" src="${base}img/gift.jpg" /></div><div class="gift-box"><img class="gift-img" src="${base}img/gift2.jpg" /></div></div>
+<div class="gift-stage"><div class="gift-box"><img class="gift-img" src="${assetUrl('img/gift.jpg')}" /></div><div class="gift-box"><img class="gift-img" src="${assetUrl('img/gift2.jpg')}" /></div></div>
 <div class="svg-divider"></div>
 <div class="pig-stage"><div class="pig-top"><span class="pig-icon">🐷</span><span class="pig-badge"><span class="pig-badge-k">好感度</span><span class="pig-badge-v">${intimacy}/8</span><span class="pig-badge-h">${hearts}</span></span></div><p class="pig-line pig-line-em">${intimacy >= 8 ? ws.pigIntimateLine : ws.pigCompanionLine2}</p><p class="pig-line">${ws.pigCompanionLine1}</p><p class="pig-line pig-line-sub">${ws.pigCompanionLine3}</p></div>
 <div class="svg-divider"></div>

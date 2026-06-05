@@ -175,9 +175,10 @@ import TutorialOverlay from './components/TutorialOverlay.vue'
 import Title from './components/Title.vue'
 import GameContainer from './components/GameContainer.vue'
 import Ending from './components/Ending.vue'
+import { audioManager } from '@/audio/AudioManager'
 import { useAudio } from '@/composables/useAudio'
 import { setCSSAssetVars } from '@/utils/assets'
-import { preloadImages, getCriticalImages } from '@/utils/preload'
+import { preloadImages, getAllImages } from '@/utils/preload'
 import { REWARD_ITEMS } from '@/data/content'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { useGameStore } from '@/stores/gameStore'
@@ -185,6 +186,8 @@ import { useGameStore } from '@/stores/gameStore'
 const achievement = useAchievementStore()
 const game = useGameStore()
 useAudio()
+const AUDIO_PRELOAD_MODE =
+  import.meta.env.VITE_PRELOAD_AUDIO_MODE || (import.meta.env.DEV ? 'all' : 'critical')
 const testerToast = ref('')
 const showTesterPanel = ref(false)
 const showTutorial = ref(false)
@@ -408,6 +411,18 @@ function showTesterToast(text) {
   }, 1800)
 }
 
+function scheduleBackgroundAudioWarmup() {
+  if (AUDIO_PRELOAD_MODE === 'all' || typeof window === 'undefined') return
+  const warmup = () => {
+    audioManager.preloadAll().catch(() => {})
+  }
+  if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(warmup, { timeout: 5000 })
+    return
+  }
+  window.setTimeout(warmup, 1200)
+}
+
 // Day-tinted body backdrop (CSS hooks live in tokens.css).
 watchEffect(() => {
   if (typeof document === 'undefined') return
@@ -424,17 +439,49 @@ onMounted(async () => {
   document.body.dataset.phase = 'title'
   window.addEventListener('keydown', onTesterKeydown)
 
-  // Preload critical images during loading sequence
-  preloadImages(getCriticalImages()).catch(() => {})
-
-  // Loading sequence — minimum 1.5s display time
+  // Loading sequence — warm all static images and audio blobs before play.
   const loadStart = performance.now()
-  loadProgress.value = 20
-  await document.fonts?.ready
-  loadProgress.value = 60
-  await new Promise(r => setTimeout(r, 400))
-  loadProgress.value = 90
-  await new Promise(r => setTimeout(r, 300))
+  const imageProgress = { done: 0, total: 1 }
+  const audioProgress = { done: 0, total: 1 }
+  let fontsReady = false
+  const preloadAudio =
+    AUDIO_PRELOAD_MODE === 'all'
+      ? audioManager.preloadAll.bind(audioManager)
+      : audioManager.preloadCritical.bind(audioManager)
+
+  const updateLoadProgress = () => {
+    const imageRatio = imageProgress.total
+      ? imageProgress.done / imageProgress.total
+      : 1
+    const audioRatio = audioProgress.total
+      ? audioProgress.done / audioProgress.total
+      : 1
+    const fontRatio = fontsReady ? 1 : 0
+    loadProgress.value = Math.min(
+      99,
+      Math.round(5 + imageRatio * 40 + audioRatio * 48 + fontRatio * 7)
+    )
+  }
+
+  loadProgress.value = 5
+  await Promise.all([
+    (document.fonts?.ready ?? Promise.resolve())
+      .catch(() => {})
+      .then(() => {
+        fontsReady = true
+        updateLoadProgress()
+      }),
+    preloadImages(getAllImages(), (done, total) => {
+      imageProgress.done = done
+      imageProgress.total = total
+      updateLoadProgress()
+    }),
+    preloadAudio((done, total) => {
+      audioProgress.done = done
+      audioProgress.total = total
+      updateLoadProgress()
+    })
+  ])
   loadProgress.value = 100
 
   // Ensure minimum display time so users can appreciate the loading screen
@@ -445,6 +492,7 @@ onMounted(async () => {
   // Mount game content behind the loading screen before its closing animation starts
   await nextTick()
   loading.value = false
+  scheduleBackgroundAudioWarmup()
   // LoadingScreen emits 'done' → loadingScreenVisible = false after wipe animation
 })
 

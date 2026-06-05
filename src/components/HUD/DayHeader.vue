@@ -140,8 +140,9 @@ onBeforeUnmount(() => {
   align-items: center;
   padding: 12px 22px;
   border-radius: 16px;
-  width: 600px;
-  max-width: 96vw;
+  width: min(600px, calc(100vw - 44px));
+  min-height: 48px;
+  flex: 0 0 auto;
   margin: 0 auto 14px;
   background: rgb(247, 243, 223);
   border: 2px solid #d4c9b4;
@@ -162,6 +163,7 @@ onBeforeUnmount(() => {
 .middle {
   flex: 1;
   justify-content: center;
+  min-width: 0;
 }
 .brand {
   font-weight: 700;
@@ -267,6 +269,28 @@ onBeforeUnmount(() => {
     color 300ms var(--ease-out-expo),
     letter-spacing 300ms var(--ease-out-expo),
     text-shadow 300ms var(--ease-out-expo);
+}
+
+@media (max-width: 640px) {
+  .day-header {
+    width: calc(100vw - 28px);
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  .building {
+    padding: 4px 10px;
+    font-size: 15px;
+  }
+
+  .brand,
+  .cost-label {
+    letter-spacing: 0.1em;
+  }
+
+  .steps {
+    padding-left: 10px;
+  }
 }
 
 .step-value.low {

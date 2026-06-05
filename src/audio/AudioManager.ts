@@ -5,6 +5,7 @@ const MAX_SFX = 4;
 const DEFAULT_SFX_PRIORITY = 2;
 const BGM_FADE_MS = 1200;
 const AMBIENT_FADE_MS = 1800;
+const AUDIO_PRELOAD_CONCURRENCY = 6;
 
 const AC_BASE = 'animalcrossingnewhorizons';
 const ISAAC_BASE = 'isaac';
@@ -538,6 +539,174 @@ function createAudio(src: string) {
   return audio;
 }
 
+const BGM_PRELOAD_FILES = [
+  `${AC_BASE}/Bgm/1-05 500 a.m. (~Sunny Weather~).mp3`,
+  `${AC_BASE}/Bgm/1-10 1000 a.m. (~Sunny Weather~).mp3`,
+  `${AC_BASE}/Bgm/2-03 300 p.m. (~Sunny Weather~).mp3`,
+  `${AC_BASE}/Bgm/2-06 600 p.m. (~Sunny Weather~).mp3`,
+  `${AC_BASE}/Bgm/2-12 Midnight (~Sunny Weather~).mp3`,
+  `${AC_BASE}/Bgm/3-01 Main Theme - Welcome Horizons.mp3`,
+  `${AC_BASE}/Bgm/3-07 Completion Fanfare.mp3`,
+  `${AC_BASE}/Bgm/3-11 Into Dreams....mp3`,
+  `${AC_BASE}/Bgm/3-43 Ceremony.mp3`,
+  `${AC_BASE}/Bgm/3-50 Able Sisters - Welcome To The Able Sisters!.mp3`,
+  `${AC_BASE}/Bgm/4-01 Release Day Update 1.1.0 ~ Bunny Day - Bunny Day with Zipper T. Bunny.mp3`,
+];
+
+const ISAAC_PRELOAD_FILES = [
+  'power up1.wav',
+  'health up 1.wav',
+  'unholy!.wav',
+  'superholy.wav',
+  'penny pickup 1.wav',
+  '48 hr energy.wav',
+  'battery charge.wav',
+  'holy!.wav',
+  'whip_02.wav',
+  'dog howell.wav',
+  'dog bark.wav',
+  'blood laser strong 1.wav',
+  'knife_pull.wav',
+  'r u a wiz 2.wav',
+  'vamp.wav',
+  'redlightning_burst01.wav',
+  'maw of the void.wav',
+  'see 4ever 1.wav',
+  'luck up.wav',
+  'explosion_weak1.wav',
+  'gfuel 1.wav',
+  'gfuel 2.wav',
+  'gfuel 3.wav',
+  'gfuel 4.wav',
+].map(file => `${ISAAC_BASE}/${file}`);
+
+function toArray<T>(entry: T | T[]): T[] {
+  return Array.isArray(entry) ? entry : [entry];
+}
+
+function collectPreloadAudioFiles() {
+  const files = new Set<string>();
+  const add = (file?: string | null) => {
+    if (file) files.add(file);
+  };
+
+  BGM_PRELOAD_FILES.forEach(add);
+  ISAAC_PRELOAD_FILES.forEach(add);
+  Object.values(AC_SFX_MAP).forEach(add);
+  Object.values(AC_SFX_MULTI).flat().forEach(add);
+  Object.values(AC_AMBIENT_MULTI).flat().forEach(add);
+  Object.values(AMBIENT_INTERMITTENT)
+    .flat()
+    .flatMap(group => group.files)
+    .forEach(add);
+  Object.values(AC_PRAISE).forEach(add);
+  COMBO_UI_PATH.forEach(add);
+
+  for (const entry of [...AC_MATCH, ...AC_COMBO, ...AC_DROP]) {
+    for (const file of toArray(entry)) {
+      add(`${AC_BASE}/Trees & Plants/${file}`);
+    }
+  }
+
+  return [...files];
+}
+
+const CRITICAL_SFX_KEYS = [
+  'click',
+  'pageflip',
+  'error',
+  'swap',
+  'land',
+  'spawn',
+  'lineclear',
+  'hint',
+  'lowsteps',
+  'steprestore',
+  'resourcegain',
+  'stepcost',
+  'taskcomplete',
+  'item_get',
+  'itemhover',
+  'tutorialstep',
+  'dialogopen',
+  'dialogclose',
+  'dayendopen',
+  'ability_wolf',
+  'ability_harvest',
+  'ability_roach',
+  'ability_sunset',
+  'decoction',
+  'lilac',
+  'xray',
+  'seal_break',
+  'rune_hit',
+  'achievement',
+  'pig_gentle',
+  'pig_warm',
+  'pig_warning',
+  'pig_annoyed',
+  'pig_angry',
+  'pig_idle',
+  'pig_sniff',
+  'pig_energy',
+  'gfuel',
+  ...Object.values(ITEM_SFX_MAP).flatMap(({ pickup, effect }) =>
+    effect ? [pickup, effect] : [pickup]
+  ),
+];
+
+function collectCriticalAudioFiles() {
+  const files = new Set<string>();
+  const add = (file?: string | null) => {
+    if (file) files.add(file);
+  };
+
+  for (const key of CRITICAL_SFX_KEYS) {
+    add(AC_SFX_MAP[key]);
+    AC_SFX_MULTI[key]?.forEach(add);
+  }
+
+  ISAAC_PRELOAD_FILES.forEach(add);
+  Object.values(AC_PRAISE).forEach(add);
+  COMBO_UI_PATH.forEach(add);
+
+  for (const entry of [...AC_MATCH, ...AC_COMBO, ...AC_DROP]) {
+    for (const file of toArray(entry)) {
+      add(`${AC_BASE}/Trees & Plants/${file}`);
+    }
+  }
+
+  return [...files];
+}
+
+async function runPreloadQueue<T>(
+  items: T[],
+  worker: (item: T) => Promise<void>,
+  concurrency: number,
+  onProgress?: (done: number, total: number) => void
+) {
+  const queue = [...items];
+  const total = queue.length;
+  let done = 0;
+
+  onProgress?.(done, total);
+  if (!total) return;
+
+  const workers = Array.from(
+    { length: Math.min(concurrency, total) },
+    async () => {
+      while (queue.length) {
+        const item = queue.shift()!;
+        await worker(item).catch(() => { });
+        done += 1;
+        onProgress?.(done, total);
+      }
+    }
+  );
+
+  await Promise.all(workers);
+}
+
 class AudioChannel {
   audio: HTMLAudioElement | null = null;
   name = '';
@@ -567,6 +736,7 @@ export class AudioManager {
   private initPromise: Promise<void> | null = null;
 
   private readonly preloadCache = new Map<string, Promise<void>>();
+  private readonly blobCache = new Map<string, string>();
   private readonly listeners = new Set<() => void>();
   private readonly sfxLastPlayedAt = new Map<string, number>();
   private readonly sfxGroupLastPlayedAt = new Map<string, number>();
@@ -612,44 +782,42 @@ export class AudioManager {
       }
     }
 
-    const preloadAC = (p: string) => this.preload(`${AC_BASE}/${p}`);
-    await Promise.all([
-      preloadAC('UI & System/UI_Decide.wav'),
-      preloadAC('UI & System/UI_WipeRemake_In.wav'),
-      preloadAC('UI & System/UI_WipeToIdrDream.wav'),
-      preloadAC('UI & System/System_Lumi_01.wav'),
-      preloadAC(`Trees & Plants/Tree_Shake_RandomRainDrop_00.wav`),
-      preloadAC(`Trees & Plants/${pickOne(AC_MATCH[0])}`),
-      preloadAC(`Trees & Plants/${pickOne(AC_MATCH[3])}`),
-      preloadAC(`Trees & Plants/${pickOne(AC_MATCH[7])}`),
-      preloadAC(`Trees & Plants/${pickOne(AC_COMBO[0])}`),
-      preloadAC(`Trees & Plants/${pickOne(AC_COMBO[4])}`),
-      preloadAC('UI & System/UI_Swkbd_Normal.wav'),
-      preloadAC('Rosie Emotes/RosiePleased.mp3'),
-      preloadAC('Rosie Emotes/RosieDelight.mp3'),
-      preloadAC('Rosie Emotes/RosieAmazed.mp3'),
-      preloadAC('Rosie Emotes/RosieInspiration.mp3'),
-      preloadAC('Rosie Emotes/RosieShowmanship.mp3'),
-      preloadAC('Environment/BbsBirdDay_TwitterAc00.wav'),
-      preloadAC('UI & System/UI_Count_Mile_Repeat_01.wav'),
-      preloadAC('UI & System/Event_Quest_Finish.wav'),
-      preloadAC('UI & System/UI_Count_Mile_Repeat_01.wav'),
-      preloadAC('UI & System/Event_Harvest_Bell00.wav'),
-      preloadAC('UI & System/UI_MessageWindow_Open.wav'),
-      preloadAC('UI & System/UI_Cmn_Close.wav'),
-      preloadAC('UI & System/UI_Cmn_Open.wav'),
-      preloadAC('UI & System/UI_Select.wav'),
-      preloadAC('UI & System/UI_Check.wav'),
-      preloadAC('Rosie Emotes/RosieGreetings.mp3'),
-
-      // Isaac item sounds
-      this.preload(`${ISAAC_BASE}/power up1.wav`),
-      this.preload(`${ISAAC_BASE}/health up 1.wav`),
-      this.preload(`${ISAAC_BASE}/unholy!.wav`),
-      this.preload(`${ISAAC_BASE}/superholy.wav`),
-    ]);
-
     this.initialized = true;
+  }
+
+  private async getAudioSrc(filePath: string): Promise<string> {
+    if (this.blobCache.has(filePath)) return this.blobCache.get(filePath)!;
+    const url = `${import.meta.env.BASE_URL}audio/${filePath}`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Audio preload failed: ${response.status}`);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      this.blobCache.set(filePath, blobUrl);
+      return blobUrl;
+    } catch {
+      return url;
+    }
+  }
+
+  preloadAll(onProgress?: (done: number, total: number) => void) {
+    const files = collectPreloadAudioFiles();
+    return runPreloadQueue(
+      files,
+      file => this.preload(file),
+      AUDIO_PRELOAD_CONCURRENCY,
+      onProgress
+    );
+  }
+
+  preloadCritical(onProgress?: (done: number, total: number) => void) {
+    const files = collectCriticalAudioFiles();
+    return runPreloadQueue(
+      files,
+      file => this.preload(file),
+      AUDIO_PRELOAD_CONCURRENCY,
+      onProgress
+    );
   }
 
   private async ensureReady() {
@@ -667,13 +835,7 @@ export class AudioManager {
   private preload(fileName: string) {
     if (this.preloadCache.has(fileName)) return this.preloadCache.get(fileName)!;
 
-    const promise = new Promise<void>((resolve) => {
-      const audio = createAudio(`${import.meta.env.BASE_URL}audio/${fileName}`);
-      const finish = () => resolve();
-      audio.addEventListener('canplaythrough', finish, { once: true });
-      audio.addEventListener('error', finish, { once: true });
-      audio.load();
-    });
+    const promise = this.getAudioSrc(fileName).then(() => {}).catch(() => {});
 
     this.preloadCache.set(fileName, promise);
     return promise;
@@ -731,7 +893,8 @@ export class AudioManager {
     const file = group.files[Math.floor(Math.random() * group.files.length)];
     const vol = group.vol[0] + Math.random() * (group.vol[1] - group.vol[0]);
     if (!this.reserveSFXSlot(1, false)) return;
-    const audio = createAudio(`${import.meta.env.BASE_URL}audio/${file}`);
+    const src = await this.getAudioSrc(file);
+    const audio = createAudio(src);
     audio.volume = clamp(vol * this._ambientVolume, 0, 1);
     audio.dataset.baseVolume = String(audio.volume);
     audio.dataset.priority = '1';
@@ -766,7 +929,8 @@ export class AudioManager {
     const multi = AC_SFX_MULTI[name];
     const pool = multi ?? (AC_SFX_MAP[name] ? [AC_SFX_MAP[name]] : []);
     const acPath = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : null;
-    const src = acPath ? `${import.meta.env.BASE_URL}audio/${acPath}` : `${import.meta.env.BASE_URL}audio/sfx_${name}.mp3`;
+    const srcPath = acPath ?? `sfx_${name}.mp3`;
+    const src = await this.getAudioSrc(srcPath);
     const priority = opts.priority ?? SFX_CHANNEL_PRIORITY[name] ?? DEFAULT_SFX_PRIORITY;
     if (!this.reserveSFXSlot(priority, opts.interrupt ?? priority >= 3)) return;
     const audio = createAudio(src);
@@ -839,7 +1003,7 @@ export class AudioManager {
     });
   }
 
-  playMonster(type: string, event: MonsterEvent) {
+  async playMonster(type: string, event: MonsterEvent) {
     void type;
     const map: Record<string, string> = {
       spawn: `${AC_BASE}/Trees & Plants/Tree_Appear_Normal_00.wav`,
@@ -849,7 +1013,8 @@ export class AudioManager {
     const path = map[event];
     if (!path) return;
     if (!this.reserveSFXSlot(2, false)) return;
-    const audio = createAudio(`${import.meta.env.BASE_URL}audio/${path}`);
+    const src = await this.getAudioSrc(path);
+    const audio = createAudio(src);
     audio.volume = clamp(0.5 * this._sfxVolume, 0, 1);
     audio.dataset.baseVolume = String(audio.volume);
     audio.dataset.priority = '2';
@@ -941,8 +1106,9 @@ export class AudioManager {
     loop: boolean
   ) {
     await this.preload(fileName);
-    const src = `${import.meta.env.BASE_URL}audio/${fileName}`;
-    if (channel.name === src && channel.audio) {
+    const blobSrc = await this.getAudioSrc(fileName);
+    const originalSrc = `${import.meta.env.BASE_URL}audio/${fileName}`;
+    if (channel.name === originalSrc && channel.audio) {
       channel.audio.loop = loop;
       channel.audio.volume = this._isMuted ? 0 : this.getChannelTargetVolume(kind);
       if (channel.audio.paused && !this._isMuted) {
@@ -952,13 +1118,13 @@ export class AudioManager {
     }
 
     const loadToken = ++channel.loadToken;
-    const nextAudio = createAudio(src);
+    const nextAudio = createAudio(blobSrc);
     nextAudio.loop = loop;
     nextAudio.volume = 0;
 
     const previous = channel.audio;
     channel.audio = nextAudio;
-    channel.name = src;
+    channel.name = originalSrc;
 
     try {
       await nextAudio.play();
@@ -1073,7 +1239,8 @@ export class AudioManager {
     }
     const priority = opts.priority ?? DEFAULT_SFX_PRIORITY;
     if (!this.reserveSFXSlot(priority, opts.interrupt ?? priority >= 3)) return;
-    const audio = createAudio(`${import.meta.env.BASE_URL}audio/${actualFile}`);
+    const looseSrc = await this.getAudioSrc(actualFile);
+    const audio = createAudio(looseSrc);
     const baseVolume = clamp((opts.vol ?? 1) * this._sfxVolume, 0, 1);
     audio.volume = baseVolume;
     audio.playbackRate = clamp(opts.rate ?? 1, 0.5, 2);

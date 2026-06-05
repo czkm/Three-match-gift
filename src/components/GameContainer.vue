@@ -1,5 +1,5 @@
 <template>
-  <div class="game-container">
+  <div class="game-container" :style="gameContainerStyle">
     <DayHeader />
 
     <div class="game-main">
@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { audioManager } from '@/audio/AudioManager'
 import DayHeader from './HUD/DayHeader.vue'
 import ResourceBar from './HUD/ResourceBar.vue'
@@ -63,6 +63,12 @@ import { useGameStore } from '@/stores/gameStore'
 
 const game = useGameStore()
 const boardEl = ref(null)
+const MIN_WIDTH_SCALE = 0.8
+const MIN_LAYOUT_WIDTH = 960
+const FULL_LAYOUT_WIDTH = 1280
+const widthScale = ref(
+  typeof window === 'undefined' ? 1 : calculateWidthScale(window.innerWidth)
+)
 const showEstateStrip = computed(() =>
   [
     'intro',
@@ -75,6 +81,22 @@ const showEstateStrip = computed(() =>
     'djinnTransition'
   ].includes(game.phase)
 )
+const gameContainerStyle = computed(() => ({
+  '--game-main-scale-x': String(widthScale.value)
+}))
+
+function calculateWidthScale(width) {
+  if (width <= MIN_LAYOUT_WIDTH) return MIN_WIDTH_SCALE
+  if (width >= FULL_LAYOUT_WIDTH) return 1
+  const progress =
+    (width - MIN_LAYOUT_WIDTH) / (FULL_LAYOUT_WIDTH - MIN_LAYOUT_WIDTH)
+  return Number((MIN_WIDTH_SCALE + progress * (1 - MIN_WIDTH_SCALE)).toFixed(4))
+}
+
+function updateWidthScale() {
+  if (typeof window === 'undefined') return
+  widthScale.value = calculateWidthScale(window.innerWidth)
+}
 
 function onIntroDone() {
   audioManager.playSFX('click')
@@ -92,17 +114,36 @@ function onRepairAdvance() {
 function onRewardChoose(itemId) {
   game.chooseRewardItem(itemId)
 }
+
+onMounted(() => {
+  updateWidthScale()
+  window.addEventListener('resize', updateWidthScale, { passive: true })
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateWidthScale)
+})
 </script>
 
 <style scoped>
 .game-container {
+  --game-main-scale-x: 1;
+  --game-main-scale-y: 1;
+  --game-main-scale: min(var(--game-main-scale-x), var(--game-main-scale-y));
+  --game-pad-x: 22px;
+  --game-pad-top: 18px;
+  --game-pad-bottom: 30px;
   position: relative;
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 18px 22px 30px;
+  padding:
+    calc(var(--game-pad-top) + env(safe-area-inset-top, 0px))
+    max(var(--game-pad-x), env(safe-area-inset-right, 0px))
+    calc(var(--game-pad-bottom) + env(safe-area-inset-bottom, 0px))
+    max(var(--game-pad-x), env(safe-area-inset-left, 0px));
   overflow: hidden;
   isolation: isolate;
 }
@@ -147,27 +188,43 @@ function onRewardChoose(itemId) {
 }
 
 .game-main {
-  --game-main-scale: 1;
   width: 100%;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   gap: 24px;
   margin-top: 6px;
-  transform: scale(var(--game-main-scale));
-  transform-origin: top center;
+  flex: 0 0 auto;
+  zoom: var(--game-main-scale);
 }
+
+@supports not (zoom: 1) {
+  .game-main {
+    transform: scale(var(--game-main-scale));
+    transform-origin: top center;
+  }
+}
+
 .side {
-  flex: none;
+  flex: 0 0 244px;
   display: flex;
   align-items: flex-start;
+  width: 244px;
+  min-width: 0;
 }
 
 .board-area {
   position: relative;
+  flex: 0 0 680px;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
 }
 
 .board-column {
+  width: 680px;
+  max-width: 100%;
+  flex: none;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -189,7 +246,9 @@ function onRewardChoose(itemId) {
 
 @media (max-width: 960px) {
   .game-container {
-    padding: 14px 16px 22px;
+    --game-pad-x: 16px;
+    --game-pad-top: 14px;
+    --game-pad-bottom: 22px;
   }
   .game-container::after {
     inset: 8px;
@@ -202,11 +261,11 @@ function onRewardChoose(itemId) {
 
 @media (max-height: 880px) {
   .game-container {
-    padding-top: 12px;
-    padding-bottom: 18px;
+    --game-main-scale-y: 0.94;
+    --game-pad-top: 12px;
+    --game-pad-bottom: 18px;
   }
   .game-main {
-    --game-main-scale: 0.94;
     margin-top: 2px;
   }
   .board-column {
@@ -216,11 +275,9 @@ function onRewardChoose(itemId) {
 
 @media (max-height: 820px) {
   .game-container {
-    padding-top: 8px;
-    padding-bottom: 12px;
-  }
-  .game-main {
-    --game-main-scale: 0.86;
+    --game-main-scale-y: 0.84;
+    --game-pad-top: 8px;
+    --game-pad-bottom: 12px;
   }
   .board-column {
     gap: 8px;
@@ -228,8 +285,8 @@ function onRewardChoose(itemId) {
 }
 
 @media (max-height: 760px) {
-  .game-main {
-    --game-main-scale: 0.8;
+  .game-container {
+    --game-main-scale-y: 0.78;
   }
 }
 </style>

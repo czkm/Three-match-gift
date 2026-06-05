@@ -839,8 +839,8 @@ onBeforeUnmount(() => {
 <style scoped>
 .estate-strip {
   position: relative;
-  width: 680px;
-  max-width: 92vw;
+  width: min(680px, 100%);
+  flex: none;
   min-height: 242px;
   padding: 16px 18px 16px;
   overflow: hidden;
@@ -864,12 +864,14 @@ onBeforeUnmount(() => {
   align-items: flex-start;
   gap: 16px;
   margin-bottom: 12px;
+  min-width: 0;
 }
 
 .title-group {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
 }
 
 .eyebrow {
@@ -888,6 +890,7 @@ onBeforeUnmount(() => {
   color: #725d42;
   line-height: 1.5;
   font-weight: 500;
+  overflow-wrap: anywhere;
 }
 
 .head-tags {
@@ -896,6 +899,7 @@ onBeforeUnmount(() => {
   gap: 8px;
   flex-wrap: wrap;
   justify-content: flex-end;
+  flex: none;
 }
 
 .phase-pill,
@@ -943,7 +947,7 @@ onBeforeUnmount(() => {
 
 .strip-scene {
   position: relative;
-  height: 192px;
+  height: clamp(168px, 24vh, 192px);
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid rgba(122, 90, 52, 0.26);
@@ -959,6 +963,20 @@ onBeforeUnmount(() => {
   box-shadow:
     inset 0 1px 0 rgba(255, 248, 230, 0.12),
     inset 0 -8px 16px rgba(114, 93, 66, 0.09);
+}
+
+@media (max-height: 760px) {
+  .estate-strip {
+    padding: 12px 14px 14px;
+  }
+
+  .strip-head {
+    margin-bottom: 8px;
+  }
+
+  .strip-scene {
+    height: 156px;
+  }
 }
 
 .strip-scene.time-morning {

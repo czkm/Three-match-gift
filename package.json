@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "postbuild": "node scripts/clean-dist-ds-store.mjs",
     "preview": "vite preview --port 4173"
   },
   "dependencies": {

@@ -8,10 +8,14 @@ export function img(path) {
   return `${BASE}${cleanPath(path)}`
 }
 
-function cssUrl(path) {
+export function assetUrl(path) {
   const value = img(path)
-  if (typeof document === 'undefined') return `url('${value}')`
-  const absolute = new URL(value, document.baseURI).href
+  if (typeof document === 'undefined') return value
+  return new URL(value, document.baseURI).href
+}
+
+function cssUrl(path) {
+  const absolute = assetUrl(path)
   return `url("${absolute.replace(/"/g, '\\"')}")`
 }
 

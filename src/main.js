@@ -10,3 +10,10 @@ import './assets/animations.css';
 const app = createApp(App);
 app.use(createPinia());
 app.mount('#app');
+
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    const swUrl = new URL('sw.js', window.location.href);
+    navigator.serviceWorker.register(swUrl).catch(() => {});
+  });
+}
