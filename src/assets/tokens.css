@@ -203,7 +203,7 @@
   --radius-card-organic:   var(--radius-organic);
 
   /* ── Typography tokens ── */
-  --font-body:    'Nunito', 'Noto Sans SC', 'Zen Maru Gothic', 'HarmonyOS Sans SC', 'MiSans', -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-body:    Nunito, 'Noto Sans SC', 'Zen Maru Gothic', -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   --font-size-sm:   12px;
   --font-size-base: 14px;
   --font-size-lg:   16px;
