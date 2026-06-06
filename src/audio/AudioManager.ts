@@ -1223,19 +1223,11 @@ export class AudioManager {
     if (!opts.bypassThrottle && !this.shouldPlayLooseFile(fileName)) return;
     await this.preload(fileName).catch(() => { });
 
-    let actualFile = fileName;
-    if (opts.actualPath) {
-      actualFile = opts.actualPath;
-    } else if (/^eliminate(\d+)\.mp3$/.test(fileName)) {
-      const i = parseInt(fileName.match(/\d+/)![0]) - 1;
-      const entry = AC_MATCH[i];
-      actualFile = `${AC_BASE}/Trees & Plants/${entry ? pickOne(entry) : 'FieldPlant_WaterDrop_00.wav'}`;
-    } else if (/^(?:contnuousMatch|combo)(\d+)\.mp3$/.test(fileName)) {
+    let actualFile = opts.actualPath || fileName;
+    if (!opts.actualPath && /^(?:contnuousMatch|combo)(\d+)\.mp3$/.test(fileName)) {
       const lvl = parseInt(fileName.match(/\d+/)![0]);
       const entry = AC_COMBO[lvl - 3];
       actualFile = `${AC_BASE}/Trees & Plants/${entry ? pickOne(entry) : 'Tree_Shake_Bamboo_Down1.wav'}`;
-    } else if (fileName === 'drop.mp3') {
-      actualFile = `${AC_BASE}/Trees & Plants/${pickOne(AC_DROP)}`;
     }
     const priority = opts.priority ?? DEFAULT_SFX_PRIORITY;
     if (!this.reserveSFXSlot(priority, opts.interrupt ?? priority >= 3)) return;

@@ -1017,34 +1017,29 @@ onBeforeUnmount(() => {
 
 /* ---------- new-day refresh on resource unlock ---------- */
 
-const _unlockedSnapshot = ref('')
 watch(
   () => game.currentDay,
   () => {
     if (!board.value) return
-    const fresh = unlockedCharsForDay(game.currentDay).join('')
-    if (fresh !== _unlockedSnapshot.value) {
-      _unlockedSnapshot.value = fresh
-      // Wait until the board is idle, then sweep + refill so the new
-      // resource lands gently amongst the old ones.
-      // Full refresh cycle: CLEAR_RETURN + FILL + SWAP_RETURN
-      const fillCycleMs =
-        TIMING.CLEAR_RETURN_MS +
-        (ROWS + COLS) * TIMING.FILL_DELAY_MS +
-        TIMING.SWAP_RETURN_MS +
-        200
-      setTimeout(() => {
-        if (board.value && board.value.canMove()) {
-          board.value.refreshBoard('newDay')
-        }
-        // After the fill animation fully settles, run xray if needed
-        if (game.xrayNeedsChars?.length) {
-          setTimeout(() => {
-            onXrayScan({ needsChars: game.xrayNeedsChars })
-          }, fillCycleMs)
-        }
-      }, 80)
-    }
+    // Wait until the board is idle, then sweep + refill so the new
+    // resource lands gently amongst the old ones.
+    // Full refresh cycle: CLEAR_RETURN + FILL + SWAP_RETURN
+    const fillCycleMs =
+      TIMING.CLEAR_RETURN_MS +
+      (ROWS + COLS) * TIMING.FILL_DELAY_MS +
+      TIMING.SWAP_RETURN_MS +
+      200
+    setTimeout(() => {
+      if (board.value && board.value.canMove()) {
+        board.value.refreshBoard('newDay')
+      }
+      // After the fill animation fully settles, run xray if needed
+      if (game.xrayNeedsChars?.length) {
+        setTimeout(() => {
+          onXrayScan({ needsChars: game.xrayNeedsChars })
+        }, fillCycleMs)
+      }
+    }, 80)
   },
   { immediate: true }
 )
