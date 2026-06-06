@@ -602,8 +602,7 @@ export const REWARD_ITEMS = {
     emoji: '🧟',
     slot: 'back',
     tone: 'devil',
-    description:
-      '每天首次行动随机扣除修复进度（3~5），累计 2~4 次后补充小猪能量 5 格。完成后本日不再触发。',
+    description: '每天首次行动随机扣除修复进度，几次后补充小猪能量 5 格。',
     effect: {
       type: 'chaoticSabotage',
       minTriggers: 2,
